@@ -1,7 +1,10 @@
 #ifndef IOM_base_h
 #define IOM_base_h
 
-//#include "HAL_DI11.h"
+#include "HAL_DI11.h"
+#include "HAL_AI11.h"
+#include "HAL_DO11.h"
+#include "HAL_REL11.h"
 
 //--------------------------------------------------------------------
 //Typdefinitionen
@@ -20,9 +23,9 @@ class Flankenauswertung
 {
     public:
     Flankenauswertung();
-    Flankenauswertung(s_digitalInputState_t* P_STATE);
+    Flankenauswertung(void* P_STATE);
 
-    void    begin       (s_digitalInputState_t* P_STATE);
+    void    begin       ();
     bool 	high		();
     bool	low		    ();
 	bool 	posFlank	();	
@@ -38,15 +41,14 @@ class DigitalSetter
 {
     public:
     DigitalSetter   ();
-    DigitalSetter   (uint8_t PORT, HAL_IO* P_HAL);
-    void    begin   (uint8_t PORT, HAL_IO* P_HAL);
+    void    begin   ();
     void 	setState(const bool STATE);
     void    set     ();
     void    reset   ();
     bool    get     ();
 
     private:
-    HAL_IO*     p_hal;
+
     uint8_t     port;
 };
 //--------------------------------------------------------------------
@@ -56,14 +58,14 @@ class AnalogSetter
 {
     public:
     AnalogSetter        ();
-    AnalogSetter        (uint8_t PORT, HAL_IO* P_HAL);
-    void        begin   (uint8_t PORT, HAL_IO* P_HAL);
+
+    void        begin   ();
     void 	    setValue(const uint8_t VALUE);
     void        setMax  ();
     void        setMin  ();
     uint16_t    get     ();
     private:
-    HAL_IO*   p_hal;
+
     uint8_t   port;
 };
 
@@ -73,8 +75,8 @@ class AnalogSetter
 class DigitalInput {
 	public:
     DigitalInput();
-    DigitalInput        (e_digitalInputPorts_t PORT, HAL_IO* P_HAL); 
-    void    begin       (e_digitalInputPorts_t PORT, HAL_IO* P_HAL);
+
+    void    begin       ();
     Flankenauswertung   get;  
 };
 
@@ -84,11 +86,11 @@ class DigitalInput {
 class AnalogInput {
 	public:
     AnalogInput();
-    AnalogInput      (e_analogInputPorts_t PORT, HAL_IO* P_HAL);
-    void        begin(e_analogInputPorts_t PORT, HAL_IO* P_HAL); 
+
+    void        begin(); 
     uint16_t    read();    
   	private:
-    HAL_IO*                 p_HAL;      
+     
 	e_analogInputPorts_t    port;
 };
 
@@ -98,14 +100,12 @@ class AnalogInput {
 class TemperaturSensor{
     public:
     TemperaturSensor();
-    TemperaturSensor        (e_tempSensPorts_t PORT, HAL_IO* P_HAL);
-    void    begin           (e_tempSensPorts_t PORT, HAL_IO* P_HAL);
+
+    void    begin           ();
     int16_t getTemperatur   ();
 
     private:
-    int16_t oldTemp;
-    HAL_IO* p_HAL;      
-	e_tempSensPorts_t port;
+    int16_t oldTemp; 
 };
 
 //--------------------------------------------------------------------
@@ -114,8 +114,8 @@ class TemperaturSensor{
 class RotaryEncoder {
 	public:
     RotaryEncoder();
-    RotaryEncoder               (e_digitalInputPorts_t PUSH_BUTTON, e_digitalInputPorts_t A, e_digitalInputPorts_t B, HAL_IO* P_HAL);      
-    void                begin   (e_digitalInputPorts_t PUSH_BUTTON, e_digitalInputPorts_t A, e_digitalInputPorts_t B, HAL_IO* P_HAL);
+   
+    void                begin   ();
 
     e_direction_t       getTurningDirection();
     Flankenauswertung   getPushButton;
@@ -131,8 +131,7 @@ class RotaryEncoder {
 class DigitalOutput{
     public:
     DigitalOutput();
-    DigitalOutput(e_digitalOutputPorts_t PORT, HAL_IO* P_HAL);
-    void begin   (e_digitalOutputPorts_t PORT, HAL_IO* P_HAL);
+     void begin   ();
     DigitalSetter state; 
 };
 
@@ -142,8 +141,7 @@ class DigitalOutput{
 class Relais{
     public:
     Relais();
-    Relais                  (e_relaisPorts_t PORT, HAL_IO* P_HAL);
-    void            begin   (e_relaisPorts_t PORT, HAL_IO* P_HAL);     
+    void            begin   ();     
     DigitalSetter   state;
 };
 
@@ -153,8 +151,7 @@ class Relais{
 class AnalogOutput{
     public:
     AnalogOutput();
-    AnalogOutput(e_analogOutputPorts_t PORT, HAL_IO* P_HAL);
-    void begin  (e_analogOutputPorts_t PORT, HAL_IO* P_HAL);
+    void begin  ();
     AnalogSetter value;
 };
 
@@ -164,13 +161,12 @@ class AnalogOutput{
 class H_Bridge{
     public:
     H_Bridge();
-    H_Bridge            (e_hBridgePorts_t PORT, HAL_IO* P_HAL);
-    void    begin       (e_hBridgePorts_t PORT, HAL_IO* P_HAL);
+    void    begin       ();
     void    setSpeed    (const uint8_t HB_SPEED);
     void    setDirection(const e_direction_t DIRECTION);
 
     private:
-    HAL_IO*             p_HAL;    
-	e_hBridgePorts_t    port;
+  
+	
 };
 #endif

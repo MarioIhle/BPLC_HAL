@@ -1,6 +1,7 @@
 #ifndef HAL_DI11_h
 #define HAL_DI11_h
-//#include "Arduino.h"
+#include "Arduino.h"
+#include "HAL_DO11.h"
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE PORTS
 //-------------------------------------------------------------
