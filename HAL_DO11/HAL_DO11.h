@@ -1,5 +1,5 @@
-#ifndef HAL_DI11_h
-#define HAL_DI11_h
+#ifndef HAL_DO11_h
+#define HAL_DO11_h
 //#include "Arduino.h"
 
 
