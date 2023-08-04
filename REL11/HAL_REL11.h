@@ -1,6 +1,6 @@
 #ifndef HAL_DI11_h
 #define HAL_DI11_h
-//#include "Arduino.h"
+
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE PORTS
 //-------------------------------------------------------------
@@ -17,6 +17,7 @@ typedef enum
     DI8,
     DI_COUNT,
 }e_digitalInputPorts_t;
+
 //-------------------------------------------------------------
 //SPEZIAL IO TYPEN
 //-------------------------------------------------------------
@@ -62,24 +63,19 @@ typedef struct
 //-------------------------------------------------------------
 #define INPUT_READ_COUNT 2
 
-class HAL_DI11 {
+class HAL_REL11 {
 
     public:
-    HAL_DI11();
+    HAL_REL11();
     void        begin();
     void        tick();
-   
-    //Inputs
-    s_digitalInputState_t digitalInputState [DI_COUNT];
+    
+    bool    relState[3];
 
     private:
-    //Init
-    void    initDigitalInputs       ();
-    //getter
-    void    readDigitalInputs       ();
-  
-    const uint8_t digitalInput  [DI_COUNT]          = {7, 6, 5, 4, 3, 2, 1, 0};
-     
+    void    setREl();
+    uint8_t pins[3];
      
 };
+
 #endif
