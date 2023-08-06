@@ -35,8 +35,13 @@ class HAL_MOT11
     float           getCurrent();
     e_direction_t   getDirection();
     uint8_t         getSpeed();
-    
+
     private:
+    void observeCurrent();
+    void tickSlave();
+    
+    e_direction_t   actualdirection;
+    uint8_t         actualSpeed;        
 };
 
 #endif
