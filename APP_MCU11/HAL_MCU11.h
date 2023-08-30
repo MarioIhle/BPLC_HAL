@@ -23,10 +23,10 @@
 //Encoder
 typedef enum
 {
-    idle,
-    left,
-    right,
-}e_direction_t;
+    MCU_idle,
+    MCU_left,
+    MCU_right,
+}e_direction_t_MCU;
 
 typedef enum
 {
@@ -42,7 +42,7 @@ typedef struct
 {        
     bool state;
     bool previousState;
-}s_digitalInputState_t;
+}s_digitalInputState_t_MCU;
 
 
 //--------------------------------------------------------------------
@@ -56,7 +56,7 @@ class HAL_MCU11
     void begin();
     void tick();
 
-    e_direction_t   getEncoderDirection();
+    e_direction_t_MCU   getEncoderDirection();
     bool            isEncoderButtonPressed();
     void            setOEN(const bool STATE);
     bool            getINT();
@@ -67,52 +67,28 @@ class HAL_MCU11
     //Serial Baudrate
     struct 
     {
-        uint16_t USB   = 115200;
-        uint16_t RS232 = 38400;
-        uint16_t RS485 = 38400;
+        unsigned long USB   = 115200;
+        unsigned long RS232 = 38400;
+        unsigned long RS485 = 38400;
     }baudrate;
     
 
     //Portstates
     struct
     {
-         struct 
-        {
-            s_digitalInputState_t  A;
-            s_digitalInputState_t  B;
-            s_digitalInputState_t  Z;
-        }encoder;
-
-        struct 
-        {
-            bool LD1;
-            bool LD2;
-            bool LD3;
-        }led;
-
+        s_digitalInputState_t_MCU encoder [ENCODER_PIN__COUNT];
+        bool led[3];
         bool OEN;
         bool INT;        
     }ioState;
 
     //Pinsdefinition
     struct 
-    {
-        struct 
-        {
-            const uint8_t A = 39;
-            const uint8_t B = 36;
-            const uint8_t Z = 34;
-        }encoder;
-
-        struct 
-        {
-            const uint8_t LD1 = 27;
-            const uint8_t LD2 = 26;
-            const uint8_t LD3 = 25;
-        }led;
-
-        const uint8_t OEN = 13;
-        const uint8_t INT = 35;
+    {        
+        const uint8_t encoder[3]= {39, 36, 34};
+        const uint8_t led[3]    = {27, 26, 25};
+        const uint8_t OEN       = 13;
+        const uint8_t INT       = 35;
     }pins;
 };
 #endif

@@ -11,7 +11,7 @@ void APP_MCU11::begin()
 void APP_MCU11::tick()
 {
    this->hal.tick();
-   this->oled.tick();
+   //this->oled.tick();
    
 
    //Hauptapplikation MCU
@@ -23,8 +23,7 @@ void APP_MCU11::tick()
       case APP_MODE__START:
       break;
 
-      case APP_MODE__RUNNING:
-         this->mainLoop();
+      case APP_MODE__RUNNING:         
       break;
 
       case APP_MODE__SAFE_STATE:

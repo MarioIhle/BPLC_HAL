@@ -40,13 +40,14 @@ class APP_MCU11
     APP_MCU11();
     void begin();
     void tick();
-
+    e_APP_MODE_t    MODE;
+    
     private:
     HAL_MCU11   hal;
     //OLED_MCU11  oled;
     
 
-    e_APP_MODE_t    MODE;
+    
 
 };
 #endif

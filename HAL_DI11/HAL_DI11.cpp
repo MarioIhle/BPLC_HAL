@@ -3,7 +3,7 @@
 HAL_DI11::HAL_DI11()
 {}
 
-HAL_DI11::HAL_DI11(const uint8_t ADRESS)
+HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADRESS)
 {
     //PCF.begin(ADRESS);
 
@@ -13,7 +13,7 @@ HAL_DI11::HAL_DI11(const uint8_t ADRESS)
     }    
 }
 
-void HAL_DI11::begin(const uint8_t ADRESS)
+void HAL_DI11::begin(const e_DI11_ADDRESS_t ADRESS)
 {
     //PCF.begin(ADRESS);
 

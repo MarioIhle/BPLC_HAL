@@ -5,13 +5,13 @@ HAL_MCU11::HAL_MCU11()
     
 void HAL_MCU11::begin()
 {
-    pinMode(this->pins.encoder.A, INPUT);
-    pinMode(this->pins.encoder.B, INPUT);
-    pinMode(this->pins.encoder.Z, INPUT);
+    pinMode(this->pins.encoder[0], INPUT);
+    pinMode(this->pins.encoder[1], INPUT);
+    pinMode(this->pins.encoder[2], INPUT);
 
-    pinMode(this->pins.led.LD1, OUTPUT);
-    pinMode(this->pins.led.LD2, OUTPUT);
-    pinMode(this->pins.led.LD3, OUTPUT);
+    pinMode(this->pins.led[0], OUTPUT);
+    pinMode(this->pins.led[1], OUTPUT);
+    pinMode(this->pins.led[2], OUTPUT);
 
     pinMode(this->pins.OEN, OUTPUT);
     pinMode(this->pins.INT, INPUT);
@@ -27,7 +27,7 @@ void HAL_MCU11::tick()
     for(uint8_t pin = 0; pin < ENCODER_PIN__COUNT; pin++)
     {
         this->ioState.encoder[pin].previousState = this->ioState.encoder[pin].state;
-        this->ioState.encoder[pin] = digitalRead(this->pins.encoder[pins]);  
+        this->ioState.encoder[pin].state = digitalRead(this->pins.encoder[pin]);  
     }
 
     //LEDs schreiben
@@ -42,20 +42,20 @@ void HAL_MCU11::tick()
     this->ioState.INT = (this->pins.INT);
 }
 
-e_direction_t HAL_MCU11::getEncoderDirection()
+e_direction_t_MCU HAL_MCU11::getEncoderDirection()
 {
-    const bool NEGATIVE_FLANK_A = (bool)(this->ioState.encoder.A.state == false && this->ioState.encoder.A.previousState == true);
-    const bool NEGATIVE_FLANK_B = (bool)(this->ioState.encoder.B == true && this->ioState.encoder.B.previousState == false);
+    const bool NEGATIVE_FLANK_A = (bool)(this->ioState.encoder[ENCODER_PIN__A].state == false   && this->ioState.encoder[ENCODER_PIN__A].previousState == true);
+    const bool NEGATIVE_FLANK_B = (bool)(this->ioState.encoder[ENCODER_PIN__B].state == true    && this->ioState.encoder[ENCODER_PIN__B].previousState == false);
 
-    e_direction_t direction = idle;    
+    e_direction_t_MCU direction = MCU_idle;    
 
-    if(NEGATIVE_FLANK_A && this->ioState.encoder.B == true)
+    if(NEGATIVE_FLANK_A && this->ioState.encoder[ENCODER_PIN__B].state == true)
     {
-        direction = right;
+        direction = MCU_right;
     }
-    else if(NEGATIVE_FLANK_B && this->ioState.encoder.A == true)
+    else if(NEGATIVE_FLANK_B && this->ioState.encoder[ENCODER_PIN__A].state == true)
     {
-        direction = left;
+        direction = MCU_left;
     }
 
     return direction;
@@ -63,7 +63,7 @@ e_direction_t HAL_MCU11::getEncoderDirection()
 
 bool HAL_MCU11::isEncoderButtonPressed()
 {
-    return this->ioState.encoder.Z;
+    return this->ioState.encoder[ENCODER_PIN__Z].state;
 }
 
 void HAL_MCU11::setOEN(const bool STATE)
