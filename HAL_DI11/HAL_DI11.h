@@ -1,10 +1,22 @@
 #ifndef HAL_DI11_h
 #define HAL_DI11_h
+
 #include "Arduino.h"
-#include "HAL_DO11.h"
+
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE PORTS
 //-------------------------------------------------------------
+typedef enum
+{
+    DI11_1 = 0x38,
+    DI11_2 = 0x39,
+    DI11_3 = 0x3A,
+    DI11_4 = 0x3B,
+    
+    DI11_COUNT = 4,
+
+}e_DI11_ADDRESS_t;
+
 //DIGITAL INPUTS
 typedef enum
 {
@@ -16,7 +28,9 @@ typedef enum
     DI6,
     DI7,
     DI8,
+
     DI_COUNT,
+
 }e_digitalInputPorts_t;
 //-------------------------------------------------------------
 //SPEZIAL IO TYPEN
@@ -28,59 +42,23 @@ typedef struct
     bool previousState;
 }s_digitalInputState_t;
 
-//ROTARY ENCODER
-typedef struct
-{
-    s_digitalInputState_t   A;
-    s_digitalInputState_t   B;
-    s_digitalInputState_t   Z;    
-}s_rotaryEncoderState_t;
-
-typedef struct
-{
-    uint8_t A;
-    uint8_t B;
-    uint8_t Z;
-}s_rotaryEncoderPins_t;
-//__________________________________
-//H-BRÜCKE
-typedef struct
-{
-    uint8_t input_1;
-    uint8_t input_2;
-    uint8_t enable;
-}s_H_bridgePins_t;
-
-typedef struct
-{    
-    bool    input_1;
-    bool    input_2;
-    uint8_t enable;
-}s_H_bridgeState_t;
-
 //-------------------------------------------------------------
-//HAL_IO KLASSE
+//HAL_DI11 KLASSE
 //-------------------------------------------------------------
-#define INPUT_READ_COUNT 2
-
 class HAL_DI11 {
 
     public:
-    HAL_DI11();
-    void        begin();
-    void        tick();
-   
-    //Inputs
-    s_digitalInputState_t digitalInputState [DI_COUNT];
+            HAL_DI11    ();
+            HAL_DI11    (const e_DI11_ADDRESS_t ADRESS);
+    void    begin       (const e_DI11_ADDRESS_t ADRESS);
+    void    tick        ();
 
-    private:
-    //Init
-    void    initDigitalInputs       ();
-    //getter
-    void    readDigitalInputs       ();
-  
-    const uint8_t digitalInput  [DI_COUNT]          = {7, 6, 5, 4, 3, 2, 1, 0};
-     
-     
-};
+    s_digitalInputState_t   digitalInputState [DI_COUNT];  
+
+    protected:
+    
+
+    private:      
+    uint8_t  deviceAdress;    
+    };
 #endif

@@ -3,9 +3,6 @@
 
 #include "Arduino.h"
 #include "HAL_DI11.h"
-#include "HAL_AI11.h"
-#include "HAL_DO11.h"
-#include "HAL_REL11.h"
 
 //--------------------------------------------------------------------
 //Typdefinitionen
@@ -23,36 +20,38 @@ typedef enum
 class DigitalInput
 {
     public:
-    DigitalInput();
-    DigitalInput(const unint8_t PIN);
-
-    void    begin       (const unint8_t PIN);
+    DigitalInput    ();
+    DigitalInput    (const uint8_t PORT, HAL_DI11* CARD);
+    void begin      (const uint8_t PORT, HAL_DI11* CARD);
+    //Getter für App
     bool 	ishigh		();
     bool	islow		();
 	bool 	posFlank	();	
 	bool 	negFlank	();	
 
     private:
-    unint8_t    pin;
-    bool        lasteState;
+    uint8_t     port;
+    HAL_DI11*   p_card;    
 };
 
 //--------------------------------------------------------------------
 //ROTARY ENCODER KLASSE
 //--------------------------------------------------------------------
-class RotaryEncoder {
+class RotaryEncoder 
+{
 	public:
-    RotaryEncoder(const unit8_t A, const unit8_t B, const unit8_t Z);
-   
-    void                begin   (const unit8_t A, const unit8_t B, const unit8_t Z);
+                        RotaryEncoder   (const uint8_t PORT_A, const uint8_t PORT_B, const uint8_t PORT_PUSHBUTTON, HAL_DI11* CARD);   
+    void                begin           (const uint8_t PORT_A, const uint8_t PORT_B, const uint8_t PORT_PUSHBUTTON, HAL_DI11* CARD);
 
-    e_direction_t       getTurningDirection();
-    bool                buttonPressed;
+    e_direction_t       getTurningDirection ();
+    bool                buttonPressed       ();
     
   	private:
-    Flankenauswertung   A;
-    Flankenauswertung   B; 
-    Flankenauswertung   Z; 
+    DigitalInput   A;
+    DigitalInput   B; 
+    DigitalInput   pushButton; 
+
+    HAL_DI11* card;
 };
 
 
@@ -64,16 +63,16 @@ class RotaryEncoder {
 
 
 
-
+/*
 
 //--------------------------------------------------------------------
 //DIGITALSETTER KLASSE
 //--------------------------------------------------------------------
-class DigitalOutput
+class DigitalSetter
 {
     public:
-    DigitalSetter   (const unint8_t PIN);
-    void    begin   (const unint8_t PIN);
+    DigitalSetter   (const uint8_t PIN);
+    void    begin   (const uint8_t PIN);
     void 	setState(const bool STATE);
     void    set     ();
     void    reset   ();
@@ -175,4 +174,5 @@ class H_Bridge{
   
 	
 };
+*/
 #endif

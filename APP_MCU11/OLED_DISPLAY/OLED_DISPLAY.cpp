@@ -1,4 +1,4 @@
-#include "HAL_MCU11.h"
+#include "OLED_DISPLAY.h"
 
 //---------------------------------------------------
 //OLED DISPLAY CONSTRUCTOR
@@ -53,7 +53,7 @@ void MCU11::begin()
   this->display.mode    = mode_unlocked;
 
 
-  this->knob.begin()
+  this->knob.begin(this->pins.encoder.A, this->pins.encoder.B, this->pins.encoder.Z);
 }
 //---------------------------------------------------
 //PUBLIC FUNCTIONS
@@ -61,7 +61,8 @@ void MCU11::begin()
 //MAIN ROUTINE
 void MCU11::tick()
 {
-  const bool THERE_IS_SOME_USER_INPUT = (bool)(this->knob->getTurningDirection() != idle ||this->knob->getPushButton.low() != 0);
+  const bool THERE_IS_SOME_USER_INPUT = (bool)(this->knob.getTurningDirection() != idle);
+
   if(THERE_IS_SOME_USER_INPUT)
   {
     this->screenSaverParameter.to_sleep.reset();
@@ -152,7 +153,7 @@ uint8_t MCU11::getMenuText(const uint8_t LAST_TEXT, const uint8_t PREVIOUS_TEXT)
 //ENCODER VERARBEITUNG
 uint32_t MCU11::useKnobAsInput(uint32_t VALUE)
 {
-  switch(knob->getTurningDirection())
+  switch(knob.getTurningDirection())
   {    
     case idle:         
     break;
@@ -183,7 +184,7 @@ void MCU11::mainMenu()
   this->showMenuText(TEXT);
   this->menu.activeText         = ACTIVE_TEXT;
 
-  const bool    BUTTON_PRESSED  = (bool)(this->knob->getPushButton.posFlank());
+  const bool    BUTTON_PRESSED  = this->knob.buttonPressed();
 
   if(BUTTON_PRESSED)
   {
