@@ -1,6 +1,6 @@
-#include "HAL_DO11.h"
+#include "HAL_MCU11.h"
 
-/---------------------------------------------------
+//---------------------------------------------------
 //OLED DISPLAY CONSTRUCTOR
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 //---------------------------------------------------
@@ -17,11 +17,11 @@ String deviceSettingsTexts  [3] = {{"Bildschrimschoner"}, {"Sicherheit"}, {EXIT}
 
 //---------------------------------------------------
 //PQS_STICK CONSTRUCTOR
-OnBoardPavis::OnBoardPavis(){} 
+MCU11::MCU11(){} 
 //---------------------------------------------------
 //INIT
 //---------------------------------------------------
-void OnBoardPavis::begin(s_OnBoardPavisParameter_t INIT)
+void MCU11::begin()
 {
   if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) 
   { // Address 0x3C for 128x32
@@ -48,50 +48,28 @@ void OnBoardPavis::begin(s_OnBoardPavisParameter_t INIT)
   this->deviceSettings.sleepTime = 30000;
   this->screenSaverParameter.to_sleep.setInterval(this->deviceSettings.sleepTime); 
   this->screenSaverParameter.to_sleep.reset(); 
-  this->lockScreenParameter.to_activeNumberBlink.setInterval(500);
-  this->lockScreenParameter.to_activeNumberBlink.reset();
-  this->deviceSettings.unlockCodeIsEnabled = true;
-  this->deviceSettings.lockTime = 60000;
-  this->screenSaverParameter.to_lock.setInterval(this->deviceSettings.lockTime);
-  this->screenSaverParameter.to_lock.reset();
-  for(uint8_t i= 0; i< UNLOCK_CODE_LENGTH; i++)
-  {
-    this->deviceSettings.unlockCode[i] = i; //EEPROM.read(i + DATALOCATION);
-  }
 
-  this->knob  = INIT.p_knob;
-  this->ets   = INIT.p_ETS;
-  this->IN1   = INIT.p_IN_1;
-  this->IN2   = INIT.p_IN_2;
-  this->OUT1  = INIT.p_OUT_1;
-  this->OUT2  = INIT.p_OUT_2;
   this->menu.active     = menu_mainMenu;
   this->display.mode    = mode_unlocked;
+
+
+  this->knob.begin()
 }
 //---------------------------------------------------
 //PUBLIC FUNCTIONS
 //---------------------------------------------------
 //MAIN ROUTINE
-void OnBoardPavis::tick()
+void MCU11::tick()
 {
   const bool THERE_IS_SOME_USER_INPUT = (bool)(this->knob->getTurningDirection() != idle ||this->knob->getPushButton.low() != 0);
   if(THERE_IS_SOME_USER_INPUT)
   {
     this->screenSaverParameter.to_sleep.reset();
-    this->screenSaverParameter.to_lock.reset();
-
+ 
     //Wenn Bildschrimschoner aktiv,--> Gerät aufwecken 
     if(this->display.mode == mode_screenSaver)
     {
-      if(this->screenSaverParameter.deviveIsLocked)
-      {
-        this->display.mode = mode_lockScreen;
-        this->menu.active  = menu_mainMenu;
-      }
-      else
-      {
-        this->display.mode = this->screenSaverParameter.modeBeforeScreenSaver;
-      }
+      this->display.mode = this->screenSaverParameter.modeBeforeScreenSaver;      
     }
   }
   //Bildschirmschoner nach Timeout aktivieren
@@ -99,11 +77,6 @@ void OnBoardPavis::tick()
   {
     this->screenSaverParameter.modeBeforeScreenSaver  = this->display.mode;
     this->display.mode                                = mode_screenSaver;  
-  }
-  //Gerät sperren nach Timeout
-  if(this->screenSaverParameter.to_lock.check() && this->deviceSettings.unlockCodeIsEnabled)
-  {    
-    this->screenSaverParameter.deviveIsLocked = true;
   }
   //Display wechsel
   if(this->menu.active != this->menu.previousActive || this->display.mode != this->display.previousMode)
@@ -144,7 +117,7 @@ void OnBoardPavis::tick()
 //---------------------------------------------------
 //PRIVATE FUNCTIONS
 //---------------------------------------------------
-void OnBoardPavis::showMenuText(const String TEXT)
+void MCU11::showMenuText(const String TEXT)
 {   
   //Länge des auszugebenden Textes berechnen
   int16_t textLength = TEXT.length() * -24; 
@@ -160,7 +133,7 @@ void OnBoardPavis::showMenuText(const String TEXT)
 }
 //---------------------------------------------------
 //SCROLL MENU TEXTS
-uint8_t OnBoardPavis::getMenuText(const uint8_t LAST_TEXT, const uint8_t PREVIOUS_TEXT)
+uint8_t MCU11::getMenuText(const uint8_t LAST_TEXT, const uint8_t PREVIOUS_TEXT)
 {
   //Mit dem Encoder durch das Menü scrollen
   uint8_t TEXT = (uint8_t)useKnobAsInput((uint32_t)PREVIOUS_TEXT);
@@ -177,7 +150,7 @@ uint8_t OnBoardPavis::getMenuText(const uint8_t LAST_TEXT, const uint8_t PREVIOU
 }
 //---------------------------------------------------
 //ENCODER VERARBEITUNG
-uint32_t OnBoardPavis::useKnobAsInput(uint32_t VALUE)
+uint32_t MCU11::useKnobAsInput(uint32_t VALUE)
 {
   switch(knob->getTurningDirection())
   {    
@@ -196,26 +169,13 @@ uint32_t OnBoardPavis::useKnobAsInput(uint32_t VALUE)
 }
 //---------------------------------------------------
 //SCREENSAVER
-void OnBoardPavis::screenSaver()
+void MCU11::screenSaver()
 { 
   //Nichts anzeigen, vielleicht ein Logo?  
 }
 //---------------------------------------------------
-//LOCKSCREEN
-void OnBoardPavis::lockScreen()
-{   
-  //Kein Codesperre aktiv
-  else
-  {
-    if(this->knob->getPushButton.posFlank())
-    {
-      this->menu.active = menu_mainMenu;
-    }
-  }
-}
-//---------------------------------------------------
 //MAIN MENÜ
-void OnBoardPavis::mainMenu()
+void MCU11::mainMenu()
 {
   const uint8_t LAST_TEXT       = sizeof(mainMenuTexts)/sizeof(String) - 1;   
   const uint8_t ACTIVE_TEXT     = this->getMenuText(LAST_TEXT, this->menu.activeText); 
@@ -227,11 +187,11 @@ void OnBoardPavis::mainMenu()
 
   if(BUTTON_PRESSED)
   {
-    this->menu.active = (e_OnBoardPavisMenu_t)this->menu.activeText;
+    this->menu.active = (e_oledMenu_t)this->menu.activeText;
   }
 }
 //---------------------------------------------------
 //ERROR CODE AUSGABE
-void OnBoardPavis::showErrorCodes()
+void MCU11::showErrorCodes()
 {}
 

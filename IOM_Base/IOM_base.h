@@ -1,6 +1,7 @@
 #ifndef IOM_base_h
 #define IOM_base_h
 
+#include "Arduino.h"
 #include "HAL_DI11.h"
 #include "HAL_AI11.h"
 #include "HAL_DO11.h"
@@ -17,40 +18,71 @@ typedef enum
 }e_direction_t;
 
 //--------------------------------------------------------------------
-//FLANKENAUSWERTUNG KLASSE
+//DIGITAL INPUT KLASSE
 //--------------------------------------------------------------------
-class Flankenauswertung
+class DigitalInput
 {
     public:
-    Flankenauswertung();
-    Flankenauswertung(void* P_STATE);
+    DigitalInput();
+    DigitalInput(const unint8_t PIN);
 
-    void    begin       ();
-    bool 	high		();
-    bool	low		    ();
+    void    begin       (const unint8_t PIN);
+    bool 	ishigh		();
+    bool	islow		();
 	bool 	posFlank	();	
 	bool 	negFlank	();	
+
     private:
-    s_digitalInputState_t*  p_halState;
+    unint8_t    pin;
+    bool        lasteState;
 };
+
+//--------------------------------------------------------------------
+//ROTARY ENCODER KLASSE
+//--------------------------------------------------------------------
+class RotaryEncoder {
+	public:
+    RotaryEncoder(const unit8_t A, const unit8_t B, const unit8_t Z);
+   
+    void                begin   (const unit8_t A, const unit8_t B, const unit8_t Z);
+
+    e_direction_t       getTurningDirection();
+    bool                buttonPressed;
+    
+  	private:
+    Flankenauswertung   A;
+    Flankenauswertung   B; 
+    Flankenauswertung   Z; 
+};
+
+
+
+
+
+
+
+
+
+
+
 
 //--------------------------------------------------------------------
 //DIGITALSETTER KLASSE
 //--------------------------------------------------------------------
-class DigitalSetter
+class DigitalOutput
 {
     public:
-    DigitalSetter   ();
-    void    begin   ();
+    DigitalSetter   (const unint8_t PIN);
+    void    begin   (const unint8_t PIN);
     void 	setState(const bool STATE);
     void    set     ();
     void    reset   ();
     bool    get     ();
 
     private:
-
     uint8_t     port;
 };
+
 //--------------------------------------------------------------------
 //ANALOGSETTER KLASSE
 //--------------------------------------------------------------------
@@ -67,17 +99,6 @@ class AnalogSetter
     private:
 
     uint8_t   port;
-};
-
-//--------------------------------------------------------------------
-//DIGITAL INPUT KLASSE
-//--------------------------------------------------------------------
-class DigitalInput {
-	public:
-    DigitalInput();
-
-    void    begin       ();
-    Flankenauswertung   get;  
 };
 
 //--------------------------------------------------------------------
@@ -108,22 +129,7 @@ class TemperaturSensor{
     int16_t oldTemp; 
 };
 
-//--------------------------------------------------------------------
-//ROTARY ENCODER KLASSE
-//--------------------------------------------------------------------
-class RotaryEncoder {
-	public:
-    RotaryEncoder();
-   
-    void                begin   ();
 
-    e_direction_t       getTurningDirection();
-    Flankenauswertung   getPushButton;
-    
-  	private:
-    Flankenauswertung   A;
-    Flankenauswertung   B; 
-};
 
 //--------------------------------------------------------------------
 //DIGITAL OUTPUT KLASSE
