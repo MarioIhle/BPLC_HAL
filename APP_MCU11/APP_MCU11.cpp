@@ -11,8 +11,22 @@ void APP_MCU11::begin()
 void APP_MCU11::tick()
 {
    this->hal.tick();
+
    //this->oled.tick();
-   
+   if(this->hal.isEncoderButtonPressed())
+   {
+      this->hal.beep(3, 500);
+      Serial.println("beep reauested");
+   }
+
+   if(this->hal.getEncoderDirection() == MCU_left)
+   {
+      this->hal.beep(1, 100);
+   }
+   if(this->hal.getEncoderDirection() == MCU_right)
+   {
+      this->hal.beep(2,100);
+   }
 
    //Hauptapplikation MCU
    switch(this->MODE)

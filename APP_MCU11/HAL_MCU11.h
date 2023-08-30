@@ -17,6 +17,8 @@
 //---------------------------------------------------
 
 #include "Arduino.h"
+#include "SpecialFunctions.h"
+
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
@@ -45,6 +47,8 @@ typedef struct
 }s_digitalInputState_t_MCU;
 
 
+
+
 //--------------------------------------------------------------------
 //HAL KLASSE
 //--------------------------------------------------------------------
@@ -60,6 +64,7 @@ class HAL_MCU11
     bool            isEncoderButtonPressed();
     void            setOEN(const bool STATE);
     bool            getINT();
+    void            beep(const uint8_t BEEPS, const int INTERVAL);
 
 
     private:
@@ -79,8 +84,17 @@ class HAL_MCU11
         s_digitalInputState_t_MCU encoder [ENCODER_PIN__COUNT];
         bool led[3];
         bool OEN;
-        bool INT;        
+        bool INT;           
     }ioState;
+
+    //buzzer
+    struct 
+    {
+        Timeout to_buzzer;
+        uint8_t beeps_requested;
+        uint8_t beepCount;        
+        bool    state;
+    }buzzer;
 
     //Pinsdefinition
     struct 
@@ -89,6 +103,7 @@ class HAL_MCU11
         const uint8_t led[3]    = {27, 26, 25};
         const uint8_t OEN       = 13;
         const uint8_t INT       = 35;
+        const uint8_t buzzer    = 15;
     }pins;
 };
 #endif

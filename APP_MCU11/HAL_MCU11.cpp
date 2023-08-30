@@ -15,19 +15,20 @@ void HAL_MCU11::begin()
 
     pinMode(this->pins.OEN, OUTPUT);
     pinMode(this->pins.INT, INPUT);
+    pinMode(this->pins.buzzer, OUTPUT);
 
-    Serial.begin(this->baudrate.USB);       //USB
-    Serial1.begin(this->baudrate.RS232);    //RS232
-    Serial2.begin(this->baudrate.RS485);    //RS485
+    //Serial.begin(this->baudrate.USB);       //USB
+    //Serial1.begin(this->baudrate.RS232);    //RS232
+    //Serial2.begin(this->baudrate.RS485);    //RS485
 }
 
 void HAL_MCU11::tick()
-{
+{  
     //Encoder lesen
     for(uint8_t pin = 0; pin < ENCODER_PIN__COUNT; pin++)
     {
         this->ioState.encoder[pin].previousState = this->ioState.encoder[pin].state;
-        this->ioState.encoder[pin].state = digitalRead(this->pins.encoder[pin]);  
+        this->ioState.encoder[pin].state = digitalRead(this->pins.encoder[pin]);        
     }
 
     //LEDs schreiben
@@ -40,6 +41,29 @@ void HAL_MCU11::tick()
 
     //INT lesen
     this->ioState.INT = (this->pins.INT);
+
+    //Buzzer
+    if(this->buzzer.beepCount < this->buzzer.beeps_requested && this->buzzer.to_buzzer.check())
+    {
+        this->buzzer.state = !this->buzzer.state;
+        if(this->buzzer.state)
+        {
+            analogWrite(this->pins.buzzer, 50);
+            this->buzzer.beepCount++;
+        }
+        else
+        {
+            analogWrite(this->pins.buzzer, 0);
+        }
+
+        this->buzzer.to_buzzer.reset();        
+    }
+    else if(this->buzzer.beepCount == this->buzzer.beeps_requested)
+    {
+        analogWrite(this->pins.buzzer, 0);
+        this->buzzer.state = false;
+    }
+
 }
 
 e_direction_t_MCU HAL_MCU11::getEncoderDirection()
@@ -63,7 +87,7 @@ e_direction_t_MCU HAL_MCU11::getEncoderDirection()
 
 bool HAL_MCU11::isEncoderButtonPressed()
 {
-    return this->ioState.encoder[ENCODER_PIN__Z].state;
+    return (bool)(this->ioState.encoder[ENCODER_PIN__Z].state == false && this->ioState.encoder[ENCODER_PIN__Z].previousState == true);
 }
 
 void HAL_MCU11::setOEN(const bool STATE)
@@ -74,4 +98,11 @@ void HAL_MCU11::setOEN(const bool STATE)
 bool HAL_MCU11::getINT()
 {
     return this->ioState.INT = digitalRead(this->pins.INT);
+}
+
+void HAL_MCU11::beep(const uint8_t BEEPS, const int INTERVAL)
+{
+    this->buzzer.beeps_requested = BEEPS+1;
+    this->buzzer.to_buzzer.setInterval(INTERVAL);
+    this->buzzer.beepCount = 0;    
 }
