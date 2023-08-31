@@ -47,8 +47,6 @@ typedef struct
 }s_digitalInputState_t_MCU;
 
 
-
-
 //--------------------------------------------------------------------
 //HAL KLASSE
 //--------------------------------------------------------------------
@@ -60,12 +58,14 @@ class HAL_MCU11
     void begin();
     void tick();
 
-    e_direction_t_MCU   getEncoderDirection();
-    bool            isEncoderButtonPressed();
-    void            setOEN(const bool STATE);
-    bool            getINT();
-    void            beep(const uint8_t BEEPS, const int INTERVAL);
-
+    e_direction_t_MCU   getEncoderDirection     ();
+    bool                isEncoderButtonPressed  ();
+    void                setOEN                  (const bool STATE);
+    bool                getINT                  ();
+    blink               BUZZER;
+    blink               LD1;
+    blink               LD2;
+    blink               LD3;                  
 
     private:
 
@@ -81,20 +81,10 @@ class HAL_MCU11
     //Portstates
     struct
     {
-        s_digitalInputState_t_MCU encoder [ENCODER_PIN__COUNT];
-        bool led[3];
+        s_digitalInputState_t_MCU encoder [ENCODER_PIN__COUNT];        
         bool OEN;
         bool INT;           
     }ioState;
-
-    //buzzer
-    struct 
-    {
-        Timeout to_buzzer;
-        uint8_t beeps_requested;
-        uint8_t beepCount;        
-        bool    state;
-    }buzzer;
 
     //Pinsdefinition
     struct 

@@ -45,9 +45,5 @@ class APP_MCU11
     private:
     HAL_MCU11   hal;
     //OLED_MCU11  oled;
-    
-
-    
-
 };
 #endif

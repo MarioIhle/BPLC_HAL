@@ -15,32 +15,37 @@ void APP_MCU11::tick()
    //this->oled.tick();
    if(this->hal.isEncoderButtonPressed())
    {
-      this->hal.beep(3, 500);
-      Serial.println("beep reauested");
+      this->hal.BUZZER.setupBlink(3, 250);      
    }
 
    if(this->hal.getEncoderDirection() == MCU_left)
    {
-      this->hal.beep(1, 100);
+    
    }
+
    if(this->hal.getEncoderDirection() == MCU_right)
    {
-      this->hal.beep(2,100);
+      
    }
+   
 
    //Hauptapplikation MCU
    switch(this->MODE)
    {
       case APP_MODE__STOP:
+         this->hal.LD1.setupBlink(1, 500);
       break;
 
-      case APP_MODE__START:
+      case APP_MODE__START:   
+         this->hal.LD1.setupBlink(1, 50);     
       break;
 
-      case APP_MODE__RUNNING:         
+      case APP_MODE__RUNNING: 
+         this->hal.LD1.setupBlink(1, 2500);        
       break;
 
       case APP_MODE__SAFE_STATE:
+         this->hal.LD1.setupBlink(1, 250);
       break;
 
       default:
