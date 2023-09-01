@@ -22,7 +22,7 @@
 //Typdefinitionen
 //--------------------------------------------------------------------
 #include "HAL_MCU11.h"
-//#include "OLED_DISPLAY.h" 
+#include "OLED_DISPLAY.h" 
 
 typedef enum
 {
@@ -44,6 +44,8 @@ class APP_MCU11
     
     private:
     HAL_MCU11   hal;
-    //OLED_MCU11  oled;
+    OLED_MCU11  oled;
+
+    void displayStateMachine();
 };
 #endif

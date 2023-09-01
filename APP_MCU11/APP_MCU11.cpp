@@ -5,29 +5,14 @@ APP_MCU11::APP_MCU11()
 
 void APP_MCU11::begin()
 {
-   this->hal.begin();
+   this->hal.begin();   
+   this->oled.begin();
 }
 
 void APP_MCU11::tick()
 {
    this->hal.tick();
-
-   //this->oled.tick();
-   if(this->hal.isEncoderButtonPressed())
-   {
-      this->hal.BUZZER.setupBlink(3, 250);      
-   }
-
-   if(this->hal.getEncoderDirection() == MCU_left)
-   {
-    
-   }
-
-   if(this->hal.getEncoderDirection() == MCU_right)
-   {
-      
-   }
-   
+   this->oled.tick();
 
    //Hauptapplikation MCU
    switch(this->MODE)
@@ -52,4 +37,92 @@ void APP_MCU11::tick()
          this->MODE = APP_MODE__SAFE_STATE;
       break;
    }   
+   
+}
+
+
+
+void APP_MCU11::displayStateMachine()
+{  
+   switch(this->oled.getActiveMenu)
+   {      
+      case menu_mainMenu:
+         if(this->hal.isEncoderButtonPressed())
+         {
+            this->oled.enterMenu();
+         }
+
+         if(this->hal.getEncoderDirection() == MCU_left)
+         {
+            this->oled.nextText;
+         }
+         else if(this->hal.getEncoderDirection() == MCU_right)
+         {
+            this->oled.previoursText;
+         }           
+      break;
+
+      case menu_deviceMode:
+         if(this->hal.isEncoderButtonPressed())
+         {
+            this->MODE = (e_APP_MODE_t)this->oled.getSelectedDeviceMode();
+         }
+         if(this->hal.getEncoderDirection() == MCU_left)
+         {
+           this->oled.shownDeviceMode++;
+         }
+         else if(this->hal.getEncoderDirection() == MCU_right)
+         {
+           this->oled.shownDeviceMode--;
+         }         
+      break;
+
+      case menu_errorCodes:
+         if(this->hal.isEncoderButtonPressed())
+         {
+            this->oled.enterMenu();
+         }
+
+         if(this->hal.getEncoderDirection() == MCU_left)
+         {
+            this->oled.nextText;
+         }
+         else if(this->hal.getEncoderDirection() == MCU_right)
+         {
+            this->oled.previoursText;
+         }
+      break;
+
+      case menu_settings:
+         if(this->hal.isEncoderButtonPressed())
+         {
+            this->oled.enterMenu();
+         }
+
+         if(this->hal.getEncoderDirection() == MCU_left)
+         {
+            this->oled.nextText;
+         }
+         else if(this->hal.getEncoderDirection() == MCU_right)
+         {
+            this->oled.previoursText;
+         }
+      break;
+
+      case menu_dipSwitch:
+         if(this->hal.isEncoderButtonPressed())
+         {
+            this->oled.enterMenu();
+         }
+
+         if(this->hal.getEncoderDirection() == MCU_left)
+         {
+            this->oled.nextText;
+         }
+         else if(this->hal.getEncoderDirection() == MCU_right)
+         {
+            this->oled.previoursText;
+         }
+      break;
+   }
 }
