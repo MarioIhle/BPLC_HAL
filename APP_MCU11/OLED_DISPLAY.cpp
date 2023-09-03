@@ -13,7 +13,7 @@ String HEADLINE_TEXT [menu_count][10] =
 {
   {{"MAIN MENU"}, {"DEVICE MODE"}, {"ERRORS"}, {"SETUP"}, {"VDIP"}, {LOCK}, {LAST_TEXT}},
   {{"MODE"}, {EXIT}, {LAST_TEXT}},
-  {{"ERROR1"}, {"ERROR2"}, {EXIT}, {LAST_TEXT}},
+  {{"ERROR 1"}, {"ERROR 2"}, {"ERROR 3"}, {"ERROR 4"}, {"ERROR 5"}, {"ERROR 6"}, {"ERROR 7"}, {"ERROR 8"},{EXIT}, {LAST_TEXT}},
   {{"SETTING1"}, {"SETTING2"}, {EXIT}, {LAST_TEXT}},
   {{"DIP1"}, {"DIP2"}, {"DIP3"},{"DIP4"},{"DIP5"},{"DIP6"},{"DIP7"},{"DIP8"},{EXIT}, {LAST_TEXT}} 
 };
@@ -266,7 +266,10 @@ void OLED_MCU11::showMainMenu()
 
 void OLED_MCU11::showErrorCodes()
 {
-   
+  if(this->menu.activeText < 8)
+  {
+    this->showMenuText(String(this->paramValue, DEC), 1);
+  }
 }
 
 void OLED_MCU11::showSettings()
