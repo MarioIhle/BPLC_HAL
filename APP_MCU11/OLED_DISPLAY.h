@@ -114,6 +114,8 @@ class OLED_MCU11
     bool            f_parmParameter;
     Timeout         to_parmeter;
     bool            f_parameterBlink;
+ 
+    String          TEXT_OUTPUT[2];
 
     s_screenSaverParameter_t    screenSaverParameter;
     s_deviceSettingsParameter_t deviceSettings;        

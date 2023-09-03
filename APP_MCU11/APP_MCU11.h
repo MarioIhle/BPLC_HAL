@@ -56,7 +56,9 @@ class APP_MCU11
 
     e_APP_MODE_t    deviceMode;
 
-    int virtualDipSwitch[8];
+    //Variablen
+    int         virtualDipSwitch[8];
+    uint8_t     errorCode[8];
     
     int temp_ParameterStorage;      //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
 
@@ -64,6 +66,7 @@ class APP_MCU11
     void beepOnEncoderInput();
 
     void editDeviceMode();
+    void errorOut();
 
     struct 
     {

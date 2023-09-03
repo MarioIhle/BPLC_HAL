@@ -10,6 +10,16 @@ void APP_MCU11::begin()
 
    this->deviceSettings.f_beepOnEncoderInput = true;
    this->deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
+   memset(&this->errorCode, 0, sizeof(this->errorCode));
+   this->errorCode[0] = 10;
+   this->errorCode[1] = 20;
+   this->errorCode[2] = 30;
+   this->errorCode[3] = 40;
+   this->errorCode[4] = 50;
+   this->errorCode[5] = 60;
+   this->errorCode[6] = 70;
+   this->errorCode[7] = 80;
+   this->temp_ParameterStorage = 0;
 }
 
 void APP_MCU11::tick()
@@ -76,7 +86,7 @@ void APP_MCU11::handleDisplay()
       break;
 
       case menu_errorCodes:
-       
+         errorOut();
       break;
 
       case menu_settings:
@@ -191,4 +201,43 @@ void APP_MCU11::editDeviceMode()
    {
       this->oled.setParamValueToShow(this->deviceMode);
    }   
+}
+
+void APP_MCU11::errorOut()
+{
+   if(this->hal.isEncoderButtonPressed())
+   {            
+      //Cursor on "exit"
+      if(this->oled.readyToExitMenu())
+      {
+         this->oled.setMenu(menu_mainMenu);         
+      } 
+      this->errorCode[this->temp_ParameterStorage] = false;
+   }
+
+   if(this->hal.getEncoderDirection() == MCU_right)
+   {
+      this->oled.showNextTextOfThisMenu();
+      this->temp_ParameterStorage++;
+   }
+   else if(this->hal.getEncoderDirection() == MCU_left)
+   {
+      this->oled.showPrevioursTextOfThisMenu();
+      this->temp_ParameterStorage--;
+   } 
+
+   //Bereichberenzung
+   if(this->temp_ParameterStorage < 0)
+   {
+      temp_ParameterStorage = 0;
+   }
+   else if(this->temp_ParameterStorage > 8)
+   {
+      this->temp_ParameterStorage = 8;
+      this->oled.setParamValueToShow(this->errorCode[this->temp_ParameterStorage]);
+   }
+   else
+   {
+      this->oled.setParamValueToShow(this->errorCode[this->temp_ParameterStorage]);
+   } 
 }
