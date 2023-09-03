@@ -54,7 +54,7 @@ void OLED_MCU11::begin()
 
   this->to_parmeter.setInterval(500);
 
-  this->menu.activeMenu     = menu_mainMenu;
+  this->menu.activeMenu = menu_mainMenu;
 }
 
 //---------------------------------------------------
@@ -77,6 +77,8 @@ void OLED_MCU11::tick()
     this->paramValue                = 0;
     this->display.cursorPos         = 128;
     this->screenSaverParameter.to_sleep.reset();
+    this->TEXT_OUTPUT[0]  = " ";
+    this->TEXT_OUTPUT[1]  = " ";
   }  
 
   //Bildschirmschoner nach Timeout aktivieren
@@ -113,11 +115,7 @@ void OLED_MCU11::tick()
     case menu_screenSaver:
       this->showScreenSaver();    
     break; 
-  }
-  
-  //Display output und clearen für nächsten cycle
-  oled.display();
-  oled.clearDisplay();
+  }   
 }
 
 //---------------------------------------------------
@@ -185,10 +183,10 @@ void OLED_MCU11::showHeadlineText()
   this->showMenuText(HEADLINE_TEXT[this->menu.activeMenu][this->menu.activeText], 0);
 }   
 
-void OLED_MCU11::showMenuText(const String TEXT, const bool ROW)
+void OLED_MCU11::showMenuText(const String NEW_TEXT, const bool ROW)
 {   
   //Länge des auszugebenden Textes berechnen
-  int16_t textLength = TEXT.length() * -24; 
+  int16_t textLength = NEW_TEXT.length() * -24; 
   if(textLength > 100)
   {
     this->display.cursorPos--;
@@ -201,21 +199,43 @@ void OLED_MCU11::showMenuText(const String TEXT, const bool ROW)
   if((this->display.cursorPos - 64) <= textLength)
   {
     this->display.cursorPos = 0;
-  }
-  
-  if(ROW == false)
-  {
-    oled.setCursor(this->display.cursorPos, 0);
-  }
-  else
-  {
-    oled.setCursor(this->display.cursorPos, 32);
-  }
-  #ifdef DEBUG
-  Serial.print(", OLED OUTPUT ROW "); Serial.print(ROW); Serial.print(": "); Serial.print(TEXT);
-  #endif
+  }  
   
   oled.setTextSize(2);
+
+  if(this->TEXT_OUTPUT[ROW] != NEW_TEXT || (this->to_parmeter.check() && f_parmParameter == true))
+  {    
+    //NeuenText speichern
+    this->TEXT_OUTPUT[ROW] = NEW_TEXT;
+    
+    //Display leeren
+    oled.clearDisplay();
+    //Erste Zeile 
+    oled.setCursor(this->display.cursorPos, 0);
+    oled.print(this->TEXT_OUTPUT[0]);     
+
+    //Zweite Zeile  
+    if(this->f_parmParameter == true)
+    {
+      //Bei bearbeiten von Parameter diesen Blinken lassen
+      if(this->f_parameterBlink == true)
+      {       
+        oled.setCursor(this->display.cursorPos, 32);
+        oled.print(this->TEXT_OUTPUT[1]);            
+      }  
+      else
+      {
+        //Nichts in Zeile 2 anzeigen
+      }   
+    } 
+    else
+    {     
+      oled.setCursor(this->display.cursorPos, 32);
+      oled.print(this->TEXT_OUTPUT[1]);       
+    }   
+    //Display aktaliesieren
+    oled.display();    
+  }
 
   //Blinken erzeugen
   if(this->to_parmeter.check())
@@ -224,18 +244,9 @@ void OLED_MCU11::showMenuText(const String TEXT, const bool ROW)
     this->to_parmeter.reset();
   }
 
-  //Bei bearbeiten von Parameter diesen Blinken lassen
-  if(this->f_parmParameter == true && ROW == true)
-  {
-    if(this->f_parameterBlink == true)
-    {
-      oled.print(TEXT);
-    }     
-  } 
-  else
-  {
-    oled.print(TEXT);
-  }   
+  #ifdef DEBUG
+  Serial.print(", OLED OUTPUT ROW "); Serial.print(ROW); Serial.print(": "); Serial.print(NEW_TEXT);
+  #endif
 }
 
 int OLED_MCU11::getMenuText(const uint8_t LAST_AVAILABLE_TEXT, const int ACTIVE_TEXT)
@@ -261,7 +272,6 @@ void OLED_MCU11::showScreenSaver()
 
 void OLED_MCU11::showMainMenu()
 {
-  
 }
 
 void OLED_MCU11::showErrorCodes()
