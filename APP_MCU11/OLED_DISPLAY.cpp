@@ -4,16 +4,19 @@
 //OLED DISPLAY CONSTRUCTOR
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 //---------------------------------------------------
-//MENÜ TEXTE
-const String EXIT = "exit";
-const String LOCK = "lock";
+//MENÜ STANDART TEXTE
+const String EXIT       = "exit";
+const String LOCK       = "lock";
+const String LAST_TEXT  = "last";
 
-String mainMenuTexts        [5] = {{"DEVICE MODE"}, {"ERRORS"}, {"SETUP"}, {"VDIP"}, {LOCK}};
-String deviceMode           [5] = {{"STOP"}, {"STARTUP"}, {"RUNNING"}, {"ERROR"},{EXIT}};
-String errorCodesTexts      [3] = {{"ERROR1"}, {"ERROR2"}, {EXIT}};
-String deviceSettingsTexts  [3] = {{"SETTING1"}, {"SETTING2"}, {EXIT}};
-String dipSwitchTexts       [9] = {{"DIP1"}, {"DIP2"}, {"DIP3"},{"DIP4"},{"DIP5"},{"DIP6"},{"DIP7"},{"DIP8"},{EXIT}};
-
+String HEADLINE_TEXT [menu_count][10] =
+{
+  {{"MAIN MENU"}, {"DEVICE MODE"}, {"ERRORS"}, {"SETUP"}, {"VDIP"}, {LOCK}, {LAST_TEXT}},
+  {{"MODE"}, {EXIT}, {LAST_TEXT}},
+  {{"ERROR1"}, {"ERROR2"}, {EXIT}, {LAST_TEXT}},
+  {{"SETTING1"}, {"SETTING2"}, {EXIT}, {LAST_TEXT}},
+  {{"DIP1"}, {"DIP2"}, {"DIP3"},{"DIP4"},{"DIP5"},{"DIP6"},{"DIP7"},{"DIP8"},{EXIT}, {LAST_TEXT}} 
+};
 //---------------------------------------------------
 //CONSTRUCTOR
 OLED_MCU11::OLED_MCU11(){} 
@@ -31,144 +34,162 @@ void OLED_MCU11::begin()
   oled.setTextSize(2); // Draw 2X-scale text
   oled.setTextColor(SSD1306_WHITE);
   oled.display();  
-  delay(2000); // Pause for 2 seconds
+  delay(500); // Pause for 2 seconds
   oled.clearDisplay();
   oled.print("booting...");
   oled.display(); 
-  delay(1500);
+  delay(800);
   oled.clearDisplay();
 
   memset(&this->display,0, sizeof(s_display_t));
-  memset(&this->menu,0, sizeof(s_menuParameter_t));
+  memset(&this->menu,0, sizeof(s_menu_t));
   memset(&this->screenSaverParameter,0, sizeof(s_screenSaverParameter_t));
   memset(&this->deviceSettings,0, sizeof(s_deviceSettingsParameter_t));
 
   //TODO: SETTINGS AUS EEPROM LESEN!!
   this->deviceSettings.screenSaverIsEnbaled = true;
-  this->deviceSettings.sleepTime = 30000;
+  this->deviceSettings.sleepTime = 60000;
   this->screenSaverParameter.to_sleep.setInterval(this->deviceSettings.sleepTime); 
   this->screenSaverParameter.to_sleep.reset(); 
 
-  this->menu.activeMenu     = menu_mainMenu;
-  this->display.mode        = mode_unlocked;
+  this->to_parmeter.setInterval(500);
 
+  this->menu.activeMenu     = menu_mainMenu;
 }
 
 //---------------------------------------------------
 //MAIN ROUTINE
 void OLED_MCU11::tick()
 {  
-  Serial.print("menu: "); Serial.print(this->menu.activeMenu);
-  Serial.print(", text: "); Serial.println(this->menu.activeText);
+  #ifdef DEBUG
+  Serial.print(", ACTIVE MENU:"); Serial.print(this->menu.activeMenu);
+  Serial.print(", ACTIVE TEXT: "); Serial.print(this->menu.activeText);
+  Serial.print(", PARAM VALUE: "); Serial.print(this->paramValue);
+  #endif
+
+  //Display clearen, wenn neues Menü angezeigt werden soll oder bei Bildschirmschoner
+  if(this->menu.activeMenu != this->menu.previousActiveMenu)
+  {
+    oled.clearDisplay();
+
+    this->menu.previousActiveMenu   = this->menu.activeMenu;    
+    this->menu.activeText           = 0;     
+    this->paramValue                = 0;
+    this->display.cursorPos         = 128;
+    this->screenSaverParameter.to_sleep.reset();
+  }  
 
   //Bildschirmschoner nach Timeout aktivieren
   if(this->screenSaverParameter.to_sleep.check() && this->deviceSettings.screenSaverIsEnbaled)
-  {
-    this->screenSaverParameter.modeBeforeScreenSaver  = this->display.mode;
-    this->display.mode                                = mode_screenSaver;  
+  {   
+    this->menu.activeMenu= menu_screenSaver;  
   }
 
-  //Display wechsel
-  if(this->menu.activeMenu != this->menu.previousActiveMenu || this->display.mode != this->display.previousMode)
+  this->showHeadlineText();
+
+  //Daten spezifisch anzeigen, Zeile 2
+  switch(this->menu.activeMenu)
   {
-    this->menu.previousActiveMenu   = this->menu.activeMenu;
-    this->display.previousMode      = this->display.mode;   
-    this->menu.activeText           = 0; 
-    oled.clearDisplay();
-    this->display.cursorPos = 128;
-  }  
-
-  //Display page selector
-  switch(this->display.mode)
-  {
-    case mode_screenSaver:
-      this->screenSaver();    
-    break; 
-
-    case mode_unlocked:
-      //Menünavigation
-      switch(this->menu.activeMenu)
-      {
-        case menu_mainMenu:      
-          this->showmainMenu(); 
-        break;
-
-        case menu_errorCodes:
-          this->showErrorCodes();
-        break;
-
-        case menu_settings:
-          this->showSettings();
-        break;    
-
-        case menu_dipSwitch:
-          this->showDipswitches();
-        break;
-
-     }
+    case menu_mainMenu:      
+      this->showMainMenu();
     break;
+
+    case menu_deviceMode:
+      this->showDeviceMode();
+    break;
+
+    case menu_errorCodes:
+      this->showErrorCodes();
+    break;
+
+    case menu_settings:
+      this->showSettings();
+    break;    
+
+    case menu_dipSwitch:
+      this->showDipswitches();
+    break;
+
+    case menu_screenSaver:
+      this->showScreenSaver();    
+    break; 
   }
-  //Display output
+  
+  //Display output und clearen für nächsten cycle
   oled.display();
+  oled.clearDisplay();
 }
 
 //---------------------------------------------------
 //Steuerung des Menü
-void OLED_MCU11::accept()
-{  
-  //Gerät aufwecken
-  if(this->display.mode == mode_screenSaver)
-  {
-    this->display.mode      = mode_unlocked;
-    this->menu.activeMenu   = menu_mainMenu;
-    this->screenSaverParameter.to_sleep.reset();
-  }
-  else
-  {
-    this->f_accept = true;
-  }
-}
-
-void OLED_MCU11::cursorUp()
+void OLED_MCU11::showNextTextOfThisMenu()
 {
-  this->f_encoderUp = true;
-
-  //Gerät aufwecken
-  if(this->display.mode == mode_screenSaver)
-  {
-    this->display.mode      = mode_unlocked;
-    this->menu.activeMenu   = menu_mainMenu;
-    this->screenSaverParameter.to_sleep.reset();
-  }
-  Serial.println("Call up");
+  this->menu.activeText++;
+  this->screenSaverParameter.to_sleep.reset();
 }
 
-void OLED_MCU11::cursorDown()
+void OLED_MCU11::showPrevioursTextOfThisMenu()
 {
-  this->f_encoderDown = true;
+  this->menu.activeText--;
+  this->screenSaverParameter.to_sleep.reset();
+}
 
-  //Gerät aufwecken
-  if(this->display.mode == mode_screenSaver)
+void OLED_MCU11::enterMenu()
+{    
+  //Im Hauptmenü, subMenü auswählen
+  if(this->menu.activeMenu == menu_mainMenu)
   {
-    this->display.mode      = mode_unlocked;
-    this->menu.activeMenu   = menu_mainMenu;
-    this->screenSaverParameter.to_sleep.reset();
+    this->menu.activeMenu = (e_oledMenu_t)this->menu.activeText;
+    this->menu.activeText = 0;
+  }  
+
+  //Zurück ins Hauptmenü
+  if(HEADLINE_TEXT[this->menu.activeMenu][this->menu.activeText] == EXIT)
+  {    
+    this->menu.activeMenu = menu_mainMenu;
+    this->menu.activeText = 0;
   }
 
-  Serial.println("Call down");
+  this->screenSaverParameter.to_sleep.reset();
 }
 
-void OLED_MCU11::setDeviceModeToShow(const uint8_t MODE)
+e_oledMenu_t OLED_MCU11::getActiveMenu()
 {
-  this->deviceMode = MODE;
+  return this->menu.activeMenu;
 }
+
+void OLED_MCU11::setMenu(const e_oledMenu_t MENU)
+{
+  this->menu.activeMenu = MENU;
+}
+
+bool OLED_MCU11::readyToExitMenu()
+{
+  const bool READY = (bool)(HEADLINE_TEXT[this->menu.activeMenu][this->menu.activeText] == EXIT);
+  return READY;
+}
+
 //---------------------------------------------------
 //Text ausgeben
-void OLED_MCU11::showMenuText(const String TEXT)
+void OLED_MCU11::showHeadlineText()
+{
+  if(HEADLINE_TEXT[this->menu.activeMenu][this->menu.activeText] == LAST_TEXT)
+  {
+    this->menu.activeText--;
+  }
+  if(this->menu.activeText < 0)
+  {
+    this->menu.activeText = 0;
+  }
+
+  this->showMenuText(HEADLINE_TEXT[this->menu.activeMenu][this->menu.activeText], 0);
+}   
+
+void OLED_MCU11::showMenuText(const String TEXT, const bool ROW)
 {   
   //Länge des auszugebenden Textes berechnen
   int16_t textLength = TEXT.length() * -24; 
-  if(textLength > 120)
+  if(textLength > 100)
   {
     this->display.cursorPos--;
   }
@@ -181,13 +202,43 @@ void OLED_MCU11::showMenuText(const String TEXT)
   {
     this->display.cursorPos = 0;
   }
-  oled.clearDisplay();
-  oled.setTextSize(2);  
-  oled.setCursor(this->display.cursorPos,0);
-  oled.print(TEXT);
+  
+  if(ROW == false)
+  {
+    oled.setCursor(this->display.cursorPos, 0);
+  }
+  else
+  {
+    oled.setCursor(this->display.cursorPos, 32);
+  }
+  #ifdef DEBUG
+  Serial.print(", OLED OUTPUT ROW "); Serial.print(ROW); Serial.print(": "); Serial.print(TEXT);
+  #endif
+  
+  oled.setTextSize(2);
+
+  //Blinken erzeugen
+  if(this->to_parmeter.check())
+  {
+    this->f_parameterBlink = !this->f_parameterBlink;
+    this->to_parmeter.reset();
+  }
+
+  //Bei bearbeiten von Parameter diesen Blinken lassen
+  if(this->f_parmParameter == true && ROW == true)
+  {
+    if(this->f_parameterBlink == true)
+    {
+      oled.print(TEXT);
+    }     
+  } 
+  else
+  {
+    oled.print(TEXT);
+  }   
 }
 
-uint8_t OLED_MCU11::getMenuText(const uint8_t LAST_AVAILABLE_TEXT, const int ACTIVE_TEXT)
+int OLED_MCU11::getMenuText(const uint8_t LAST_AVAILABLE_TEXT, const int ACTIVE_TEXT)
 {
   int text = ACTIVE_TEXT;  
   if(text > LAST_AVAILABLE_TEXT)
@@ -202,204 +253,60 @@ uint8_t OLED_MCU11::getMenuText(const uint8_t LAST_AVAILABLE_TEXT, const int ACT
 }
 
 //---------------------------------------------------
-//SCREENSAVER
-void OLED_MCU11::screenSaver()
+//MENU AUSGABE
+void OLED_MCU11::showScreenSaver()
 { 
   //Nichts anzeigen, vielleicht ein Logo?  
 }
 
-//---------------------------------------------------
-//MENU AUSGABE
-void OLED_MCU11::showmainMenu()
+void OLED_MCU11::showMainMenu()
 {
-  //Encoder auswetung
-  if(this->f_encoderUp)
-  {
-    this->menu.activeText++;
-  }
-  else if(f_encoderDown)
-  {
-    this->menu.activeText--;
-  }
-  this->f_encoderUp = false;
-  this->f_encoderDown = false;
-
-  const uint8_t LAST_AVAILABLE_TEXT       = sizeof(mainMenuTexts)/sizeof(String) - 1;   
-  const uint8_t ACTIVE_TEXT               = this->getMenuText(LAST_AVAILABLE_TEXT, this->menu.activeText); 
-  const String  TEXT                      = mainMenuTexts[ACTIVE_TEXT];  
-  this->menu.activeText                   = ACTIVE_TEXT; 
-  this->showMenuText(TEXT);
   
-
-  //Bestätigung 
-  if(this->f_accept == true)
-  {
-    if(TEXT == LOCK)
-    {
-      this->display.mode = mode_screenSaver;
-    }
-    else
-    {
-      this->menu.activeMenu = (e_oledMenu_t)this->menu.activeText;  
-    }     
-    this->f_accept = false;
-  }
 }
 
 void OLED_MCU11::showErrorCodes()
 {
-  //Encoder auswetung
-  if(this->f_encoderUp)
-  {
-    this->menu.activeText++;
-  }
-  else if(f_encoderDown)
-  {
-    this->menu.activeText--;
-  }
-  this->f_encoderUp = false;
-  this->f_encoderDown = false;
-
-  const uint8_t LAST_TEXT       = sizeof(errorCodesTexts)/sizeof(String) - 1;   
-  const uint8_t ACTIVE_TEXT     = this->getMenuText(LAST_TEXT, this->menu.activeText); 
-  const String  TEXT            = errorCodesTexts[ACTIVE_TEXT];  
-
-  this->showMenuText(TEXT);
-  this->menu.activeText         = ACTIVE_TEXT; 
-
-  //Bestätigung 
-  if(this->f_accept == true)
-  {
-    if(TEXT == EXIT)
-    {
-      this->menu.activeMenu = menu_mainMenu;
-    }
-    else
-    {
-      //enter Parameter;  
-    }   
-    this->f_accept = false;  
-  }
+   
 }
 
 void OLED_MCU11::showSettings()
 {
-  //Encoder auswetung
-  if(this->f_encoderUp)
-  {
-    this->menu.activeText++;    
-  }
-  else if(f_encoderDown)
-  {
-    this->menu.activeText--;
-  }
-  this->f_encoderUp = false;
-  this->f_encoderDown = false;
-
-  const uint8_t LAST_TEXT       = sizeof(deviceSettingsTexts)/sizeof(String) - 1;   
-  const uint8_t ACTIVE_TEXT     = this->getMenuText(LAST_TEXT, this->menu.activeText); 
-  const String  TEXT            = deviceSettingsTexts[ACTIVE_TEXT];  
-
-  this->showMenuText(TEXT);
-  this->menu.activeText         = ACTIVE_TEXT; 
-
-  //Bestätigung 
-  if(this->f_accept == true)
-  {
-    if(TEXT == EXIT)
-    {
-      this->menu.activeMenu = menu_mainMenu;
-    }
-    else
-    {
-      //Enter Parameter;
-    }     
-    this->f_accept = false;
-  }
+  
 }
 
 void OLED_MCU11::showDipswitches()
 {
-  const uint8_t LAST_TEXT       = sizeof(dipSwitchTexts)/sizeof(String) - 1;   
-  const uint8_t ACTIVE_TEXT     = this->getMenuText(LAST_TEXT, this->menu.activeText);
-  const String  DIP_VALUE       = String(this->digitalDipSwitch[ACTIVE_TEXT], DEC);
-
-  String  TEXT                  = String(dipSwitchTexts[ACTIVE_TEXT] + ": " + DIP_VALUE); 
-  this->menu.activeText         = ACTIVE_TEXT; 
-
-  if(dipSwitchTexts[ACTIVE_TEXT] == EXIT)
-  {
-    TEXT = dipSwitchTexts[ACTIVE_TEXT];
-  }    
   
-  this->showMenuText(TEXT);      
+}
 
-  //Encoder auswetung
-  if(this->f_encoderUp)
-  {
-    this->menu.activeText++;    
-  }
-  else if(f_encoderDown)
-  {
-    this->menu.activeText--;
-  }
-  this->f_encoderUp = false;
-  this->f_encoderDown = false;
+String DEVICE_MODE[] = {{"stop"}, {"start"}, {"safe"}, {"running C1"}, {"running C2"}, {"running C3"}};
+void OLED_MCU11::showDeviceMode()
+{
+  this->showMenuText(DEVICE_MODE[this->paramValue], 1);
+}
 
-  //Bestätigung 
-  if(this->f_accept == true)
+//---------------------------------------------------
+//Parametermode
+void OLED_MCU11::enterParameter()
+{  
+  //Nur bei Parameter in Parametriermode
+  if(HEADLINE_TEXT[this->menu.activeMenu][this->menu.activeText] != EXIT)
   {
-    if(TEXT == EXIT)
-    {
-      this->menu.activeMenu = menu_mainMenu;
-    }
-    else
-    {
-      this->digitalDipSwitch[this->menu.activeText] = !this->digitalDipSwitch[this->menu.activeText];
-    }     
-    this->f_accept = false;
+    this->f_parmParameter = true;
   }
 }
 
-void OLED_MCU11::showDeviceMode()
+void OLED_MCU11::setParamValueToShow(const int VALUE)
 {
-  const uint8_t LAST_TEXT       = sizeof(dipSwitchTexts)/sizeof(String) - 1;   
-  const uint8_t ACTIVE_TEXT     = this->getMenuText(LAST_TEXT, this->menu.activeText);
-  const String  DIP_VALUE       = String(this->digitalDipSwitch[ACTIVE_TEXT], DEC);
+  this->paramValue = VALUE;
+}
 
-  String  TEXT                  = String(dipSwitchTexts[ACTIVE_TEXT] + ": " + DIP_VALUE); 
-  this->menu.activeText         = ACTIVE_TEXT; 
+void OLED_MCU11::exitParameter()
+{
+  this->f_parmParameter = false;
+}
 
-  if(dipSwitchTexts[ACTIVE_TEXT] == EXIT)
-  {
-    TEXT = dipSwitchTexts[ACTIVE_TEXT];
-  }    
-  
-  this->showMenuText(TEXT);      
-
-  //Encoder auswetung
-  if(this->f_encoderUp)
-  {
-    this->menu.activeText++;    
-  }
-  else if(f_encoderDown)
-  {
-    this->menu.activeText--;
-  }
-  this->f_encoderUp = false;
-  this->f_encoderDown = false;
-
-  //Bestätigung 
-  if(this->f_accept == true)
-  {
-    if(TEXT == EXIT)
-    {
-      this->menu.activeMenu = menu_mainMenu;
-    }
-    else
-    {
-      this->digitalDipSwitch[this->menu.activeText] = !this->digitalDipSwitch[this->menu.activeText];
-    }     
-    this->f_accept = false;
-  }
+bool OLED_MCU11::parameterEntered()
+{
+  return this->f_parmParameter;
 }

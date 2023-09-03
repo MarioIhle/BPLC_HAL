@@ -26,10 +26,12 @@
 
 typedef enum
 {
-    APP_MODE__STOP,
+    APP_MODE__STOP,    
     APP_MODE__START,
-    APP_MODE__RUNNING,
     APP_MODE__SAFE_STATE,
+    APP_MODE__RUN_WITH_CONFIG_1,
+    APP_MODE__RUN_WITH_CONFIG_2,
+    APP_MODE__RUN_WITH_CONFIG_3,
 
     APP_MODE__COUNT,
 }e_APP_MODE_t;
@@ -40,12 +42,33 @@ class APP_MCU11
     APP_MCU11();
     void begin();
     void tick();
-    e_APP_MODE_t    MODE;
+
+    e_APP_MODE_t    getDeviceMode();    
+    void            setDeviceMode(const e_APP_MODE_t MODE);
+
+    //Dip Controll
+    void    setVDip(const uint8_t DIP_NUM, const uint8_t VALUE);
+    int     getVDip(const uint8_t DIP_NUM);
     
     private:
     HAL_MCU11   hal;
     OLED_MCU11  oled;
 
-    void displayStateMachine();
+    e_APP_MODE_t    deviceMode;
+
+    int virtualDipSwitch[8];
+    
+    int temp_ParameterStorage;      //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
+
+    void handleDisplay();
+    void beepOnEncoderInput();
+
+    void editDeviceMode();
+
+    struct 
+    {
+        bool f_beepOnEncoderInput;
+    }deviceSettings;
+    
 };
 #endif

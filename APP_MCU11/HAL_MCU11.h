@@ -62,10 +62,10 @@ class HAL_MCU11
     bool                isEncoderButtonPressed  ();
     void                setOEN                  (const bool STATE);
     bool                getINT                  ();
-    blink               BUZZER;
-    blink               LD1;
-    blink               LD2;
-    blink               LD3;                  
+    Output       BUZZER;
+    Output       LD1;
+    Output       LD2;
+    Output       LD3;                  
 
     private:
 

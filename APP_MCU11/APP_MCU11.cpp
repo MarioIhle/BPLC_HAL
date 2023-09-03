@@ -7,122 +7,188 @@ void APP_MCU11::begin()
 {
    this->hal.begin();   
    this->oled.begin();
+
+   this->deviceSettings.f_beepOnEncoderInput = true;
+   this->deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
 }
 
 void APP_MCU11::tick()
 {
    this->hal.tick();
    this->oled.tick();
+   this->handleDisplay();
 
    //Hauptapplikation MCU
-   switch(this->MODE)
+   switch(this->deviceMode)
    {
       case APP_MODE__STOP:
-         this->hal.LD1.setupBlink(1, 500);
+         this->hal.LD1.blink(1, 500);          
       break;
 
-      case APP_MODE__START:   
-         this->hal.LD1.setupBlink(1, 50);     
+      case APP_MODE__RUN_WITH_CONFIG_1:   
+      case APP_MODE__RUN_WITH_CONFIG_2:
+      case APP_MODE__RUN_WITH_CONFIG_3:               
+         this->hal.LD1.blink(1, 2500);         
       break;
 
-      case APP_MODE__RUNNING: 
-         this->hal.LD1.setupBlink(1, 2500);        
+      case APP_MODE__START:             
+         this->hal.LD1.set();   
       break;
 
       case APP_MODE__SAFE_STATE:
-         this->hal.LD1.setupBlink(1, 250);
+         this->hal.LD1.blink(1, 100);
+         //this->hal.LD2.reset();  //Später für Fehlercode nutzen
       break;
 
       default:
-         this->MODE = APP_MODE__SAFE_STATE;
+         this->deviceMode = APP_MODE__SAFE_STATE;
       break;
+   }      
+   //DEBUG beep
+   if(this->deviceSettings.f_beepOnEncoderInput)
+   {
+      this->beepOnEncoderInput(); 
    }   
-   
 }
 
-
-
-void APP_MCU11::displayStateMachine()
+void APP_MCU11::handleDisplay()
 {  
-   switch(this->oled.getActiveMenu)
+   switch(this->oled.getActiveMenu())
    {      
       case menu_mainMenu:
          if(this->hal.isEncoderButtonPressed())
-         {
-            this->oled.enterMenu();
+         {            
+            this->oled.enterMenu();            
          }
 
-         if(this->hal.getEncoderDirection() == MCU_left)
+         if(this->hal.getEncoderDirection() == MCU_right)
          {
-            this->oled.nextText;
+            this->oled.showNextTextOfThisMenu();
          }
-         else if(this->hal.getEncoderDirection() == MCU_right)
+         else if(this->hal.getEncoderDirection() == MCU_left)
          {
-            this->oled.previoursText;
+            this->oled.showPrevioursTextOfThisMenu();
          }           
       break;
 
       case menu_deviceMode:
-         if(this->hal.isEncoderButtonPressed())
-         {
-            this->MODE = (e_APP_MODE_t)this->oled.getSelectedDeviceMode();
-         }
-         if(this->hal.getEncoderDirection() == MCU_left)
-         {
-           this->oled.shownDeviceMode++;
-         }
-         else if(this->hal.getEncoderDirection() == MCU_right)
-         {
-           this->oled.shownDeviceMode--;
-         }         
+         editDeviceMode();
       break;
 
       case menu_errorCodes:
-         if(this->hal.isEncoderButtonPressed())
-         {
-            this->oled.enterMenu();
-         }
-
-         if(this->hal.getEncoderDirection() == MCU_left)
-         {
-            this->oled.nextText;
-         }
-         else if(this->hal.getEncoderDirection() == MCU_right)
-         {
-            this->oled.previoursText;
-         }
+       
       break;
 
       case menu_settings:
-         if(this->hal.isEncoderButtonPressed())
-         {
-            this->oled.enterMenu();
-         }
-
-         if(this->hal.getEncoderDirection() == MCU_left)
-         {
-            this->oled.nextText;
-         }
-         else if(this->hal.getEncoderDirection() == MCU_right)
-         {
-            this->oled.previoursText;
-         }
+        
       break;
 
       case menu_dipSwitch:
-         if(this->hal.isEncoderButtonPressed())
-         {
-            this->oled.enterMenu();
-         }
+         
+      break;
 
-         if(this->hal.getEncoderDirection() == MCU_left)
+      case menu_screenSaver: 
+         if(this->hal.isEncoderButtonPressed() || this->hal.getEncoderDirection() != MCU_idle)
          {
-            this->oled.nextText;
-         }
-         else if(this->hal.getEncoderDirection() == MCU_right)
-         {
-            this->oled.previoursText;
+            this->oled.setMenu(menu_mainMenu);
          }
       break;
    }
+}
+
+void APP_MCU11::beepOnEncoderInput()
+{
+   if(this->hal.isEncoderButtonPressed())
+   {      
+      this->hal.BUZZER.blink(1, 100);
+   }
+
+   if(this->hal.getEncoderDirection() != MCU_idle)
+   {
+      this->hal.BUZZER.blink(1, 100);
+   }
+}
+
+e_APP_MODE_t APP_MCU11::getDeviceMode()
+{
+   return this->deviceMode;
+}
+
+void APP_MCU11::setDeviceMode(const e_APP_MODE_t MODE)
+{
+   this->deviceMode = MODE;
+}
+
+void APP_MCU11::setVDip(const uint8_t DIP_NUM, uint8_t VALUE)
+{
+   this->virtualDipSwitch[DIP_NUM] = VALUE;
+}
+
+int APP_MCU11::getVDip(const uint8_t DIP_NUM)
+{
+   return this->virtualDipSwitch[DIP_NUM];
+}
+
+void APP_MCU11::editDeviceMode()
+{
+   if(this->hal.isEncoderButtonPressed())
+   {                 
+      //Enter Parameter
+      if(this->oled.parameterEntered() == false)
+      {           
+         this->oled.enterParameter();                          
+      }
+      else
+      {
+         this->deviceMode = (e_APP_MODE_t)this->temp_ParameterStorage;
+         this->oled.exitParameter();
+      }
+      //Cursor on "exit"
+      if(this->oled.readyToExitMenu())
+      {
+         this->oled.setMenu(menu_mainMenu);
+      }      
+   }
+
+   if(this->hal.getEncoderDirection() == MCU_right)
+   {
+      if(this->oled.parameterEntered())
+      {
+         this->temp_ParameterStorage++;
+      }
+      else
+      {
+         this->oled.showNextTextOfThisMenu();            
+      }
+   }
+   else if(this->hal.getEncoderDirection() == MCU_left)
+   {    
+      if(this->oled.parameterEntered())
+      {
+         this->temp_ParameterStorage--;         
+      }
+      else
+      {
+         this->oled.showPrevioursTextOfThisMenu();            
+      }
+   }  
+
+   //Bereichberenzung
+   if(this->temp_ParameterStorage < APP_MODE__STOP)
+   {
+      temp_ParameterStorage = APP_MODE__STOP;
+   }
+   if(this->temp_ParameterStorage > APP_MODE__SAFE_STATE)
+   {
+      this->temp_ParameterStorage >= APP_MODE__COUNT;
+   }
+
+   if(this->oled.parameterEntered())
+   {
+      this->oled.setParamValueToShow(this->temp_ParameterStorage);
+   }
+   else
+   {
+      this->oled.setParamValueToShow(this->deviceMode);
+   }   
 }

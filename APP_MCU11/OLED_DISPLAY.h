@@ -24,6 +24,9 @@
 #include "Adafruit_SSD1306.h"
 
 
+#define DEBUG
+
+
 //---------------------------------------------------
 //DISPLAY PARAMETER
 #define SCREEN_WIDTH    128
@@ -33,13 +36,15 @@
 //MENÜS
 typedef enum
 {        
+    menu_mainMenu,
     menu_deviceMode,
     menu_errorCodes,
     menu_settings,
     menu_dipSwitch,
-    subMenu_count,
 
-    menu_mainMenu,
+    menu_screenSaver,
+
+    menu_count,
 }e_oledMenu_t;
 
 typedef struct
@@ -48,37 +53,22 @@ typedef struct
   e_oledMenu_t      previousActiveMenu;
 
   int               activeText;             
-}s_menuParameter_t;
-//---------------------------------------------------
-//MODES
-typedef enum
-{   
-    mode_screenSaver,
-    mode_unlocked,
-    mode_count,
-}e_oledMode_t;
-//---------------------------------------------------
-//DISPLAY 
+}s_menu_t;
+
 typedef struct
 {     
-    int             cursorPos;      
-    e_oledMode_t    mode;
-    e_oledMode_t    previousMode;            
+    int             cursorPos;    
 }s_display_t;
 //---------------------------------------------------
 //DEVICE SETTINGS
-#define UNLOCK_CODE_LENGTH  	4       //Länge des Sperrbildschrim codes
-
 typedef struct{
     uint32_t    sleepTime;
-    uint32_t    lockTime;
     bool        screenSaverIsEnbaled;
 }s_deviceSettingsParameter_t;
 //---------------------------------------------------
 //SCREENSAVER
 typedef struct{          
     Timeout         to_sleep;
-    e_oledMode_t    modeBeforeScreenSaver; 
 }s_screenSaverParameter_t;
 
 
@@ -92,34 +82,39 @@ class OLED_MCU11
     void    begin       ();
     void    tick        ();
 
-    //Steuerung 
-    void        accept();   
-    void        cursorUp();
-    void        cursorDown();
-
-    //Informationsaustasch
-    void        setDeviceModeToShow(const uint8_t MODE);
+    //Menüsteuernug
+    void            showNextTextOfThisMenu      ();
+    void            showPrevioursTextOfThisMenu ();
+    void            enterMenu                   ();
+    e_oledMenu_t    getActiveMenu               ();      
+    void            setMenu                     (const e_oledMenu_t MENU);
+    bool            readyToExitMenu             ();
+    //Parametereingabe
+    void            enterParameter              ();
+    void            exitParameter               ();
+    bool            parameterEntered            ();
+    void            setParamValueToShow         (const int VALUE);    
 
     private:
-    uint8_t     getMenuText     (const uint8_t LAST_TEXT, const int PREVIOUS_TEXT);
-    void        showMenuText    (const String TEXT);
-    
-    void        screenSaver     ();
-    void        showmainMenu    ();
+    void        showHeadlineText();       
+    void        showMenuText    (const String TEXT, const bool ROW);
+    int         getMenuText     (const uint8_t LAST_AVAILABLE_TEXT, const int ACTIVE_TEXT);
+  
+    void        showScreenSaver ();
+    void        showMainMenu    ();
     void        showDeviceMode  ();
     void        showErrorCodes  ();
     void        showSettings    ();
-    void        showDipswitches ();
-
-    bool                        digitalDipSwitch[8];
-
-    bool                        f_accept;
-    bool                        f_encoderUp;
-    bool                        f_encoderDown;
-    uint8_t                     deviceMode;
+    void        showDipswitches ();    
 
     s_display_t                 display;
-    s_menuParameter_t           menu;
+    s_menu_t                    menu;
+
+    int             paramValue;
+    bool            f_parmParameter;
+    Timeout         to_parmeter;
+    bool            f_parameterBlink;
+
     s_screenSaverParameter_t    screenSaverParameter;
     s_deviceSettingsParameter_t deviceSettings;        
 };
