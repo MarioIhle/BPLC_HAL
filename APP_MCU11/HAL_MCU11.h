@@ -18,17 +18,12 @@
 
 #include "Arduino.h"
 #include "SpecialFunctions.h"
-
+#include "IOM_base.h"
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
 //Encoder
-typedef enum
-{
-    MCU_idle,
-    MCU_left,
-    MCU_right,
-}e_direction_t_MCU;
+
 
 typedef enum
 {
@@ -58,7 +53,7 @@ class HAL_MCU11
     void begin();
     void tick();
 
-    e_direction_t_MCU   getEncoderDirection     ();
+    e_direction_t       getEncoderDirection     ();
     bool                isEncoderButtonPressed  ();
     void                setOEN                  (const bool STATE);
     bool                getINT                  ();

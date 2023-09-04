@@ -71,11 +71,11 @@ void APP_MCU11::handleDisplay()
             this->oled.enterMenu();            
          }
 
-         if(this->hal.getEncoderDirection() == MCU_right)
+         if(this->hal.getEncoderDirection() == right)
          {
             this->oled.showNextTextOfThisMenu();
          }
-         else if(this->hal.getEncoderDirection() == MCU_left)
+         else if(this->hal.getEncoderDirection() == left)
          {
             this->oled.showPrevioursTextOfThisMenu();
          }           
@@ -98,7 +98,7 @@ void APP_MCU11::handleDisplay()
       break;
 
       case menu_screenSaver: 
-         if(this->hal.isEncoderButtonPressed() || this->hal.getEncoderDirection() != MCU_idle)
+         if(this->hal.isEncoderButtonPressed() || this->hal.getEncoderDirection() != idle)
          {
             this->oled.setMenu(menu_mainMenu);
          }
@@ -113,7 +113,7 @@ void APP_MCU11::beepOnEncoderInput()
       this->hal.BUZZER.blink(1, 100);
    }
 
-   if(this->hal.getEncoderDirection() != MCU_idle)
+   if(this->hal.getEncoderDirection() != idle)
    {
       this->hal.BUZZER.blink(1, 100);
    }
@@ -160,7 +160,7 @@ void APP_MCU11::editDeviceMode()
       }      
    }
 
-   if(this->hal.getEncoderDirection() == MCU_right)
+   if(this->hal.getEncoderDirection() == right)
    {
       if(this->oled.parameterEntered())
       {
@@ -171,7 +171,7 @@ void APP_MCU11::editDeviceMode()
          this->oled.showNextTextOfThisMenu();            
       }
    }
-   else if(this->hal.getEncoderDirection() == MCU_left)
+   else if(this->hal.getEncoderDirection() == left)
    {    
       if(this->oled.parameterEntered())
       {
@@ -215,12 +215,12 @@ void APP_MCU11::errorOut()
       this->errorCode[this->temp_ParameterStorage] = false;
    }
 
-   if(this->hal.getEncoderDirection() == MCU_right)
+   if(this->hal.getEncoderDirection() == right)
    {
       this->oled.showNextTextOfThisMenu();
       this->temp_ParameterStorage++;
    }
-   else if(this->hal.getEncoderDirection() == MCU_left)
+   else if(this->hal.getEncoderDirection() == left)
    {
       this->oled.showPrevioursTextOfThisMenu();
       this->temp_ParameterStorage--;

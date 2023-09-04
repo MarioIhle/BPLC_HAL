@@ -51,31 +51,31 @@ void HAL_MCU11::tick()
 
     //buzzer
     this->BUZZER.tick();
-    analogWrite(this->pins.buzzer, this->BUZZER.getState());
+    analogWrite(this->pins.buzzer, this->BUZZER.getValue());
 
     //LD1-3
     this->LD1.tick();
     this->LD2.tick();
     this->LD3.tick();
-    analogWrite(this->pins.led[0], this->LD1.getState());
-    analogWrite(this->pins.led[1], this->LD2.getState());
-    analogWrite(this->pins.led[2], this->LD3.getState());  
+    analogWrite(this->pins.led[0], this->LD1.getValue());
+    analogWrite(this->pins.led[1], this->LD2.getValue());
+    analogWrite(this->pins.led[2], this->LD3.getValue());  
 }
 
-e_direction_t_MCU HAL_MCU11::getEncoderDirection()
+e_direction_t HAL_MCU11::getEncoderDirection()
 {
     const bool NEGATIVE_FLANK_A = (bool)(this->ioState.encoder[ENCODER_PIN__A].state == false   && this->ioState.encoder[ENCODER_PIN__A].previousState == true);
     const bool NEGATIVE_FLANK_B = (bool)(this->ioState.encoder[ENCODER_PIN__B].state == false    && this->ioState.encoder[ENCODER_PIN__B].previousState == true);
 
-    e_direction_t_MCU direction = MCU_idle;    
+    e_direction_t direction = idle;    
 
     if(NEGATIVE_FLANK_A && this->ioState.encoder[ENCODER_PIN__B].state == false)
     {
-        direction = MCU_left;
+        direction = left;
     }
     else if(NEGATIVE_FLANK_B && this->ioState.encoder[ENCODER_PIN__A].state == false)
     {
-        direction = MCU_right;
+        direction = right;
     }
 
     return direction;

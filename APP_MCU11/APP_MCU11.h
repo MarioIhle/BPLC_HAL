@@ -23,6 +23,7 @@
 //--------------------------------------------------------------------
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
+#include "IOM_base.h"
 
 typedef enum
 {

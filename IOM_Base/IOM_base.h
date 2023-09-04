@@ -3,6 +3,7 @@
 
 #include "Arduino.h"
 #include "HAL_DI11.h"
+#include "SpecialFunctions.h"
 
 //--------------------------------------------------------------------
 //Typdefinitionen
@@ -54,6 +55,50 @@ class RotaryEncoder
     HAL_DI11* card;
 };
 
+//--------------------------------------------------------------------
+//OUTPUT KLASSE
+//Digital & Analog spielt keine Rolle
+//--------------------------------------------------------------------
+typedef enum
+{
+	OUTPUTMODE__OFF,
+	OUTPUTMODE__ON, 
+	OUTPUTMODE__BLINK,
+    OUTPUTMODE__BLINK_WITH_BREAK,
+
+	OUTPUTMODE__SIZE,
+}e_outputMode_t;
+
+class Output {
+
+	public:
+    //------------------------------------------------------------------------
+    //Constructor Initialisierung
+	Output				(); 
+	Output				(const uint8_t ON_VALUE);		
+    
+	void 	begin		(const uint8_t ON_VALUE);
+    void  	tick		();		//Muss getickt werden jeden loop
+
+	void	blink		    (const uint8_t BLINKS, const int BLINK_INTERVAL);		                //Blinkt für angeforderte Anzahl und Interval
+    void    blinkWithBreak  (const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
+	void 	set			    ();		//Output ON
+	void 	reset		    ();		//Output OFF
+    void    setValue        (const uint8_t VALUE);
+    uint8_t getValue        ();   
+			
+	private:	
+	
+	e_outputMode_t	mode;       //Aktueller Modus
+
+	uint8_t blinks_requested;	//Angefragte Blinks
+	uint8_t count;      		//Counter der blinks  
+	uint8_t actualValue;  	    //Aktueller Wert 
+	uint8_t onValue;			//Welcher Wert wird geschieben bei object.set():	
+
+	Timeout to_blink;			//Timeout für Blink Interval
+    Timeout to_break;           //Timeout für Pausen interval
+};
 
 
 
