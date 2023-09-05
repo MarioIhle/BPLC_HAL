@@ -80,23 +80,44 @@ bool RotaryEncoder::buttonPressed()
 //OUTPUT
 Output::Output() 
 {
-	this->onValue = 255;
+	this->setting.outputType 	= OUTPUTTYPE__OPEN_SOURCE;
+	this->setting.onValue 		= 255;
+    this->mode 					= OUTPUTMODE__OFF;
+}
 
-    this->mode = OUTPUTMODE__OFF;
+Output::Output(const e_outputType_t OUTPUT_TYPE)
+{
+	this->setting.outputType 	= OUTPUT_TYPE;
+	this->setting.onValue 		= 255;
+    this->mode 					= OUTPUTMODE__OFF;
 }
 
 Output::Output(const uint8_t ON_VALUE)
 {
-	this->onValue = ON_VALUE;
+	this->setting.outputType 	= OUTPUTTYPE__OPEN_SOURCE;
+	this->setting.onValue 		= ON_VALUE;
+    this->mode 					= OUTPUTMODE__OFF;
+}
 
-    this->mode = OUTPUTMODE__OFF;
+Output::Output(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
+{
+	this->setting.outputType 	= OUTPUT_TYPE;
+	this->setting.onValue 		= ON_VALUE;
+    this->mode 					= OUTPUTMODE__OFF;
 }
 
 void Output::begin(const uint8_t ON_VALUE)
 {
-	this->onValue = ON_VALUE;
+	this->setting.outputType 	= OUTPUTTYPE__OPEN_SOURCE;
+	this->setting.onValue 		= ON_VALUE;
+    this->mode 					= OUTPUTMODE__OFF;
+}
 
-    this->mode = OUTPUTMODE__OFF;
+void Output::begin(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
+{
+	this->setting.outputType 	= OUTPUT_TYPE;
+	this->setting.onValue 		= ON_VALUE;
+    this->mode 					= OUTPUTMODE__OFF;
 }
 
 void Output::tick()
@@ -108,25 +129,25 @@ void Output::tick()
 			break;
 
 		case OUTPUTMODE__ON:
-			this->actualValue = this->onValue;
+			this->actualValue = this->setting.onValue;
 			break;
 
 		case OUTPUTMODE__BLINK:
-			if(this->count < this->blinks_requested && this->to_blink.check())
+			if(this->blinkParameter.count < this->blinkParameter.blinks_requested && this->blinkParameter.to_blink.check())
 			{      
 				if(this->actualValue == 0)
 				{
-					this->actualValue = this->onValue;
-					this->count++;
+					this->actualValue = this->setting.onValue;
+					this->blinkParameter.count++;
 				}
 				else
 				{
 					this->actualValue = 0;
 				}
 
-				this->to_blink.reset();
+				this->blinkParameter.to_blink.reset();
 			}
-			else if(this->count == this->blinks_requested)
+			else if(this->blinkParameter.count == this->blinkParameter.blinks_requested)
 			{
 				this->mode = OUTPUTMODE__OFF;
 			}
@@ -134,29 +155,29 @@ void Output::tick()
 
         case OUTPUTMODE__BLINK_WITH_BREAK:
             //Blinken
-            if(this->count < this->blinks_requested && this->to_blink.check() && this->to_break.check())
+            if(this->blinkParameter.count < this->blinkParameter.blinks_requested && this->blinkParameter.to_blink.check() && this->blinkParameter.to_break.check())
 			{      
 				if(this->actualValue == 0)
 				{
-					this->actualValue = this->onValue;
-					this->count++;
+					this->actualValue = this->setting.onValue;
+					this->blinkParameter.count++;
 				}
 				else
 				{
 					this->actualValue = 0;
 				}
-				this->to_blink.reset();
+				this->blinkParameter.to_blink.reset();
 			}
             //Blinken abgeschlossen, Break Timeout starten
-			else if(this->count == this->blinks_requested && this->to_break.check())
+			else if(this->blinkParameter.count == this->blinkParameter.blinks_requested && this->blinkParameter.to_break.check())
 			{
-                this->to_break.reset();                                
+                this->blinkParameter.to_break.reset();                                
 			}
             //Break Timeout abwarten
             else
             {
                 this->actualValue   = 0;
-                this->count         = 0;
+                this->blinkParameter.count   = 0;
             }
             break;
 
@@ -168,19 +189,19 @@ void Output::tick()
 
 void Output::blink(const uint8_t BLINKS, const int BLINK_INTERVAL)
 {
-	this->blinks_requested = BLINKS;
-    this->to_blink.setInterval(BLINK_INTERVAL);
-    this->count = 0; 
+	this->blinkParameter.blinks_requested = BLINKS;
+    this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
+    this->blinkParameter.count = 0; 
 
     this->mode = OUTPUTMODE__BLINK;
 }
 
 void Output::blinkWithBreak(const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME)
 {
-	this->blinks_requested = BLINKS;
-    this->to_blink.setInterval(BLINK_INTERVAL);
-    this->to_break.setInterval(BREAK_TIME);
-    this->count = 0; 
+	this->blinkParameter.blinks_requested = BLINKS;
+    this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
+    this->blinkParameter.to_break.setInterval(BREAK_TIME);
+    this->blinkParameter.count = 0; 
 
     this->mode = OUTPUTMODE__BLINK_WITH_BREAK;
 }
@@ -195,13 +216,18 @@ void Output::reset()
 	this->mode = OUTPUTMODE__OFF;
 }
 
-void Output::setValue(const uint8_t VALUE)
+void Output::setOnValue(const uint8_t VALUE)
 {
-    this->actualValue = VALUE;
+    this->setting.onValue = VALUE;
 }
 
-//Achtung kein BOOL! TRUE = 255
+//Achtung kein BOOL! TRUE = max.255
 uint8_t Output::getValue()
 {
 	return this->actualValue;	
+}
+
+e_outputType_t  Output::getOutputType()
+{
+	return this->setting.outputType;
 }
