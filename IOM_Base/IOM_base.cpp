@@ -76,11 +76,14 @@ bool RotaryEncoder::buttonPressed()
     return this->p_pushButton->posFlank();
 }
 
-
 //--------------------------------------------------------------------
 //OUTPUT
 Output::Output() 
-{}
+{
+	this->onValue = 255;
+
+    this->mode = OUTPUTMODE__OFF;
+}
 
 Output::Output(const uint8_t ON_VALUE)
 {
@@ -197,7 +200,8 @@ void Output::setValue(const uint8_t VALUE)
     this->actualValue = VALUE;
 }
 
+//Achtung kein BOOL! TRUE = 255
 uint8_t Output::getValue()
 {
-	return this->actualValue;
+	return this->actualValue;	
 }

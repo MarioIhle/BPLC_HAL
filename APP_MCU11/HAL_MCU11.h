@@ -50,7 +50,7 @@ class HAL_MCU11
     public:
     HAL_MCU11();
     
-    void begin();
+    void begin(void (*INT_callBack)(void));
     void tick();
 
     e_direction_t       getEncoderDirection     ();

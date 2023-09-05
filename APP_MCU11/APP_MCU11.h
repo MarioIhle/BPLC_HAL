@@ -41,7 +41,7 @@ class APP_MCU11
 {
     public:
     APP_MCU11();
-    void begin();
+    void begin(void (*INT_callBack)(void));
     void tick();
 
     e_APP_MODE_t    getDeviceMode();    

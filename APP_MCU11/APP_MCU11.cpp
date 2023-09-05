@@ -3,9 +3,9 @@
 APP_MCU11::APP_MCU11()
 {}
 
-void APP_MCU11::begin()
+void APP_MCU11::begin(void (*INT_callBack)(void))
 {
-   this->hal.begin();   
+   this->hal.begin(INT_callBack);   
    this->oled.begin();
 
    this->deviceSettings.f_beepOnEncoderInput = true;

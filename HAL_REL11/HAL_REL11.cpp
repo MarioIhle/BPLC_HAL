@@ -48,6 +48,13 @@ void HAL_REL11::tick()
     for(int PORT = 0; PORT< 3; PORT++)
     {
         this->p_REL[PORT]->tick();
-        REL11_register.write(PORT, this->p_REL[PORT]->getValue());
+        if(this->p_REL[PORT]->getValue() == 255)
+        {
+            REL11_register.write(PORT, true);
+        }
+        else
+        {
+            REL11_register.write(PORT, false);
+        }        
     }    
 }
