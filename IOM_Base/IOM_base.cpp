@@ -5,72 +5,65 @@
 DigitalInput::DigitalInput    ()
 {}
 
-DigitalInput::DigitalInput    (const uint8_t PORT, HAL_DI11* CARD)
-{
-    this->p_card    = CARD;
-    this->port      = PORT;
-}
-
-void DigitalInput::begin      (const uint8_t PORT, HAL_DI11* CARD)
-{
-    this->p_card    = CARD;
-    this->port      = PORT;
-}
-
 bool DigitalInput::ishigh()
 {
-    const bool PIN_IS_HIGH = (bool)(this->p_card->digitalInputState[this->port].state == true);
+    const bool PIN_IS_HIGH = (bool)(this->inputState.state == true);
 
     return PIN_IS_HIGH;
 }
 
 bool DigitalInput::islow()
 {
-    const bool PIN_IS_HIGH = (bool)(this->p_card->digitalInputState[this->port].state == false);
+    const bool PIN_IS_HIGH = (bool)(this->inputState.state == false);
 
     return PIN_IS_HIGH;
 }
 
 bool DigitalInput::posFlank()
 {
-    const bool POSITIVE_FLANK_OCCURED = (bool)(this->p_card->digitalInputState[this->port].state == true && this->p_card->digitalInputState[this->port].previousState == false);
+    const bool POSITIVE_FLANK_OCCURED = (bool)(this->inputState.state == true && this->inputState.previousState == false);
 
     return POSITIVE_FLANK_OCCURED;
 }
 
 bool DigitalInput::negFlank()
 {
-    const bool NEGATIVE_FLANK_OCCURED = (bool)(this->p_card->digitalInputState[this->port].state == false && this->p_card->digitalInputState[this->port].previousState == true);
+    const bool NEGATIVE_FLANK_OCCURED = (bool)(this->inputState.state == false && this->inputState.previousState == true);
 
     return NEGATIVE_FLANK_OCCURED;
 }
 
+void DigitalInput::setPortState(const bool STATE)
+{
+	this->inputState.previousState = this->inputState.state;
+	this->inputState.state = STATE;
+}
 
 //--------------------------------------------------------------------
 //ROTARY ENCODER
-RotaryEncoder::RotaryEncoder(const uint8_t PORT_A, const uint8_t PORT_B, const uint8_t PORT_PUSHBUTTON, HAL_DI11* CARD)
+RotaryEncoder::RotaryEncoder(DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON)
 {   
-    this->A.begin(PORT_A, CARD);
-    this->B.begin(PORT_B, CARD);
-    this->pushButton.begin(PORT_PUSHBUTTON, CARD);   
+    this->p_A = P_PORT_A;
+    this->p_B = P_PORT_B;
+    this->p_pushButton = P_PORT_PUSHBUTTON;   
 }
 
-void RotaryEncoder::begin   (const uint8_t PORT_A, const uint8_t PORT_B, const uint8_t PORT_PUSHBUTTON, HAL_DI11* CARD)
+void RotaryEncoder::begin   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON)
 {
-    this->A.begin(PORT_A, CARD);
-    this->B.begin(PORT_B, CARD);
-    this->pushButton.begin(PORT_PUSHBUTTON, CARD);  
+    this->p_A = P_PORT_A;
+    this->p_B = P_PORT_B;
+    this->p_pushButton = P_PORT_PUSHBUTTON;    
 }
 
 e_direction_t RotaryEncoder::getTurningDirection()
 {
     e_direction_t direction = idle;    
 
-    if(this->A.negFlank() && this->B.ishigh())
+    if(this->p_A->negFlank() && this->p_B->ishigh())
     {
         direction = right;
     }
-    else if(this->B.negFlank() && this->A.ishigh())
+    else if(this->p_B->negFlank() && this->p_A->ishigh())
     {
         direction = left;
     }
@@ -80,7 +73,7 @@ e_direction_t RotaryEncoder::getTurningDirection()
 
 bool RotaryEncoder::buttonPressed()
 {
-    return this->pushButton.posFlank();
+    return this->p_pushButton->posFlank();
 }
 
 

@@ -2,18 +2,25 @@
 #define IOM_base_h
 
 #include "Arduino.h"
-#include "HAL_DI11.h"
 #include "SpecialFunctions.h"
 
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
+//Encoder oder Motoren richtung
 typedef enum
 {
     idle,
     left,
     right,
 }e_direction_t;
+
+//DigitalInput states
+typedef struct
+{        
+    bool state;
+    bool previousState;
+}s_digitalInputState_t;
 
 //--------------------------------------------------------------------
 //DIGITAL INPUT KLASSE
@@ -22,17 +29,18 @@ class DigitalInput
 {
     public:
     DigitalInput    ();
-    DigitalInput    (const uint8_t PORT, HAL_DI11* CARD);
-    void begin      (const uint8_t PORT, HAL_DI11* CARD);
-    //Getter für App
+   
+    //Getter für Applikation
     bool 	ishigh		();
     bool	islow		();
 	bool 	posFlank	();	
 	bool 	negFlank	();	
 
+    //Setter für HAL
+    void setPortState(const bool STATE);
+
     private:
-    uint8_t     port;
-    HAL_DI11*   p_card;    
+    s_digitalInputState_t   inputState;   
 };
 
 //--------------------------------------------------------------------
@@ -41,18 +49,16 @@ class DigitalInput
 class RotaryEncoder 
 {
 	public:
-                        RotaryEncoder   (const uint8_t PORT_A, const uint8_t PORT_B, const uint8_t PORT_PUSHBUTTON, HAL_DI11* CARD);   
-    void                begin           (const uint8_t PORT_A, const uint8_t PORT_B, const uint8_t PORT_PUSHBUTTON, HAL_DI11* CARD);
+                        RotaryEncoder   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);   
+    void                begin           (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);
 
     e_direction_t       getTurningDirection ();
     bool                buttonPressed       ();
     
   	private:
-    DigitalInput   A;
-    DigitalInput   B; 
-    DigitalInput   pushButton; 
-
-    HAL_DI11* card;
+    DigitalInput*   p_A;
+    DigitalInput*   p_B; 
+    DigitalInput*   p_pushButton; 
 };
 
 //--------------------------------------------------------------------
