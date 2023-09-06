@@ -75,35 +75,58 @@ typedef enum
 	OUTPUTMODE__SIZE,
 }e_outputMode_t;
 
+typedef enum
+{
+	OUTPUTTYPE__OPEN_DRAIN,     //0= float, 1= GND
+	OUTPUTTYPE__OPEN_SOURCE,    //0= float, 1=VCC    
+	OUTPUTTYPE__PUSH_PULL,      //0= GND,   1=VCC  
+
+	OUTPUTTYPE__SIZE,
+}e_outputType_t;
+
+
 class Output {
 
 	public:
     //------------------------------------------------------------------------
     //Constructor Initialisierung
 	Output				(); 
+    Output              (const e_outputType_t OUTPUT_TYPE);
 	Output				(const uint8_t ON_VALUE);		
+    Output              (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
     
-	void 	begin		(const uint8_t ON_VALUE);
+    void 	begin		(const uint8_t ON_VALUE);
+	void 	begin		(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
     void  	tick		();		//Muss getickt werden jeden loop
 
 	void	blink		    (const uint8_t BLINKS, const int BLINK_INTERVAL);		                //Blinkt für angeforderte Anzahl und Interval
     void    blinkWithBreak  (const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
 	void 	set			    ();		//Output ON
 	void 	reset		    ();		//Output OFF
-    void    setValue        (const uint8_t VALUE);
-    uint8_t getValue        ();   
-			
-	private:	
-	
-	e_outputMode_t	mode;       //Aktueller Modus
+    void    setOnValue      (const uint8_t VALUE);
 
-	uint8_t blinks_requested;	//Angefragte Blinks
-	uint8_t count;      		//Counter der blinks  
-	uint8_t actualValue;  	    //Aktueller Wert 
-	uint8_t onValue;			//Welcher Wert wird geschieben bei object.set():	
+    //Für HAL
+    uint8_t         getValue        ();   
+    e_outputType_t  getOutputType   ();
 
-	Timeout to_blink;			//Timeout für Blink Interval
-    Timeout to_break;           //Timeout für Pausen interval
+	private:
+
+    e_outputMode_t	mode;        //Aktueller Modus
+    uint8_t actualValue;  	    //Aktueller Wert
+
+    struct //Hauptsächlich für verarbeitende HAL interessant
+    {
+        e_outputType_t  outputType;     //open drain, open source, push pull
+        uint8_t         onValue;			    //Welcher Wert wird geschieben bei object.set():
+    }setting;    
+    
+    struct 
+    {
+        uint8_t blinks_requested;	//Angefragte Blinks
+	    uint8_t count;      		//Counter der blinks 	    
+        Timeout to_blink;			//Timeout für Blink Interval
+        Timeout to_break;           //Timeout für Pausen interval
+    }blinkParameter;	
 };
 
 
@@ -142,7 +165,7 @@ class AnalogSetter
     AnalogSetter        ();
 
     void        begin   ();
-    void 	    setValue(const uint8_t VALUE);
+    void 	    setOnValue(const uint8_t VALUE);
     void        setMax  ();
     void        setMin  ();
     uint16_t    get     ();
