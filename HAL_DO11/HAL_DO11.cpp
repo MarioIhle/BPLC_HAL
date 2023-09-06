@@ -125,6 +125,7 @@ void HAL_DO11::tick()
 {
     for(uint8_t PORT; PORT < this->usedPortCount; PORT++)
     {        
+        this->p_DO[PORT].tick();
         //PWM von 0-255 laden und umrechnen
         const uint16_t TARGET_PWM_VALUE = map(this->p_DO[PORT]->getValue(), 0, 255, 0, 4096);
         const uint16_t OFF_TIME         = 4096 - TARGET_PWM_VALUE; 
