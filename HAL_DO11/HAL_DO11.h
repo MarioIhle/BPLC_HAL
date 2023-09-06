@@ -16,6 +16,10 @@ typedef enum
 
 }e_DO11_ADDRESS_t;
 
+
+#define LS_MOSFET 0
+#define HS_MOSFET 1
+
 typedef enum
 {
     DO_PORT_1,
@@ -31,31 +35,30 @@ typedef enum
 
 }e_digitalOutputPorts_t;
 
-typedef struct 
-{
-    uint8_t lowside;
-    uint8_t highside;
-}s_outPutState_t;
+#define DEAD_TIME   100
 
 class HAL_DO11 {
 
     public:
     HAL_DO11();
     HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1);
+    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2);
+    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3);
+    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4);
+    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5);
+    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6);
+    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7);
+    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7, Output* P_DO8);
     
     void        tick();
     
-    private:   
-    void writeOutputs();
-
+    private:
     Output*         p_DO    [DO_PORT_COUNT];
     const uint8_t   pins    [DO_PORT_COUNT][2]= {{15, 7}, {14, 6}, {13, 5}, {12, 4}, {8, 3}, {9, 2}, {10, 1}, {11, 0}};     //{lowside, highside}
 
-    s_outPutState_t portStates[DO_PORT_COUNT];      
+    uint8_t portStates[DO_PORT_COUNT];   
 
-    Timeout to_deadTime;
-    Timeout to_pwmFrequence;
+    uint8_t usedPortCount;
 };
-
 
 #endif
