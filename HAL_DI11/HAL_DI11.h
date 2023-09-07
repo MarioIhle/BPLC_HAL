@@ -57,6 +57,6 @@ class HAL_DI11
     DigitalInput*   p_ports [DI_PORT_COUNT];    
     const uint8_t   PINS    [DI_PORT_COUNT] = {DI_PORT_4, DI_PORT_3, DI_PORT_2, DI_PORT_1, DI_PORT_5, DI_PORT_6, DI_PORT_7, DI_PORT_8};         
 
-    uint8_t usedPortCount;
+    uint8_t         usedPortCount;
  };
 #endif

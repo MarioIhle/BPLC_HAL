@@ -4,6 +4,9 @@ APP_MCU11::APP_MCU11()
 {}
 
 void APP_MCU11::begin(void (*INT_callBack)(void))
+/**
+ * @param   INT_callBack   Zeiger auf ISR  
+*/
 {
    this->hal.begin(INT_callBack);   
    this->oled.begin();
@@ -32,13 +35,15 @@ void APP_MCU11::tick()
    switch(this->deviceMode)
    {
       case APP_MODE__STOP:
-         this->hal.LD1.blink(1, 500);          
+         this->hal.LD1.blink(1, 500);      
+         this->hal.OEN.reset();    
       break;
 
       case APP_MODE__RUN_WITH_CONFIG_1:   
       case APP_MODE__RUN_WITH_CONFIG_2:
       case APP_MODE__RUN_WITH_CONFIG_3:               
-         this->hal.LD1.blink(1, 2500);         
+         this->hal.LD1.blink(1, 2500);   
+         this->hal.OEN.set();         
       break;
 
       case APP_MODE__START:             
@@ -47,6 +52,7 @@ void APP_MCU11::tick()
 
       case APP_MODE__SAFE_STATE:
          this->hal.LD1.blink(1, 100);
+         this->hal.OEN.reset(); 
          //this->hal.LD2.reset();  //Später für Fehlercode nutzen
       break;
 
@@ -66,16 +72,16 @@ void APP_MCU11::handleDisplay()
    switch(this->oled.getActiveMenu())
    {      
       case menu_mainMenu:
-         if(this->hal.isEncoderButtonPressed())
+         if(this->hal.ENCODER.isButtonPressed())
          {            
             this->oled.enterMenu();            
          }
 
-         if(this->hal.getEncoderDirection() == right)
+         if(this->hal.ENCODER.getTurningDirection() == right)
          {
             this->oled.showNextTextOfThisMenu();
          }
-         else if(this->hal.getEncoderDirection() == left)
+         else if(this->hal.ENCODER.getTurningDirection() == left)
          {
             this->oled.showPrevioursTextOfThisMenu();
          }           
@@ -98,7 +104,7 @@ void APP_MCU11::handleDisplay()
       break;
 
       case menu_screenSaver: 
-         if(this->hal.isEncoderButtonPressed() || this->hal.getEncoderDirection() != idle)
+         if(this->hal.ENCODER.isButtonPressed() || this->hal.ENCODER.getTurningDirection() != idle)
          {
             this->oled.setMenu(menu_mainMenu);
          }
@@ -108,12 +114,12 @@ void APP_MCU11::handleDisplay()
 
 void APP_MCU11::beepOnEncoderInput()
 {
-   if(this->hal.isEncoderButtonPressed())
+   if(this->hal.ENCODER.isButtonPressed())
    {      
       this->hal.BUZZER.blink(1, 100);
    }
 
-   if(this->hal.getEncoderDirection() != idle)
+   if(this->hal.ENCODER.getTurningDirection() != idle)
    {
       this->hal.BUZZER.blink(1, 100);
    }
@@ -125,11 +131,18 @@ e_APP_MODE_t APP_MCU11::getDeviceMode()
 }
 
 void APP_MCU11::setDeviceMode(const e_APP_MODE_t MODE)
+/**
+ * @param   MODE   Mode der gesetzt werden soll  
+*/
 {
    this->deviceMode = MODE;
 }
 
-void APP_MCU11::setVDip(const uint8_t DIP_NUM, uint8_t VALUE)
+void APP_MCU11::setVDip(const uint8_t DIP_NUM, const uint8_t VALUE)
+/**
+ * @param   DIP_NUM     Dip Nummer 
+ * @param   VALUE       Wert von 0-255
+*/
 {
    this->virtualDipSwitch[DIP_NUM] = VALUE;
 }
@@ -141,7 +154,7 @@ int APP_MCU11::getVDip(const uint8_t DIP_NUM)
 
 void APP_MCU11::editDeviceMode()
 {
-   if(this->hal.isEncoderButtonPressed())
+   if(this->hal.ENCODER.isButtonPressed())
    {                 
       //Enter Parameter
       if(this->oled.parameterEntered() == false)
@@ -160,7 +173,7 @@ void APP_MCU11::editDeviceMode()
       }      
    }
 
-   if(this->hal.getEncoderDirection() == right)
+   if(this->hal.ENCODER.getTurningDirection() == right)
    {
       if(this->oled.parameterEntered())
       {
@@ -171,7 +184,7 @@ void APP_MCU11::editDeviceMode()
          this->oled.showNextTextOfThisMenu();            
       }
    }
-   else if(this->hal.getEncoderDirection() == left)
+   else if(this->hal.ENCODER.getTurningDirection() == left)
    {    
       if(this->oled.parameterEntered())
       {
@@ -205,7 +218,7 @@ void APP_MCU11::editDeviceMode()
 
 void APP_MCU11::errorOut()
 {
-   if(this->hal.isEncoderButtonPressed())
+   if(this->hal.ENCODER.isButtonPressed())
    {            
       //Cursor on "exit"
       if(this->oled.readyToExitMenu())
@@ -215,12 +228,12 @@ void APP_MCU11::errorOut()
       this->errorCode[this->temp_ParameterStorage] = false;
    }
 
-   if(this->hal.getEncoderDirection() == right)
+   if(this->hal.ENCODER.getTurningDirection() == right)
    {
       this->oled.showNextTextOfThisMenu();
       this->temp_ParameterStorage++;
    }
-   else if(this->hal.getEncoderDirection() == left)
+   else if(this->hal.ENCODER.getTurningDirection() == left)
    {
       this->oled.showPrevioursTextOfThisMenu();
       this->temp_ParameterStorage--;

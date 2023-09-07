@@ -49,11 +49,12 @@ class DigitalInput
 class RotaryEncoder 
 {
 	public:
+                        RotaryEncoder   ();
                         RotaryEncoder   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);   
     void                begin           (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);
 
     e_direction_t       getTurningDirection ();
-    bool                buttonPressed       ();
+    bool                isButtonPressed     ();
     
   	private:
     DigitalInput*   p_A;

@@ -53,34 +53,22 @@ class HAL_MCU11
     void begin(void (*INT_callBack)(void));
     void tick();
 
-    e_direction_t       getEncoderDirection     ();
-    bool                isEncoderButtonPressed  ();
-    void                setOEN                  (const bool STATE);
-    bool                getINT                  ();
-    Output       BUZZER;
-    Output       LD1;
-    Output       LD2;
-    Output       LD3;                  
+    RotaryEncoder   ENCODER; 
+    Output          BUZZER;
+    Output          LD1;
+    Output          LD2;
+    Output          LD3;   
+    Output          OEN;             
 
     private:
-
     //Serial Baudrate
     struct 
     {
         unsigned long USB   = 115200;
         unsigned long RS232 = 38400;
         unsigned long RS485 = 38400;
-    }baudrate;
+    }baudrate;    
     
-
-    //Portstates
-    struct
-    {
-        s_digitalInputState_t_MCU encoder [ENCODER_PIN__COUNT];        
-        bool OEN;
-        bool INT;           
-    }ioState;
-
     //Pinsdefinition
     struct 
     {        
@@ -90,5 +78,9 @@ class HAL_MCU11
         const uint8_t INT       = 35;
         const uint8_t buzzer    = 15;
     }pins;
+
+    DigitalInput    Encoder_A;
+    DigitalInput    Encoder_B;
+    DigitalInput    Encoder_Z;
 };
 #endif

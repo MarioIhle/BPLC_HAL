@@ -9,6 +9,7 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
     pinMode(this->pins.encoder[0], INPUT);
     pinMode(this->pins.encoder[1], INPUT);
     pinMode(this->pins.encoder[2], INPUT);
+    ENCODER.begin(&Encoder_A, &Encoder_B, &Encoder_Z);
     //LD1-3
     pinMode(this->pins.led[0], OUTPUT);
     this->LD1.begin(255);
@@ -19,11 +20,12 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
     pinMode(this->pins.led[2], OUTPUT);    
     this->LD3.begin(255);
     
-    //buzzer
+    //BUZZER
     pinMode(this->pins.buzzer, OUTPUT);
     this->BUZZER.begin(50);
 
     //OEN
+    this->OEN.begin(true);    
     pinMode(this->pins.OEN, OUTPUT);
     //INT
     pinMode(this->pins.INT, INPUT);
@@ -38,17 +40,13 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
 void HAL_MCU11::tick()
 {  
     //Encoder lesen
-    for(uint8_t pin = 0; pin < ENCODER_PIN__COUNT; pin++)
-    {
-        this->ioState.encoder[pin].previousState = this->ioState.encoder[pin].state;
-        this->ioState.encoder[pin].state = digitalRead(this->pins.encoder[pin]);        
-    }
+    Encoder_A.setPortState(digitalRead(this->pins.encoder[0]));
+    Encoder_B.setPortState(digitalRead(this->pins.encoder[1]));
+    Encoder_Z.setPortState(digitalRead(this->pins.encoder[2]));
 
     //OEN schreiben
-    digitalWrite(this->pins.OEN, this->ioState.OEN);
-
-    //INT lesen
-    this->ioState.INT = (this->pins.INT);
+    OEN.tick();
+    digitalWrite(this->pins.OEN, this->OEN.getValue());
 
     //buzzer
     this->BUZZER.tick();
@@ -61,38 +59,4 @@ void HAL_MCU11::tick()
     analogWrite(this->pins.led[0], this->LD1.getValue());
     analogWrite(this->pins.led[1], this->LD2.getValue());
     analogWrite(this->pins.led[2], this->LD3.getValue());  
-}
-
-e_direction_t HAL_MCU11::getEncoderDirection()
-{
-    const bool NEGATIVE_FLANK_A = (bool)(this->ioState.encoder[ENCODER_PIN__A].state == false   && this->ioState.encoder[ENCODER_PIN__A].previousState == true);
-    const bool NEGATIVE_FLANK_B = (bool)(this->ioState.encoder[ENCODER_PIN__B].state == false    && this->ioState.encoder[ENCODER_PIN__B].previousState == true);
-
-    e_direction_t direction = idle;    
-
-    if(NEGATIVE_FLANK_A && this->ioState.encoder[ENCODER_PIN__B].state == false)
-    {
-        direction = left;
-    }
-    else if(NEGATIVE_FLANK_B && this->ioState.encoder[ENCODER_PIN__A].state == false)
-    {
-        direction = right;
-    }
-
-    return direction;
-}
-
-bool HAL_MCU11::isEncoderButtonPressed()
-{
-    return (bool)(this->ioState.encoder[ENCODER_PIN__Z].state == false && this->ioState.encoder[ENCODER_PIN__Z].previousState == true);
-}
-
-void HAL_MCU11::setOEN(const bool STATE)
-{
-    digitalWrite(this->pins.OEN, this->ioState.OEN);
-}
-
-bool HAL_MCU11::getINT()
-{
-    return this->ioState.INT = digitalRead(this->pins.INT);
 }

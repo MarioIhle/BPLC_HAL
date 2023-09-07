@@ -35,12 +35,15 @@ bool DigitalInput::negFlank()
 
 void DigitalInput::setPortState(const bool STATE)
 {
-	this->inputState.previousState = this->inputState.state;
-	this->inputState.state = STATE;
+	this->inputState.previousState 	= this->inputState.state;
+	this->inputState.state 			= STATE;
 }
 
 //--------------------------------------------------------------------
 //ROTARY ENCODER
+RotaryEncoder::RotaryEncoder()
+{}
+
 RotaryEncoder::RotaryEncoder(DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON)
 {   
     this->p_A = P_PORT_A;
@@ -71,7 +74,7 @@ e_direction_t RotaryEncoder::getTurningDirection()
     return direction;
 }
 
-bool RotaryEncoder::buttonPressed()
+bool RotaryEncoder::isButtonPressed()
 {
     return this->p_pushButton->posFlank();
 }

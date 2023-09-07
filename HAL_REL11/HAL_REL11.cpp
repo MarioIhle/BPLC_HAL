@@ -51,7 +51,7 @@ HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_
 
 void HAL_REL11::tick()
 {
-    for(int PORT = 0; PORT < this->usedPortCout ; PORT++)
+    for(int PORT = 0; PORT < this->usedPortCount ; PORT++)
     {
         this->p_REL[PORT]->tick();
         if(this->p_REL[PORT]->getValue() == 255)
