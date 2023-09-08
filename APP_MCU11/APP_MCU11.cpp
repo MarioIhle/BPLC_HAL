@@ -61,9 +61,9 @@ void APP_MCU11::tick()
    }   
 }
 
-void APP_MCU11::beep()
+void APP_MCU11::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
 {
-   this->hal.BUZZER.blinkWithBreak(5, 100, 500);
+   this->hal.BUZZER.blink(BEEPS, BEEP_INTERVAL);
 }
 
 void APP_MCU11::handleDisplay()
