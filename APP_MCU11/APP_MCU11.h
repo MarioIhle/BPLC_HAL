@@ -53,7 +53,7 @@ class APP_MCU11
     void    setVDip(const uint8_t DIP_NUM, const uint8_t VALUE);
     int     getVDip(const uint8_t DIP_NUM);
     
-    void    beep();
+  
     private:
     HAL_MCU11   hal;
     OLED_MCU11  oled;

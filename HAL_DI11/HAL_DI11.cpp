@@ -7,7 +7,7 @@ HAL_DI11::HAL_DI11()
     this->usedPortCount = 0;
 }
 
-void HAL_DI11::begin(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1)
+void HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1)
 {    
     this->p_ports[DI_PORT_1] = P_PORT_1; 
     this->usedPortCount = 1;
@@ -107,6 +107,15 @@ HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1 = null
 
     DI11_register.setAddress(ADDRESS);                                        //Tatsächliche Adresse schreiben
     DI11_register.begin();                                                    //Kommunikation hetstellen    
+}
+
+void HAL_DI11::begin(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1)
+{    
+    this->p_ports[DI_PORT_1] = P_PORT_1; 
+    this->usedPortCount = 1;
+
+    DI11_register.setAddress(ADDRESS);                                        //Tatsächliche Adresse schreiben
+    DI11_register.begin();                                                    //Kommunikation hetstellen 
 }
 
 void HAL_DI11::tick()

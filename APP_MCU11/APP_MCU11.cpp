@@ -14,12 +14,8 @@ void APP_MCU11::begin(void (*INT_callBack)(void))
    this->deviceSettings.f_beepOnEncoderInput = true;
 
    this->deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
-<<<<<<< HEAD
-   memset(&this->errorCode, 0, sizeof(this->errorCode));   
-=======
    memset(&this->errorCode, 0, sizeof(this->errorCode));
    
->>>>>>> 8bab753b7636f3208b7db64bb7ea53dc06689d11
    this->temp_ParameterStorage = 0;
 }
 
@@ -69,6 +65,7 @@ void APP_MCU11::beep()
 {
    this->hal.BUZZER.blink(5, 100);
 }
+
 void APP_MCU11::handleDisplay()
 {  
    switch(this->oled.getActiveMenu())
@@ -257,7 +254,3 @@ void APP_MCU11::errorOut()
    } 
 }
 
-void APP_MCU11::beep()
-{
-   this->hal.BUZZER.blink(5, 100);   
-}
