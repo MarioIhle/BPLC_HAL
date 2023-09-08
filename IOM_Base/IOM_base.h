@@ -112,8 +112,8 @@ class Output {
 
 	private:
 
-    e_outputMode_t	mode;        //Aktueller Modus
-    uint8_t actualValue;  	    //Aktueller Wert
+    e_outputMode_t	mode;               //Aktueller Modus
+    uint8_t         actualValue;  	    //Aktueller Wert
 
     struct //Hauptsächlich für verarbeitende HAL interessant
     {

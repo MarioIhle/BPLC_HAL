@@ -39,8 +39,9 @@ class HAL_REL11 {
     private:    
     Output*         p_REL   [REL_PORT_COUNT];
     const uint8_t   pins    [REL_PORT_COUNT] = {REL_PORT_1, REL_PORT_2, REL_PORT_3};  
+    bool            actualOutputState[REL_PORT_COUNT];
 
-    uint8_t usedPortCount;     
+    int usedPortCount;     
 };
 
 #endif
