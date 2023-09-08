@@ -7,21 +7,42 @@ DigitalInput::DigitalInput    ()
 
 bool DigitalInput::ishigh()
 {
-    const bool PIN_IS_HIGH = (bool)(this->inputState.value == true);
+    const bool PIN_IS_HIGH = (bool)(this->inputState.value == true && this->inputState.previousValue == true);
+
+#ifdef DEBUG_IOM
+if(PIN_IS_HIGH)
+{
+	Serial.println("PIN_IS_HIGH");	
+}
+#endif
 
     return PIN_IS_HIGH;
 }
 
 bool DigitalInput::islow()
 {
-    const bool PIN_IS_HIGH = (bool)(this->inputState.value == false);
+    const bool PIN_IS_LOW = (bool)(this->inputState.value == false && this->inputState.previousValue == false);
 
-    return PIN_IS_HIGH;
+#ifdef DEBUG_IOM
+if(PIN_IS_LOW)
+{
+	Serial.println("PIN_IS_LOW");	
+}
+#endif
+
+    return PIN_IS_LOW;
 }
 
 bool DigitalInput::posFlank()
 {
     const bool POSITIVE_FLANK_OCCURED = (bool)(this->inputState.value == true && this->inputState.previousValue == false);
+
+#ifdef DEBUG_IOM
+if(POSITIVE_FLANK_OCCURED)
+{
+	Serial.println("POSITIVE_FLANK_OCCURED");	
+}
+#endif
 
     return POSITIVE_FLANK_OCCURED;
 }
@@ -29,6 +50,13 @@ bool DigitalInput::posFlank()
 bool DigitalInput::negFlank()
 {
     const bool NEGATIVE_FLANK_OCCURED = (bool)(this->inputState.value == false && this->inputState.previousValue == true);
+
+#ifdef DEBUG_IOM
+if(NEGATIVE_FLANK_OCCURED)
+{
+	Serial.println("NEGATIVE_FLANK_OCCURED");	
+}
+#endif
 
     return NEGATIVE_FLANK_OCCURED;
 }
@@ -128,7 +156,7 @@ void Output::tick()
 	switch(this->mode)
 	{
 		case OUTPUTMODE__OFF:
-			this->actualValue.value = 0;
+			this->actualValue.value = 0;			
 			break;
 
 		case OUTPUTMODE__ON:
@@ -136,23 +164,26 @@ void Output::tick()
 			break;
 
 		case OUTPUTMODE__BLINK:
-			if(this->blinkParameter.count < this->blinkParameter.blinks_requested && this->blinkParameter.to_blink.check())
-			{      
-				if(this->actualValue.value == 0)
+			if(this->blinkParameter.to_blink.check())
+			{   
+				if(this->blinkParameter.count < this->blinkParameter.blinks_requested)   
 				{
-					this->actualValue.value = this->setting.onValue;
-					this->blinkParameter.count++;
+					if(this->actualValue.value == 0)
+					{
+						this->actualValue.value = this->setting.onValue;
+						this->blinkParameter.count++;
+					}
+					else
+					{
+						this->actualValue.value = 0;
+					}
+
+					this->blinkParameter.to_blink.reset();
 				}
 				else
 				{
-					this->actualValue.value = 0;
-				}
-
-				this->blinkParameter.to_blink.reset();
-			}
-			else if(this->blinkParameter.count == this->blinkParameter.blinks_requested)
-			{
-				this->mode = OUTPUTMODE__OFF;
+					this->mode = OUTPUTMODE__OFF;
+				}			
 			}
 			break;
 
@@ -179,8 +210,8 @@ void Output::tick()
             //Break Timeout abwarten
             else
             {
-                this->actualValue.value   = 0;
-                this->blinkParameter.count   = 0;
+                this->actualValue.value   	= 0;
+                this->blinkParameter.count  = 0;
             }
             break;
 

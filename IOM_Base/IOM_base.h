@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include "SpecialFunctions.h"
 
+#define DEBUG_IOM   //Nur mit je 1 Objekt pro Klasse sinnvoll Debugbar, sonst zu viel Spam
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
