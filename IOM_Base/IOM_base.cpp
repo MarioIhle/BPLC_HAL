@@ -138,14 +138,14 @@ void Output::tick()
 		case OUTPUTMODE__BLINK:
 			if(this->blinkParameter.count < this->blinkParameter.blinks_requested && this->blinkParameter.to_blink.check())
 			{      
-				if(this->actualValue == 0)
+				if(this->actualValue.value == 0)
 				{
 					this->actualValue.value = this->setting.onValue;
 					this->blinkParameter.count++;
 				}
 				else
 				{
-					this->actualValue = 0;
+					this->actualValue.value = 0;
 				}
 
 				this->blinkParameter.to_blink.reset();
@@ -160,7 +160,7 @@ void Output::tick()
             //Blinken
             if(this->blinkParameter.count < this->blinkParameter.blinks_requested && this->blinkParameter.to_blink.check() && this->blinkParameter.to_break.check())
 			{      
-				if(this->actualValue == 0)
+				if(this->actualValue.value == 0)
 				{
 					this->actualValue.value = this->setting.onValue;
 					this->blinkParameter.count++;

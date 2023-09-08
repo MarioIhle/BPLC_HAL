@@ -109,11 +109,14 @@ HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Digit
 
 void HAL_DI11::tick()
 {
-    for(uint8_t PORT = 0; PORT < this->usedPortCount; PORT++)
+    if(this->f_somePinOfsomeDI11CardChanged)
+    {
+        for(uint8_t PORT = 0; PORT < this->usedPortCount; PORT++)
     {                 
         this->p_ports[PORT]->setPortState(!DI11_register.read(this->PINS[PORT]));             
     } 
     this->f_somePinOfsomeDI11CardChanged = false;
+    }    
 }
 
 void HAL_DI11::somePinOfsomeDI11CardChanged()

@@ -39,6 +39,7 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
 
 void HAL_MCU11::tick()
 {  
+    s_portValue_t TEMP_PORT_VALUE;
     //Encoder lesen
     Encoder_A.setPortState(digitalRead(this->pins.encoder[0]));
     Encoder_B.setPortState(digitalRead(this->pins.encoder[1]));
@@ -46,17 +47,24 @@ void HAL_MCU11::tick()
 
     //OEN schreiben
     OEN.tick();
-    digitalWrite(this->pins.OEN, this->OEN.getValue());
+    TEMP_PORT_VALUE = this->OEN.getValue();
+    digitalWrite(this->pins.OEN, TEMP_PORT_VALUE.value);
 
     //buzzer
     this->BUZZER.tick();
-    analogWrite(this->pins.buzzer, this->BUZZER.getValue());
+    TEMP_PORT_VALUE = this->BUZZER.getValue();
+    analogWrite(this->pins.buzzer, TEMP_PORT_VALUE.value);
 
     //LD1-3
     this->LD1.tick();
+    TEMP_PORT_VALUE = this->LD1.getValue();
+    analogWrite(this->pins.led[0], TEMP_PORT_VALUE.value);
+
     this->LD2.tick();
+    TEMP_PORT_VALUE = this->LD1.getValue();
+    analogWrite(this->pins.led[1], TEMP_PORT_VALUE.value);
+
     this->LD3.tick();
-    analogWrite(this->pins.led[0], this->LD1.getValue());
-    analogWrite(this->pins.led[1], this->LD2.getValue());
-    analogWrite(this->pins.led[2], this->LD3.getValue());  
+    TEMP_PORT_VALUE = this->LD1.getValue();    
+    analogWrite(this->pins.led[2], TEMP_PORT_VALUE.value);  
 }

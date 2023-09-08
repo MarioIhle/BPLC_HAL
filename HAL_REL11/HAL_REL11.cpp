@@ -53,7 +53,7 @@ void HAL_REL11::tick()
         //Übersetzen in bool
         if(VALUE_HAS_CHANGED)
         {
-            if(VALUE_TO_WRITE == 255)
+            if(VALUE_TO_WRITE.value == 255)
             {
                 REL11_register.write(PORT, true);
             }
