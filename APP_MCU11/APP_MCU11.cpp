@@ -14,14 +14,7 @@ void APP_MCU11::begin(void (*INT_callBack)(void))
    this->deviceSettings.f_beepOnEncoderInput = true;
    this->deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
    memset(&this->errorCode, 0, sizeof(this->errorCode));
-   this->errorCode[0] = 10;
-   this->errorCode[1] = 20;
-   this->errorCode[2] = 30;
-   this->errorCode[3] = 40;
-   this->errorCode[4] = 50;
-   this->errorCode[5] = 60;
-   this->errorCode[6] = 70;
-   this->errorCode[7] = 80;
+   
    this->temp_ParameterStorage = 0;
 }
 
@@ -253,4 +246,9 @@ void APP_MCU11::errorOut()
    {
       this->oled.setParamValueToShow(this->errorCode[this->temp_ParameterStorage]);
    } 
+}
+
+void APP_MCU11::beep()
+{
+   this->hal.BUZZER.blink(5, 100);   
 }
