@@ -56,8 +56,6 @@ class HAL_DO11 {
     Output*         p_DO    [DO_PORT_COUNT];
     const uint8_t   pins    [DO_PORT_COUNT][2]= {{15, 7}, {14, 6}, {13, 5}, {12, 4}, {8, 3}, {9, 2}, {10, 1}, {11, 0}};     //{lowside, highside}
 
-    uint8_t portStates[DO_PORT_COUNT];   
-
     uint8_t usedPortCount;
 };
 

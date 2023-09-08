@@ -7,36 +7,36 @@ DigitalInput::DigitalInput    ()
 
 bool DigitalInput::ishigh()
 {
-    const bool PIN_IS_HIGH = (bool)(this->inputState.state == true);
+    const bool PIN_IS_HIGH = (bool)(this->inputState.value == true);
 
     return PIN_IS_HIGH;
 }
 
 bool DigitalInput::islow()
 {
-    const bool PIN_IS_HIGH = (bool)(this->inputState.state == false);
+    const bool PIN_IS_HIGH = (bool)(this->inputState.value == false);
 
     return PIN_IS_HIGH;
 }
 
 bool DigitalInput::posFlank()
 {
-    const bool POSITIVE_FLANK_OCCURED = (bool)(this->inputState.state == true && this->inputState.previousState == false);
+    const bool POSITIVE_FLANK_OCCURED = (bool)(this->inputState.value == true && this->inputState.previousValue == false);
 
     return POSITIVE_FLANK_OCCURED;
 }
 
 bool DigitalInput::negFlank()
 {
-    const bool NEGATIVE_FLANK_OCCURED = (bool)(this->inputState.state == false && this->inputState.previousState == true);
+    const bool NEGATIVE_FLANK_OCCURED = (bool)(this->inputState.value == false && this->inputState.previousValue == true);
 
     return NEGATIVE_FLANK_OCCURED;
 }
 
 void DigitalInput::setPortState(const bool STATE)
 {
-	this->inputState.previousState 	= this->inputState.state;
-	this->inputState.state 			= STATE;
+	this->inputState.previousValue 	= this->inputState.value;
+	this->inputState.value 			= STATE;
 }
 
 //--------------------------------------------------------------------
@@ -128,11 +128,11 @@ void Output::tick()
 	switch(this->mode)
 	{
 		case OUTPUTMODE__OFF:
-			this->actualValue = 0;
+			this->actualValue.value = 0;
 			break;
 
 		case OUTPUTMODE__ON:
-			this->actualValue = this->setting.onValue;
+			this->actualValue.value = this->setting.onValue;
 			break;
 
 		case OUTPUTMODE__BLINK:
@@ -140,7 +140,7 @@ void Output::tick()
 			{      
 				if(this->actualValue == 0)
 				{
-					this->actualValue = this->setting.onValue;
+					this->actualValue.value = this->setting.onValue;
 					this->blinkParameter.count++;
 				}
 				else
@@ -162,12 +162,12 @@ void Output::tick()
 			{      
 				if(this->actualValue == 0)
 				{
-					this->actualValue = this->setting.onValue;
+					this->actualValue.value = this->setting.onValue;
 					this->blinkParameter.count++;
 				}
 				else
 				{
-					this->actualValue = 0;
+					this->actualValue.value = 0;
 				}
 				this->blinkParameter.to_blink.reset();
 			}
@@ -179,7 +179,7 @@ void Output::tick()
             //Break Timeout abwarten
             else
             {
-                this->actualValue   = 0;
+                this->actualValue.value   = 0;
                 this->blinkParameter.count   = 0;
             }
             break;
@@ -188,6 +188,7 @@ void Output::tick()
 			this->mode = OUTPUTMODE__OFF;
 			break;
 	}
+	this->actualValue.previousValue = this->actualValue.value;
 }
 
 void Output::blink(const uint8_t BLINKS, const int BLINK_INTERVAL)
@@ -225,7 +226,7 @@ void Output::setOnValue(const uint8_t VALUE)
 }
 
 //Achtung kein BOOL! TRUE = max.255
-uint8_t Output::getValue()
+s_portValue_t Output::getValue()
 {
 	return this->actualValue;	
 }
