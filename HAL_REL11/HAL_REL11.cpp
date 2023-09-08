@@ -50,16 +50,15 @@ void HAL_REL11::tick()
         const s_portValue_t     VALUE_TO_WRITE      = this->p_REL[PORT]->getValue();
         const bool              VALUE_HAS_CHANGED   = (bool)(VALUE_TO_WRITE.value != VALUE_TO_WRITE.previousValue);
       
-        //Übersetzen in bool
         if(VALUE_HAS_CHANGED)
         {
-            if(VALUE_TO_WRITE.value == 255)
+            if(VALUE_TO_WRITE.value >= 1)
             {
-                REL11_register.write(PORT, true);
+                REL11_register.write(this->pins[PORT], true);
             }
-            else
+            else if(VALUE_TO_WRITE.value == false)
             {
-                REL11_register.write(PORT, false);
+                REL11_register.write(this->pins[PORT], false);
             } 
         }               
     }    
