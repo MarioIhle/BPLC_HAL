@@ -24,7 +24,7 @@
 #include "Adafruit_SSD1306.h"
 
 
-#define DEBUG
+//#define DEBUG
 
 
 //---------------------------------------------------
