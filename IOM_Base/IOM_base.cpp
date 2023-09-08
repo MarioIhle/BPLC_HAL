@@ -189,30 +189,32 @@ void Output::tick()
 
         case OUTPUTMODE__BLINK_WITH_BREAK:
             //Blinken
-            if(this->blinkParameter.count < this->blinkParameter.blinks_requested && this->blinkParameter.to_blink.check() && this->blinkParameter.to_break.check())
+            if(this->blinkParameter.to_break.check())
 			{      
-				if(this->actualValue.value == 0)
+				if(this->blinkParameter.to_blink.check())
 				{
-					this->actualValue.value = this->setting.onValue;
-					this->blinkParameter.count++;
-				}
-				else
-				{
-					this->actualValue.value = 0;
-				}
-				this->blinkParameter.to_blink.reset();
+					if(this->blinkParameter.count < this->blinkParameter.blinks_requested)   
+					{
+						if(this->actualValue.value == 0)
+						{
+							this->actualValue.value = this->setting.onValue;
+							this->blinkParameter.count++;
+						}
+						else
+						{
+							this->actualValue.value = 0;
+						}
+					}
+					else
+					{
+						//Blinken abgeschlossen, Break Timeout starten			
+                		this->blinkParameter.to_break.reset();                             
+						this->actualValue.value   	= 0;
+						this->blinkParameter.count  = 0;						
+					}		
+					this->blinkParameter.to_blink.reset();
+				}		
 			}
-            //Blinken abgeschlossen, Break Timeout starten
-			else if(this->blinkParameter.count == this->blinkParameter.blinks_requested && this->blinkParameter.to_break.check())
-			{
-                this->blinkParameter.to_break.reset();                                
-			}
-            //Break Timeout abwarten
-            else
-            {
-                this->actualValue.value   	= 0;
-                this->blinkParameter.count  = 0;
-            }
             break;
 
 		default:
