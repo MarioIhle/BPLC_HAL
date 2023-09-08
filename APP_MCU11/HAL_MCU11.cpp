@@ -61,10 +61,10 @@ void HAL_MCU11::tick()
     analogWrite(this->pins.led[0], TEMP_PORT_VALUE.value);
 
     this->LD2.tick();
-    TEMP_PORT_VALUE = this->LD1.getValue();
+    TEMP_PORT_VALUE = this->LD2.getValue();
     analogWrite(this->pins.led[1], TEMP_PORT_VALUE.value);
 
     this->LD3.tick();
-    TEMP_PORT_VALUE = this->LD1.getValue();    
+    TEMP_PORT_VALUE = this->LD3.getValue();    
     analogWrite(this->pins.led[2], TEMP_PORT_VALUE.value);  
 }
