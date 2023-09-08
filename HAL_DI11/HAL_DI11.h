@@ -5,6 +5,8 @@
 #include "PCF8574.h"
 #include "IOM_base.h"
 
+//#define DEBUG_HAL_DI11
+
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE PORTS
 //-------------------------------------------------------------
@@ -59,7 +61,7 @@ class HAL_DI11
     DigitalInput*   p_ports [DI_PORT_COUNT];    
     const uint8_t   PINS    [DI_PORT_COUNT] = {DI_PORT_4, DI_PORT_3, DI_PORT_2, DI_PORT_1, DI_PORT_5, DI_PORT_6, DI_PORT_7, DI_PORT_8};         
 
-    bool            f_somePinOfsomeDI11CardChanged;
+    int         f_somePinOfsomeDI11CardChanged;
 
     //Settings
     PCF8574     PCF;
