@@ -63,7 +63,7 @@ void APP_MCU11::tick()
 
 void APP_MCU11::beep()
 {
-   this->hal.BUZZER.blink(5, 100);
+   this->hal.BUZZER.blink(1, 500);
 }
 
 void APP_MCU11::handleDisplay()
