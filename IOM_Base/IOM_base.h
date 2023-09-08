@@ -15,12 +15,12 @@ typedef enum
     right,
 }e_direction_t;
 
-//DigitalInput states
+//Port
 typedef struct
 {        
-    bool state;
-    bool previousState;
-}s_digitalInputState_t;
+    int value;
+    int previousValue;
+}s_portValue_t;
 
 //--------------------------------------------------------------------
 //DIGITAL INPUT KLASSE
@@ -40,7 +40,7 @@ class DigitalInput
     void setPortState(const bool STATE);
 
     private:
-    s_digitalInputState_t   inputState;   
+    s_portValue_t   inputState;   
 };
 
 //--------------------------------------------------------------------
@@ -107,13 +107,13 @@ class Output {
     void    setOnValue      (const uint8_t VALUE);
 
     //Für HAL
-    uint8_t         getValue        ();   
+    s_portValue_t   getValue        ();   
     e_outputType_t  getOutputType   ();
 
 	private:
 
-    e_outputMode_t	mode;        //Aktueller Modus
-    uint8_t actualValue;  	    //Aktueller Wert
+    e_outputMode_t	mode;               //Aktueller Modus
+    s_portValue_t   actualValue;  	    //Aktueller Wert
 
     struct //Hauptsächlich für verarbeitende HAL interessant
     {

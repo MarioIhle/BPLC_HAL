@@ -47,6 +47,8 @@ class APP_MCU11
     e_APP_MODE_t    getDeviceMode();    
     void            setDeviceMode(const e_APP_MODE_t MODE);
 
+    void    beep();
+
     //Dip Controll
     void    setVDip(const uint8_t DIP_NUM, const uint8_t VALUE);
     int     getVDip(const uint8_t DIP_NUM);

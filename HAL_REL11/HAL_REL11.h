@@ -40,7 +40,7 @@ class HAL_REL11 {
     Output*         p_REL   [REL_PORT_COUNT];
     const uint8_t   pins    [REL_PORT_COUNT] = {REL_PORT_1, REL_PORT_2, REL_PORT_3};  
 
-    uint8_t usedPortCount;     
+    int usedPortCount;     
 };
 
 #endif

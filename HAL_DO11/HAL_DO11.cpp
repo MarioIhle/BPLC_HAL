@@ -126,12 +126,15 @@ void HAL_DO11::tick()
     for(uint8_t PORT; PORT < this->usedPortCount; PORT++)
     {        
         this->p_DO[PORT]->tick();
-        //PWM von 0-255 laden und umrechnen
-        const uint16_t TARGET_PWM_VALUE = map(this->p_DO[PORT]->getValue(), 0, 255, 0, 4096);
-        const uint16_t OFF_TIME         = 4096 - TARGET_PWM_VALUE; 
-
-        if(this->portStates[PORT] != TARGET_PWM_VALUE)
+        const s_portValue_t   VALUE_TO_WRITE    = this->p_DO[PORT]->getValue();
+        const bool            VALUE_HAS_CHANGED = (bool)(VALUE_TO_WRITE.value != VALUE_TO_WRITE.previousValue);
+            
+        if(VALUE_HAS_CHANGED)
         {
+            //PWM von 0-255 laden und umrechnen
+            const uint16_t TARGET_PWM_VALUE = map(VALUE_TO_WRITE.value, 0, 255, 0, 4096);
+            const uint16_t OFF_TIME         = 4096 - TARGET_PWM_VALUE; 
+
             switch(p_DO[PORT]->getOutputType())
             {
                 case OUTPUTTYPE__OPEN_DRAIN:
@@ -166,7 +169,6 @@ void HAL_DO11::tick()
                     }
                 break;
             }  
-            this->portStates[PORT] == TARGET_PWM_VALUE;
         }        
     }   
 }

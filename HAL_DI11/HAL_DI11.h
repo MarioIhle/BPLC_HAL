@@ -11,8 +11,8 @@
 typedef enum
 {
     DI11_CARD_1 = 0x20,
-    DI11_CARD_2 = 0x21,
-    DI11_CARD_3 = 0x22,
+    DI11_CARD_2 = 0x22,
+    DI11_CARD_3 = 0x21,
     DI11_CARD_4 = 0x23,
     
     DI11_CARD_COUNT = 4,
@@ -46,11 +46,15 @@ class HAL_DI11
 
     void    begin(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1);
     void    tick        ();    
+    void    somePinOfsomeDI11CardChanged();
 
     private: 
     int         usedPortCount;
 
     DigitalInput*   p_ports [DI_PORT_COUNT];    
-    const uint8_t   PINS    [DI_PORT_COUNT] = {DI_PORT_4, DI_PORT_3, DI_PORT_2, DI_PORT_1, DI_PORT_5, DI_PORT_6, DI_PORT_7, DI_PORT_8};        
+    const uint8_t   PINS    [DI_PORT_COUNT] = {DI_PORT_4, DI_PORT_3, DI_PORT_2, DI_PORT_1, DI_PORT_5, DI_PORT_6, DI_PORT_7, DI_PORT_8};         
+
+    int             usedPortCount;
+    bool            f_somePinOfsomeDI11CardChanged;
  };
 #endif
