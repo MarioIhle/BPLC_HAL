@@ -47,18 +47,20 @@ void HAL_REL11::tick()
     for(int PORT = 0; PORT < this->usedPortCount ; PORT++)
     {
         this->p_REL[PORT]->tick();
-        const uint8_t   VALUE_TO_WRITE      = this->p_REL[PORT]->getValue();
-        const bool      HAS_VALUE_CHANGED   = (bool)(VALUE_TO_WRITE != this->actualOutputState[PORT]);
-        this->actualOutputState[PORT]       = VALUE_TO_WRITE;
-
+        const s_portValue_t     VALUE_TO_WRITE      = this->p_REL[PORT]->getValue();
+        const bool              VALUE_HAS_CHANGED   = (bool)(VALUE_TO_WRITE.value != VALUE_TO_WRITE.previousValue);
+      
         //Übersetzen in bool
-        if(VALUE_TO_WRITE == 255)
+        if(VALUE_HAS_CHANGED)
         {
-            REL11_register.write(PORT, true);
-        }
-        else
-        {
-            REL11_register.write(PORT, false);
-        }        
+            if(VALUE_TO_WRITE == 255)
+            {
+                REL11_register.write(PORT, true);
+            }
+            else
+            {
+                REL11_register.write(PORT, false);
+            } 
+        }               
     }    
 }
