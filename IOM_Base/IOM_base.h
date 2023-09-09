@@ -112,6 +112,7 @@ class Output {
     e_outputType_t  getOutputType   ();
 
 	private:
+    void            setOutputValue(const uint8_t VALUE);
 
     e_outputMode_t	mode;               //Aktueller Modus
     s_portValue_t   actualValue;  	    //Aktueller Wert

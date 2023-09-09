@@ -153,14 +153,16 @@ void Output::begin(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
 
 void Output::tick()
 {
+	this->actualValue.previousValue = this->actualValue.value;
+
 	switch(this->mode)
 	{
 		case OUTPUTMODE__OFF:
-			this->actualValue.value = 0;			
+			this->setOutputValue(0);			
 			break;
 
 		case OUTPUTMODE__ON:
-			this->actualValue.value = this->setting.onValue;
+			this->setOutputValue(this->setting.onValue);
 			break;
 
 		case OUTPUTMODE__BLINK:
@@ -170,12 +172,12 @@ void Output::tick()
 				{
 					if(this->actualValue.value == 0)
 					{
-						this->actualValue.value = this->setting.onValue;
+						this->setOutputValue(this->setting.onValue);
 						this->blinkParameter.count++;
 					}
 					else
 					{
-						this->actualValue.value = 0;
+						this->setOutputValue(0);
 					}
 
 					this->blinkParameter.to_blink.reset();
@@ -197,19 +199,19 @@ void Output::tick()
 					{
 						if(this->actualValue.value == 0)
 						{
-							this->actualValue.value = this->setting.onValue;
+							this->setOutputValue(this->setting.onValue);
 							this->blinkParameter.count++;
 						}
 						else
 						{
-							this->actualValue.value = 0;
+							this->setOutputValue(0);
 						}
 					}
 					else
 					{
-						//Blinken abgeschlossen, Break Timeout starten			
-                		this->blinkParameter.to_break.reset();                             
-						this->actualValue.value   	= 0;
+						//Blinken abgeschlossen, Break Timeout starten	
+						this->setOutputValue(0);		
+                		this->blinkParameter.to_break.reset();                          
 						this->blinkParameter.count  = 0;						
 					}		
 					this->blinkParameter.to_blink.reset();
@@ -221,7 +223,6 @@ void Output::tick()
 			this->mode = OUTPUTMODE__OFF;
 			break;
 	}
-	this->actualValue.previousValue = this->actualValue.value;
 }
 
 void Output::blink(const uint8_t BLINKS, const int BLINK_INTERVAL)
@@ -267,4 +268,10 @@ s_portValue_t Output::getValue()
 e_outputType_t  Output::getOutputType()
 {
 	return this->setting.outputType;
+}
+
+void Output::setOutputValue(const uint8_t VALUE)
+{
+	this->actualValue.previousValue = this->actualValue.value;
+	this->actualValue.value 		= VALUE;
 }
