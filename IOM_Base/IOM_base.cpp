@@ -1,5 +1,9 @@
 #include "IOM_base.h"
 
+//####################################################################
+//BASIS OBJEKTE
+//####################################################################
+
 //--------------------------------------------------------------------
 //DIGITALINPUT
 DigitalInput::DigitalInput    ()
@@ -68,43 +72,29 @@ void DigitalInput::setPortState(const bool STATE)
 }
 
 //--------------------------------------------------------------------
-//ROTARY ENCODER
-RotaryEncoder::RotaryEncoder()
+//ANALOGINPUT
+AnalogInput::AnalogInput()
 {}
-
-RotaryEncoder::RotaryEncoder(DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON)
-{   
-    this->p_A = P_PORT_A;
-    this->p_B = P_PORT_B;
-    this->p_pushButton = P_PORT_PUSHBUTTON;   
+   
+uint16_t AnalogInput::getValue()
+{
+	return this->inputState.value;
 }
 
-void RotaryEncoder::begin   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON)
+void AnalogInput::setAlarm(const uint16_t ALARM_VALUE)
 {
-    this->p_A = P_PORT_A;
-    this->p_B = P_PORT_B;
-    this->p_pushButton = P_PORT_PUSHBUTTON;    
+	this->alarmValue = ALARM_VALUE;
 }
 
-e_direction_t RotaryEncoder::getTurningDirection()
+bool AnalogInput::isAlarmValueReached()
 {
-    e_direction_t direction = idle;    
-
-    if(this->p_A->negFlank() && this->p_B->ishigh())
-    {
-        direction = right;
-    }
-    else if(this->p_B->negFlank() && this->p_A->ishigh())
-    {
-        direction = left;
-    }
-
-    return direction;
+	return (bool)(this->inputValue.value >= this.alarmValue);
 }
 
-bool RotaryEncoder::isButtonPressed()
+void AnalogInput::setPortValue(const uint16_t VALUE)
 {
-    return this->p_pushButton->posFlank();
+	this->inputValue.previousValue 	= this->inputValue.value;
+	this->inputValue.value 			= VALUE;
 }
 
 //--------------------------------------------------------------------
@@ -267,8 +257,10 @@ void Output::setOnValue(const uint8_t VALUE)
     this->setting.onValue = VALUE;
 }
 
-//Achtung kein BOOL! TRUE = max.255
 s_portValue_t Output::getValue()
+/**
+ * @return Achtung kein BOOL! TRUE = max.255
+*/
 {
 	return this->actualValue;	
 }
@@ -278,8 +270,53 @@ e_outputType_t  Output::getOutputType()
 	return this->setting.outputType;
 }
 
-void Output::setOutputValue(const uint8_t VALUE)
+void Output::setOutputValue(const uint8_t VALUE) 
 {
 	this->actualValue.previousValue = this->actualValue.value;
 	this->actualValue.value 		= VALUE;
+}
+
+
+//####################################################################
+//SPEZIAL OBJEKTE
+//####################################################################
+
+//--------------------------------------------------------------------
+//ROTARY ENCODER
+RotaryEncoder::RotaryEncoder()
+{}
+
+RotaryEncoder::RotaryEncoder(DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON)
+{   
+    this->p_A = P_PORT_A;
+    this->p_B = P_PORT_B;
+    this->p_pushButton = P_PORT_PUSHBUTTON;   
+}
+
+void RotaryEncoder::begin   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON)
+{
+    this->p_A = P_PORT_A;
+    this->p_B = P_PORT_B;
+    this->p_pushButton = P_PORT_PUSHBUTTON;    
+}
+
+e_direction_t RotaryEncoder::getTurningDirection()
+{
+    e_direction_t direction = idle;    
+
+    if(this->p_A->negFlank() && this->p_B->ishigh())
+    {
+        direction = right;
+    }
+    else if(this->p_B->negFlank() && this->p_A->ishigh())
+    {
+        direction = left;
+    }
+
+    return direction;
+}
+
+bool RotaryEncoder::isButtonPressed()
+{
+    return this->p_pushButton->posFlank();
 }
