@@ -254,6 +254,11 @@ void Output::reset()
 	this->mode = OUTPUTMODE__OFF;
 }
 
+void Output::setvalue(const uint8_t VALUE)
+{
+	this->setOutputValue(VALUE);
+}
+
 void Output::setOnValue(const uint8_t VALUE)
 {
     this->setting.onValue = VALUE;

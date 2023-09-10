@@ -105,6 +105,7 @@ class Output {
     void    blinkWithBreak  (const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
 	void 	set			    ();		//Output ON
 	void 	reset		    ();		//Output OFF
+    void    setvalue        (const uint8_t VALUE);
     void    setOnValue      (const uint8_t VALUE);
 
     //Für HAL
