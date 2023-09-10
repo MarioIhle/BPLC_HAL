@@ -4,9 +4,10 @@
 #include "Arduino.h"
 #include "IOM_base.h"
 #include <Adafruit_ADS1X15.h>
+#include "SpecialFunctions.h"
 
 
-#define DEBUG_HAL_AIN11
+//#define DEBUG_HAL_AIN11
 
 typedef enum
 {
@@ -41,17 +42,18 @@ class HAL_AIN11
     HAL_AIN11    (const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3);
     HAL_AIN11    (const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3, AnalogInput* P_PORT_4);
 
-    void    begin   ();
+    void    begin   (const uint16_t READ_INTERVAL = 500);
     void    tick    ();  
 
     private: 
     AnalogInput*   p_ports [AI_PORT_COUNT];    
-    const uint8_t  PINS    [AI_PORT_COUNT] = {AI_PORT_4, AI_PORT_3, AI_PORT_1, AI_PORT_2};         
+    const uint8_t  PINS    [AI_PORT_COUNT] = {AI_PORT_3, AI_PORT_4, AI_PORT_2, AI_PORT_1};         
  
     //Settings
     Adafruit_ADS1115    ADC;
     int                 deviceAdress;
     int                 usedPortCount;
+    Timeout             to_read;
  };
 
 #endif

@@ -43,7 +43,7 @@ HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, Ana
     this->usedPortCount = 4;
 }
 
-void HAL_AIN11::begin()
+void HAL_AIN11::begin(const uint16_t READ_INTERVAL)
 {    
       // The ADC input range (or gain) can be changed via the following
   // functions, but be careful never to exceed VDD +0.3V max, or to
@@ -59,30 +59,41 @@ void HAL_AIN11::begin()
   // ads.setGain(GAIN_SIXTEEN);         // 16x gain  +/- 0.256V  1 bit = 0.125mV  0.0078125mV
 
   this->ADC.begin(this->deviceAdress);
+  this->to_read.setInterval(READ_INTERVAL);
 }
 
 void HAL_AIN11::tick()
 {   
 #ifdef DEBUG_HAL_AIN11
-Serial.print("AIN11 "); Serial.print(this->deviceAdress); Serial.println("VALUES:");
+Serial.print("AIN11 "); Serial.print(this->deviceAdress); Serial.print(" VALUES:");
 #endif
+    if(this->to_read.check())
+    {
         for(uint8_t PORT = 0; PORT < this->usedPortCount; PORT++)
         {            
-            const uint16_t  RAW_ADC_VALUE = this->ADC.readADC_SingleEnded(PORT);
+            const int16_t   RAW_ADC_VALUE = this->ADC.readADC_SingleEnded(this->PINS[PORT]);
             const float     VALUE_IN_VOLT = this->ADC.computeVolts(RAW_ADC_VALUE);
-                            
-            this->p_ports[PORT]->setPortValue(RAW_ADC_VALUE);
-            this->p_ports[PORT]->setValueInVolt(VALUE_IN_VOLT);   
 
+            if(RAW_ADC_VALUE >= 0)
+            {
+                this->p_ports[PORT]->setPortValue(RAW_ADC_VALUE);
+                this->p_ports[PORT]->setValueInVolt(VALUE_IN_VOLT); 
+            }     
+            else
+            {
+                this->p_ports[PORT]->setPortValue(0);
+                this->p_ports[PORT]->setValueInVolt(0);
+            }               
+              
 #ifdef DEBUG_HAL_AIN11
-Serial.print(", PORT "); Serial.print(PORT); Serial.print(": "); Serial.print(RAW_ADC_VALUE); Serial.print(", IN VOLT: "); Serial.print(VALUE_IN_VOLT);    
+Serial.print(", PORT "); Serial.print(PORT + 1); Serial.print(": "); Serial.print(RAW_ADC_VALUE); Serial.print(", IN VOLT: "); Serial.print(VALUE_IN_VOLT);    
 #endif
 
-        } 
+        }
+        this->to_read.reset(); 
+    }
 #ifdef DEBUG_HAL_AIN11
-Serial.println(" ");       
+Serial.println(" "); 
+delay(1000);    
 #endif  
 }
-
-
-
