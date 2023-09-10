@@ -156,11 +156,11 @@ void Output::tick()
 	switch(this->mode)
 	{
 		case OUTPUTMODE__OFF:
-			this->setOutputValue(false);			
+			this->actualValue.value = false;			
 		break;
 
 		case OUTPUTMODE__ON:
-			this->setOutputValue(this->setting.onValue);
+			this->actualValue.value = this->setting.onValue;
 		break;
 
 		case OUTPUTMODE__VALUE:
@@ -174,12 +174,12 @@ void Output::tick()
 				{
 					if(this->actualValue.value == 0)
 					{
-						this->setOutputValue(this->setting.onValue);
+						this->actualValue.value = this->setting.onValue;
 						this->blinkParameter.count++;
 					}
 					else
 					{
-						this->setOutputValue(0);
+						this->actualValue.value = 0;
 					}
 
 					this->blinkParameter.to_blink.reset();
@@ -201,18 +201,18 @@ void Output::tick()
 					{
 						if(this->actualValue.value == 0)
 						{
-							this->setOutputValue(this->setting.onValue);
+							this->actualValue.value = this->setting.onValue;
 							this->blinkParameter.count++;
 						}
 						else
 						{
-							this->setOutputValue(0);
+							this->actualValue.value = false;
 						}
 					}
 					else
 					{
 						//Blinken abgeschlossen, Break Timeout starten	
-						this->setOutputValue(0);		
+						this->actualValue.value = false;		
                 		this->blinkParameter.to_break.reset();                          
 						this->blinkParameter.count  = 0;						
 					}		
@@ -256,10 +256,10 @@ void Output::reset()
 	this->mode = OUTPUTMODE__OFF;
 }
 
-void Output::setvalue(const uint8_t VALUE)
+void Output::setValue(const uint8_t VALUE)
 {
-	this->setOutputValue(VALUE);
-	this->mode = OUTPUTMODE__VALUE;
+	this->actualValue.value = VALUE;
+	this->mode 				= OUTPUTMODE__VALUE;
 }
 
 void Output::setOnValue(const uint8_t VALUE)
@@ -275,17 +275,17 @@ s_portValue_t Output::getValue()
 	return this->actualValue;	
 }
 
-e_outputType_t  Output::getOutputType()
+e_outputType_t Output::getOutputType()
 {
 	return this->setting.outputType;
 }
 
-void Output::setOutputValue(const uint8_t VALUE) 
+bool Output::isThereANewPortValue()
 {
-	this->actualValue.previousValue = this->actualValue.value;
-	this->actualValue.value 		= VALUE;
+	const bool THERE_IS_A_NEW_PORT_VALUE_TO_WRITE 	= (bool)(this->actualValue.value != this->actualValue.previousValue);
+	this->actualValue.previousValue 				= this->actualValue.value;
+	return THERE_IS_A_NEW_PORT_VALUE_TO_WRITE;
 }
-
 
 //####################################################################
 //SPEZIAL OBJEKTE

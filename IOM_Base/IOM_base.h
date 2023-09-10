@@ -65,7 +65,7 @@ class AnalogInput
     AnalogInput();
    
     //Getter für Applikation
-    uint16_t    getValue            ();
+    uint16_t    getValue       ();
     float       getValueInVolt ();
 
     void        setAlarm            (const uint16_t ALARM_VALUE);
@@ -124,15 +124,15 @@ class Output {
     void    blinkWithBreak  (const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
 	void 	set			    ();		//Output ON
 	void 	reset		    ();		//Output OFF
-    void    setvalue        (const uint8_t VALUE);
+    void    setValue        (const uint8_t VALUE);
     void    setOnValue      (const uint8_t VALUE);
 
     //Für HAL
-    s_portValue_t   getValue        ();   
-    e_outputType_t  getOutputType   ();
+    s_portValue_t   getValue            ();   
+    e_outputType_t  getOutputType       ();
+    bool            isThereANewPortValue();
 
-	private:
-    void            setOutputValue(const uint8_t VALUE);
+	private: 
 
     e_outputMode_t	mode;               //Aktueller Modus
     s_portValue_t   actualValue;  	    //Aktueller Wert

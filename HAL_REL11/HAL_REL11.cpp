@@ -35,25 +35,23 @@ void HAL_REL11::begin()
     this->PCF.setAddress(this->deviceAdress);       //Tatsächliche Adresse schreiben
     this->PCF.begin();                              //Kommunikation hetstellen
     this->PCF.write8(false);                        //Alle Ports LOW
+
+#ifdef DEBUG_HAL_REL11 
+Serial.print("HAL_REL11.begin with I2C Address"); Serial.println(this->deviceAdress);
+Serial.print("portCount: "); Serial.println(this->usedPortCount);
+#endif
 }
 
 void HAL_REL11::tick()
 {
-#ifdef DEBUG_HAL_REL11 
-    Serial.print("portCount: "); Serial.println(this->usedPortCount);
-#endif
     for(int PORT = 0; PORT < this->usedPortCount; PORT++)
     {
-        this->p_REL[PORT]->tick();
-        const s_portValue_t     VALUE_TO_WRITE      = this->p_REL[PORT]->getValue();
-        const bool              VALUE_HAS_CHANGED   = (bool)(VALUE_TO_WRITE.value != VALUE_TO_WRITE.previousValue);
-
-#ifdef DEBUG_HAL_REL11 
-Serial.print("value: "); Serial.println(VALUE_TO_WRITE.value);
-Serial.print("previours value: "); Serial.println(VALUE_TO_WRITE.previousValue);
-#endif
-        if(VALUE_HAS_CHANGED)
+        this->p_REL[PORT]->tick();        //Alle OUTs müssen getickt werden, damit ein Blinken möglich wird
+       
+        if(this->p_REL[PORT]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
         {
+            const s_portValue_t VALUE_TO_WRITE = this->p_REL[PORT]->getValue();
+
             if(VALUE_TO_WRITE.value >= 1)
             {
                 this->PCF.write(this->pins[PORT], true);
@@ -62,6 +60,12 @@ Serial.print("previours value: "); Serial.println(VALUE_TO_WRITE.previousValue);
             {
                 this->PCF.write(this->pins[PORT], false);
             } 
+
+#ifdef DEBUG_HAL_REL11 
+Serial.print("value: "); Serial.println(VALUE_TO_WRITE.value);
+Serial.print("previours value: "); Serial.println(VALUE_TO_WRITE.previousValue);
+#endif
+
         }               
     }    
 }
