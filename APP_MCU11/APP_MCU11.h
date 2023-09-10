@@ -14,7 +14,7 @@
  */
 //---------------------------------------------------
 
-#define DEBUG_APP_MCU11_OLED_HANDLING
+//#define DEBUG_APP_MCU11_OLED_HANDLING
 
 #include "Arduino.h"
 //Lib includes

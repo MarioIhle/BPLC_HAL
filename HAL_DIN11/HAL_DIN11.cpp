@@ -1,11 +1,11 @@
-#include "HAL_DI11.h"
+#include "HAL_DIN11.h"
 
-HAL_DI11::HAL_DI11()
+HAL_DIN11::HAL_DIN11()
 {
     this->usedPortCount = 0;
 }
 
-HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1)
+HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1)
 {    
     this->deviceAdress = ADDRESS;
 
@@ -13,7 +13,7 @@ HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1)
     this->usedPortCount = 1;
 }
          
-HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2)
+HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2)
 {   
     this->deviceAdress = ADDRESS;
 
@@ -22,7 +22,7 @@ HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Digit
     this->usedPortCount = 2;
 }
 
-HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3)
+HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3)
 {    
     this->deviceAdress = ADDRESS;
 
@@ -32,7 +32,7 @@ HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Digit
     this->usedPortCount = 3;
 }
 
-HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4)
+HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4)
 {    
     this->deviceAdress = ADDRESS;
 
@@ -43,7 +43,7 @@ HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Digit
     this->usedPortCount = 4;
 }
 
-HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5)
+HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5)
 {    
     this->deviceAdress = ADDRESS;
 
@@ -55,7 +55,7 @@ HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Digit
     this->usedPortCount = 5;
 }
 
-HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6)
+HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6)
 {    
     this->deviceAdress = ADDRESS;
 
@@ -68,7 +68,7 @@ HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Digit
     this->usedPortCount = 6;
 }
 
-HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7)
+HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7)
 {    
     this->deviceAdress = ADDRESS;
 
@@ -82,7 +82,7 @@ HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Digit
     this->usedPortCount = 7;
 }
 
-HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1 = nullptr, DigitalInput* P_PORT_2 = nullptr, DigitalInput* P_PORT_3 = nullptr, DigitalInput* P_PORT_4 = nullptr, DigitalInput* P_PORT_5 = nullptr, DigitalInput* P_PORT_6 = nullptr, DigitalInput* P_PORT_7 = nullptr, DigitalInput* P_PORT_8 = nullptr)
+HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1 = nullptr, DigitalInput* P_PORT_2 = nullptr, DigitalInput* P_PORT_3 = nullptr, DigitalInput* P_PORT_4 = nullptr, DigitalInput* P_PORT_5 = nullptr, DigitalInput* P_PORT_6 = nullptr, DigitalInput* P_PORT_7 = nullptr, DigitalInput* P_PORT_8 = nullptr)
 {  
     this->deviceAdress = ADDRESS;
 
@@ -97,36 +97,36 @@ HAL_DI11::HAL_DI11(const e_DI11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1 = null
     this->usedPortCount = 8;
 }
 
-void HAL_DI11::begin()
+void HAL_DIN11::begin()
 {    
     PCF.setAddress(this->deviceAdress);                                        //Tatsächliche Adresse schreiben
     PCF.begin();                                                    //Kommunikation hetstellen 
 }
 
-void HAL_DI11::tick()
+void HAL_DIN11::tick()
 {    
-    if(this->f_somePinOfsomeDI11CardChanged >0)
+    if(this->f_somePinOfsomePinCardChanged >0)
     {
-#ifdef DEBUG_HAL_DI11
-Serial.print("DI11 "); Serial.print(this->deviceAdress); Serial.println("STATES:");
+#ifdef DEBUG_HAL_DIN11
+Serial.print("DIN11 "); Serial.print(this->deviceAdress); Serial.println("STATES:");
 #endif
         for(uint8_t PORT = 0; PORT < this->usedPortCount; PORT++)
         {            
             const bool STATE = !PCF.read(this->PINS[PORT]);     
             this->p_ports[PORT]->setPortState(STATE);   
 
-#ifdef DEBUG_HAL_DI11
+#ifdef DEBUG_HAL_DIN11
 Serial.print(", PORT "); Serial.print(PORT); Serial.print(": "); Serial.print(STATE);       
 #endif
         } 
-#ifdef DEBUG_HAL_DI11
+#ifdef DEBUG_HAL_DIN11
 Serial.println(" ");       
 #endif
-        this->f_somePinOfsomeDI11CardChanged--;
+        this->f_somePinOfsomePinCardChanged--;
     }    
 }
 
-void HAL_DI11::somePinOfsomeDI11CardChanged()
+void HAL_DIN11::somePinOfsomePinCardChanged()
 {
-    this->f_somePinOfsomeDI11CardChanged = 2;
+    this->f_somePinOfsomePinCardChanged = 2;
 }

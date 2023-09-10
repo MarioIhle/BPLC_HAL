@@ -4,10 +4,17 @@
 #include "Arduino.h"
 #include "SpecialFunctions.h"
 
+//####################################################################
+//DEBUG INFO PRINT
+//####################################################################
+
 //#define DEBUG_IOM   //Nur mit je 1 Objekt pro Klasse sinnvoll Debugbar, sonst zu viel Spam
-//--------------------------------------------------------------------
-//Typdefinitionen
-//--------------------------------------------------------------------
+
+
+//####################################################################
+//ALLGEMEINE TYPEN
+//####################################################################
+
 //Encoder oder Motoren richtung
 typedef enum
 {
@@ -16,12 +23,17 @@ typedef enum
     right,
 }e_direction_t;
 
-//Port
+//Portinformation
 typedef struct
 {        
-    int value;
-    int previousValue;
+    uint16_t value;
+    uint16_t previousValue;
 }s_portValue_t;
+
+
+//####################################################################
+//BASIS OBJEKTE
+//####################################################################
 
 //--------------------------------------------------------------------
 //DIGITAL INPUT KLASSE
@@ -45,22 +57,28 @@ class DigitalInput
 };
 
 //--------------------------------------------------------------------
-//ROTARY ENCODER KLASSE
+//DIGITAL INPUT KLASSE
 //--------------------------------------------------------------------
-class RotaryEncoder 
+class AnalogInput
 {
-	public:
-                        RotaryEncoder   ();
-                        RotaryEncoder   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);   
-    void                begin           (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);
+    public:
+    AnalogInput();
+   
+    //Getter für Applikation
+    uint16_t    getValue            ();
+    float       getValueInVolt ();
 
-    e_direction_t       getTurningDirection ();
-    bool                isButtonPressed     ();
-    
-  	private:
-    DigitalInput*   p_A;
-    DigitalInput*   p_B; 
-    DigitalInput*   p_pushButton; 
+    void        setAlarm            (const uint16_t ALARM_VALUE);
+    bool        isAlarmValueReached (); //true wenn VALUE > AlarmValue
+
+    //Setter für HAL
+    void setPortValue   (const uint16_t VALUE);
+    void setValueInVolt (const float VALUE_IN_VOLT);
+
+    private:
+    s_portValue_t   inputValue;   
+    float           inputValueInVolt;
+    uint16_t        alarmValue;
 };
 
 //--------------------------------------------------------------------
@@ -135,62 +153,27 @@ class Output {
 };
 
 
-
-
-
-
-
-
-
-/*
+//####################################################################
+//SPEZIAL OBJEKTE
+//####################################################################
 
 //--------------------------------------------------------------------
-//DIGITALSETTER KLASSE
+//ROTARY ENCODER KLASSE
 //--------------------------------------------------------------------
-class DigitalSetter
+class RotaryEncoder 
 {
-    public:
-    DigitalSetter   (const uint8_t PIN);
-    void    begin   (const uint8_t PIN);
-    void 	setState(const bool STATE);
-    void    set     ();
-    void    reset   ();
-    bool    get     ();
-
-    private:
-    uint8_t     port;
-};
-
-//--------------------------------------------------------------------
-//ANALOGSETTER KLASSE
-//--------------------------------------------------------------------
-class AnalogSetter
-{
-    public:
-    AnalogSetter        ();
-
-    void        begin   ();
-    void 	    setOnValue(const uint8_t VALUE);
-    void        setMax  ();
-    void        setMin  ();
-    uint16_t    get     ();
-    private:
-
-    uint8_t   port;
-};
-
-//--------------------------------------------------------------------
-//ANALOG INPUT KLASSE
-//--------------------------------------------------------------------
-class AnalogInput {
 	public:
-    AnalogInput();
+                        RotaryEncoder   ();
+                        RotaryEncoder   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);   
+    void                begin           (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);
 
-    void        begin(); 
-    uint16_t    read();    
+    e_direction_t       getTurningDirection ();
+    bool                isButtonPressed     ();
+    
   	private:
-     
-	e_analogInputPorts_t    port;
+    DigitalInput*   p_A;
+    DigitalInput*   p_B; 
+    DigitalInput*   p_pushButton; 
 };
 
 //--------------------------------------------------------------------
@@ -207,38 +190,6 @@ class TemperaturSensor{
     int16_t oldTemp; 
 };
 
-
-
-//--------------------------------------------------------------------
-//DIGITAL OUTPUT KLASSE
-//--------------------------------------------------------------------
-class DigitalOutput{
-    public:
-    DigitalOutput();
-     void begin   ();
-    DigitalSetter state; 
-};
-
-//--------------------------------------------------------------------
-//RELAIS KLASSE
-//--------------------------------------------------------------------
-class Relais{
-    public:
-    Relais();
-    void            begin   ();     
-    DigitalSetter   state;
-};
-
-//--------------------------------------------------------------------
-//ANALOG OUTPUT KLASSE
-//--------------------------------------------------------------------
-class AnalogOutput{
-    public:
-    AnalogOutput();
-    void begin  ();
-    AnalogSetter value;
-};
-
 //--------------------------------------------------------------------
 //H-BRÜCKE KLASSE
 //-------------------------------------------------------------------- 
@@ -249,9 +200,6 @@ class H_Bridge{
     void    setSpeed    (const uint8_t HB_SPEED);
     void    setDirection(const e_direction_t DIRECTION);
 
-    private:
-  
-	
+    private:	
 };
-*/
 #endif
