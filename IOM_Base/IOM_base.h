@@ -66,14 +66,18 @@ class AnalogInput
    
     //Getter für Applikation
     uint16_t    getValue            ();
+    float       getValueInVolt ();
+
     void        setAlarm            (const uint16_t ALARM_VALUE);
     bool        isAlarmValueReached (); //true wenn VALUE > AlarmValue
 
     //Setter für HAL
-    void setPortValue(const uint16_t VALUE);
+    void setPortValue   (const uint16_t VALUE);
+    void setValueInVolt (const float VALUE_IN_VOLT);
 
     private:
     s_portValue_t   inputValue;   
+    float           inputValueInVolt;
     uint16_t        alarmValue;
 };
 

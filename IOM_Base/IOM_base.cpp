@@ -78,7 +78,12 @@ AnalogInput::AnalogInput()
    
 uint16_t AnalogInput::getValue()
 {
-	return this->inputState.value;
+	return this->inputValue.value;
+}
+
+float AnalogInput::getValueInVolt()
+{
+	return this->inputValueInVolt;
 }
 
 void AnalogInput::setAlarm(const uint16_t ALARM_VALUE)
@@ -88,13 +93,18 @@ void AnalogInput::setAlarm(const uint16_t ALARM_VALUE)
 
 bool AnalogInput::isAlarmValueReached()
 {
-	return (bool)(this->inputValue.value >= this.alarmValue);
+	return (bool)(this->inputValue.value >= this->alarmValue);
 }
 
 void AnalogInput::setPortValue(const uint16_t VALUE)
 {
 	this->inputValue.previousValue 	= this->inputValue.value;
 	this->inputValue.value 			= VALUE;
+}
+
+void AnalogInput::setValueInVolt(const float VALUE_IN_VOLT)
+{
+	this->inputValueInVolt = VALUE_IN_VOLT;
 }
 
 //--------------------------------------------------------------------
