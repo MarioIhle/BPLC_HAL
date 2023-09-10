@@ -156,6 +156,11 @@ e_oledMenu_t OLED_MCU11::getActiveMenu()
   return this->menu.activeMenu;
 }
 
+uint8_t OLED_MCU11::getActiveMenuTextNum()
+{
+  return this->menu.activeText;
+}
+
 void OLED_MCU11::setMenu(const e_oledMenu_t MENU)
 {
   this->menu.activeMenu = MENU;

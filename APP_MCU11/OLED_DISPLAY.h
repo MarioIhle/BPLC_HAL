@@ -87,6 +87,7 @@ class OLED_MCU11
     void            showPrevioursTextOfThisMenu ();
     void            enterMenu                   ();
     e_oledMenu_t    getActiveMenu               ();      
+    uint8_t         getActiveMenuTextNum        ();
     void            setMenu                     (const e_oledMenu_t MENU);
     bool            readyToExitMenu             ();
     //Parametereingabe
