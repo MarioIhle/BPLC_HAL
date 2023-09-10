@@ -153,17 +153,19 @@ void Output::begin(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
 
 void Output::tick()
 {
-	this->actualValue.previousValue = this->actualValue.value;
-
 	switch(this->mode)
 	{
 		case OUTPUTMODE__OFF:
-			this->setOutputValue(0);			
-			break;
+			this->setOutputValue(false);			
+		break;
 
 		case OUTPUTMODE__ON:
 			this->setOutputValue(this->setting.onValue);
-			break;
+		break;
+
+		case OUTPUTMODE__VALUE:
+			//keine Änderung, einfach gesetzten Wert halten 
+		break;
 
 		case OUTPUTMODE__BLINK:
 			if(this->blinkParameter.to_blink.check())
@@ -187,7 +189,7 @@ void Output::tick()
 					this->mode = OUTPUTMODE__OFF;
 				}			
 			}
-			break;
+		break;
 
         case OUTPUTMODE__BLINK_WITH_BREAK:
             //Blinken
@@ -217,11 +219,11 @@ void Output::tick()
 					this->blinkParameter.to_blink.reset();
 				}		
 			}
-            break;
+		break;
 
 		default:
 			this->mode = OUTPUTMODE__OFF;
-			break;
+		break;
 	}
 }
 
@@ -257,6 +259,7 @@ void Output::reset()
 void Output::setvalue(const uint8_t VALUE)
 {
 	this->setOutputValue(VALUE);
+	this->mode = OUTPUTMODE__VALUE;
 }
 
 void Output::setOnValue(const uint8_t VALUE)

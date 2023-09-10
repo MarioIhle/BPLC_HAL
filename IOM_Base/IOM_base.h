@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include "SpecialFunctions.h"
 
-#define DEBUG_IOM   //Nur mit je 1 Objekt pro Klasse sinnvoll Debugbar, sonst zu viel Spam
+//#define DEBUG_IOM   //Nur mit je 1 Objekt pro Klasse sinnvoll Debugbar, sonst zu viel Spam
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
@@ -71,6 +71,7 @@ typedef enum
 {
 	OUTPUTMODE__OFF,
 	OUTPUTMODE__ON, 
+    OUTPUTMODE__VALUE,
 	OUTPUTMODE__BLINK,
     OUTPUTMODE__BLINK_WITH_BREAK,
 
