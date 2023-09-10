@@ -24,7 +24,7 @@
 #include "Adafruit_SSD1306.h"
 
 
-//#define DEBUG
+//#define DEBUG_OLED_DISPLAY
 
 
 //---------------------------------------------------
@@ -108,8 +108,9 @@ class OLED_MCU11
     void        showSettings    ();
     void        showDipswitches ();    
 
-    s_display_t                 display;
-    s_menu_t                    menu;
+    s_display_t display;
+    s_menu_t    menu;
+    bool        f_refresh;
 
     int             paramValue;
     bool            f_parmParameter;

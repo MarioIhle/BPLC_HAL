@@ -54,7 +54,7 @@ void APP_MCU11::tick()
          this->deviceMode = APP_MODE__SAFE_STATE;
       break;
    }      
-   //DEBUG beep
+   //DEBUG_OLED_DISPLAY beep
    if(this->deviceSettings.f_beepOnEncoderInput)
    {
       this->beepOnEncoderInput(); 
@@ -99,7 +99,7 @@ void APP_MCU11::handleDisplay()
       break;
 
       case menu_dipSwitch:
-         
+         handle_vDip();
       break;
 
       case menu_screenSaver: 
@@ -137,7 +137,7 @@ void APP_MCU11::setDeviceMode(const e_APP_MODE_t MODE)
    this->deviceMode = MODE;
 }
 
-void APP_MCU11::setVDip(const uint8_t DIP_NUM, const uint8_t VALUE)
+void APP_MCU11::setVDip(const e_V_DIP_t DIP_NUM, const uint8_t VALUE)
 /**
  * @param   DIP_NUM     Dip Nummer 
  * @param   VALUE       Wert von 0-255
@@ -146,7 +146,7 @@ void APP_MCU11::setVDip(const uint8_t DIP_NUM, const uint8_t VALUE)
    this->virtualDipSwitch[DIP_NUM] = VALUE;
 }
 
-int APP_MCU11::getVDip(const uint8_t DIP_NUM)
+int APP_MCU11::getVDip(const e_V_DIP_t DIP_NUM)
 {
    return this->virtualDipSwitch[DIP_NUM];
 }
@@ -252,5 +252,74 @@ void APP_MCU11::errorOut()
    {
       this->oled.setParamValueToShow(this->errorCode[this->temp_ParameterStorage]);
    } 
+}
+
+void APP_MCU11::handle_vDip()
+{  
+   const bool           IS_ENCODER_BUTTON_PRESSED  = this->hal.ENCODER.isButtonPressed();
+   const e_direction_t  TURNING_DIRECTION          = this->hal.ENCODER.getTurningDirection();
+   const bool           PARARMETER_IS_ENTERED      = this->oled.parameterEntered();
+   const e_V_DIP_t      SELECTED_DIP               = (e_V_DIP_t)this->oled.getActiveMenuTextNum();
+
+   if(IS_ENCODER_BUTTON_PRESSED)
+   {            
+      //Enter Parameter
+      if(PARARMETER_IS_ENTERED == false)
+      {           
+         this->oled.enterParameter();  
+         this->temp_ParameterStorage = this->getVDip(SELECTED_DIP);               
+      }
+      else
+      {         
+         this->setVDip(SELECTED_DIP, this->temp_ParameterStorage);  //Aktiver Text == gewählter Dip
+         this->oled.exitParameter();               
+      }
+      //Cursor on "exit"
+      if(this->oled.readyToExitMenu())
+      {
+         this->oled.setMenu(menu_mainMenu);
+      }  
+   }
+
+   if(TURNING_DIRECTION == right)
+   {
+      if(PARARMETER_IS_ENTERED)
+      {
+         this->temp_ParameterStorage++;
+      }
+      else
+      {
+         this->oled.showNextTextOfThisMenu();   
+      }
+   }
+   else if(TURNING_DIRECTION == left)
+   {    
+      if(PARARMETER_IS_ENTERED)
+      {
+         this->temp_ParameterStorage--;
+      }
+      else
+      {
+         this->oled.showPrevioursTextOfThisMenu();         
+      }
+   }
+
+   if(PARARMETER_IS_ENTERED)
+   {
+      this->oled.setParamValueToShow(this->temp_ParameterStorage);
+   }
+   else
+   {
+      this->oled.setParamValueToShow(this->getVDip(SELECTED_DIP));
+   }
+
+#ifdef DEBUG_APP_MCU11_OLED_HANDLING
+for(int i = 0; i< vDIP_COUNT; i++)
+{
+   Serial.print(", DIP "); Serial.print(i+1); Serial.print(": "); Serial.print(this->virtualDipSwitch[i]);
+}
+Serial.println("");
+#endif
+
 }
 

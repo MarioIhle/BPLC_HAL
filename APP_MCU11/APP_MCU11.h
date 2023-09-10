@@ -14,6 +14,8 @@
  */
 //---------------------------------------------------
 
+#define DEBUG_APP_MCU11_OLED_HANDLING
+
 #include "Arduino.h"
 //Lib includes
 #include "SpecialFunctions.h"
@@ -24,6 +26,21 @@
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
 #include "IOM_base.h"
+
+typedef enum
+{
+    vDIP_1,
+    vDIP_2,
+    vDIP_3,
+    vDIP_4,
+    vDIP_5,
+    vDIP_6,
+    vDIP_7,
+    vDIP_8,
+
+    vDIP_COUNT,
+}e_V_DIP_t;
+
 
 typedef enum
 {
@@ -50,8 +67,8 @@ class APP_MCU11
     void    beep(const uint8_t BEEPS, const int BEEP_INTERVAL);
 
     //Dip Controll
-    void    setVDip(const uint8_t DIP_NUM, const uint8_t VALUE);
-    int     getVDip(const uint8_t DIP_NUM);
+    void    setVDip(const e_V_DIP_t DIP_NUM, const uint8_t VALUE);
+    int     getVDip(const e_V_DIP_t DIP_NUM);
 
     //Error flags
     void    setError();
@@ -64,21 +81,21 @@ class APP_MCU11
     e_APP_MODE_t    deviceMode;
 
     //Variablen
-    int         virtualDipSwitch[8];
+    uint8_t     virtualDipSwitch[vDIP_COUNT];
     uint8_t     errorCode[8];
     
-    int temp_ParameterStorage;      //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
+    byte temp_ParameterStorage;      //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
 
     void handleDisplay();
     void beepOnEncoderInput();
 
     void editDeviceMode();
     void errorOut();
+    void handle_vDip();
 
     struct 
     {
         bool f_beepOnEncoderInput;
-    }deviceSettings;
-    
+    }deviceSettings;    
 };
 #endif

@@ -61,7 +61,7 @@ void OLED_MCU11::begin()
 //MAIN ROUTINE
 void OLED_MCU11::tick()
 {  
-  #ifdef DEBUG
+  #ifdef DEBUG_OLED_DISPLAY
   Serial.print(", ACTIVE MENU:"); Serial.print(this->menu.activeMenu);
   Serial.print(", ACTIVE TEXT: "); Serial.print(this->menu.activeText);
   Serial.print(", PARAM VALUE: "); Serial.print(this->paramValue);
@@ -208,7 +208,7 @@ void OLED_MCU11::showMenuText(const String NEW_TEXT, const bool ROW)
   
   oled.setTextSize(2);
 
-  if(this->TEXT_OUTPUT[ROW] != NEW_TEXT || (this->to_parmeter.check() && f_parmParameter == true))
+  if(this->TEXT_OUTPUT[ROW] != NEW_TEXT || (this->to_parmeter.check() && f_parmParameter == true)|| this->f_refresh)
   {    
     //NeuenText speichern
     this->TEXT_OUTPUT[ROW] = NEW_TEXT;
@@ -249,7 +249,9 @@ void OLED_MCU11::showMenuText(const String NEW_TEXT, const bool ROW)
     this->to_parmeter.reset();
   }
 
-  #ifdef DEBUG
+  this->f_refresh = false;
+
+  #ifdef DEBUG_OLED_DISPLAY
   Serial.print(", OLED OUTPUT ROW "); Serial.print(ROW); Serial.print(": "); Serial.print(NEW_TEXT);
   #endif
 }
@@ -294,7 +296,10 @@ void OLED_MCU11::showSettings()
 
 void OLED_MCU11::showDipswitches()
 {
-  
+  if(this->menu.activeText < 8)
+  {
+    this->showMenuText(String(this->paramValue, DEC), 1);
+  }
 }
 
 String DEVICE_MODE[] = {{"stop"}, {"start"}, {"safe"}, {"running C1"}, {"running C2"}, {"running C3"}};
@@ -322,6 +327,7 @@ void OLED_MCU11::setParamValueToShow(const int VALUE)
 void OLED_MCU11::exitParameter()
 {
   this->f_parmParameter = false;
+  this->f_refresh = true;
 }
 
 bool OLED_MCU11::parameterEntered()
