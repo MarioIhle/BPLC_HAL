@@ -11,7 +11,7 @@ void APP_MCU11::begin(void (*INT_callBack)(void))
    this->hal.begin(INT_callBack);   
    this->oled.begin();
 
-   this->deviceSettings.f_beepOnEncoderInput = true;
+   this->deviceSettings.f_beepOnEncoderInput = false;
 
    this->deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
    memset(&this->errorCode, 0, sizeof(this->errorCode));
