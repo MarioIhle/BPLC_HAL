@@ -94,12 +94,12 @@ class OLED_MCU11
     void            enterParameter              ();
     void            exitParameter               ();
     bool            parameterEntered            ();
-    void            setParamValueToShow         (const int VALUE);    
+    void            setParamValueToShow         (const uint8_t VALUE);    
 
     private:
     void        showHeadlineText();       
     void        showMenuText    (const String TEXT, const bool ROW);
-    int         getMenuText     (const uint8_t LAST_AVAILABLE_TEXT, const int ACTIVE_TEXT);
+    uint8_t     getMenuText     (const uint8_t LAST_AVAILABLE_TEXT, const uint8_t ACTIVE_TEXT);
   
     void        showScreenSaver ();
     void        showMainMenu    ();
@@ -112,7 +112,7 @@ class OLED_MCU11
     s_menu_t    menu;
     bool        f_refresh;
 
-    int             paramValue;
+    uint8_t         paramValue;
     bool            f_parmParameter;
     Timeout         to_parmeter;
     bool            f_parameterBlink;

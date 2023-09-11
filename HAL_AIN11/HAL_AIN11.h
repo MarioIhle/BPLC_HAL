@@ -42,7 +42,7 @@ class HAL_AIN11
     HAL_AIN11    (const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3);
     HAL_AIN11    (const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3, AnalogInput* P_PORT_4);
 
-    void    begin   (const uint16_t READ_INTERVAL = 500);
+    void    begin   (const uint16_t READ_INTERVAL = 1000);
     void    tick    ();  
 
     private: 

@@ -173,6 +173,7 @@ void APP_MCU11::editDeviceMode()
       //Enter Parameter
       if(this->oled.parameterEntered() == false)
       {           
+         this->temp_ParameterStorage = this->deviceMode;
          this->oled.enterParameter();                          
       }
       else
@@ -215,9 +216,9 @@ void APP_MCU11::editDeviceMode()
    {
       temp_ParameterStorage = APP_MODE__STOP;
    }
-   if(this->temp_ParameterStorage > APP_MODE__SAFE_STATE)
+   if(this->temp_ParameterStorage >= APP_MODE__COUNT)
    {
-      this->temp_ParameterStorage >= APP_MODE__COUNT;
+      this->temp_ParameterStorage = APP_MODE__COUNT-1;
    }
 
    if(this->oled.parameterEntered())
@@ -250,10 +251,8 @@ void APP_MCU11::errorOut()
    {
       this->oled.showPrevioursTextOfThisMenu();
    } 
-   if(this->oled.readyToExitMenu() == false)
-   {
-      this->oled.setParamValueToShow(this->errorCode); 
-   }     
+
+   this->oled.setParamValueToShow(this->errorCode);    
 }
 
 void APP_MCU11::handle_vDip()

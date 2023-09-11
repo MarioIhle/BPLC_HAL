@@ -5,16 +5,16 @@
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 //---------------------------------------------------
 //MENÜ STANDART TEXTE
-const String EXIT       = "exit";
-const String LOCK       = "lock";
-const String LAST_TEXT  = "last";
+const String EXIT       = "EXIT";
+const String LOCK       = "LOCK";
+const String LAST_TEXT  = "LAST";
 
 String HEADLINE_TEXT [menu_count][10] =
 {
   {{"MAIN MENU"}, {"MODE"}, {"ERRORS"}, {"vDIP"}, {"SETUP"}, {LOCK}, {LAST_TEXT}},
   {{"MODE"}, {EXIT}, {LAST_TEXT}},
   {{"ERROR"},{EXIT}, {LAST_TEXT}},
-  {{"DIP1"}, {"DIP2"}, {"DIP3"},{"DIP4"},{"DIP5"},{"DIP6"},{"DIP7"},{"DIP8"},{EXIT}, {LAST_TEXT}},
+  {{"DIP1"}, {"DIP2"}, {"DIP3"}, {"DIP4"}, {"DIP5"}, {"DIP6"}, {"DIP7"}, {"DIP8"}, {EXIT}, {LAST_TEXT}},
   {{"SETTING1"}, {"SETTING2"}, {EXIT}, {LAST_TEXT}}
 };
 //---------------------------------------------------
@@ -256,9 +256,9 @@ void OLED_MCU11::showMenuText(const String NEW_TEXT, const bool ROW)
   #endif
 }
 
-int OLED_MCU11::getMenuText(const uint8_t LAST_AVAILABLE_TEXT, const int ACTIVE_TEXT)
+uint8_t OLED_MCU11::getMenuText(const uint8_t LAST_AVAILABLE_TEXT, const uint8_t ACTIVE_TEXT)
 {
-  int text = ACTIVE_TEXT;  
+  uint8_t text = ACTIVE_TEXT;  
   if(text > LAST_AVAILABLE_TEXT)
   {
     text = LAST_AVAILABLE_TEXT;
@@ -283,7 +283,7 @@ void OLED_MCU11::showMainMenu()
 
 void OLED_MCU11::showErrorCodes()
 {
-  if(this->menu.activeText < 0)
+  if(this->menu.activeText < 1)
   {
     this->showMenuText(String(this->paramValue, DEC), 1);
   }
@@ -319,7 +319,7 @@ void OLED_MCU11::enterParameter()
   }
 }
 
-void OLED_MCU11::setParamValueToShow(const int VALUE)
+void OLED_MCU11::setParamValueToShow(const uint8_t VALUE)
 {
   this->paramValue = VALUE;
 }
