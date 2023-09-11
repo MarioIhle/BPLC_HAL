@@ -5,6 +5,8 @@
 #include "IOM_Base.h"
 #include "PCF8574.h"
 
+//#define DEBUG_HAL_FUSE11
+
 typedef enum
 {
     FUSE11_CARD_1 = 0x20,
@@ -51,7 +53,11 @@ class HAL_FUSE11 {
     HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, DigitalInput* P_T_F1, DigitalInput* P_T_F2);
     HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, DigitalInput* P_T_F1, DigitalInput* P_T_F2, DigitalInput* P_T_F3);
     HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, DigitalInput* P_T_F1, DigitalInput* P_T_F2, DigitalInput* P_T_F3, DigitalInput* P_T_F4);
+   
     void        tick();
+    void        begin();
+    
+    void        somePinOfsomePinCardChanged();
     
     private:
     DigitalInput*   p_DI    [IN_PORT_COUNT];
@@ -63,7 +69,9 @@ class HAL_FUSE11 {
         const uint8_t   output   [OUT_PORT_COUNT]   = {0, 1, 2, 4};    
     }pins;
     
-    int usedPortCount;
+    PCF8574 PCF;
+    int     usedPortCount;
+    uint8_t f_somePinOfsomePinCardChanged;
 };
 
 #endif

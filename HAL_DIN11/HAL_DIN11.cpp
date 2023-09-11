@@ -99,8 +99,13 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1 = n
 
 void HAL_DIN11::begin()
 {    
-    PCF.setAddress(this->deviceAdress);                                        //Tatsächliche Adresse schreiben
-    PCF.begin();                                                    //Kommunikation hetstellen 
+    PCF.setAddress(this->deviceAdress);   //Tatsächliche Adresse schreiben
+    PCF.begin();                          //Kommunikation hetstellen 
+    
+#ifdef DEBUG_HAL_DIN11 
+Serial.print("HAL_REL11.begin with I2C Address"); Serial.println(this->deviceAdress);
+Serial.print("portCount: "); Serial.println(this->usedPortCount);
+#endif
 }
 
 void HAL_DIN11::tick()
