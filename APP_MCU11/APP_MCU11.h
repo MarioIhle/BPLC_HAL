@@ -54,6 +54,29 @@ typedef enum
     APP_MODE__COUNT,
 }e_APP_MODE_t;
 
+typedef enum
+{
+    //MCU Errors
+    APP_ERROR__NO_ERROR,
+    APP_ERROR__WTD_TIMEOUT,
+    //I2C Kommunikation unterbrochen
+    APP_ERROR__OLED_COMMUNICATION_FAILED = 10,
+    APP_ERROR__DIN11_COMMUNICATION_FAILED,
+    APP_ERROR__AIN11_COMMUNICATION_FAILED,
+    APP_ERROR__REL11_COMMUNICATION_FAILED,
+    APP_ERROR__DO11_COMMUNICATION_FAILED,
+    APP_ERROR__MOT11_COMMUNICATION_FAILED,
+    APP_ERROR__FUSE11_COMMUNICATION_FAILED,
+    APP_ERROR__NANO_11_COMMUNICATION_FAILED,
+    //MOT11 Errrors
+    APP_ERROR__EXTERNAL_APP_ERROR = 30,
+    APP_ERROR__MOT11_OVER_CURRENT,
+    APP_ERROR__MOT11_OVER_TEMP,    
+    //Error aus Applikation 
+    APP_ERROR__EXTERNAL = 40,  
+}e_APP_ERROR_t;
+
+
 class APP_MCU11
 {
     public:
@@ -71,7 +94,7 @@ class APP_MCU11
     int     getVDip(const e_V_DIP_t DIP_NUM);
 
     //Error flags
-    void    setError();
+    void    setError(const e_APP_ERROR_t ERROR_CODE);
     
   
     private:
@@ -81,10 +104,12 @@ class APP_MCU11
     e_APP_MODE_t    deviceMode;
 
     //Variablen
-    uint8_t     virtualDipSwitch[vDIP_COUNT];
-    uint8_t     errorCode[8];
+    uint8_t         virtualDipSwitch[vDIP_COUNT];
+    e_APP_ERROR_t   errorCode;          //Sobald ein Error anliegt, wird Applikation gestoppt und im Safemode auf Userinput gewartet
     
-    byte temp_ParameterStorage;      //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
+    byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
+
+    e_APP_ERROR_t checkForErrors();     //return=0, wenn kein Error gesetzt
 
     void handleDisplay();
     void beepOnEncoderInput();

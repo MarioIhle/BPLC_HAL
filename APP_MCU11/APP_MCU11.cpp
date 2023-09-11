@@ -17,6 +17,7 @@ void APP_MCU11::begin(void (*INT_callBack)(void))
    memset(&this->errorCode, 0, sizeof(this->errorCode));
    
    this->temp_ParameterStorage = 0;
+   this->errorCode = APP_ERROR__NO_ERROR;
 }
 
 void APP_MCU11::tick()
@@ -24,6 +25,11 @@ void APP_MCU11::tick()
    this->hal.tick();
    this->oled.tick();
    this->handleDisplay();
+
+   if(this->errorCode != APP_ERROR__NO_ERROR)
+   {
+      this->deviceMode = APP_MODE__SAFE_STATE;
+   }
 
    //Hauptapplikation MCU
    switch(this->deviceMode)
@@ -45,9 +51,8 @@ void APP_MCU11::tick()
       break;
 
       case APP_MODE__SAFE_STATE:
-         this->hal.LD1.blink(1, 100);
-         this->hal.OEN.reset(); 
-         //this->hal.LD2.reset();  //Später für Fehlercode nutzen
+         this->hal.LD1.blink(1, 100);         
+         this->hal.OEN.reset();          
       break;
 
       default:
@@ -151,6 +156,16 @@ int APP_MCU11::getVDip(const e_V_DIP_t DIP_NUM)
    return this->virtualDipSwitch[DIP_NUM];
 }
 
+void APP_MCU11::setError(const e_APP_ERROR_t ERROR_CODE)
+{      
+   this->errorCode = ERROR_CODE;
+}
+
+e_APP_ERROR_t APP_MCU11::checkForErrors()
+{
+   return this->errorCode;
+}
+//Diplay handling
 void APP_MCU11::editDeviceMode()
 {
    if(this->hal.ENCODER.isButtonPressed())
@@ -224,34 +239,21 @@ void APP_MCU11::errorOut()
       {
          this->oled.setMenu(menu_mainMenu);         
       } 
-      this->errorCode[this->temp_ParameterStorage] = false;
+      this->errorCode = APP_ERROR__NO_ERROR;
    }
 
    if(this->hal.ENCODER.getTurningDirection() == right)
    {
       this->oled.showNextTextOfThisMenu();
-      this->temp_ParameterStorage++;
    }
    else if(this->hal.ENCODER.getTurningDirection() == left)
    {
       this->oled.showPrevioursTextOfThisMenu();
-      this->temp_ParameterStorage--;
    } 
-
-   //Bereichberenzung
-   if(this->temp_ParameterStorage < 0)
+   if(this->oled.readyToExitMenu() == false)
    {
-      temp_ParameterStorage = 0;
-   }
-   else if(this->temp_ParameterStorage > 8)
-   {
-      this->temp_ParameterStorage = 8;
-      this->oled.setParamValueToShow(this->errorCode[this->temp_ParameterStorage]);
-   }
-   else
-   {
-      this->oled.setParamValueToShow(this->errorCode[this->temp_ParameterStorage]);
-   } 
+      this->oled.setParamValueToShow(this->errorCode); 
+   }     
 }
 
 void APP_MCU11::handle_vDip()
