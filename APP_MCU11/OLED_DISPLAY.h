@@ -39,8 +39,8 @@ typedef enum
     menu_mainMenu,
     menu_deviceMode,
     menu_errorCodes,
-    menu_settings,
     menu_dipSwitch,
+    menu_settings,
 
     menu_screenSaver,
 
