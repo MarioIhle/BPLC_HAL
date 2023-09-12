@@ -1,8 +1,4 @@
 #include "OLED_DISPLAY.h"
-
-//---------------------------------------------------
-//OLED DISPLAY CONSTRUCTOR
-Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 //---------------------------------------------------
 //MENÜ STANDART TEXTE
 const String EXIT       = "EXIT";
@@ -25,21 +21,21 @@ OLED_MCU11::OLED_MCU11(){}
 //INIT
 void OLED_MCU11::begin()
 {  
-  if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) 
+  if (!this->oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) 
   { // Address 0x3C for 128x32
     Serial.println(F("SSD1306 allocation failed"));
     for (;;); 
   }  
 
-  oled.setTextSize(2); // Draw 2X-scale text
-  oled.setTextColor(SSD1306_WHITE);
-  oled.display();  
+  this->oled.setTextSize(2); // Draw 2X-scale text
+  this->oled.setTextColor(SSD1306_WHITE);
+  this->oled.display();  
   delay(500); // Pause for 2 seconds
-  oled.clearDisplay();
-  oled.print("booting...");
-  oled.display(); 
+  this->oled.clearDisplay();
+  this->oled.print("booting...");
+  this->oled.display(); 
   delay(800);
-  oled.clearDisplay();
+  this->oled.clearDisplay();
 
   memset(&this->display,0, sizeof(s_display_t));
   memset(&this->menu,0, sizeof(s_menu_t));
@@ -70,7 +66,7 @@ void OLED_MCU11::tick()
   //Display clearen, wenn neues Menü angezeigt werden soll oder bei Bildschirmschoner
   if(this->menu.activeMenu != this->menu.previousActiveMenu)
   {
-    oled.clearDisplay();
+    this->oled.clearDisplay();
 
     this->menu.previousActiveMenu   = this->menu.activeMenu;    
     this->menu.activeText           = 0;     
@@ -206,7 +202,7 @@ void OLED_MCU11::showMenuText(const String NEW_TEXT, const bool ROW)
     this->display.cursorPos = 0;
   }  
   
-  oled.setTextSize(2);
+  this->oled.setTextSize(2);
 
   if(this->TEXT_OUTPUT[ROW] != NEW_TEXT || (this->to_parmeter.check() && f_parmParameter == true)|| this->f_refresh)
   {    
@@ -214,10 +210,10 @@ void OLED_MCU11::showMenuText(const String NEW_TEXT, const bool ROW)
     this->TEXT_OUTPUT[ROW] = NEW_TEXT;
     
     //Display leeren
-    oled.clearDisplay();
+    this->oled.clearDisplay();
     //Erste Zeile 
-    oled.setCursor(this->display.cursorPos, 0);
-    oled.print(this->TEXT_OUTPUT[0]);     
+    this->oled.setCursor(this->display.cursorPos, 0);
+    this->oled.print(this->TEXT_OUTPUT[0]);     
 
     //Zweite Zeile  
     if(this->f_parmParameter == true)
@@ -225,8 +221,8 @@ void OLED_MCU11::showMenuText(const String NEW_TEXT, const bool ROW)
       //Bei bearbeiten von Parameter diesen Blinken lassen
       if(this->f_parameterBlink == true)
       {       
-        oled.setCursor(this->display.cursorPos, 32);
-        oled.print(this->TEXT_OUTPUT[1]);            
+        this->oled.setCursor(this->display.cursorPos, 32);
+        this->oled.print(this->TEXT_OUTPUT[1]);            
       }  
       else
       {
@@ -235,11 +231,11 @@ void OLED_MCU11::showMenuText(const String NEW_TEXT, const bool ROW)
     } 
     else
     {     
-      oled.setCursor(this->display.cursorPos, 32);
-      oled.print(this->TEXT_OUTPUT[1]);       
+      this->oled.setCursor(this->display.cursorPos, 32);
+      this->oled.print(this->TEXT_OUTPUT[1]);       
     }   
     //Display aktaliesieren
-    oled.display();    
+    this->oled.display();    
   }
 
   //Blinken erzeugen

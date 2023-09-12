@@ -97,6 +97,8 @@ class OLED_MCU11
     void            setParamValueToShow         (const uint8_t VALUE);    
 
     private:
+    Adafruit_SSD1306 oled;
+
     void        showHeadlineText();       
     void        showMenuText    (const String TEXT, const bool ROW);
     uint8_t     getMenuText     (const uint8_t LAST_AVAILABLE_TEXT, const uint8_t ACTIVE_TEXT);
