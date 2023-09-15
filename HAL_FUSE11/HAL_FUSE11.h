@@ -58,6 +58,8 @@ class HAL_FUSE11 {
     void        begin();
     
     void        somePinOfsomeDinCardChanged();
+    uint8_t     isAFuseBroken();
+
     
     private:
     DigitalInput*   p_DI    [IN_PORT_COUNT];

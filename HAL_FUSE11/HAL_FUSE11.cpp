@@ -97,3 +97,14 @@ void HAL_FUSE11::somePinOfsomeDinCardChanged()
 {
     this->f_somePinOfsomePinCardChanged = 2;
 }
+
+uint8_t HAL_FUSE11::isAFuseBroken()
+{
+    for(int FUSE = 0; FUSE < this->usedPortCount ; FUSE++)
+    {
+        if(this->p_DI[FUSE]->islow())
+        {
+            return FUSE;
+        }   
+    }
+}
