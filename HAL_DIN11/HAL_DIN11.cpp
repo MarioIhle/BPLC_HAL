@@ -131,7 +131,7 @@ Serial.println(" ");
     }    
 }
 
-void HAL_DIN11::somePinOfsomePinCardChanged()
+void HAL_DIN11::somePinOfsomeDinCardChanged()
 {
     this->f_somePinOfsomePinCardChanged = 2;
 }

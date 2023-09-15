@@ -93,7 +93,7 @@ void HAL_FUSE11::tick()
     }    
 }
 
-void HAL_FUSE11::somePinOfsomePinCardChanged()
+void HAL_FUSE11::somePinOfsomeDinCardChanged()
 {
     this->f_somePinOfsomePinCardChanged = 2;
 }

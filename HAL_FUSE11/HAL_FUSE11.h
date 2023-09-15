@@ -57,7 +57,7 @@ class HAL_FUSE11 {
     void        tick();
     void        begin();
     
-    void        somePinOfsomePinCardChanged();
+    void        somePinOfsomeDinCardChanged();
     
     private:
     DigitalInput*   p_DI    [IN_PORT_COUNT];

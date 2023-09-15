@@ -55,7 +55,7 @@ class HAL_DIN11
 
     void    begin();
     void    tick        ();    
-    void    somePinOfsomePinCardChanged();
+    void    somePinOfsomeDinCardChanged();
 
     private: 
     DigitalInput*   p_ports [DI_PORT_COUNT];    
