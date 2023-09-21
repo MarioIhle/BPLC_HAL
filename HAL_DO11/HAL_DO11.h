@@ -7,10 +7,10 @@
 
 typedef enum
 {
-    DO11_CARD_1 = 0x50,
-    DO11_CARD_2 = 0x51,
-    DO11_CARD_3 = 0x52,
-    DO11_CARD_4 = 0x53,
+    DO11_CARD_1 = 0x43,
+    DO11_CARD_2 = 0x42,
+    DO11_CARD_3 = 0x41,
+    DO11_CARD_4 = 0x40,
     
     DO11_CARD_COUNT = 4,
 
@@ -50,13 +50,17 @@ class HAL_DO11 {
     HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7);
     HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7, Output* P_DO8);
     
-    void        tick();
+    void begin();
+    void tick();
     
     private:
-    Output*         p_DO    [DO_PORT_COUNT];
-    const uint8_t   pins    [DO_PORT_COUNT][2]= {{15, 7}, {14, 6}, {13, 5}, {12, 4}, {8, 3}, {9, 2}, {10, 1}, {11, 0}};     //{lowside, highside}
+    PCA9685 PCA;
 
-    uint8_t usedPortCount;
+    Output*         p_DO    [DO_PORT_COUNT];
+    const uint8_t   pins    [DO_PORT_COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {11,3}, {10, 2}, {9, 1}, {8, 0}};     //{lowside, highside}
+                                               //  {15, 7}, {14, 6}, {13, 5}, {12, 4}, {8, 3}, {9, 2}, {10, 1}, {11, 0}
+    uint8_t             usedPortCount;
+    e_DO11_ADDRESS_t    deviceAddress;
 };
 
 #endif

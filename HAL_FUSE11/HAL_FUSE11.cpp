@@ -45,7 +45,7 @@ void HAL_FUSE11::begin()
 {
     this->PCF.setAddress(this->deviceAdress);       //Tatsächliche Adresse schreiben
     this->PCF.begin();                              //Kommunikation hetstellen
-    this->PCF.write8(false);                        //Alle Ports LOW
+    this->PCF.write8(true);                        //Alle Ports LOW
 
     this->to_fuseCheck.setInterval(2500);
     
@@ -104,7 +104,7 @@ uint8_t HAL_FUSE11::isAFuseBroken()
     {
         if(this->FUSE[FUSE].islow())
         {
-            BROKEN_FUSE = FUSE;
+            BROKEN_FUSE = FUSE+1;
             break;
         }   
     }
