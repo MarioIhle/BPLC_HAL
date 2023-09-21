@@ -122,7 +122,6 @@ void HAL_DO11::tick()
             //PWM von 0-255 laden und umrechnen
             const s_portValue_t     VALUE_TO_WRITE      = this->p_DO[PORT]->getValue();
             const uint16_t          TARGET_PWM_VALUE    = map(VALUE_TO_WRITE.value, 0, 255, 0, 4095);
-            const uint16_t          OFF_TIME            = 4096 - TARGET_PWM_VALUE; 
 
             switch(p_DO[PORT]->getOutputType())
             {
@@ -153,8 +152,8 @@ void HAL_DO11::tick()
                     //PWM
                     else
                     {                        
-                        PCA.setChannelPWM(this->pins[PORT][LS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       OFF_TIME);
-                        PCA.setChannelPWM(this->pins[PORT][HS_MOSFET],  OFF_TIME + DEAD_TIME,               TARGET_PWM_VALUE);  
+                        PCA.setChannelPWM(this->pins[PORT][LS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
+                        PCA.setChannelPWM(this->pins[PORT][HS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
                     }
                 break;
             }  

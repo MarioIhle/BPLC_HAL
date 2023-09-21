@@ -35,7 +35,7 @@ typedef enum
 
 }e_digitalOutputPorts_t;
 
-#define DEAD_TIME   100
+#define DEAD_TIME   500
 
 class HAL_DO11 {
 
@@ -57,7 +57,7 @@ class HAL_DO11 {
     PCA9685 PCA;
 
     Output*         p_DO    [DO_PORT_COUNT];
-    const uint8_t   pins    [DO_PORT_COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8,3}, {9, 2}, {10, 1}, {11, 0}};     //{lowside, highside}
+    const uint8_t   pins    [DO_PORT_COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}
                                             //  {15, 7}, {14, 6}, {13, 5}, {12, 4}, {8, 3}, {9, 2}, {10, 1}, {11, 0}
     uint8_t             usedPortCount;
     e_DO11_ADDRESS_t    deviceAddress;
