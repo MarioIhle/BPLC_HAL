@@ -35,7 +35,7 @@ typedef enum
 
 }e_digitalOutputPorts_t;
 
-#define DEAD_TIME   500
+#define DEAD_TIME   100 //besser geht nicht ohne kurzeitige KS bei PWM änderung
 
 class HAL_DO11 {
 

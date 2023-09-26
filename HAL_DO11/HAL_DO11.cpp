@@ -137,6 +137,9 @@ void HAL_DO11::tick()
 
                 case OUTPUTTYPE__PUSH_PULL:                            
                     
+                    PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);
+                    PCA.setChannelOff(this->pins[PORT][HS_MOSFET]);
+                    delay(1);   //Um überschneidung bei umschalten der PWM zu vermeiden
                     //FULL OFF
                     if(TARGET_PWM_VALUE < DEAD_TIME)
                     {
