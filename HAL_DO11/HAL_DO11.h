@@ -5,6 +5,9 @@
 #include "IOM_Base.h"
 #include "PCA9685.h"
 
+
+#define READ_TWO_TIMES 2
+
 typedef enum
 {
     DO11_CARD_1 = 0x43,

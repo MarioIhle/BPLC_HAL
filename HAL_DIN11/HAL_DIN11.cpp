@@ -101,6 +101,8 @@ void HAL_DIN11::begin()
 {    
     PCF.setAddress(this->deviceAdress);   //Tatsächliche Adresse schreiben
     PCF.begin();                          //Kommunikation hetstellen 
+
+    this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;       //inital Ports lesen, bei nächsten Tick() aufruf
     
 #ifdef DEBUG_HAL_DIN11 
 Serial.print("HAL_REL11.begin with I2C Address"); Serial.println(this->deviceAdress);
@@ -110,7 +112,7 @@ Serial.print("portCount: "); Serial.println(this->usedPortCount);
 
 void HAL_DIN11::tick()
 {    
-    if(this->f_somePinOfsomePinCardChanged >0)
+    if(this->f_somePinOfsomePinCardChanged > 0)
     {
 #ifdef DEBUG_HAL_DIN11
 Serial.print("DIN11 "); Serial.print(this->deviceAdress); Serial.println("STATES:");
@@ -133,5 +135,5 @@ Serial.println(" ");
 
 void HAL_DIN11::somePinOfsomeDinCardChanged()
 {
-    this->f_somePinOfsomePinCardChanged = 2;
+    this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;
 }

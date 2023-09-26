@@ -98,8 +98,8 @@ typedef enum
 
 typedef enum
 {
-	OUTPUTTYPE__OPEN_DRAIN,     //0= float, 1= GND
-	OUTPUTTYPE__OPEN_SOURCE,    //0= float, 1=VCC    
+	OUTPUTTYPE__PULL,           //0= float, 1= GND
+	OUTPUTTYPE__PUSH,           //0= float, 1=VCC    
 	OUTPUTTYPE__PUSH_PULL,      //0= GND,   1=VCC  
 
 	OUTPUTTYPE__SIZE,

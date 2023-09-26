@@ -125,31 +125,32 @@ void HAL_DO11::tick()
 
             switch(p_DO[PORT]->getOutputType())
             {
-                case OUTPUTTYPE__OPEN_DRAIN:
+                case OUTPUTTYPE__PULL:
                     PCA.setChannelPWM(this->pins[PORT][LS_MOSFET], 0, TARGET_PWM_VALUE);        //lowSide
                     PCA.setChannelOff(this->pins[PORT][HS_MOSFET]);                             //highside
                 break;
 
-                case OUTPUTTYPE__OPEN_SOURCE:
+                case OUTPUTTYPE__PUSH:
                     PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);                             //lowSide
                     PCA.setChannelPWM(this->pins[PORT][HS_MOSFET], 0, TARGET_PWM_VALUE);        //highside
                 break;
 
                 case OUTPUTTYPE__PUSH_PULL:                            
-                    
+                    //Um überschneidung bei umschalten der PWM zu vermeiden, sonst FETS = rauch :C
                     PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);
-                    PCA.setChannelOff(this->pins[PORT][HS_MOSFET]);
-                    delay(1);   //Um überschneidung bei umschalten der PWM zu vermeiden
+                    PCA.setChannelOff(this->pins[PORT][HS_MOSFET]);                    
+                    delayMicroseconds(500);       
+                                              
                     //FULL OFF
                     if(TARGET_PWM_VALUE < DEAD_TIME)
                     {
                         PCA.setChannelOn(this->pins[PORT][LS_MOSFET]);
-                        PCA.setChannelOff(this->pins[PORT][HS_MOSFET]);    
+                        //PCA.setChannelOff(this->pins[PORT][HS_MOSFET]);    
                     }
                     //FULL ON
                     else if(TARGET_PWM_VALUE > 4096 - DEAD_TIME)
                     {
-                        PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);
+                        //PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);
                         PCA.setChannelOn(this->pins[PORT][HS_MOSFET]);    
                     }
                     //PWM
