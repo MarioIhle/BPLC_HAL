@@ -1,5 +1,8 @@
 #include "HAL_DIN11.h"
 
+#define READ_TWO_TIMES 2
+
+
 HAL_DIN11::HAL_DIN11()
 {
     this->usedPortCount = 0;
