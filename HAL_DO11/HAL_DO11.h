@@ -62,5 +62,4 @@ class HAL_DO11 {
     uint8_t             usedPortCount;
     e_DO11_ADDRESS_t    deviceAddress;
 };
-
 #endif

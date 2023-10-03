@@ -22,10 +22,6 @@ void APP_MCU11::begin(void (*INT_callBack)(void))
 
 void APP_MCU11::tick()
 {
-   this->hal.tick();
-   this->oled.tick();
-   this->handleDisplay();
-
    if(this->errorCode != APP_ERROR__NO_ERROR)
    {
       this->deviceMode = APP_MODE__SAFE_STATE;
@@ -64,6 +60,10 @@ void APP_MCU11::tick()
    {
       this->beepOnEncoderInput(); 
    }   
+
+   this->hal.tick();
+   this->oled.tick();
+   this->handleDisplay();
 }
 
 void APP_MCU11::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
