@@ -194,21 +194,19 @@ class TemperaturSensor{
 //--------------------------------------------------------------------
 //H-BRÜCKE KLASSE
 //-------------------------------------------------------------------- 
-class H_Bridge{
+class Software_H_Bridge{
     public:
-    H_Bridge();
-    H_Bridge(Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R);
+    Software_H_Bridge();
+    Software_H_Bridge(Output* P_PWM_L, Output* P_PWM_R);
 
-    void begin          ();
-    void begin       (Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R);
+    void begin       ();
+    void begin       (Output* P_PWM_L, Output* P_PWM_R);
     void setSpeed    (const uint8_t HB_SPEED);
     void setDirection(const e_direction_t DIRECTION);
 
     private:
     Output* p_L_PWM;
     Output* p_R_PWM;
-    Output* p_L_EN;
-    Output* p_R_EN;	
 
     e_direction_t   driveDirection;
     uint8_t         driveSpeed;

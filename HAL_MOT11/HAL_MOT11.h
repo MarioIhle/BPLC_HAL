@@ -53,9 +53,9 @@ class HAL_MOT11
 {
     public:
     HAL_MOT11   ();
-    HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS, Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R);
+    HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS);
     void begin  ();
-    void begin  (e_MOT11_ADDRESS_t ADDRESS, Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R);
+    void begin  (e_MOT11_ADDRESS_t ADDRESS);
     
     void tick();
 
