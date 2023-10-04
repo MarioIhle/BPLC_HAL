@@ -15,7 +15,7 @@ HAL_MOT11::HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS, Output* P_EN_L, Output* P_EN_
 
 void HAL_MOT11::begin()
 {
-    this->to_Heartbeat.setIntervall(5000);
+    this->to_Heartbeat.setInterval(5000);
 }
 
 void HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS, Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R)
@@ -27,7 +27,7 @@ void HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS, Output* P_EN_L, Output* P_EN_R
     this->p_PWM_L   = P_PWM_L;
     this->p_PWM_R   = P_PWM_R;
 
-    this->to_Heartbeat.setIntervall(5000);
+    this->to_Heartbeat.setInterval(5000);
 }
 
 void HAL_MOT11::tick()
@@ -60,7 +60,7 @@ void HAL_MOT11::start()
     this->sendDriveCommand();
 }
 
-void HAL_MOT11::setSpeed(const unint8_t SPEED)
+void HAL_MOT11::setSpeed(const uint8_t SPEED)
 {   
     if(this->actualSpeed != SPEED)
     {
@@ -80,7 +80,7 @@ void HAL_MOT11::setDirection(const e_direction_t DIRECTION)
     }   
 }
 
-void HAL_MOT11::setDirectionAndSpeed(const e_direction_t DIRECTION, const unint8_t SPEED)
+void HAL_MOT11::setDirectionAndSpeed(const e_direction_t DIRECTION, const uint8_t SPEED)
 {
      if(this->actualDirection != DIRECTION || this->actualSpeed != SPEED)
     {

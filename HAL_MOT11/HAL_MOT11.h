@@ -2,6 +2,7 @@
 #define HAL_MOT11_h
 #include "Arduino.h"
 #include "IOM_base.h"
+#include "Wire.h"
 
 //Error out
 typedef enum
@@ -60,9 +61,9 @@ class HAL_MOT11
 
     void stop();
     void start();
-    void setSpeed(const unint8_t SPEED);
+    void setSpeed(const uint8_t SPEED);
     void setDirection(const e_direction_t DIRECTION);
-    void setDirectionAndSpeed(const e_direction_t DIRECTION, const unint8_t SPEED);
+    void setDirectionAndSpeed(const e_direction_t DIRECTION, const uint8_t SPEED);
     
     e_motError_t    getError();
     float           getCurrent();
@@ -70,9 +71,9 @@ class HAL_MOT11
     uint8_t         getSpeed();
 
     private:
-    void sendDriveCommand   (const u_mot11_i2c_payload_t COMMAND);
+    void sendDriveCommand   ();
     void sendHeartbeat      ();
-    void sendFrame          ();
+    void sendFrame          (const u_mot11_i2c_payload_t COMMAND);
   
     //Motor Parameter
     e_direction_t       actualDirection;
