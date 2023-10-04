@@ -6,11 +6,6 @@ HAL_MOT11::HAL_MOT11   ()
 HAL_MOT11::HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS)
 {
     this->i2c_address = ADDRESS;
-
-    this->p_EN_L    = P_EN_L;
-    this->p_EN_R    = P_EN_R;
-    this->p_PWM_L   = P_PWM_L;
-    this->p_PWM_R   = P_PWM_R;
 }
 
 void HAL_MOT11::begin()
@@ -21,12 +16,6 @@ void HAL_MOT11::begin()
 void HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
 {
     this->i2c_address = ADDRESS;
-
-    this->p_EN_L    = P_EN_L;
-    this->p_EN_R    = P_EN_R;
-    this->p_PWM_L   = P_PWM_L;
-    this->p_PWM_R   = P_PWM_R;
-
     this->to_Heartbeat.setInterval(5000);
 }
 
