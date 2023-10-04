@@ -98,9 +98,10 @@ typedef enum
 
 typedef enum
 {
-	OUTPUTTYPE__PULL,           //0= float, 1= GND
-	OUTPUTTYPE__PUSH,           //0= float, 1=VCC    
-	OUTPUTTYPE__PUSH_PULL,      //0= GND,   1=VCC  
+	OUTPUTTYPE__PULL,               //0= float, 1= GND
+	OUTPUTTYPE__PUSH,               //0= float, 1=VCC    
+	OUTPUTTYPE__PUSH_PULL,          //0= GND,   1=VCC  
+    OUTPUTTYPE__PUSH_PULL_INVERT,   //0= VCC,   1=GND inverteriter Ausgang, benötigt für H-Brücke mit DO11
 
 	OUTPUTTYPE__SIZE,
 }e_outputType_t;
@@ -196,10 +197,20 @@ class TemperaturSensor{
 class H_Bridge{
     public:
     H_Bridge();
-    void    begin       ();
-    void    setSpeed    (const uint8_t HB_SPEED);
-    void    setDirection(const e_direction_t DIRECTION);
+    H_Bridge(Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R);
 
-    private:	
+    void begin          ();
+    void begin       (Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R);
+    void setSpeed    (const uint8_t HB_SPEED);
+    void setDirection(const e_direction_t DIRECTION);
+
+    private:
+    Output* p_L_PWM;
+    Output* p_R_PWM;
+    Output* p_L_EN;
+    Output* p_R_EN;	
+
+    e_direction_t   driveDirection;
+    uint8_t         driveSpeed;
 };
 #endif

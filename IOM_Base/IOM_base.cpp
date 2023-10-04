@@ -342,3 +342,73 @@ bool RotaryEncoder::isButtonPressed()
 {
     return this->p_pushButton->posFlank();
 }
+
+//--------------------------------------------------------------------
+//H-Bridge
+H_Bridge::H_Bridge()
+{}
+
+H_Bridge::H_Bridge(Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R)
+{
+	this->p_L_EN 	= P_EN_L;
+	this->p_R_EN 	= P_EN_R;
+	this->p_L_PWM 	= P_PWM_L;
+	this->p_R_PWM 	= P_PWM_R;
+
+	this->p_L_EN->begin(OUTPUTTYPE__PUSH_PULL, true);
+	this->p_R_EN->begin(OUTPUTTYPE__PUSH_PULL, true);
+	this->p_L_PWM->begin(OUTPUTTYPE__PUSH_PULL, 255);
+	this->p_R_PWM->begin(OUTPUTTYPE__PUSH_PULL_INVERT, 255);
+}
+
+void H_Bridge::begin()
+{
+	this->p_L_EN->begin(OUTPUTTYPE__PUSH_PULL, true);
+	this->p_R_EN->begin(OUTPUTTYPE__PUSH_PULL, true);
+	this->p_L_PWM->begin(OUTPUTTYPE__PUSH_PULL, 255);
+	this->p_R_PWM->begin(OUTPUTTYPE__PUSH_PULL_INVERT, 255);
+}
+
+void H_Bridge::begin(Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R)
+{
+	this->p_L_EN 	= P_EN_L;
+	this->p_R_EN 	= P_EN_R;
+	this->p_L_PWM 	= P_PWM_L;
+	this->p_R_PWM 	= P_PWM_R;
+	
+	this->p_L_EN->begin(OUTPUTTYPE__PUSH_PULL, true);
+	this->p_R_EN->begin(OUTPUTTYPE__PUSH_PULL, true);
+	this->p_L_PWM->begin(OUTPUTTYPE__PUSH_PULL, 255);
+	this->p_R_PWM->begin(OUTPUTTYPE__PUSH_PULL_INVERT, 255);
+}
+
+void H_Bridge::setDirection(const e_direction_t DIRECTION)
+{
+	switch(DIRECTION)
+	{
+		case idle:
+			this->p_L_EN->reset();
+			this->p_R_EN->reset();
+		break;
+
+		case left:
+			this->p_L_EN->reset();
+			this->p_R_EN->set();
+		break;
+
+		case right:
+			this->p_L_EN->set();
+			this->p_R_EN->reset();
+		break;
+
+		default:
+			this->driveDirection = idle;
+		break;
+	}
+}
+
+void H_Bridge::setSpeed(const uint8_t SPEED)
+{
+	this->p_R_PWM->setValue(SPEED);
+	this->p_L_PWM->setValue(SPEED);
+}

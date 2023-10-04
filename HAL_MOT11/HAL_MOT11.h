@@ -26,18 +26,10 @@ typedef enum
 typedef enum
 {
   //setter 
-  mot11_i2c_payload__stop,
-  mot11_i2c_payload__run,
-  mot11_i2c_payload__break,
-  mot11_i2c_payload__setSpeed,
-  mot11_i2c_payload__setDirection,
-  //getter
-  mot11_i2c_payload__getDirection,
-  mot11_i2c_payload__getSpeed,
-  mot11_i2c_payload__getMotorCurrent,
-  mot11_i2c_payload__getError,  
+  mot11_i2c_key__driveCommand,
+  mot11_i2c_key__heartbeat,
 
-  mot11_i2c_payload__count,
+  mot11_i2c_key__count,
 }e_mot11_i2c_key_t;
 
 
@@ -61,6 +53,7 @@ class HAL_MOT11
     public:
     HAL_MOT11   ();
     HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS, Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R);
+    void begin  ();
     void begin  (e_MOT11_ADDRESS_t ADDRESS, Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R);
     
     void tick();
@@ -77,14 +70,28 @@ class HAL_MOT11
     uint8_t         getSpeed();
 
     private:
-    void sendDriveCommand();
+    void sendDriveCommand   (const u_mot11_i2c_payload_t COMMAND);
+    void sendHeartbeat      ();
+    void sendFrame          ();
   
+    //Motor Parameter
     e_direction_t       actualDirection;
     uint8_t             actualSpeed;      
+    e_direction_t       lastDirection;
+    uint8_t             lastSpeed;   
     float               actualCurrent;
     e_motError_t        error;
 
+    //MOT11_CARD Parameter
     e_MOT11_ADDRESS_t   i2c_address;  
+
+    //Output Pointer
+    Output* p_EN_L;
+    Output* p_EN_R;
+    Output* p_PWM_L;
+    Output* p_PWM_R;
+
+    Timeout to_Heartbeat;
 };
 
 #endif
