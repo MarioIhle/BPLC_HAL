@@ -1,7 +1,7 @@
 #ifndef HAL_MOT11_h
 #define HAL_MOT11_h
 #include "Arduino.h"
-
+#include "IOM_base.h"
 
 //Error out
 typedef enum
@@ -12,19 +12,59 @@ typedef enum
     motError_size,
 }e_motError_t;
 
-typedef enum 
+typedef enum
 {
-    direction_idle,
-    direction_left,
-    direction_rigth,
-}e_direction_t;
+    MOT11_CARD_1 = 0x10,
+    MOT11_CARD_2 = 0x11,
+    MOT11_CARD_3 = 0x12,
+    MOT11_CARD_4 = 0x13,
+    
+    MOT11_CARD_COUNT = 4,
+
+}e_MOT11_ADDRESS_t;
+
+typedef enum
+{
+  //setter 
+  mot11_i2c_payload__stop,
+  mot11_i2c_payload__run,
+  mot11_i2c_payload__break,
+  mot11_i2c_payload__setSpeed,
+  mot11_i2c_payload__setDirection,
+  //getter
+  mot11_i2c_payload__getDirection,
+  mot11_i2c_payload__getSpeed,
+  mot11_i2c_payload__getMotorCurrent,
+  mot11_i2c_payload__getError,  
+
+  mot11_i2c_payload__count,
+}e_mot11_i2c_key_t;
+
+
+typedef union 
+{ 
+    struct 
+    {
+      e_mot11_i2c_key_t key;
+      e_direction_t     direction;
+      uint8_t           speed;
+      e_motError_t      error;
+    }extract; 
+
+    uint8_t data[sizeof(extract)];
+
+}u_mot11_i2c_payload_t;
+
 
 class HAL_MOT11
 {
     public:
-    HAL_MOT11();
-    void begin();
+    HAL_MOT11   ();
+    HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS, Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R);
+    void begin  (e_MOT11_ADDRESS_t ADDRESS, Output* P_EN_L, Output* P_EN_R, Output* P_PWM_L, Output* P_PWM_R);
     
+    void tick();
+
     void stop();
     void start();
     void setSpeed(const unint8_t SPEED);
@@ -37,11 +77,14 @@ class HAL_MOT11
     uint8_t         getSpeed();
 
     private:
-    void observeCurrent();
-    void tickSlave();
-    
-    e_direction_t   actualdirection;
-    uint8_t         actualSpeed;        
+    void sendDriveCommand();
+  
+    e_direction_t       actualDirection;
+    uint8_t             actualSpeed;      
+    float               actualCurrent;
+    e_motError_t        error;
+
+    e_MOT11_ADDRESS_t   i2c_address;  
 };
 
 #endif
