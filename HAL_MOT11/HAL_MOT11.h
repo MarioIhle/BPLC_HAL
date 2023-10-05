@@ -34,19 +34,21 @@ typedef enum
 }e_mot11_i2c_key_t;
 
 
+//#pragma pack (push, 1)
 typedef union 
 { 
-    struct 
-    {
-      e_mot11_i2c_key_t key;
-      e_direction_t     direction;
-      uint8_t           speed;
-      e_motError_t      error;
-    }extract; 
+  uint8_t data[4];
 
-    uint8_t data[sizeof(extract)];
+  struct 
+  {
+    uint8_t key;
+    uint8_t direction;
+    uint8_t speed;
+    uint8_t error;
+  }extract; 
 
 }u_mot11_i2c_payload_t;
+//#pragma pack (pop)
 
 
 class HAL_MOT11

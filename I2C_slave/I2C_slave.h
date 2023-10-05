@@ -11,26 +11,61 @@
 #define ACK 0x06
 #define NAK 0x15
 
-class I2C_Slave
+
+uint8_t inBuffer[32];
+uint8_t I2C_adress;
+bool f_therIsANewMessage;
+uint8_t howMany_lastTime;
+
+void receiveCallback(int howMany)
 {
-  public:
-  I2C_Slave();
-  I2C_Slave(uint8_t ADDRESS);
-  void  begin(uint8_t ADDRESS);
+  //Serial.print("hwoMany: "); Serial.println(howMany);
 
-  void  tick();
+  for(uint8_t BYTE = 0; BYTE < howMany; BYTE++)
+  {    
+    //Serial.println(Wire.peek());
+    inBuffer[BYTE] = Wire.read();    
+  }   
+  f_therIsANewMessage = true;
 
-  bool  isThereANewMessage();
-  void  getPayload(uint8_t* P_PAYLOADBUFFER);
+  howMany_lastTime=howMany;
+}
 
-  private:
-  void sendACK();
-  void sendNAK();
-  void reviceCallback();
+void I2C_Slave_begin(const uint8_t ADDRESS)
+{
+  //I2C Kommunikation aufbauen
+  I2C_adress = ADDRESS;
+  Wire.begin(ADDRESS);
+  Wire.onReceive(receiveCallback);
+}
 
-  uint8_t I2C_adress;
-  uint8_t inBuffer[16];
+void I2C_Slave_sendACK()
+{
+  Wire.beginTransmission(I2C_MASTER_ADDRESS);
+  Wire.write(ACK);
+  Wire.endTransmission();
+}
 
-  bool f_therIsANewMessage;
-};
+void I2C_Slave_sendNAK()
+{
+  Wire.beginTransmission(I2C_MASTER_ADDRESS);
+  Wire.write(NAK);
+  Wire.endTransmission();
+}
+
+bool I2C_Slave_isThereANewMessage()
+{
+  return f_therIsANewMessage;
+}
+
+uint8_t I2C_Slave_getPayload(uint8_t* P_PAYLOADBUFFER)
+{
+  for(uint8_t BYTE =0; BYTE< sizeof(inBuffer); BYTE++)
+  {
+    P_PAYLOADBUFFER[BYTE] = inBuffer[BYTE];
+  }
+  f_therIsANewMessage = false;
+  return howMany_lastTime;
+}
+
 #endif

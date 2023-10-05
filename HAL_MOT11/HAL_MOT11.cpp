@@ -63,7 +63,7 @@ void HAL_MOT11::setDirection(const e_direction_t DIRECTION)
 {
     if(this->actualDirection != DIRECTION)
     {
-        this->actualSpeed = DIRECTION;    
+        this->actualDirection = DIRECTION;    
         //Neue Richtung an MOT11_CARD schicken
         this->sendDriveCommand();
     }   
@@ -73,8 +73,8 @@ void HAL_MOT11::setDirectionAndSpeed(const e_direction_t DIRECTION, const uint8_
 {
      if(this->actualDirection != DIRECTION || this->actualSpeed != SPEED)
     {
-        this->actualSpeed = DIRECTION;    
-        this->actualSpeed = SPEED;
+        this->actualDirection   = DIRECTION;    
+        this->actualSpeed       = SPEED;
         //Neue Geschwindigkeit und Richtung an MOT11_CARD schicken
         this->sendDriveCommand();
     }  
@@ -116,7 +116,11 @@ void HAL_MOT11::sendHeartbeat()
 {
     u_mot11_i2c_payload_t COMMAND;
     memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
-    COMMAND.extract.key = mot11_i2c_key__heartbeat;
+
+    COMMAND.extract.key         = mot11_i2c_key__heartbeat;
+    COMMAND.extract.direction   = this->actualDirection;
+    COMMAND.extract.speed       = this->actualSpeed;
+
     this->sendFrame(COMMAND);    
 
     //AUF antwort warten!!!!!!!!
@@ -127,6 +131,7 @@ void HAL_MOT11::sendFrame(const u_mot11_i2c_payload_t COMMAND)
     Wire.beginTransmission(this->i2c_address);   
     for(uint8_t bytes; bytes < sizeof(u_mot11_i2c_payload_t); bytes++)
     {
+        Serial.println(COMMAND.data[bytes]);
         Wire.write(COMMAND.data[bytes]);
     }                
     Wire.endTransmission();    
