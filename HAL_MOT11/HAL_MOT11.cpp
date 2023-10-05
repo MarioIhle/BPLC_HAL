@@ -11,14 +11,14 @@ HAL_MOT11::HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS)
 void HAL_MOT11::begin()
 {
     this->to_Heartbeat.setInterval(5000);
-    this->to_I2C.setInterval(5);
+    this->to_I2C.setInterval(50);
 }
 
 void HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
 {
     this->i2c_address = ADDRESS;
     this->to_Heartbeat.setInterval(5000);
-    this->to_I2C.setInterval(5);
+    this->to_I2C.setInterval(50);
 }
 
 void HAL_MOT11::tick()
@@ -112,11 +112,15 @@ void HAL_MOT11::sendDriveCommand()
     COMMAND.extract.speed       = this->actualSpeed;
 
     this->sendFrame(COMMAND);    
-     
+
     if(this->waitForACK())
     {
         Serial.println("ACK empfangen");
-    }    
+    }   
+    else
+    {
+        Serial.println("kein ACK empfangen");
+    } 
 }
 
 void HAL_MOT11::sendHeartbeat()
@@ -127,10 +131,18 @@ void HAL_MOT11::sendHeartbeat()
     COMMAND.extract.key         = mot11_i2c_key__heartbeat;
     COMMAND.extract.direction   = this->actualDirection;
     COMMAND.extract.speed       = this->actualSpeed;
-
-    this->sendFrame(COMMAND);    
-
-    //AUF antwort warten!!!!!!!!
+    
+    this->sendFrame(COMMAND); 
+    Wire.requestFrom(this->i2c_address, sizeof(u_mot11_i2c_payload_t));
+    
+    if(this->waitForHeartbeat())
+    {
+        Serial.println("Heartbeat empfangen");
+    }   
+    else
+    {
+        Serial.println("kein Heartbeat empfangen");
+    } 
 }
 
 void HAL_MOT11::sendFrame(const u_mot11_i2c_payload_t COMMAND)
@@ -139,7 +151,7 @@ void HAL_MOT11::sendFrame(const u_mot11_i2c_payload_t COMMAND)
 
     for(uint8_t bytes; bytes < sizeof(u_mot11_i2c_payload_t); bytes++)
     {
-        Serial.println(COMMAND.data[bytes]);
+        //Serial.println(COMMAND.data[bytes]);
         Wire.write(COMMAND.data[bytes]);
     }                
 
@@ -151,14 +163,13 @@ bool HAL_MOT11::waitForACK()
     bool    ackReceived = false;
     uint8_t inByte      = NAK;
 
+    Wire.requestFrom(this->i2c_address, 1); 
+
     this->to_I2C.reset();  
 
     while(this->to_I2C.check() == false && inByte == NAK)
-    {        
-        (Wire.available()) 
-        {       
-            inByte = Wire.read();      
-        }        
+    {             
+        inByte = Wire.read();     
     }
 
     if(inByte == ACK)
@@ -171,23 +182,26 @@ bool HAL_MOT11::waitForACK()
 
 bool HAL_MOT11::waitForHeartbeat()
 {
-    bool    ackReceived = false;
-    uint8_t inByte = NAK;
+    bool    heartbeatReceived = false;
+    u_mot11_i2c_payload_t inCommand;
 
-    this->to_I2C.reset();  
+    this->to_I2C.reset();      
 
     while(this->to_I2C.check() == false)
     {        
-        (Wire.available()) 
-        {       
-            inByte = Wire.read();      
+        while(Wire.available()) 
+        {  
+            for(uint8_t i=0; i<sizeof(u_mot11_i2c_payload_t); i++)
+            {     
+                inCommand.data[i] = Wire.read();   
+            }   
         }        
     }
 
-    if(inByte == ACK)
+    if(inCommand.extract.key == mot11_i2c_key__heartbeat)
     {
-        ackReceived = true;
+        heartbeatReceived = true;
     }
 
-    return ackReceived;
+    return heartbeatReceived;
 }
