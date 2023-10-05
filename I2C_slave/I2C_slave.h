@@ -39,18 +39,22 @@ void I2C_Slave_begin(const uint8_t ADDRESS)
   Wire.onReceive(receiveCallback);
 }
 
+void I2C_Slave_sendPaylaod(const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT)
+{
+  for(uint8_t byte = 0; byte < BYTE_COUNT; byte++)
+  {
+    Wire.write(PAYLOAD[byte]);
+  } 
+}
+
 void I2C_Slave_sendACK()
 {
-  Wire.beginTransmission(I2C_MASTER_ADDRESS);
   Wire.write(ACK);
-  Wire.endTransmission();
 }
 
 void I2C_Slave_sendNAK()
 {
-  Wire.beginTransmission(I2C_MASTER_ADDRESS);
   Wire.write(NAK);
-  Wire.endTransmission();
 }
 
 bool I2C_Slave_isThereANewMessage()

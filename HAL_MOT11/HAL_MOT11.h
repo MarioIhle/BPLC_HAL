@@ -4,6 +4,10 @@
 #include "IOM_base.h"
 #include "Wire.h"
 
+//I2C Commands
+#define ACK 0x06
+#define NAK 0x15
+
 //Error out
 typedef enum
 {
@@ -76,6 +80,9 @@ class HAL_MOT11
     void sendDriveCommand   ();
     void sendHeartbeat      ();
     void sendFrame          (const u_mot11_i2c_payload_t COMMAND);
+
+    bool waitForACK       ();
+    bool waitForHeartbeat ();
   
     //Motor Parameter
     e_direction_t       actualDirection;
@@ -95,6 +102,7 @@ class HAL_MOT11
     Output* p_PWM_R;
 
     Timeout to_Heartbeat;
+    Timeout to_I2C;
 };
 
 #endif
