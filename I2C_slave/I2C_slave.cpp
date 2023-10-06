@@ -81,9 +81,7 @@ void I2C_BPLC_Slave::sendACK()
 
 void I2C_BPLC_Slave::sendNAK()
 {
-    Wire.beginTransmission(I2C_MASTER_ADDRESS);
     Wire.write(NAK);
-    Wire.endTransmission();
 }
 
 void I2C_BPLC_Slave::sendPayload(const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT)
