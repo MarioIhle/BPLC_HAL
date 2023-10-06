@@ -197,12 +197,14 @@ bool HAL_MOT11::waitForHeartbeat()
         }     
     }
 
-#ifdef DEBUG_HAL_REL11 
+#ifdef DEBUG_HAL_MOT11 
 Serial.println("Heartbeat info:");
 Serial.print("KEY: ");        Serial.println(inCommand.extract.key);
 Serial.print("DIRECTION: ");  Serial.println(inCommand.extract.direction);
 Serial.print("SPEED: ");      Serial.println(inCommand.extract.speed);
 Serial.print("ERROR: ");      Serial.println(inCommand.extract.error);
+Serial.print("CURRENT: ");    Serial.println(inCommand.extract.current);
+Serial.println("");
 #endif
     return (bool)(inCommand.extract.key == mot11_i2c_key__heartbeat);
 }

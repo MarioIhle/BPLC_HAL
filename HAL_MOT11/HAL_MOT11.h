@@ -44,14 +44,14 @@ typedef enum
 //#pragma pack (push, 1)
 typedef union 
 { 
-  uint8_t data[4];
-
+  uint8_t data[8];
   struct 
   {
     uint8_t key;
     uint8_t direction;
     uint8_t speed;
     uint8_t error;
+    float   current;
   }extract; 
 
 }u_mot11_i2c_payload_t;
