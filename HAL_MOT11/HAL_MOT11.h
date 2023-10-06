@@ -4,9 +4,12 @@
 #include "IOM_base.h"
 #include "Wire.h"
 
+#define DEBUG_HAL_MOT11 
+
 //I2C Commands
 #define ACK 0x06
 #define NAK 0x15
+
 
 //Error out
 typedef enum

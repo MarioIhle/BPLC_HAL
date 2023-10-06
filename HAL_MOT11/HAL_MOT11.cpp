@@ -30,7 +30,6 @@ void HAL_MOT11::tick()
         this->to_Heartbeat.reset();
     }    
 }
-
 //Nur Stop senden, danach aber wierder letzte Parameter laden, bei Start diese senden
 void HAL_MOT11::stop()
 {
@@ -125,14 +124,6 @@ void HAL_MOT11::sendDriveCommand()
 
 void HAL_MOT11::sendHeartbeat()
 {
-    u_mot11_i2c_payload_t COMMAND;
-    memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
-
-    COMMAND.extract.key         = mot11_i2c_key__heartbeat;
-    COMMAND.extract.direction   = this->actualDirection;
-    COMMAND.extract.speed       = this->actualSpeed;
-    
-    this->sendFrame(COMMAND); 
     Wire.requestFrom(this->i2c_address, sizeof(u_mot11_i2c_payload_t));
     
     if(this->waitForHeartbeat())
@@ -160,48 +151,58 @@ void HAL_MOT11::sendFrame(const u_mot11_i2c_payload_t COMMAND)
 
 bool HAL_MOT11::waitForACK()
 {
-    bool    ackReceived = false;
     uint8_t inByte      = NAK;
-
+    
     Wire.requestFrom(this->i2c_address, 1); 
 
     this->to_I2C.reset();  
 
-    while(this->to_I2C.check() == false && inByte == NAK)
-    {             
-        inByte = Wire.read();     
+    while(this->to_I2C.check() == false)
+    {   
+        while(Wire.available()) 
+        {       
+            inByte = Wire.read();    
+        }
+    	//Fast exit wenn Kommando empfangen 
+        if(inByte == ACK)
+        {
+            break;
+        }  
     }
 
-    if(inByte == ACK)
-    {
-        ackReceived = true;
-    }
-
-    return ackReceived;
+    return (bool)(inByte == ACK);
 }
 
 bool HAL_MOT11::waitForHeartbeat()
 {
-    bool    heartbeatReceived = false;
     u_mot11_i2c_payload_t inCommand;
+    inCommand.extract.key = mot11_i2c_key__count;
 
     this->to_I2C.reset();      
 
-    while(this->to_I2C.check() == false)
-    {        
+    while(this->to_I2C.check() == false)  
+    {     
         while(Wire.available()) 
         {  
             for(uint8_t i=0; i<sizeof(u_mot11_i2c_payload_t); i++)
             {     
+                //Serial.print(Wire.peek());
                 inCommand.data[i] = Wire.read();   
             }   
-        }        
+        } 
+        //Fast exit wenn Kommando empfangen  
+        if(inCommand.extract.key == mot11_i2c_key__heartbeat)
+        {
+            break;
+        }     
     }
 
-    if(inCommand.extract.key == mot11_i2c_key__heartbeat)
-    {
-        heartbeatReceived = true;
-    }
-
-    return heartbeatReceived;
+#ifdef DEBUG_HAL_REL11 
+Serial.println("Heartbeat info:");
+Serial.print("KEY: ");        Serial.println(inCommand.extract.key);
+Serial.print("DIRECTION: ");  Serial.println(inCommand.extract.direction);
+Serial.print("SPEED: ");      Serial.println(inCommand.extract.speed);
+Serial.print("ERROR: ");      Serial.println(inCommand.extract.error);
+#endif
+    return (bool)(inCommand.extract.key == mot11_i2c_key__heartbeat);
 }
