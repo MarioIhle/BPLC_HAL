@@ -29,6 +29,12 @@ void HAL_MOT11::tick()
         this->sendHeartbeat(); 
         this->to_Heartbeat.reset();
     }    
+
+    if(this->f_thereIsANewDriveCommand)
+    {
+        this->sendDriveCommand();
+        this->f_thereIsANewDriveCommand = false;
+    }
 }
 //Nur Stop senden, danach aber wierder letzte Parameter laden, bei Start diese senden
 void HAL_MOT11::stop()
@@ -39,7 +45,18 @@ void HAL_MOT11::stop()
     this->actualSpeed       = 0;
     this->actualDirection   = idle;
 
-    this->sendDriveCommand();
+    this->f_thereIsANewDriveCommand = true;
+}
+//Nur Temporärer Stop und EMI bremse aktivieren senden, bei start wieder mit letzten Parameter anlaufen
+void HAL_MOT11::stopAndBreak()
+{
+    this->lastSpeed      = this->actualSpeed;
+    this->lastDirection  = this->actualDirection;
+
+    this->actualSpeed       = 255;
+    this->actualDirection   = idle;
+
+    this->f_thereIsANewDriveCommand = true;
 }
 //Nur Temporärer Stop senden, bei start wieder mit letzten Parameter anlaufen
 void HAL_MOT11::start()
@@ -47,7 +64,7 @@ void HAL_MOT11::start()
     this->actualSpeed      = this->lastSpeed;
     this->actualDirection  = this->lastDirection;
 
-    this->sendDriveCommand();
+    this->f_thereIsANewDriveCommand = true;
 }
 
 void HAL_MOT11::setSpeed(const uint8_t SPEED)
@@ -56,7 +73,7 @@ void HAL_MOT11::setSpeed(const uint8_t SPEED)
     {
         this->actualSpeed = SPEED;    
         //Neue Geschwindigkeit an MOT11_CARD schicken
-        this->sendDriveCommand();
+        this->f_thereIsANewDriveCommand = true;
     }    
 }
 
@@ -66,7 +83,7 @@ void HAL_MOT11::setDirection(const e_direction_t DIRECTION)
     {
         this->actualDirection = DIRECTION;    
         //Neue Richtung an MOT11_CARD schicken
-        this->sendDriveCommand();
+        this->f_thereIsANewDriveCommand = true;
     }   
 }
 
@@ -77,7 +94,7 @@ void HAL_MOT11::setDirectionAndSpeed(const e_direction_t DIRECTION, const uint8_
         this->actualDirection   = DIRECTION;    
         this->actualSpeed       = SPEED;
         //Neue Geschwindigkeit und Richtung an MOT11_CARD schicken
-        this->sendDriveCommand();
+        this->f_thereIsANewDriveCommand = true;
     }  
 }
 

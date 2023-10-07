@@ -70,6 +70,7 @@ class HAL_MOT11
 
     void stop();
     void start();
+    void stopAndBreak();
     void setSpeed(const uint8_t SPEED);
     void setDirection(const e_direction_t DIRECTION);
     void setDirectionAndSpeed(const e_direction_t DIRECTION, const uint8_t SPEED);
@@ -94,6 +95,7 @@ class HAL_MOT11
     uint8_t             lastSpeed;   
     float               actualCurrent;
     e_motError_t        error;
+    bool                f_thereIsANewDriveCommand;
 
     //MOT11_CARD Parameter
     e_MOT11_ADDRESS_t   i2c_address;  
