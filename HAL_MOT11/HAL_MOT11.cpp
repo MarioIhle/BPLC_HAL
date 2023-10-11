@@ -30,92 +30,96 @@ void HAL_MOT11::tick()
         this->to_Heartbeat.reset();
     }    
 
-    if(this->f_thereIsANewDriveCommand)
+    switch(this->driveState)
     {
-        this->sendDriveCommand();
-        this->f_thereIsANewDriveCommand = false;
+        case driveState_waitForStart:            
+        break;
+
+        case driveState_start:
+            this->motParams.direction = this->motParams.old.direction;
+            this->motParams.speed     = this->motParams.old.speed;
+            this->sendDriveCommand();                
+        break;
+
+        case driveState_runningWithParameters:   //Normalbetreb
+            const bool DRIVE_DIRECTION_CHANGED = (bool)(this->motParams.old.direction != this->motParams.direction);
+            const bool DRIVE_SPEED_CHANGED     = (bool)(this->motParams.old.speed != this->motParams.speed);
+        
+            if(DRIVE_DIRECTION_CHANGED || DRIVE_SPEED_CHANGED)
+            {
+                this->sendDriveCommand();
+                this->motParams.old.direction = this->motParams.direction;
+                this->motParams.old.speed     = this->motParams.speed;
+            }
+        break;
+
+        case driveState_stop:        
+            this->motParams.speed     = 0;
+            this->motParams.direction = idle;     
+            this->sendDriveCommand();   //Stop senden
+            this->driveState = driveState_waitForStart;
+        break;
+
+        case driveState_stopAndBreak:
+            this->motParams.speed     = 255;
+            this->motParams.direction = idle; 
+            this->sendDriveCommand();  
+            this->driveState = driveState_waitForStart;
+        break;
+
     }
+    
 }
 //Nur Stop senden, danach aber wierder letzte Parameter laden, bei Start diese senden
 void HAL_MOT11::stop()
 {
-    this->lastSpeed      = this->actualSpeed;
-    this->lastDirection  = this->actualDirection;
-
-    this->actualSpeed       = 0;
-    this->actualDirection   = idle;
-
-    this->f_thereIsANewDriveCommand = true;
+    this->driveState = driveState_stop;
 }
 //Nur Temporärer Stop und EMI bremse aktivieren senden, bei start wieder mit letzten Parameter anlaufen
 void HAL_MOT11::stopAndBreak()
 {
-    this->lastSpeed      = this->actualSpeed;
-    this->lastDirection  = this->actualDirection;
-
-    this->actualSpeed       = 255;
-    this->actualDirection   = idle;
-
-    this->f_thereIsANewDriveCommand = true;
+    this->driveState = driveState_stopAndBreak;
 }
 //Nur Temporärer Stop senden, bei start wieder mit letzten Parameter anlaufen
 void HAL_MOT11::start()
 {
-    this->actualSpeed      = this->lastSpeed;
-    this->actualDirection  = this->lastDirection;
-
-    this->f_thereIsANewDriveCommand = true;
+    this->driveState = driveState_start;
 }
 
 void HAL_MOT11::setSpeed(const uint8_t SPEED)
 {   
-    if(this->actualSpeed != SPEED)
-    {
-        this->actualSpeed = SPEED;    
-        //Neue Geschwindigkeit an MOT11_CARD schicken
-        this->f_thereIsANewDriveCommand = true;
-    }    
+    this->motParams.speed = SPEED;
 }
 
 void HAL_MOT11::setDirection(const e_movement_t DIRECTION)
 {
-    if(this->actualDirection != DIRECTION)
-    {
-        this->actualDirection = DIRECTION;    
-        //Neue Richtung an MOT11_CARD schicken
-        this->f_thereIsANewDriveCommand = true;
-    }   
+    this->motParams.direction = DIRECTION;    
 }
 
 void HAL_MOT11::setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t SPEED)
 {
-     if(this->actualDirection != DIRECTION || this->actualSpeed != SPEED)
-    {
-        this->actualDirection   = DIRECTION;    
-        this->actualSpeed       = SPEED;
-        //Neue Geschwindigkeit und Richtung an MOT11_CARD schicken
-        this->f_thereIsANewDriveCommand = true;
-    }  
+    this->motParams.direction = DIRECTION; 
+    this->motParams.speed     = SPEED;   
 }
 
 e_motError_t HAL_MOT11::getError()
 {
-    return this->error;
+    return this->error.code;
 }
 
 float HAL_MOT11::getCurrent()
 {
-    return this->actualCurrent;
+    return this->motParams.current;
 }
 
 e_movement_t HAL_MOT11::getDirection()
 {
-    return this->actualDirection;
+    return this->motParams.direction;
 }
 
 uint8_t HAL_MOT11::getSpeed()
 {
-    return this->actualSpeed;
+    return this->motParams.speed;
 }
 
 void HAL_MOT11::sendDriveCommand()
@@ -124,8 +128,8 @@ void HAL_MOT11::sendDriveCommand()
     memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
 
     COMMAND.extract.key         = mot11_i2c_key__driveCommand;
-    COMMAND.extract.direction   = this->actualDirection;
-    COMMAND.extract.speed       = this->actualSpeed;
+    COMMAND.extract.direction   = this->motParams.direction;
+    COMMAND.extract.speed       = this->motParams.speed;
 
     this->sendFrame(COMMAND);    
 
@@ -134,7 +138,7 @@ void HAL_MOT11::sendDriveCommand()
 #ifdef DEBUG_HAL_MOT11
 Serial.println("ACK empfangen");
 #endif    
-    }   
+    }   r
     else
     {
 #ifdef DEBUG_HAL_MOT11

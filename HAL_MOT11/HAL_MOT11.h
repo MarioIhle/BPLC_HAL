@@ -10,7 +10,18 @@
 #define ACK 0x06
 #define NAK 0x15
 
+typedef enum
+{
+  driveState_stop,
+  driveState_stopAndBreak,
+  driveState_waitForStart,
+  driveState_start,
+  driveState_runningWithParameters,
+  driveState_safeState,
 
+  driveState_count,
+
+}e_driveState_t;
 //Error out
 typedef enum
 {
@@ -18,7 +29,8 @@ typedef enum
     motError_overcurrent,
     motError_notTeached, 
     motError_i2cConnnectionFailed,
-    motError_size,
+
+    motError_count,
 }e_motError_t;
 
 typedef enum
@@ -42,7 +54,7 @@ typedef enum
 }e_mot11_i2c_key_t;
 
 
-//#pragma pack (push, 1)
+#pragma pack (push, 1)
 typedef union 
 { 
   uint8_t data[8];
@@ -56,72 +68,72 @@ typedef union
   }extract; 
 
 }u_mot11_i2c_payload_t;
-//#pragma pack (pop)
+#pragma pack (pop)
 
 
 class HAL_MOT11
 {
     public:
+    //Init
     HAL_MOT11   ();
     HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS);
     void begin  ();
     void begin  (e_MOT11_ADDRESS_t ADDRESS);
     
+    //Routine aufruf
     void tick();
 
-    void stop();
-    void start();
-    void stopAndBreak();
-    void setSpeed(const uint8_t SPEED);
-    void setDirection(const e_movement_t DIRECTION);
-    void setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t SPEED);
+    //Drive Commands
+    void stop                 ();
+    void start                ();
+    void stopAndBreak         ();
+    void setSpeed             (const uint8_t SPEED);
+    void setDirection         (const e_movement_t DIRECTION);
+    void setDirectionAndSpeed (const e_movement_t DIRECTION, const uint8_t SPEED);
     
+    //Getter 
     e_motError_t    getError();
     float           getCurrent();
-    e_movement_t   getDirection();
+    e_direction_t   getDirection();
     uint8_t         getSpeed();
 
+
     private:
+    e_driveState_t driveState;
+
+    //I2C Kommunikation
     void sendDriveCommand   ();
     void sendHeartbeat      ();
     void sendFrame          (const u_mot11_i2c_payload_t COMMAND);
+    bool waitForACK         ();
+    bool waitForHeartbeat   ();
 
-    bool waitForACK       ();
-    bool waitForHeartbeat ();
-  
+    e_MOT11_ADDRESS_t   i2c_address;  
+    bool                f_thereIsANewDriveCommand;
+
+    Timeout to_Heartbeat; //ping timer
+    Timeout to_I2C;       //max Wartezeit auf Antwort
+
     //Motor Parameter
     struct 
     {
-      s_portValue_t
-      e_movement_t       actualDirection;  //Aktuell angesteuerte Drehrichtung
-      uint8_t             actualSpeed;      //Aktuell angesteuerte Geschwindigkeit
-      e_movement_t       lastDirection;    //
-      uint8_t             lastSpeed;   
-      
+      e_movement_t direction;   //Aktuell angesteuerte Drehrichtung
+      uint8_t      speed;       //Aktuell angesteuerte Geschwindigkeit
+      float        current;     //Aktuelle Stromaufnahme
+    
+      struct  //Merke Struktur um nach Stop, letzte geschriebene Beweung fortzusetzten 
+      {
+        e_movement_t direction;  
+        uint8_t      speed
+      }old;    
+
     }motParams;
-    
-    
+        
     struct 
     {
       uint8_t       count;      //counter bis error ausgegeben wird
       uint8_t       countLimit; //Limit ab wann error ausgegeben wird
       e_motError_t  code;       //aktueller Erororcode
     }error;
-
-     
-    bool                f_thereIsANewDriveCommand;
-
-    //MOT11_CARD Parameter
-    e_MOT11_ADDRESS_t   i2c_address;  
-
-    //Output Pointer
-    Output* p_EN_L;
-    Output* p_EN_R;
-    Output* p_PWM_L;
-    Output* p_PWM_R;
-
-    Timeout to_Heartbeat;
-    Timeout to_I2C;
 };
-
 #endif
