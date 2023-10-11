@@ -114,23 +114,21 @@ typedef enum
 class Output {
 
 	public:
-    //------------------------------------------------------------------------
-    //Constructor Initialisierung
-	Output				(); 
-    Output              (const e_outputType_t OUTPUT_TYPE);
-	Output				(const uint8_t ON_VALUE);		
-    Output              (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
+	Output (); 
+    Output (const e_outputType_t OUTPUT_TYPE);
+	Output (const uint8_t ON_VALUE);		
+    Output (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
     
-    void 	begin		(const uint8_t ON_VALUE);
-	void 	begin		(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
-    void  	tick		();		//Muss getickt werden jeden loop
-
-	void	blink		    (const uint8_t BLINKS, const int BLINK_INTERVAL);		                //Blinkt für angeforderte Anzahl und Interval
-    void    blinkWithBreak  (const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
-	void 	set			    ();		//Output ON
-	void 	reset		    ();		//Output OFF
-    void    setValue        (const uint8_t VALUE);
-    void    setOnValue      (const uint8_t VALUE);
+    void begin (const uint8_t ON_VALUE);
+	void begin (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
+    
+    //Setter
+	void blink		    (const uint8_t BLINKS, const int BLINK_INTERVAL);		                //Blinkt für angeforderte Anzahl und Interval
+    void blinkWithBreak (const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
+	void set			();		//Output ON
+	void reset		    ();		//Output OFF
+    void setValue       (const uint8_t VALUE);
+    void setOnValue     (const uint8_t VALUE);
 
     //Für HAL
     s_portValue_t   getValue            ();   
@@ -138,6 +136,7 @@ class Output {
     bool            isThereANewPortValue();
 
 	private: 
+    void tick  ();		//Wird von jeweiliger Hal getickt, bevor neue Portstate abgeholt wird
 
     e_outputMode_t	mode;               //Aktueller Modus
     s_portValue_t   actualValue;  	    //Aktueller Wert
@@ -182,12 +181,12 @@ class RotaryEncoder
 };
 
 //--------------------------------------------------------------------
-//TEMPERATUR SENSOR KLASSE
+//PLATIN TEMPERTUR SENSOR KLASSE
 //--------------------------------------------------------------------
-class PT1000
+class PT10x
 {
     public:
-    PT1000(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
+    PT10x(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
 
     void begin           (AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
     int  getTemperatur   ();

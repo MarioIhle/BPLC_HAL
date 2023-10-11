@@ -163,6 +163,67 @@ void Output::begin(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
 	this->actualValue.previousValue = 1;	//Damit initial der Wert von der jeweiligen HAL abgeholt wird (prevoiours != now)
 }
 
+void Output::blink(const uint8_t BLINKS, const int BLINK_INTERVAL)
+{
+	this->blinkParameter.blinks_requested = BLINKS;
+    this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
+    this->blinkParameter.count = 0; 
+
+    this->mode = OUTPUTMODE__BLINK;
+}
+
+void Output::blinkWithBreak(const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME)
+{
+	this->blinkParameter.blinks_requested = BLINKS;
+    this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
+    this->blinkParameter.to_break.setInterval(BREAK_TIME);
+    this->blinkParameter.count = 0; 
+
+    this->mode = OUTPUTMODE__BLINK_WITH_BREAK;
+}
+
+void Output::set()
+{
+	this->mode = OUTPUTMODE__ON;
+}
+
+void Output::reset()
+{
+	this->mode = OUTPUTMODE__OFF;
+}
+
+void Output::setValue(const uint8_t VALUE)
+{
+	this->actualValue.value = VALUE;
+	this->mode 				= OUTPUTMODE__VALUE;
+}
+
+void Output::setOnValue(const uint8_t VALUE)
+{
+    this->setting.onValue = VALUE;
+}
+
+s_portValue_t Output::getValue()
+{
+	//Portdaten wurden abgeholt und können jetzt abgeglichen werden
+	this->actualValue.previousValue = this->actualValue.value;
+	return this->actualValue;	
+}
+
+e_outputType_t Output::getOutputType()
+{
+	return this->setting.outputType;
+}
+
+bool Output::isThereANewPortValue()
+{
+	//Interne Statusmaschine ticken, um Blinken usw. zu ermöglichen
+	this->tick();
+	//Wenn aus der Internen Statusmaschine neue Portdaten hervor gehen wird dies hier erkannt
+	const bool THERE_IS_A_NEW_PORT_VALUE_TO_WRITE = (bool)(this->actualValue.value != this->actualValue.previousValue);
+	return THERE_IS_A_NEW_PORT_VALUE_TO_WRITE;
+}
+
 void Output::tick()
 {
 	switch(this->mode)
@@ -239,66 +300,6 @@ void Output::tick()
 	}
 }
 
-void Output::blink(const uint8_t BLINKS, const int BLINK_INTERVAL)
-{
-	this->blinkParameter.blinks_requested = BLINKS;
-    this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
-    this->blinkParameter.count = 0; 
-
-    this->mode = OUTPUTMODE__BLINK;
-}
-
-void Output::blinkWithBreak(const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME)
-{
-	this->blinkParameter.blinks_requested = BLINKS;
-    this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
-    this->blinkParameter.to_break.setInterval(BREAK_TIME);
-    this->blinkParameter.count = 0; 
-
-    this->mode = OUTPUTMODE__BLINK_WITH_BREAK;
-}
-
-void Output::set()
-{
-	this->mode = OUTPUTMODE__ON;
-}
-
-void Output::reset()
-{
-	this->mode = OUTPUTMODE__OFF;
-}
-
-void Output::setValue(const uint8_t VALUE)
-{
-	this->actualValue.value = VALUE;
-	this->mode 				= OUTPUTMODE__VALUE;
-}
-
-void Output::setOnValue(const uint8_t VALUE)
-{
-    this->setting.onValue = VALUE;
-}
-
-s_portValue_t Output::getValue()
-/**
- * @return Achtung kein BOOL! TRUE = max.255
-*/
-{
-	return this->actualValue;	
-}
-
-e_outputType_t Output::getOutputType()
-{
-	return this->setting.outputType;
-}
-
-bool Output::isThereANewPortValue()
-{
-	const bool THERE_IS_A_NEW_PORT_VALUE_TO_WRITE 	= (bool)(this->actualValue.value != this->actualValue.previousValue);
-	this->actualValue.previousValue 				= this->actualValue.value;
-	return THERE_IS_A_NEW_PORT_VALUE_TO_WRITE;
-}
-
 //####################################################################
 //SPEZIAL OBJEKTE
 //####################################################################
@@ -344,18 +345,18 @@ bool RotaryEncoder::isButtonPressed()
 }
 
 //--------------------------------------------------------------------
-//PT1000 
-PT1000::PT1000(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
+//PT10x 
+PT10x::PT10x(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
 {}
 
-void PT1000::begin(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
+void PT10x::begin(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
 {
 	this->p_PORT 				= P_PORT;
 	this->voltage.atZero 		= VOLATGE_AT_0_DEG;
 	this->voltage.atOneHundred 	= VOLTAGE_AT_100_DEG;
 }
 
-int  PT1000::getTemperatur()
+int  PT10x::getTemperatur()
 {
 	const float VOLTAGE_AT_PORT = this->p_PORT->getValueInVolt();
 
