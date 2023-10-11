@@ -324,15 +324,15 @@ void RotaryEncoder::begin   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, Dig
 
 e_movement_t RotaryEncoder::getTurningDirection()
 {
-    e_movement_t direction = idle;    
+    e_movement_t direction = movement_idle;    
 
     if(this->p_A->negFlank() && this->p_B->ishigh())
     {
-        direction = right;
+        direction = movement_right;
     }
     else if(this->p_B->negFlank() && this->p_A->ishigh())
     {
-        direction = left;
+        direction = movement_left;
     }
 
     return direction;
@@ -375,19 +375,19 @@ void Software_H_Bridge::setDirection(const e_movement_t DIRECTION)
 {
 	switch(DIRECTION)
 	{
-		case idle:
+		case movement_idle:
 			this->p_R_PWM->begin(OUTPUTTYPE__PUSH_PULL, 255);
 			this->p_R_PWM->begin(OUTPUTTYPE__PUSH_PULL, 255);
 		break;
 
-		case left:
+		case movement_left:
 			this->p_R_PWM->begin(OUTPUTTYPE__PUSH_PULL, 255);
 			this->p_R_PWM->begin(OUTPUTTYPE__PUSH_PULL_INVERT, 255);
 			this->p_R_PWM->setValue(this->driveSpeed);
 			this->p_L_PWM->setValue(this->driveSpeed);
 		break;
 
-		case right:
+		case movement_right:
 			this->p_R_PWM->begin(OUTPUTTYPE__PUSH_PULL_INVERT, 255);
 			this->p_R_PWM->begin(OUTPUTTYPE__PUSH_PULL, 255);
 			this->p_R_PWM->setValue(this->driveSpeed);
@@ -395,7 +395,7 @@ void Software_H_Bridge::setDirection(const e_movement_t DIRECTION)
 		break;
 
 		default:
-			this->driveDirection = idle;
+			this->driveDirection = movement_idle;
 		break;
 	}
 }

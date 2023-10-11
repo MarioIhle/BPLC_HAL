@@ -19,11 +19,12 @@
 //Encoder oder Motoren richtung
 typedef enum
 {
-    idle,
-    left,
-    right,
-    break,
-    count,
+    movement_idle,
+    movement_left,
+    movement_right,
+    movement_break,
+    
+    movement_count,
 }e_movement_t;
 
 //Portinformation

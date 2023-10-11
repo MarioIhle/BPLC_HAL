@@ -81,11 +81,11 @@ void APP_MCU11::handleDisplay()
             this->oled.enterMenu();            
          }
 
-         if(this->hal.ENCODER.getTurningDirection() == right)
+         if(this->hal.ENCODER.getTurningDirection() == movement_right)
          {
             this->oled.showNextTextOfThisMenu();
          }
-         else if(this->hal.ENCODER.getTurningDirection() == left)
+         else if(this->hal.ENCODER.getTurningDirection() == movement_left)
          {
             this->oled.showPrevioursTextOfThisMenu();
          }           
@@ -108,7 +108,7 @@ void APP_MCU11::handleDisplay()
       break;
 
       case menu_screenSaver: 
-         if(this->hal.ENCODER.isButtonPressed() || this->hal.ENCODER.getTurningDirection() != idle)
+         if(this->hal.ENCODER.isButtonPressed() || this->hal.ENCODER.getTurningDirection() != movement_idle)
          {
             this->oled.setMenu(menu_mainMenu);
          }
@@ -123,7 +123,7 @@ void APP_MCU11::beepOnEncoderInput()
       this->hal.BUZZER.blink(1, 100);
    }
 
-   if(this->hal.ENCODER.getTurningDirection() != idle)
+   if(this->hal.ENCODER.getTurningDirection() != movement_idle)
    {
       this->hal.BUZZER.blink(1, 100);
    }
@@ -188,7 +188,7 @@ void APP_MCU11::editDeviceMode()
       }      
    }
 
-   if(this->hal.ENCODER.getTurningDirection() == right)
+   if(this->hal.ENCODER.getTurningDirection() == movement_right)
    {
       if(this->oled.parameterEntered())
       {
@@ -199,7 +199,7 @@ void APP_MCU11::editDeviceMode()
          this->oled.showNextTextOfThisMenu();            
       }
    }
-   else if(this->hal.ENCODER.getTurningDirection() == left)
+   else if(this->hal.ENCODER.getTurningDirection() == movement_left)
    {    
       if(this->oled.parameterEntered())
       {
@@ -243,11 +243,11 @@ void APP_MCU11::errorOut()
       this->errorCode = APP_ERROR__NO_ERROR;
    }
 
-   if(this->hal.ENCODER.getTurningDirection() == right)
+   if(this->hal.ENCODER.getTurningDirection() == movement_right)
    {
       this->oled.showNextTextOfThisMenu();
    }
-   else if(this->hal.ENCODER.getTurningDirection() == left)
+   else if(this->hal.ENCODER.getTurningDirection() == movement_left)
    {
       this->oled.showPrevioursTextOfThisMenu();
    } 
@@ -282,7 +282,7 @@ void APP_MCU11::handle_vDip()
       }  
    }
 
-   if(TURNING_DIRECTION == right)
+   if(TURNING_DIRECTION == movement_right)
    {
       if(PARARMETER_IS_ENTERED)
       {
@@ -293,7 +293,7 @@ void APP_MCU11::handle_vDip()
          this->oled.showNextTextOfThisMenu();   
       }
    }
-   else if(TURNING_DIRECTION == left)
+   else if(TURNING_DIRECTION == movement_left)
    {    
       if(PARARMETER_IS_ENTERED)
       {
