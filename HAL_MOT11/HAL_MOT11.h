@@ -3,6 +3,7 @@
 #include "Arduino.h"
 #include "IOM_base.h"
 #include "Wire.h"
+#include "I2CScanner.h"
 
 #define DEBUG_HAL_MOT11 
 
@@ -94,7 +95,7 @@ class HAL_MOT11
     //Getter 
     e_motError_t    getError();
     float           getCurrent();
-    e_direction_t   getDirection();
+    e_movement_t    getDirection();
     uint8_t         getSpeed();
 
 
@@ -124,15 +125,19 @@ class HAL_MOT11
       struct  //Merke Struktur um nach Stop, letzte geschriebene Beweung fortzusetzten 
       {
         e_movement_t direction;  
-        uint8_t      speed
+        uint8_t      speed;
       }old;    
 
     }motParams;
         
     struct 
     {
-      uint8_t       count;      //counter bis error ausgegeben wird
-      uint8_t       countLimit; //Limit ab wann error ausgegeben wird
+      struct 
+      {
+        uint8_t       count;      //counter bis error ausgegeben wird
+        uint8_t       countLimit; //Limit ab wann error ausgegeben wird
+      }i2cError;    
+      
       e_motError_t  code;       //aktueller Erororcode
     }error;
 };

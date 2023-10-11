@@ -10,15 +10,61 @@ HAL_MOT11::HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS)
 
 void HAL_MOT11::begin()
 {
+    //Timeouts
     this->to_Heartbeat.setInterval(5000);
     this->to_I2C.setInterval(50);
+
+    //Errorout
+    this->error.i2cError.countLimit = 3;
+    this->error.i2cError.count      = 0;
+    this->error.code                = motError_noError;
+    //Statusmaschine
+    this->driveState = driveState_start;  
+
+    //I2C Device check
+    I2CScanner scanner;
+    const bool DEVICE_FOUND = (bool)(scanner.Scan((uint8_t)this->i2c_address) != 0);
+
+    if(DEVICE_FOUND)
+    {
+        Serial.print("MOT11 with Address: "); Serial.print(this->i2c_address); Serial.println("found!");
+    }
+    else
+    {
+        Serial.print("MOT11 with Address: "); Serial.print(this->i2c_address); Serial.println("not found!");
+        this->error.code = motError_i2cConnnectionFailed;
+    }
 }
 
 void HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
 {
+    //I2C Adresse
     this->i2c_address = ADDRESS;
+
+    //Timeouts
     this->to_Heartbeat.setInterval(5000);
-    this->to_I2C.setInterval(50);
+    this->to_I2C.setInterval(50);  
+    
+    //Errorout
+    this->error.i2cError.countLimit = 3;
+    this->error.i2cError.count      = 0;
+    this->error.code                = motError_noError;
+    //Statusmaschine
+    this->driveState = driveState_start;  
+
+    //I2C Device check
+    I2CScanner scanner;
+    const bool DEVICE_FOUND = (bool)(scanner.Scan((uint8_t)this->i2c_address) != 0);
+
+    if(DEVICE_FOUND)
+    {
+        Serial.print("MOT11 with Address: "); Serial.print(this->i2c_address); Serial.println("found!");
+    }
+    else
+    {
+        Serial.print("MOT11 with Address: "); Serial.print(this->i2c_address); Serial.println("not found!");
+        this->error.code = motError_i2cConnnectionFailed;
+    }
 }
 
 void HAL_MOT11::tick()
@@ -30,22 +76,29 @@ void HAL_MOT11::tick()
         this->to_Heartbeat.reset();
     }    
 
+    //I2C Error check
+    const bool I2C_ERROR_COUNT_LIMIT_REACHED = (bool)(this->error.i2cError.count >= this->error.i2cError.countLimit);
+    if(I2C_ERROR_COUNT_LIMIT_REACHED)
+    {
+        this->error.code = motError_i2cConnnectionFailed;
+    }
+
     switch(this->driveState)
     {
-        case driveState_waitForStart:            
+        case driveState_waitForStart:  
+        case driveState_safeState:          
         break;
 
         case driveState_start:
             this->motParams.direction = this->motParams.old.direction;
             this->motParams.speed     = this->motParams.old.speed;
-            this->sendDriveCommand();                
+            this->sendDriveCommand(); 
+
+            this->driveState = driveState_runningWithParameters;               
         break;
 
         case driveState_runningWithParameters:   //Normalbetreb
-            const bool DRIVE_DIRECTION_CHANGED = (bool)(this->motParams.old.direction != this->motParams.direction);
-            const bool DRIVE_SPEED_CHANGED     = (bool)(this->motParams.old.speed != this->motParams.speed);
-        
-            if(DRIVE_DIRECTION_CHANGED || DRIVE_SPEED_CHANGED)
+            if((this->motParams.old.direction != this->motParams.direction) || (this->motParams.old.speed != this->motParams.speed))
             {
                 this->sendDriveCommand();
                 this->motParams.old.direction = this->motParams.direction;
@@ -55,15 +108,17 @@ void HAL_MOT11::tick()
 
         case driveState_stop:        
             this->motParams.speed     = 0;
-            this->motParams.direction = idle;     
+            this->motParams.direction = movement_idle;     
             this->sendDriveCommand();   //Stop senden
-            this->driveState = driveState_waitForStart;
+
+            this->driveState = driveState_waitForStart;      
         break;
 
         case driveState_stopAndBreak:
             this->motParams.speed     = 255;
-            this->motParams.direction = idle; 
+            this->motParams.direction = movement_idle; 
             this->sendDriveCommand();  
+
             this->driveState = driveState_waitForStart;
         break;
 
@@ -135,12 +190,16 @@ void HAL_MOT11::sendDriveCommand()
 
     if(this->waitForACK())
     {
+        this->error.i2cError.count = 0;
+
 #ifdef DEBUG_HAL_MOT11
 Serial.println("ACK empfangen");
 #endif    
-    }   r
+    }   
     else
     {
+        this->error.i2cError.count++;
+
 #ifdef DEBUG_HAL_MOT11
 Serial.println("kein ACK empfangen");
 #endif 
@@ -153,11 +212,19 @@ void HAL_MOT11::sendHeartbeat()
     
     if(this->waitForHeartbeat())
     {
-        Serial.println("Heartbeat empfangen");
+        this->error.i2cError.count = 0;
+
+#ifdef DEBUG_HAL_MOT11
+Serial.println("Heartbeat empfangen");
+#endif
     }   
     else
     {
-        Serial.println("kein Heartbeat empfangen");
+        this->error.i2cError.count++;
+
+#ifdef DEBUG_HAL_MOT11
+Serial.println("kein Heartbeat empfangen");
+#endif
     } 
 }
 
@@ -220,6 +287,12 @@ bool HAL_MOT11::waitForHeartbeat()
         {
             break;
         }     
+    }
+
+    //Empfangenen Errorcode auswerten
+    if(inCommand.extract.error != motError_noError)
+    {
+        this->error.code = (e_motError_t)inCommand.extract.error;
     }
 
 #ifdef DEBUG_HAL_MOT11 
