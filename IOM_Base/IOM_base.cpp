@@ -344,6 +344,25 @@ bool RotaryEncoder::isButtonPressed()
 }
 
 //--------------------------------------------------------------------
+//PT1000 
+PT1000::PT1000()
+{}
+
+void PT1000::begin(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
+{
+	this->p_PORT 				= P_PORT;
+	this->voltage.atZero 		= VOLATGE_AT_0_DEG;
+	this->voltage.atOneHundred 	= VOLTAGE_AT_100_DEG;
+}
+
+int  PT1000::getTemperatur()
+{
+	const float VOLTAGE_AT_PORT = this->p_PORT->getValueInVolt();
+
+	return  map(VOLTAGE_AT_PORT, this->voltage.atZero, this->voltage.atOneHundred, 0, 100);
+}
+
+//--------------------------------------------------------------------
 //H-Bridge
 Software_H_Bridge::Software_H_Bridge()
 {}

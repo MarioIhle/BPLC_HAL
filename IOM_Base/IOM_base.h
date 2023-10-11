@@ -23,7 +23,7 @@ typedef enum
     movement_left,
     movement_right,
     movement_break,
-    
+
     movement_count,
 }e_movement_t;
 
@@ -46,7 +46,7 @@ class DigitalInput
 {
     public:
     DigitalInput    ();
-   
+
     //Getter für Applikation
     bool 	ishigh		();
     bool	islow		();
@@ -61,7 +61,7 @@ class DigitalInput
 };
 
 //--------------------------------------------------------------------
-//DIGITAL INPUT KLASSE
+//ANALOG INPUT KLASSE
 //--------------------------------------------------------------------
 class AnalogInput
 {
@@ -172,7 +172,7 @@ class RotaryEncoder
                         RotaryEncoder   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);   
     void                begin           (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);
 
-    e_movement_t       getTurningDirection ();
+    e_movement_t        getTurningDirection ();
     bool                isButtonPressed     ();
     
   	private:
@@ -184,15 +184,23 @@ class RotaryEncoder
 //--------------------------------------------------------------------
 //TEMPERATUR SENSOR KLASSE
 //--------------------------------------------------------------------
-class TemperaturSensor{
+class PT1000
+{
     public:
-    TemperaturSensor();
+    PT1000(const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
 
-    void    begin           ();
-    int16_t getTemperatur   ();
+    void begin           (AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
+    int  getTemperatur   ();
 
     private:
+    struct 
+    {
+        float atZero;
+        float atOneHundred;
+    }voltage;
+    
     int16_t oldTemp; 
+    AnalogInput* p_PORT;
 };
 
 //--------------------------------------------------------------------
@@ -213,6 +221,6 @@ class Software_H_Bridge{
     Output* p_R_PWM;
 
     e_movement_t   driveDirection;
-    uint8_t         driveSpeed;
+    uint8_t        driveSpeed;
 };
 #endif
