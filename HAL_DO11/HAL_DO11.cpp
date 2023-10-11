@@ -114,9 +114,7 @@ void HAL_DO11::begin()
 void HAL_DO11::tick()
 {
     for(uint8_t PORT; PORT < this->usedPortCount; PORT++)
-    {        
-        this->p_DO[PORT]->tick();   //Alle OUTs müssen getickt werden, damit ein Blinken möglich wird        
-                    
+    {                
         if(this->p_DO[PORT]->isThereANewPortValue())    //Nur Wert abrufen und schreiben, falls dier sich geändert hat
         {     
             //PWM von 0-255 laden und umrechnen

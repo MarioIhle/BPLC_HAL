@@ -46,25 +46,35 @@ void HAL_MCU11::tick()
     Encoder_Z.setPortState(digitalRead(this->pins.encoder[2]));
 
     //OEN schreiben
-    OEN.tick();
-    TEMP_PORT_VALUE = this->OEN.getValue();
-    digitalWrite(this->pins.OEN, TEMP_PORT_VALUE.value);
+    if(this->OEN.isThereANewPortValue())
+    {
+        TEMP_PORT_VALUE = this->OEN.getValue();
+        digitalWrite(this->pins.OEN, TEMP_PORT_VALUE.value);
+    }
 
     //buzzer
-    this->BUZZER.tick();
-    TEMP_PORT_VALUE = this->BUZZER.getValue();
-    analogWrite(this->pins.buzzer, TEMP_PORT_VALUE.value);
+    if(this->BUZZER.isThereANewPortValue())
+    {
+        TEMP_PORT_VALUE = this->BUZZER.getValue();
+        analogWrite(this->pins.buzzer, TEMP_PORT_VALUE.value);
+    }
 
     //LD1-3
-    this->LD1.tick();
-    TEMP_PORT_VALUE = this->LD1.getValue();
-    analogWrite(this->pins.led[0], TEMP_PORT_VALUE.value);
+    if(this->LD1.isThereANewPortValue())
+    {
+        TEMP_PORT_VALUE = this->LD1.getValue();
+        analogWrite(this->pins.led[0], TEMP_PORT_VALUE.value);
+    }
 
-    this->LD2.tick();
-    TEMP_PORT_VALUE = this->LD2.getValue();
-    analogWrite(this->pins.led[1], TEMP_PORT_VALUE.value);
+    if(this->LD2.isThereANewPortValue())
+    {
+        TEMP_PORT_VALUE = this->LD2.getValue();
+        analogWrite(this->pins.led[1], TEMP_PORT_VALUE.value);
+    }
 
-    this->LD3.tick();
-    TEMP_PORT_VALUE = this->LD3.getValue();    
-    analogWrite(this->pins.led[2], TEMP_PORT_VALUE.value);  
+    if(this->LD3.isThereANewPortValue())
+    {
+        TEMP_PORT_VALUE = this->LD3.getValue(); 
+        analogWrite(this->pins.led[2], TEMP_PORT_VALUE.value);  
+    }      
 }

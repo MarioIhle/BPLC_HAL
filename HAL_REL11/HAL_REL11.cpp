@@ -46,8 +46,6 @@ void HAL_REL11::tick()
 {
     for(int PORT = 0; PORT < this->usedPortCount; PORT++)
     {
-        this->p_REL[PORT]->tick();        //Alle OUTs müssen getickt werden, damit ein Blinken möglich wird
-       
         if(this->p_REL[PORT]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
         {
             const s_portValue_t VALUE_TO_WRITE = this->p_REL[PORT]->getValue();
