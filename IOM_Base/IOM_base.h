@@ -187,7 +187,7 @@ class RotaryEncoder
 class PT1000
 {
     public:
-    PT1000(const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
+    PT1000(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
 
     void begin           (AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
     int  getTemperatur   ();

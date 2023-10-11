@@ -345,7 +345,7 @@ bool RotaryEncoder::isButtonPressed()
 
 //--------------------------------------------------------------------
 //PT1000 
-PT1000::PT1000()
+PT1000::PT1000(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
 {}
 
 void PT1000::begin(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
