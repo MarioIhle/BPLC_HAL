@@ -95,6 +95,7 @@ class APP_MCU11
 
     //Error flags
     void    setError(const e_APP_ERROR_t ERROR_CODE);
+    void    resetError();
     
   
     private:

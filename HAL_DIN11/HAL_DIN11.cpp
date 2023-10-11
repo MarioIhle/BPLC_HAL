@@ -100,9 +100,9 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1 = n
     this->usedPortCount = 8;
 }
 
-bool HAL_DIN11::begin()
+e_APP_ERROR_t HAL_DIN11::begin()
 {    
-    bool deviceOK = true;
+    e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
     
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -139,36 +139,46 @@ bool HAL_DIN11::begin()
     else
     {
         Serial.println("I2C connection failed!");
-        deviceOK = false;
+        error = APP_ERROR__DIN11_COMMUNICATION_FAILED;
+        
     }
 
     //Applikationsparameter initialisieren
     this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;        
+    if(error != APP_ERROR__NO_ERROR)
+    {        
+        this->f_error = true;
+    }
 
-    return deviceOK;
+    return error;
 }
 
 void HAL_DIN11::tick()
-{    
-    if(this->f_somePinOfsomePinCardChanged > 0)
-    {
-#ifdef DEBUG_HAL_DIN11
-Serial.print("DIN11 "); Serial.print(this->deviceAdress); Serial.println("STATES:");
-#endif
-        for(uint8_t PORT = 0; PORT < this->usedPortCount; PORT++)
-        {            
-            const bool STATE = !PCF.read(this->PINS[PORT]);     
-            this->p_ports[PORT]->setPortState(STATE);   
+{   
+    if(!f_error)
+    {    
+        if(this->f_somePinOfsomePinCardChanged > 0)
+        {
+            #ifdef DEBUG_HAL_DIN11
+            Serial.print("DIN11 "); Serial.print(this->deviceAdress); Serial.println("STATES:");
+            #endif
 
-#ifdef DEBUG_HAL_DIN11
-Serial.print(", PORT "); Serial.print(PORT); Serial.print(": "); Serial.print(STATE);       
-#endif
-        } 
-#ifdef DEBUG_HAL_DIN11
-Serial.println(" ");       
-#endif
-        this->f_somePinOfsomePinCardChanged--;
-    }    
+            for(uint8_t PORT = 0; PORT < this->usedPortCount; PORT++)
+            {            
+                const bool STATE = !PCF.read(this->PINS[PORT]);     
+                this->p_ports[PORT]->setPortState(STATE);   
+
+                #ifdef DEBUG_HAL_DIN11
+                Serial.print(", PORT "); Serial.print(PORT); Serial.print(": "); Serial.print(STATE);       
+                #endif
+            } 
+            
+            #ifdef DEBUG_HAL_DIN11
+            Serial.println(" ");       
+            #endif
+            this->f_somePinOfsomePinCardChanged--;
+        }    
+    }
 }
 
 void HAL_DIN11::somePinOfsomeDinCardChanged()

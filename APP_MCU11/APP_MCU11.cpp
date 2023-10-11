@@ -161,7 +161,15 @@ int APP_MCU11::getVDip(const e_V_DIP_t DIP_NUM)
 
 void APP_MCU11::setError(const e_APP_ERROR_t ERROR_CODE)
 {      
-   this->errorCode = ERROR_CODE;
+   if(this->errorCode == APP_ERROR__NO_ERROR)
+   {
+      this->errorCode = ERROR_CODE;
+   }
+}
+
+void APP_MCU11::resetError()
+{
+   this->errorCode = APP_ERROR__NO_ERROR;
 }
 
 e_APP_ERROR_t APP_MCU11::checkForErrors()
