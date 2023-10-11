@@ -8,7 +8,7 @@ HAL_MOT11::HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS)
     this->i2c_address = ADDRESS;
 }
 
-void HAL_MOT11::begin()
+bool HAL_MOT11::begin()
 {
     //Timeouts
     this->to_Heartbeat.setInterval(5000);
@@ -27,16 +27,17 @@ void HAL_MOT11::begin()
 
     if(DEVICE_FOUND)
     {
-        Serial.print("MOT11 with Address: "); Serial.print(this->i2c_address); Serial.println("found!");
+        Serial.print("MOT11 with I2C Address: "); Serial.print(this->i2c_address); Serial.println(" found!");
     }
     else
     {
-        Serial.print("MOT11 with Address: "); Serial.print(this->i2c_address); Serial.println("not found!");
+        Serial.print("MOT11 with I2C Address: "); Serial.print(this->i2c_address); Serial.println(" not found!");
         this->error.code = motError_i2cConnnectionFailed;
     }
+    return DEVICE_FOUND;
 }
 
-void HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
+bool HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
 {
     //I2C Adresse
     this->i2c_address = ADDRESS;
@@ -65,6 +66,7 @@ void HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
         Serial.print("MOT11 with Address: "); Serial.print(this->i2c_address); Serial.println("not found!");
         this->error.code = motError_i2cConnnectionFailed;
     }
+    return DEVICE_FOUND;
 }
 
 void HAL_MOT11::tick()

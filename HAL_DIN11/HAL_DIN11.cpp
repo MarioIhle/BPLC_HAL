@@ -100,17 +100,51 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1 = n
     this->usedPortCount = 8;
 }
 
-void HAL_DIN11::begin()
+bool HAL_DIN11::begin()
 {    
-    PCF.setAddress(this->deviceAdress);   //Tatsächliche Adresse schreiben
-    PCF.begin();                          //Kommunikation hetstellen 
-
-    this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;       //inital Ports lesen, bei nächsten Tick() aufruf
+    bool deviceOK = true;
     
-#ifdef DEBUG_HAL_DIN11 
-Serial.print("HAL_REL11.begin with I2C Address"); Serial.println(this->deviceAdress);
-Serial.print("portCount: "); Serial.println(this->usedPortCount);
-#endif
+    //Debug Error ausgabe
+    Serial.println("##############################");  
+    Serial.print("setup DIN11 CARD ");
+    switch(this->deviceAdress)
+    {
+        case DIN11_CARD_1:
+            Serial.print("1");
+        break;
+        case DIN11_CARD_2:
+            Serial.print("2");
+        break;
+        case DIN11_CARD_3:
+            Serial.print("3");
+        break;
+        case DIN11_CARD_4:
+            Serial.print("4");
+        break;
+    }
+    Serial.println("/4");
+    Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/8");
+ 
+    //I2C Initialisieren
+    PCF.setAddress(this->deviceAdress);   
+    PCF.begin(); 
+    Serial.print("I2C address: 0x"); Serial.println(this->deviceAdress, HEX); 
+    Wire.beginTransmission(this->deviceAdress);
+    const bool DEVICE_FOUND = (bool)(Wire.endTransmission() == 0);
+    	   
+    if(DEVICE_FOUND)
+    {
+        Serial.println("I2C connection ok!");
+    }
+    else
+    {
+        Serial.println("I2C connection failed!");
+        deviceOK = false;
+    }
+
+    //Applikationsparameter initialisieren
+    this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;       
+    return DEVICE_FOUND;    
 }
 
 void HAL_DIN11::tick()

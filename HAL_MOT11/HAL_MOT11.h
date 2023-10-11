@@ -1,5 +1,6 @@
 #ifndef HAL_MOT11_h
 #define HAL_MOT11_h
+
 #include "Arduino.h"
 #include "IOM_base.h"
 #include "Wire.h"
@@ -78,8 +79,8 @@ class HAL_MOT11
     //Init
     HAL_MOT11   ();
     HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS);
-    void begin  ();
-    void begin  (e_MOT11_ADDRESS_t ADDRESS);
+    bool begin  ();
+    bool begin  (e_MOT11_ADDRESS_t ADDRESS);
     
     //Routine aufruf
     void tick();

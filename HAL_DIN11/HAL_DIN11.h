@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include "PCF8574.h"
 #include "IOM_base.h"
+#include "I2CScanner.h"
 
 //#define DEBUG_HAL_DIN11
 
@@ -56,7 +57,7 @@ class HAL_DIN11
     HAL_DIN11    (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7);
     HAL_DIN11    (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7, DigitalInput* P_PORT_8);
 
-    void    begin();
+    bool    begin();
     void    tick        ();    
     void    somePinOfsomeDinCardChanged();
 
