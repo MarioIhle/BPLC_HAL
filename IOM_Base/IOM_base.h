@@ -21,7 +21,9 @@ typedef enum
     idle,
     left,
     right,
-}e_direction_t;
+    break,
+    count,
+}e_movement_t;
 
 //Portinformation
 typedef struct
@@ -168,7 +170,7 @@ class RotaryEncoder
                         RotaryEncoder   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);   
     void                begin           (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);
 
-    e_direction_t       getTurningDirection ();
+    e_movement_t       getTurningDirection ();
     bool                isButtonPressed     ();
     
   	private:
@@ -202,13 +204,13 @@ class Software_H_Bridge{
     void begin       ();
     void begin       (Output* P_PWM_L, Output* P_PWM_R);
     void setSpeed    (const uint8_t HB_SPEED);
-    void setDirection(const e_direction_t DIRECTION);
+    void setDirection(const e_movement_t DIRECTION);
 
     private:
     Output* p_L_PWM;
     Output* p_R_PWM;
 
-    e_direction_t   driveDirection;
+    e_movement_t   driveDirection;
     uint8_t         driveSpeed;
 };
 #endif

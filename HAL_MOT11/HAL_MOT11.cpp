@@ -77,7 +77,7 @@ void HAL_MOT11::setSpeed(const uint8_t SPEED)
     }    
 }
 
-void HAL_MOT11::setDirection(const e_direction_t DIRECTION)
+void HAL_MOT11::setDirection(const e_movement_t DIRECTION)
 {
     if(this->actualDirection != DIRECTION)
     {
@@ -87,7 +87,7 @@ void HAL_MOT11::setDirection(const e_direction_t DIRECTION)
     }   
 }
 
-void HAL_MOT11::setDirectionAndSpeed(const e_direction_t DIRECTION, const uint8_t SPEED)
+void HAL_MOT11::setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t SPEED)
 {
      if(this->actualDirection != DIRECTION || this->actualSpeed != SPEED)
     {
@@ -108,7 +108,7 @@ float HAL_MOT11::getCurrent()
     return this->actualCurrent;
 }
 
-e_direction_t HAL_MOT11::getDirection()
+e_movement_t HAL_MOT11::getDirection()
 {
     return this->actualDirection;
 }
@@ -131,11 +131,15 @@ void HAL_MOT11::sendDriveCommand()
 
     if(this->waitForACK())
     {
-        Serial.println("ACK empfangen");
+#ifdef DEBUG_HAL_MOT11
+Serial.println("ACK empfangen");
+#endif    
     }   
     else
     {
-        Serial.println("kein ACK empfangen");
+#ifdef DEBUG_HAL_MOT11
+Serial.println("kein ACK empfangen");
+#endif 
     } 
 }
 

@@ -17,7 +17,7 @@ typedef enum
     direction_idle,
     direction_left,
     direction_rigth,
-}e_direction_t;
+}e_movement_t;
 
 class HAL_MOT11
 {
@@ -28,19 +28,19 @@ class HAL_MOT11
     void stop();
     void start();
     void setSpeed(const unint8_t SPEED);
-    void setDirection(const e_direction_t DIRECTION);
-    void setDirectionAndSpeed(const e_direction_t DIRECTION, const unint8_t SPEED);
+    void setDirection(const e_movement_t DIRECTION);
+    void setDirectionAndSpeed(const e_movement_t DIRECTION, const unint8_t SPEED);
     
     e_motError_t    getError();
     float           getCurrent();
-    e_direction_t   getDirection();
+    e_movement_t   getDirection();
     uint8_t         getSpeed();
 
     private:
     void observeCurrent();
     void tickSlave();
     
-    e_direction_t   actualdirection;
+    e_movement_t   actualdirection;
     uint8_t         actualSpeed;        
 };
 

@@ -322,9 +322,9 @@ void RotaryEncoder::begin   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, Dig
     this->p_pushButton = P_PORT_PUSHBUTTON;    
 }
 
-e_direction_t RotaryEncoder::getTurningDirection()
+e_movement_t RotaryEncoder::getTurningDirection()
 {
-    e_direction_t direction = idle;    
+    e_movement_t direction = idle;    
 
     if(this->p_A->negFlank() && this->p_B->ishigh())
     {
@@ -371,7 +371,7 @@ void Software_H_Bridge::begin(Output* P_PWM_L, Output* P_PWM_R)
 	this->p_R_PWM->begin(OUTPUTTYPE__PUSH_PULL_INVERT, 255);
 }
 
-void Software_H_Bridge::setDirection(const e_direction_t DIRECTION)
+void Software_H_Bridge::setDirection(const e_movement_t DIRECTION)
 {
 	switch(DIRECTION)
 	{

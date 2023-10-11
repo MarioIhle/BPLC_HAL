@@ -17,6 +17,7 @@ typedef enum
     motError_noError,
     motError_overcurrent,
     motError_notTeached, 
+    motError_i2cConnnectionFailed,
     motError_size,
 }e_motError_t;
 
@@ -72,12 +73,12 @@ class HAL_MOT11
     void start();
     void stopAndBreak();
     void setSpeed(const uint8_t SPEED);
-    void setDirection(const e_direction_t DIRECTION);
-    void setDirectionAndSpeed(const e_direction_t DIRECTION, const uint8_t SPEED);
+    void setDirection(const e_movement_t DIRECTION);
+    void setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t SPEED);
     
     e_motError_t    getError();
     float           getCurrent();
-    e_direction_t   getDirection();
+    e_movement_t   getDirection();
     uint8_t         getSpeed();
 
     private:
@@ -89,12 +90,25 @@ class HAL_MOT11
     bool waitForHeartbeat ();
   
     //Motor Parameter
-    e_direction_t       actualDirection;
-    uint8_t             actualSpeed;      
-    e_direction_t       lastDirection;
-    uint8_t             lastSpeed;   
-    float               actualCurrent;
-    e_motError_t        error;
+    struct 
+    {
+      s_portValue_t
+      e_movement_t       actualDirection;  //Aktuell angesteuerte Drehrichtung
+      uint8_t             actualSpeed;      //Aktuell angesteuerte Geschwindigkeit
+      e_movement_t       lastDirection;    //
+      uint8_t             lastSpeed;   
+      
+    }motParams;
+    
+    
+    struct 
+    {
+      uint8_t       count;      //counter bis error ausgegeben wird
+      uint8_t       countLimit; //Limit ab wann error ausgegeben wird
+      e_motError_t  code;       //aktueller Erororcode
+    }error;
+
+     
     bool                f_thereIsANewDriveCommand;
 
     //MOT11_CARD Parameter
