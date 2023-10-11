@@ -143,8 +143,9 @@ bool HAL_DIN11::begin()
     }
 
     //Applikationsparameter initialisieren
-    this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;       
-    return DEVICE_FOUND;    
+    this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;        
+
+    return deviceOK;
 }
 
 void HAL_DIN11::tick()

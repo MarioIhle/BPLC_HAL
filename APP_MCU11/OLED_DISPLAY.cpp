@@ -21,20 +21,26 @@ OLED_MCU11::OLED_MCU11(){}
 //INIT
 void OLED_MCU11::begin()
 {  
-  if (!this->oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) 
-  { // Address 0x3C for 128x32
-    Serial.println(F("SSD1306 allocation failed"));
-    for (;;); 
+  this->oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  Wire.beginTransmission(0x3C);
+  const bool DEVICE_FOUND = (bool)(Wire.endTransmission() == 0);
+    	   
+  if(DEVICE_FOUND)
+  { 
+    Serial.println("Oled vorhanden");
+  }
+  else
+  {
+    Serial.println("Oled nicht vorhanden");
+    return;
   }  
-
-  this->oled.setTextSize(2); // Draw 2X-scale text
+  
+  this->oled.setTextSize(2); 
   this->oled.setTextColor(SSD1306_WHITE);
   this->oled.display();  
-  delay(500); // Pause for 2 seconds
   this->oled.clearDisplay();
   this->oled.print("booting...");
   this->oled.display(); 
-  delay(800);
   this->oled.clearDisplay();
 
   memset(&this->display,0, sizeof(s_display_t));
@@ -42,7 +48,6 @@ void OLED_MCU11::begin()
   memset(&this->screenSaverParameter,0, sizeof(s_screenSaverParameter_t));
   memset(&this->deviceSettings,0, sizeof(s_deviceSettingsParameter_t));
 
-  //TODO: SETTINGS AUS EEPROM LESEN!!
   this->deviceSettings.screenSaverIsEnbaled = true;
   this->deviceSettings.sleepTime = 60000;
   this->screenSaverParameter.to_sleep.setInterval(this->deviceSettings.sleepTime); 

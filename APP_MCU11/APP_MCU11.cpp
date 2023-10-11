@@ -3,12 +3,15 @@
 APP_MCU11::APP_MCU11()
 {}
 
-void APP_MCU11::begin(void (*INT_callBack)(void))
 /**
  * @param   INT_callBack   Zeiger auf ISR  
 */
+void APP_MCU11::begin(void (*INT_callBack)(void))
 {
-   this->hal.begin(INT_callBack);   
+   this->hal.begin(INT_callBack); 
+   Serial.println("##############################");  
+   Serial.println("setup MCU11");  
+
    this->oled.begin();
 
    this->deviceSettings.f_beepOnEncoderInput = false;
@@ -258,7 +261,7 @@ void APP_MCU11::errorOut()
 void APP_MCU11::handle_vDip()
 {  
    const bool           IS_ENCODER_BUTTON_PRESSED  = this->hal.ENCODER.isButtonPressed();
-   const e_movement_t  TURNING_DIRECTION          = this->hal.ENCODER.getTurningDirection();
+   const e_movement_t   TURNING_DIRECTION          = this->hal.ENCODER.getTurningDirection();
    const bool           PARARMETER_IS_ENTERED      = this->oled.parameterEntered();
    const e_V_DIP_t      SELECTED_DIP               = (e_V_DIP_t)this->oled.getActiveMenuTextNum();
 
