@@ -5,84 +5,139 @@ HAL_MOT11::HAL_MOT11   ()
 
 HAL_MOT11::HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS)
 {
-    this->i2c_address = ADDRESS;
+    this->deviceAddress = ADDRESS;
 }
 
-bool HAL_MOT11::begin()
+e_APP_ERROR_t HAL_MOT11::begin()
 {
-    //Timeouts
-    this->to_Heartbeat.setInterval(5000);
-    this->to_I2C.setInterval(50);
-
-    //Errorout
-    this->error.i2cError.countLimit = 3;
-    this->error.i2cError.count      = 0;
-    this->error.code                = motError_noError;
-    //Statusmaschine
-    this->driveState = driveState_start;  
-
-    //I2C Device check
-    I2CScanner scanner;
-    const bool DEVICE_FOUND = (bool)(scanner.Scan((uint8_t)this->i2c_address) != 0);
-
-    if(DEVICE_FOUND)
-    {
-        Serial.print("MOT11 with I2C Address: "); Serial.print(this->i2c_address); Serial.println(" found!");
-    }
-    else
-    {
-        Serial.print("MOT11 with I2C Address: "); Serial.print(this->i2c_address); Serial.println(" not found!");
-        this->error.code = motError_i2cConnnectionFailed;
-    }
-    return DEVICE_FOUND;
-}
-
-bool HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
-{
-    //I2C Adresse
-    this->i2c_address = ADDRESS;
-
-    //Timeouts
-    this->to_Heartbeat.setInterval(5000);
-    this->to_I2C.setInterval(50);  
+    e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
     
-    //Errorout
-    this->error.i2cError.countLimit = 3;
-    this->error.i2cError.count      = 0;
-    this->error.code                = motError_noError;
-    //Statusmaschine
-    this->driveState = driveState_start;  
-
-    //I2C Device check
-    I2CScanner scanner;
-    const bool DEVICE_FOUND = (bool)(scanner.Scan((uint8_t)this->i2c_address) != 0);
-
-    if(DEVICE_FOUND)
+    //Debug Error ausgabe
+    Serial.println("##############################");  
+    Serial.print("setup MOT11 ");
+    switch(this->deviceAddress)
     {
-        Serial.print("MOT11 with Address: "); Serial.print(this->i2c_address); Serial.println("found!");
+        case MOT11_CARD_1:
+            Serial.print("1");
+        break;
+        case MOT11_CARD_2:
+            Serial.print("2");
+        break;
+        case MOT11_CARD_3:
+            Serial.print("3");
+        break;
+        case MOT11_CARD_4:
+            Serial.print("4");
+        break;
+    }
+
+    this->selfCheck.begin(this->deviceAddress);
+    if(this->selfCheck.checkI2CConnection())
+    {
+        Serial.println("I2C connection ok!");
     }
     else
     {
-        Serial.print("MOT11 with Address: "); Serial.print(this->i2c_address); Serial.println("not found!");
-        this->error.code = motError_i2cConnnectionFailed;
+        Serial.println("I2C connection failed!");
+        error = APP_ERROR__DIN11_COMMUNICATION_FAILED;        
     }
-    return DEVICE_FOUND;
+
+    //Applikationsparameter initialisieren
+    if(error == APP_ERROR__NO_ERROR)
+    {   
+        //Timeouts
+        this->to_parameterPoll.setInterval(5000);
+        this->to_I2C.setInterval(50);  
+        
+        //Errorout
+        this->error.i2cError.countLimit = 3;
+        this->error.i2cError.count      = 0;
+        this->error.code                = motError_noError;
+        //Statusmaschine
+        this->driveState = driveState_start;      
+    }
+    else
+    {
+        this->error.code = motError_i2cConnectionFailed;                   
+    }
+
+    return error;
+}
+
+e_APP_ERROR_t HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
+{
+    e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
+    
+    //Debug Error ausgabe
+    Serial.println("##############################");  
+    Serial.println("setup MOT11 ");
+    switch(this->deviceAddress)
+    {
+        case MOT11_CARD_1:
+            Serial.println("1");
+        break;
+        case MOT11_CARD_2:
+            Serial.println("2");
+        break;
+        case MOT11_CARD_3:
+            Serial.println("3");
+        break;
+        case MOT11_CARD_4:
+            Serial.println("4");
+        break;
+    }
+
+    this->selfCheck.begin(this->deviceAddress);
+    if(this->selfCheck.checkI2CConnection())
+    {
+        Serial.println("I2C connection ok!");
+    }
+    else
+    {
+        Serial.println("I2C connection failed!");
+        error = APP_ERROR__DIN11_COMMUNICATION_FAILED;        
+    }
+
+    //Applikationsparameter initialisieren
+    if(error == APP_ERROR__NO_ERROR)
+    {   
+        //I2C Address
+        this->deviceAddress = ADDRESS;
+        //Timeouts
+        this->to_parameterPoll.setInterval(5000);
+        this->to_I2C.setInterval(50);  
+        
+        //Errorout
+        this->error.i2cError.countLimit = 3;
+        this->error.i2cError.count      = 0;
+        this->error.code                = motError_noError;
+        //Statusmaschine
+        this->driveState = driveState_start;      
+    }
+    else
+    {
+        this->error.code = motError_i2cConnectionFailed;                   
+    }
+
+    return error;
 }
 
 void HAL_MOT11::tick()
 {
     //Über Heartbeat wird zyklisch Errors und Stromaufnahme abgefragt
-    if(this->to_Heartbeat.check())
+    if(this->to_parameterPoll.check())
     {
         this->sendHeartbeat(); 
-        this->to_Heartbeat.reset();
+        this->to_parameterPoll.reset();
     }    
 
     //I2C Error check
     const bool I2C_ERROR_COUNT_LIMIT_REACHED = (bool)(this->error.i2cError.count >= this->error.i2cError.countLimit);
-    if(I2C_ERROR_COUNT_LIMIT_REACHED)
+    const bool NOT_I2C_HEARTBEAT_RESPONSE    = (bool)(this->selfCheck.requestHeartbeat() == false); 
+
+    if(I2C_ERROR_COUNT_LIMIT_REACHED || NOT_I2C_HEARTBEAT_RESPONSE)
     {
-        this->error.code = motError_i2cConnnectionFailed;
+        this->error.code = motError_i2cConnectionFailed;
     }
 
     switch(this->driveState)
@@ -125,7 +180,6 @@ void HAL_MOT11::tick()
         break;
 
     }
-    
 }
 //Nur Stop senden, danach aber wierder letzte Parameter laden, bei Start diese senden
 void HAL_MOT11::stop()
@@ -159,9 +213,37 @@ void HAL_MOT11::setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t
     this->motParams.speed     = SPEED;   
 }
 
-e_motError_t HAL_MOT11::getError()
+e_APP_ERROR_t HAL_MOT11::getError()
 {
-    return this->error.code;
+    e_APP_ERROR_t tempError = APP_ERROR__NO_ERROR;
+
+    switch(this->error.code)
+    {
+        case motError_noError:
+            tempError = APP_ERROR__NO_ERROR;
+        break;
+
+        case motError_i2cConnectionFailed:
+            tempError = APP_ERROR__MOT11_COMMUNICATION_FAILED;
+        break;
+
+        case motError_overcurrent:
+            tempError = APP_ERROR__MOT11_OVER_CURRENT;
+        break;
+
+        case motError_overtemperature:
+            tempError = APP_ERROR__MOT11_OVER_TEMPERATURE;
+        break;
+
+        case motError_OEN_disabled: //kein Error für MCU an sich
+            tempError = APP_ERROR__NO_ERROR;
+        break;
+
+        case motError_notTeached:
+            tempError = APP_ERROR__MOT11_CURRENT_NOT_TEACHED;
+        break;
+    }
+    return tempError;
 }
 
 float HAL_MOT11::getCurrent()
@@ -210,7 +292,7 @@ Serial.println("kein ACK empfangen");
 
 void HAL_MOT11::sendHeartbeat()
 {
-    Wire.requestFrom(this->i2c_address, sizeof(u_mot11_i2c_payload_t));
+    Wire.requestFrom(this->deviceAddress, sizeof(u_mot11_i2c_payload_t));
     
     if(this->waitForHeartbeat())
     {
@@ -232,7 +314,7 @@ Serial.println("kein Heartbeat empfangen");
 
 void HAL_MOT11::sendFrame(const u_mot11_i2c_payload_t COMMAND)
 {
-    Wire.beginTransmission(this->i2c_address);   
+    Wire.beginTransmission(this->deviceAddress);   
 
     for(uint8_t bytes; bytes < sizeof(u_mot11_i2c_payload_t); bytes++)
     {
@@ -247,7 +329,7 @@ bool HAL_MOT11::waitForACK()
 {
     uint8_t inByte      = NAK;
     
-    Wire.requestFrom(this->i2c_address, 1); 
+    Wire.requestFrom(this->deviceAddress, 1); 
 
     this->to_I2C.reset();  
 
@@ -285,7 +367,7 @@ bool HAL_MOT11::waitForHeartbeat()
             }   
         } 
         //Fast exit wenn Kommando empfangen  
-        if(inCommand.extract.key == mot11_i2c_key__heartbeat)
+        if(inCommand.extract.key == mot11_i2c_key__getDriveState)
         {
             break;
         }     
@@ -306,5 +388,5 @@ Serial.print("ERROR: ");      Serial.println(inCommand.extract.error);
 Serial.print("CURRENT: ");    Serial.println(inCommand.extract.current);
 Serial.println("");
 #endif
-    return (bool)(inCommand.extract.key == mot11_i2c_key__heartbeat);
+    return (bool)(inCommand.extract.key == mot11_i2c_key__getDriveState);
 }

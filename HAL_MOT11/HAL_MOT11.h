@@ -4,9 +4,10 @@
 #include "Arduino.h"
 #include "IOM_base.h"
 #include "Wire.h"
-#include "I2CScanner.h"
+#include "I2C_check.h"
+#include "APP_MCU11.h"
 
-#define DEBUG_HAL_MOT11 
+//#define DEBUG_HAL_MOT11 
 
 //I2C Commands
 #define ACK 0x06
@@ -27,12 +28,14 @@ typedef enum
 //Error out
 typedef enum
 {
-    motError_noError,
-    motError_overcurrent,
-    motError_notTeached, 
-    motError_i2cConnnectionFailed,
+  motError_noError,
+  motError_overcurrent,
+  motError_overtemperature,
+  motError_notTeached, 
+  motError_OEN_disabled,
+  motError_i2cConnectionFailed,
 
-    motError_count,
+  motError_count,
 }e_motError_t;
 
 typedef enum
@@ -50,7 +53,7 @@ typedef enum
 {
   //setter 
   mot11_i2c_key__driveCommand,
-  mot11_i2c_key__heartbeat,
+  mot11_i2c_key__getDriveState,
 
   mot11_i2c_key__count,
 }e_mot11_i2c_key_t;
@@ -79,8 +82,8 @@ class HAL_MOT11
     //Init
     HAL_MOT11   ();
     HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS);
-    bool begin  ();
-    bool begin  (e_MOT11_ADDRESS_t ADDRESS);
+    e_APP_ERROR_t begin  ();
+    e_APP_ERROR_t begin  (e_MOT11_ADDRESS_t ADDRESS);
     
     //Routine aufruf
     void tick();
@@ -94,13 +97,14 @@ class HAL_MOT11
     void setDirectionAndSpeed (const e_movement_t DIRECTION, const uint8_t SPEED);
     
     //Getter 
-    e_motError_t    getError();
+    e_APP_ERROR_t   getError();
     float           getCurrent();
     e_movement_t    getDirection();
     uint8_t         getSpeed();
 
 
     private:
+    //Applikation
     e_driveState_t driveState;
 
     //I2C Kommunikation
@@ -110,11 +114,11 @@ class HAL_MOT11
     bool waitForACK         ();
     bool waitForHeartbeat   ();
 
-    e_MOT11_ADDRESS_t   i2c_address;  
+    e_MOT11_ADDRESS_t   deviceAddress;  
     bool                f_thereIsANewDriveCommand;
 
-    Timeout to_Heartbeat; //ping timer
-    Timeout to_I2C;       //max Wartezeit auf Antwort
+    Timeout to_parameterPoll; //ping timer
+    Timeout to_I2C;           //max Wartezeit auf Antwort
 
     //Motor Parameter
     struct 
@@ -130,7 +134,9 @@ class HAL_MOT11
       }old;    
 
     }motParams;
-        
+    
+    //Safety
+    I2C_check   selfCheck;
     struct 
     {
       struct 
