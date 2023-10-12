@@ -4,8 +4,8 @@
 #include "Arduino.h"
 #include "PCF8574.h"
 #include "IOM_base.h"
-#include "I2CScanner.h"
 #include "APP_MCU11.h"
+#include "I2C_check.h"
 
 //#define DEBUG_HAL_DIN11
 

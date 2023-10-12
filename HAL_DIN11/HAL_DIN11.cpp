@@ -106,7 +106,7 @@ e_APP_ERROR_t HAL_DIN11::begin()
     
     //Debug Error ausgabe
     Serial.println("##############################");  
-    Serial.print("setup DIN11 CARD ");
+    Serial.print("setup DIN11 ");
     switch(this->deviceAdress)
     {
         case DIN11_CARD_1:
@@ -125,22 +125,15 @@ e_APP_ERROR_t HAL_DIN11::begin()
     Serial.println("/4");
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/8");
  
-    //I2C Initialisieren
-    PCF.setAddress(this->deviceAdress);   
-    PCF.begin(); 
-    Serial.print("I2C address: 0x"); Serial.println(this->deviceAdress, HEX); 
-    Wire.beginTransmission(this->deviceAdress);
-    const bool DEVICE_FOUND = (bool)(Wire.endTransmission() == 0);
-    	   
-    if(DEVICE_FOUND)
+    I2C_check scan;
+    if(scan.checkI2CConnection(this->deviceAdress))
     {
         Serial.println("I2C connection ok!");
     }
     else
     {
         Serial.println("I2C connection failed!");
-        error = APP_ERROR__DIN11_COMMUNICATION_FAILED;
-        
+        error = APP_ERROR__DIN11_COMMUNICATION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
