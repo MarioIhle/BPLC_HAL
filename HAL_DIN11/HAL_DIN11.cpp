@@ -137,8 +137,6 @@ e_APP_ERROR_t HAL_DIN11::begin()
     }
 
     //Applikationsparameter initialisieren
-          
-
     if(error == APP_ERROR__NO_ERROR)
     {   
         PCF.setAddress(this->deviceAddress);   

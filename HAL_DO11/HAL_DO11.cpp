@@ -136,7 +136,7 @@ e_APP_ERROR_t HAL_DO11::begin()
     else
     {
         Serial.println("I2C connection failed!");
-        error = APP_ERROR__DIN11_COMMUNICATION_FAILED;        
+        error = APP_ERROR__DO11_COMMUNICATION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
@@ -242,7 +242,7 @@ e_APP_ERROR_t HAL_DO11::getError()
     e_APP_ERROR_t tempError = APP_ERROR__NO_ERROR;
     if(this->f_error)
     {
-        tempError = APP_ERROR__DIN11_COMMUNICATION_FAILED;
+        tempError = APP_ERROR__DO11_COMMUNICATION_FAILED;
     }
     return tempError;
 }
