@@ -8,7 +8,7 @@ HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1)
     this->p_REL[0] = P_REL1;    
     this->usedPortCount = 1;
 
-    this->deviceAdress  = ADDRESS;
+    this->deviceAddress  = ADDRESS;
 }
 
 HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_REL2)
@@ -17,7 +17,7 @@ HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_
     this->p_REL[1] = P_REL2;    
     this->usedPortCount = 2;
 
-    this->deviceAdress  = ADDRESS;
+    this->deviceAddress  = ADDRESS;
 }
 
 HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_REL2, Output* P_REL3)
@@ -27,17 +27,17 @@ HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_
     this->p_REL[2] = P_REL3;
     this->usedPortCount = 3;
 
-    this->deviceAdress  = ADDRESS;    
+    this->deviceAddress  = ADDRESS;    
 }
 
 void HAL_REL11::begin()
 {
-    this->PCF.setAddress(this->deviceAdress);       //Tatsächliche Adresse schreiben
+    this->PCF.setAddress(this->deviceAddress);       //Tatsächliche Adresse schreiben
     this->PCF.begin();                              //Kommunikation hetstellen
     this->PCF.write8(false);                        //Alle Ports LOW
 
 #ifdef DEBUG_HAL_REL11 
-Serial.print("HAL_REL11.begin with I2C Address"); Serial.println(this->deviceAdress);
+Serial.print("HAL_REL11.begin with I2C Address"); Serial.println(this->deviceAddress);
 Serial.print("portCount: "); Serial.println(this->usedPortCount);
 #endif
 }

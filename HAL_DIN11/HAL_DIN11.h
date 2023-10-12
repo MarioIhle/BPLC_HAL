@@ -74,7 +74,7 @@ class HAL_DIN11
 
     //Settings
     PCF8574     PCF;
-    int         deviceAdress;
+    int         deviceAddress;
     int         usedPortCount;
 
     DigitalInput* p_ports   [DI_PORT_COUNT]; 

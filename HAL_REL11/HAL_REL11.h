@@ -44,7 +44,7 @@ class HAL_REL11 {
     const uint8_t   pins    [REL_PORT_COUNT] = {REL_PORT_1, REL_PORT_2, REL_PORT_3};  
 
     PCF8574 PCF;
-    int deviceAdress;
+    int deviceAddress;
     int usedPortCount; 
 };
 

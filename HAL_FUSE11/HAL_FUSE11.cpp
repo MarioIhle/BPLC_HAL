@@ -8,7 +8,7 @@ HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1)
     this->p_DO[OUT_PORT_1]  = P_DO1;
     this->usedPortCount     = 1;
 
-    this->deviceAdress  = ADDRESS;
+    this->deviceAddress  = ADDRESS;
 }
 
 HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2)
@@ -17,7 +17,7 @@ HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* 
     this->p_DO[OUT_PORT_2]  = P_DO2;
     this->usedPortCount     = 2;
 
-    this->deviceAdress  = ADDRESS;
+    this->deviceAddress  = ADDRESS;
 }
 
 HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3)
@@ -27,7 +27,7 @@ HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* 
     this->p_DO[OUT_PORT_3]  = P_DO3;  
     this->usedPortCount     = 3;
 
-    this->deviceAdress  = ADDRESS;
+    this->deviceAddress  = ADDRESS;
 }
 
 HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4)
@@ -38,19 +38,19 @@ HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* 
     this->p_DO[OUT_PORT_4]  = P_DO4;
     this->usedPortCount     = 4;
 
-    this->deviceAdress  = ADDRESS;
+    this->deviceAddress  = ADDRESS;
 }
 
 void HAL_FUSE11::begin()
 {
-    this->PCF.setAddress(this->deviceAdress);       //Tatsächliche Adresse schreiben
+    this->PCF.setAddress(this->deviceAddress);       //Tatsächliche Adresse schreiben
     this->PCF.begin();                              //Kommunikation hetstellen
     this->PCF.write8(true);                        //Alle Ports LOW
 
     this->to_fuseCheck.setInterval(2500);
     
 #ifdef DEBUG_HAL_FUSE11 
-Serial.print("HAL_REL11.begin with I2C Address"); Serial.println(this->deviceAdress);
+Serial.print("HAL_REL11.begin with I2C Address"); Serial.println(this->deviceAddress);
 Serial.print("portCount: "); Serial.println(this->usedPortCount);
 #endif
 }

@@ -103,14 +103,14 @@ HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2,
     this->usedPortCount = 8;
 }   
 
-void HAL_DO11::begin()
+e_APP_ERROR_t HAL_DO11::begin()
 {
     e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
     
     //Debug Error ausgabe
     Serial.println("##############################");  
     Serial.print("setup DO11 ");
-    switch(this->deviceAdress)
+    switch(this->deviceAddress)
     {
         case DO11_CARD_1:
             Serial.print("1");
@@ -128,7 +128,7 @@ void HAL_DO11::begin()
     Serial.println("/4");
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/8");
  
-    this->selfCheck.begin(this->deviceAdress);
+    this->selfCheck.begin(this->deviceAddress);
     if(this->selfCheck.checkI2CConnection())
     {
         Serial.println("I2C connection ok!");
@@ -140,18 +140,16 @@ void HAL_DO11::begin()
     }
 
     //Applikationsparameter initialisieren
-    this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;        
-
-    if(error != APP_ERROR__NO_ERROR)
+    if(error == APP_ERROR__NO_ERROR)
     {        
-        this->f_error = true;
-    }
-    else
-    {
         PCA.setI2CAddress(this->deviceAddress);
         PCA.init();
         PCA.setPWMFrequency();
         PCA.setAllChannelsPWM(0);
+    }
+    else
+    {
+        this->f_error = true;
     }
 
     return error;
@@ -159,7 +157,7 @@ void HAL_DO11::begin()
 
 void HAL_DO11::tick()
 {
-    this->f_error = this->selfCheck.requestHeartbeat();
+    this->f_error = !this->selfCheck.requestHeartbeat();
 
     if(!this->f_error)
     {

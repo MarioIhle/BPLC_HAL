@@ -51,7 +51,7 @@ class HAL_AIN11
  
     //Settings
     Adafruit_ADS1115    ADC;
-    int                 deviceAdress;
+    int                 deviceAddress;
     int                 usedPortCount;
     Timeout             to_read;
  };

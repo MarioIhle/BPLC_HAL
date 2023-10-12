@@ -7,7 +7,7 @@ HAL_AIN11::HAL_AIN11()
 
 HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1)
 {    
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[AI_PORT_1] = P_PORT_1; 
     this->usedPortCount = 1;
@@ -15,7 +15,7 @@ HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1)
          
 HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2)
 {   
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[AI_PORT_1] = P_PORT_1; 
     this->p_ports[AI_PORT_2] = P_PORT_2;
@@ -24,7 +24,7 @@ HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, Ana
 
 HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3)
 {    
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[AI_PORT_1] = P_PORT_1;
     this->p_ports[AI_PORT_2] = P_PORT_2;
@@ -34,7 +34,7 @@ HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, Ana
 
 HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3, AnalogInput* P_PORT_4)
 {    
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[AI_PORT_1] = P_PORT_1;
     this->p_ports[AI_PORT_2] = P_PORT_2;
@@ -58,14 +58,14 @@ void HAL_AIN11::begin(const uint16_t READ_INTERVAL)
   // ads.setGain(GAIN_EIGHT);           // 8x gain   +/- 0.512V  1 bit = 0.25mV   0.015625mV
   // ads.setGain(GAIN_SIXTEEN);         // 16x gain  +/- 0.256V  1 bit = 0.125mV  0.0078125mV
 
-  this->ADC.begin(this->deviceAdress);
+  this->ADC.begin(this->deviceAddress);
   this->to_read.setInterval(READ_INTERVAL);
 }
 
 void HAL_AIN11::tick()
 {   
 #ifdef DEBUG_HAL_AIN11
-Serial.print("AIN11 "); Serial.print(this->deviceAdress); Serial.print(" VALUES:");
+Serial.print("AIN11 "); Serial.print(this->deviceAddress); Serial.print(" VALUES:");
 #endif
     if(this->to_read.check())
     {

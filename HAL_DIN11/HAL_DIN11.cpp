@@ -10,7 +10,7 @@ HAL_DIN11::HAL_DIN11()
 
 HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1)
 {    
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[DI_PORT_1] = P_PORT_1; 
     this->usedPortCount = 1;
@@ -18,7 +18,7 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1)
          
 HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2)
 {   
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[DI_PORT_1] = P_PORT_1; 
     this->p_ports[DI_PORT_2] = P_PORT_2;
@@ -27,7 +27,7 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Di
 
 HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3)
 {    
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[DI_PORT_1] = P_PORT_1;
     this->p_ports[DI_PORT_2] = P_PORT_2;
@@ -37,7 +37,7 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Di
 
 HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4)
 {    
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[DI_PORT_1] = P_PORT_1;
     this->p_ports[DI_PORT_2] = P_PORT_2;
@@ -48,7 +48,7 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Di
 
 HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5)
 {    
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[DI_PORT_1] = P_PORT_1;
     this->p_ports[DI_PORT_2] = P_PORT_2;
@@ -60,7 +60,7 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Di
 
 HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6)
 {    
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[DI_PORT_1] = P_PORT_1;
     this->p_ports[DI_PORT_2] = P_PORT_2;
@@ -73,7 +73,7 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Di
 
 HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7)
 {    
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[DI_PORT_1] = P_PORT_1;
     this->p_ports[DI_PORT_2] = P_PORT_2;
@@ -87,7 +87,7 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, Di
 
 HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1 = nullptr, DigitalInput* P_PORT_2 = nullptr, DigitalInput* P_PORT_3 = nullptr, DigitalInput* P_PORT_4 = nullptr, DigitalInput* P_PORT_5 = nullptr, DigitalInput* P_PORT_6 = nullptr, DigitalInput* P_PORT_7 = nullptr, DigitalInput* P_PORT_8 = nullptr)
 {  
-    this->deviceAdress = ADDRESS;
+    this->deviceAddress = ADDRESS;
 
     this->p_ports[DI_PORT_1] = P_PORT_1;
     this->p_ports[DI_PORT_2] = P_PORT_2;
@@ -107,7 +107,7 @@ e_APP_ERROR_t HAL_DIN11::begin()
     //Debug Error ausgabe
     Serial.println("##############################");  
     Serial.print("setup DIN11 ");
-    switch(this->deviceAdress)
+    switch(this->deviceAddress)
     {
         case DIN11_CARD_1:
             Serial.print("1");
@@ -125,7 +125,7 @@ e_APP_ERROR_t HAL_DIN11::begin()
     Serial.println("/4");
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/8");
  
-    this->selfCheck.begin(this->deviceAdress);
+    this->selfCheck.begin(this->deviceAddress);
     if(this->selfCheck.checkI2CConnection())
     {
         Serial.println("I2C connection ok!");
@@ -137,16 +137,19 @@ e_APP_ERROR_t HAL_DIN11::begin()
     }
 
     //Applikationsparameter initialisieren
-    this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;        
+          
 
-    if(error != APP_ERROR__NO_ERROR)
-    {        
-        this->f_error = true;
+    if(error == APP_ERROR__NO_ERROR)
+    {   
+        PCF.setAddress(this->deviceAddress);   
+        PCF.begin();    
+
+        this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;        
+        this->f_error = false;  
     }
     else
     {
-        this->PCF.begin();
-        setAddress(const uint8_t deviceAddress);
+        this->f_error = true;                      
     }
 
     return error;
@@ -155,14 +158,14 @@ e_APP_ERROR_t HAL_DIN11::begin()
 void HAL_DIN11::tick()
 {   
     //I2C Verbindung zyklisch prüfen
-    this->f_error = this->selfCheck.requestHeartbeat();
+    this->f_error = !this->selfCheck.requestHeartbeat();
 
     if(!this->f_error)
     {    
         if(this->f_somePinOfsomePinCardChanged > 0)
         {
             #ifdef DEBUG_HAL_DIN11
-            Serial.print("DIN11 "); Serial.print(this->deviceAdress); Serial.println("STATES:");
+            Serial.print("DIN11 "); Serial.print(this->deviceAddress); Serial.println("STATES:");
             #endif
 
             for(uint8_t PORT = 0; PORT < this->usedPortCount; PORT++)
