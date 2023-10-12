@@ -206,6 +206,31 @@ void HAL_DO11::tick()
                             PCA.setChannelPWM(this->pins[PORT][HS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
                         }
                     break;
+                    case OUTPUTTYPE__PUSH_PULL_INVERT:                            
+                        //Um überschneidung bei umschalten der PWM zu vermeiden, sonst FETS = rauch :C
+                        PCA.setChannelOff(this->pins[PORT][HS_MOSFET]); //Spannungsführend zuerst aus
+                        PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);                                       
+                        delay(1);       
+                                                
+                        //FULL OFF
+                        if(TARGET_PWM_VALUE < DEAD_TIME)
+                        {
+                            PCA.setChannelOn(this->pins[PORT][HS_MOSFET]);
+                            //PCA.setChannelOff(this->pins[PORT][HS_MOSFET]);    
+                        }
+                        //FULL ON
+                        else if(TARGET_PWM_VALUE > 4096 - DEAD_TIME)
+                        {
+                            //PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);
+                            PCA.setChannelOn(this->pins[PORT][LS_MOSFET]);    
+                        }
+                        //PWM
+                        else
+                        {                        
+                            PCA.setChannelPWM(this->pins[PORT][HS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
+                            PCA.setChannelPWM(this->pins[PORT][LS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
+                        }
+                    break;
                 }  
             }        
         }   

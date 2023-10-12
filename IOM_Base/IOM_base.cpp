@@ -114,8 +114,6 @@ Output::Output()
 	this->setting.outputType 	= OUTPUTTYPE__PUSH;
 	this->setting.onValue 		= 255;
     this->mode 					= OUTPUTMODE__OFF;
-
-	this->actualValue.previousValue = 1;	//Damit initial der Wert von der jeweiligen HAL abgeholt wird (prevoiours != now)
 }
 
 Output::Output(const e_outputType_t OUTPUT_TYPE)
@@ -123,8 +121,6 @@ Output::Output(const e_outputType_t OUTPUT_TYPE)
 	this->setting.outputType 	= OUTPUT_TYPE;
 	this->setting.onValue 		= 255;
     this->mode 					= OUTPUTMODE__OFF;
-
-	this->actualValue.previousValue = 1;	//Damit initial der Wert von der jeweiligen HAL abgeholt wird (prevoiours != now)
 }
 
 Output::Output(const uint8_t ON_VALUE)
@@ -132,8 +128,6 @@ Output::Output(const uint8_t ON_VALUE)
 	this->setting.outputType 	= OUTPUTTYPE__PUSH;
 	this->setting.onValue 		= ON_VALUE;
     this->mode 					= OUTPUTMODE__OFF;
-
-	this->actualValue.previousValue = 1;	//Damit initial der Wert von der jeweiligen HAL abgeholt wird (prevoiours != now)
 }
 
 Output::Output(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
@@ -141,8 +135,6 @@ Output::Output(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
 	this->setting.outputType 	= OUTPUT_TYPE;
 	this->setting.onValue 		= ON_VALUE;
     this->mode 					= OUTPUTMODE__OFF;
-
-	this->actualValue.previousValue = 1;	//Damit initial der Wert von der jeweiligen HAL abgeholt wird (prevoiours != now)
 }
 
 void Output::begin(const uint8_t ON_VALUE)
@@ -150,8 +142,6 @@ void Output::begin(const uint8_t ON_VALUE)
 	this->setting.outputType 	= OUTPUTTYPE__PUSH;
 	this->setting.onValue 		= ON_VALUE;
     this->mode 					= OUTPUTMODE__OFF;
-
-	this->actualValue.previousValue = 1;	//Damit initial der Wert von der jeweiligen HAL abgeholt wird (prevoiours != now)
 }
 
 void Output::begin(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
@@ -159,8 +149,6 @@ void Output::begin(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
 	this->setting.outputType 	= OUTPUT_TYPE;
 	this->setting.onValue 		= ON_VALUE;
     this->mode 					= OUTPUTMODE__OFF;
-
-	this->actualValue.previousValue = 1;	//Damit initial der Wert von der jeweiligen HAL abgeholt wird (prevoiours != now)
 }
 
 void Output::blink(const uint8_t BLINKS, const int BLINK_INTERVAL)
