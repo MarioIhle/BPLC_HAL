@@ -126,7 +126,7 @@ e_APP_ERROR_t HAL_DIN11::begin()
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/8");
  
     this->selfCheck.begin(this->deviceAdress);
-    if(this->selfCheck.checkI2CConnection(this->deviceAdress))
+    if(this->selfCheck.checkI2CConnection())
     {
         Serial.println("I2C connection ok!");
     }
@@ -143,6 +143,11 @@ e_APP_ERROR_t HAL_DIN11::begin()
     {        
         this->f_error = true;
     }
+    else
+    {
+        this->PCF.begin();
+        setAddress(const uint8_t deviceAddress);
+    }
 
     return error;
 }
@@ -150,7 +155,7 @@ e_APP_ERROR_t HAL_DIN11::begin()
 void HAL_DIN11::tick()
 {   
     //I2C Verbindung zyklisch prüfen
-    this->f_error = this->selfCheck.heartBeat();
+    this->f_error = this->selfCheck.requestHeartbeat();
 
     if(!this->f_error)
     {    

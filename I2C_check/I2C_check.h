@@ -13,14 +13,12 @@ class I2C_check
   I2C_check();
   void begin(const uint8_t ADDRESS);
 
-  bool heartBeat();
-  bool checkI2CConnection(const uint8_t ADDRESS);
-
-  bool getError();
+  bool requestHeartbeat();
+  bool checkI2CConnection();
 
   private:
   //Applikation
-  Timeout to_i2cCheck;
+  Timeout to_heartbeat;
   uint8_t errorCount;
   uint8_t errorCountLimit;
   bool    f_error;

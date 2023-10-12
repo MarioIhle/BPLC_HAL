@@ -69,7 +69,7 @@ class HAL_DIN11
     int         f_somePinOfsomePinCardChanged;
 
     //Safety
-    I2C_check selfCheck;
+    I2C_check   selfCheck;
     bool        f_error;  
 
     //Settings

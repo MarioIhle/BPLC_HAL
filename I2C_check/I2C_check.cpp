@@ -3,15 +3,15 @@
 I2C_check::I2C_check()
 {}
 
-I2C_check::begin(const uint8_t ADDRESS)
+void I2C_check::begin(const uint8_t ADDRESS)
 {
     this->deviceAddress = ADDRESS;
-    this->to_to_i2cCheck.setInterval(5000);
+    this->to_heartbeat.setInterval(5000);
 }
 
-bool I2C_check::checkI2CConnection(const uint8_t ADDRESS)
+bool I2C_check::checkI2CConnection()
 {
-    Wire.beginTransmission(ADDRESS);
+    Wire.beginTransmission(this->deviceAddress);
     const bool DEVICE_FOUND = (bool)(Wire.endTransmission() == 0);
     
     #ifdef DEBUG_I2C_Check
@@ -30,14 +30,14 @@ bool I2C_check::checkI2CConnection(const uint8_t ADDRESS)
     return DEVICE_FOUND;
 }
 
-bool I2C_check::heartBeat()
+bool I2C_check::requestHeartbeat()
 {
     bool heartBeatReceived = true;
 
-    if(this->to_i2cCheck.check())
+    if(this->to_heartbeat.check())
     {
-        heartBeatReceived = checkI2CConnection(this->deviceAddress);
-        this->to_i2cCheck.reset();
+        heartBeatReceived = checkI2CConnection();
+        this->to_heartbeat.reset();
     }
     return heartBeatReceived;
 }
