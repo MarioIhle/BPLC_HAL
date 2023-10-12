@@ -125,8 +125,8 @@ e_APP_ERROR_t HAL_DIN11::begin()
     Serial.println("/4");
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/8");
  
-    I2C_check scan;
-    if(scan.checkI2CConnection(this->deviceAdress))
+    this->selfCheck.begin(this->deviceAdress);
+    if(this->selfCheck.checkI2CConnection(this->deviceAdress))
     {
         Serial.println("I2C connection ok!");
     }
@@ -138,6 +138,7 @@ e_APP_ERROR_t HAL_DIN11::begin()
 
     //Applikationsparameter initialisieren
     this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;        
+
     if(error != APP_ERROR__NO_ERROR)
     {        
         this->f_error = true;
@@ -148,7 +149,10 @@ e_APP_ERROR_t HAL_DIN11::begin()
 
 void HAL_DIN11::tick()
 {   
-    if(!f_error)
+    //I2C Verbindung zyklisch prüfen
+    this->f_error = this->selfCheck.heartBeat();
+
+    if(!this->f_error)
     {    
         if(this->f_somePinOfsomePinCardChanged > 0)
         {
@@ -177,4 +181,14 @@ void HAL_DIN11::tick()
 void HAL_DIN11::somePinOfsomeDinCardChanged()
 {
     this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;
+}
+
+e_APP_ERROR_t HAL_DIN11::getError()
+{
+    e_APP_ERROR_t tempError = APP_ERROR__NO_ERROR;
+    if(this->f_error)
+    {
+        tempError = APP_ERROR__DIN11_COMMUNICATION_FAILED;
+    }
+    return tempError;
 }
