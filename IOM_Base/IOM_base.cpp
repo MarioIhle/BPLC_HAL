@@ -153,20 +153,42 @@ void Output::begin(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
 
 void Output::blink(const uint8_t BLINKS, const int BLINK_INTERVAL)
 {
-	this->blinkParameter.blinks_requested = BLINKS;
-    this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
-    this->blinkParameter.count = 0; 
+	const bool ALREADY_IN_BLINK_MODE 		= (bool)(this->mode == OUTPUTMODE__BLINK);
+	const bool PARAMETERS_DID_NOT_CHANGED 	= (bool)((this->blinkParameter.blinks_requested == BLINKS) 
+												&& (this->blinkParameter.to_blink.getInterval() == BLINK_INTERVAL));
 
-    this->mode = OUTPUTMODE__BLINK;
+	if(ALREADY_IN_BLINK_MODE && PARAMETERS_DID_NOT_CHANGED)
+	{
+		//nichts ändern, sonst wird Blinktakt immer neu gestartet
+	}
+	else
+	{
+		this->blinkParameter.blinks_requested = BLINKS;
+		this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
+		this->blinkParameter.count = 0;		
+	}
+	this->mode = OUTPUTMODE__BLINK;	
 }
 
 void Output::blinkWithBreak(const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME)
 {
-	this->blinkParameter.blinks_requested = BLINKS;
-    this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
-    this->blinkParameter.to_break.setInterval(BREAK_TIME);
-    this->blinkParameter.count = 0; 
+	const bool ALREADY_IN_BLINK__WITH_BRAKE_MODE 	= (bool)(this->mode == OUTPUTMODE__BLINK_WITH_BREAK);
+	const bool PARAMETERS_DID_NOT_CHANGED 			= (bool)((this->blinkParameter.blinks_requested == BLINKS) 
+															&& (this->blinkParameter.to_blink.getInterval() == BLINK_INTERVAL)
+															&& (this->blinkParameter.to_break.getInterval() == BREAK_TIME));
 
+	if(ALREADY_IN_BLINK__WITH_BRAKE_MODE && PARAMETERS_DID_NOT_CHANGED)
+	{
+		//nichts ändern, sonst wird Blinktakt immer neu gestartet
+	}
+	else
+	{
+		this->blinkParameter.blinks_requested = BLINKS;
+		this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
+		this->blinkParameter.to_break.setInterval(BREAK_TIME);
+		this->blinkParameter.count = 0; 
+	}
+	
     this->mode = OUTPUTMODE__BLINK_WITH_BREAK;
 }
 
