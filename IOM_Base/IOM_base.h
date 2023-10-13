@@ -123,8 +123,8 @@ class Output {
 	void begin (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
     
     //Setter
-	void blink		    (const uint8_t BLINKS, const int BLINK_INTERVAL);		                //Blinkt für angeforderte Anzahl und Interval
-    void blinkWithBreak (const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
+	void blink		    (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL);		                //Blinkt für angeforderte Anzahl und Interval
+    void blinkWithBreak (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL, const unsigned long BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
 	void set			();		//Output ON
 	void reset		    ();		//Output OFF
     void setValue       (const uint8_t VALUE);

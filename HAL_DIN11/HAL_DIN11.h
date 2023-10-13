@@ -4,7 +4,8 @@
 #include "Arduino.h"
 #include "PCF8574.h"
 #include "IOM_base.h"
-#include "I2CScanner.h"
+#include "APP_MCU11.h"
+#include "I2C_check.h"
 
 //#define DEBUG_HAL_DIN11
 
@@ -57,19 +58,26 @@ class HAL_DIN11
     HAL_DIN11    (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7);
     HAL_DIN11    (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7, DigitalInput* P_PORT_8);
 
-    bool    begin();
-    void    tick        ();    
-    void    somePinOfsomeDinCardChanged();
+    e_BPLC_ERROR_t   begin();
+
+    void tick ();    
+    void somePinOfsomeDinCardChanged();
+    e_BPLC_ERROR_t getError();    
 
     private: 
-    DigitalInput*   p_ports [DI_PORT_COUNT];    
-    const uint8_t   PINS    [DI_PORT_COUNT] = {DI_PORT_4, DI_PORT_3, DI_PORT_2, DI_PORT_1, DI_PORT_5, DI_PORT_6, DI_PORT_7, DI_PORT_8};         
-
+    //Applikation  
     int         f_somePinOfsomePinCardChanged;
+
+    //Safety
+    I2C_check   selfCheck;
+    bool        f_error;  
 
     //Settings
     PCF8574     PCF;
-    int         deviceAdress;
+    int         deviceAddress;
     int         usedPortCount;
+
+    DigitalInput* p_ports   [DI_PORT_COUNT]; 
+    const uint8_t PINS      [DI_PORT_COUNT] = {DI_PORT_4, DI_PORT_3, DI_PORT_2, DI_PORT_1, DI_PORT_5, DI_PORT_6, DI_PORT_7, DI_PORT_8};
  };
 #endif

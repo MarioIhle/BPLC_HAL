@@ -7,9 +7,9 @@ const String LAST_TEXT  = "LAST";
 
 String HEADLINE_TEXT [menu_count][10] =
 {
-  {{"MAIN MENU"}, {"MODE"}, {"ERRORS"}, {"vDIP"}, {"SETUP"}, {LOCK}, {LAST_TEXT}},
-  {{"MODE"}, {EXIT}, {LAST_TEXT}},
-  {{"ERROR"},{EXIT}, {LAST_TEXT}},
+  {{"MODE"}, {"EDIT MODE"}, {"BPLC ERROR"}, {"vDIP"}, {"SETUP"}, {LOCK}, {LAST_TEXT}},
+  {{"EDIT MODE"}, {EXIT}, {LAST_TEXT}},
+  {{"BPLC ERROR"}, {EXIT}, {LAST_TEXT}},
   {{"DIP1"}, {"DIP2"}, {"DIP3"}, {"DIP4"}, {"DIP5"}, {"DIP6"}, {"DIP7"}, {"DIP8"}, {EXIT}, {LAST_TEXT}},
   {{"SETTING1"}, {"SETTING2"}, {EXIT}, {LAST_TEXT}}
 };
@@ -102,7 +102,7 @@ void OLED_MCU11::tick()
     break;
 
     case menu_errorCodes:
-      this->showErrorCodes();
+      this->showHardwareErrorCode();
     break;
 
     case menu_settings:
@@ -273,6 +273,10 @@ uint8_t OLED_MCU11::getMenuText(const uint8_t LAST_AVAILABLE_TEXT, const uint8_t
 
 //---------------------------------------------------
 //MENU AUSGABE
+//Texte 2. Zeile
+String DEVICE_MODE[]  = {{"stop"}, {"start"}, {"safestate"}, {"running C1"}, {"running C2"}, {"running C3"}};
+String BPLC_ERROR[]   = {{"no error"}, {"runntime too long"}, {"oled i2c failed"}, {"DIN11 i2c failed"}, {"AIN11 i2c failed"}, {"REL11 i2c failed"}, {"DO11 i2c failed"},{"MOT11 i2c failed"},{"FUSE11 i2c failed"},{"NANO11 i2c failed"},{"MOT11 overcurrent"},{"MOT11 overtemperature"},{"MOT11 currnet not teached"}};
+
 void OLED_MCU11::showScreenSaver()
 { 
   //Nichts anzeigen, vielleicht ein Logo?  
@@ -280,13 +284,21 @@ void OLED_MCU11::showScreenSaver()
 
 void OLED_MCU11::showMainMenu()
 {
+  if(this->menu.activeText == 0)
+  {
+    this->showMenuText(DEVICE_MODE[this->paramValue], 1);
+  }  
+  else
+  {
+    this->showMenuText("", 1);
+  }
 }
 
-void OLED_MCU11::showErrorCodes()
+void OLED_MCU11::showHardwareErrorCode()
 {
   if(this->menu.activeText < 1)
   {
-    this->showMenuText(String(this->paramValue, DEC), 1);
+    this->showMenuText(BPLC_ERROR[this->paramValue], 1);
   }
 }
 
@@ -303,7 +315,6 @@ void OLED_MCU11::showDipswitches()
   }
 }
 
-String DEVICE_MODE[] = {{"stop"}, {"start"}, {"safe"}, {"running C1"}, {"running C2"}, {"running C3"}};
 void OLED_MCU11::showDeviceMode()
 {
   this->showMenuText(DEVICE_MODE[this->paramValue], 1);

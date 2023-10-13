@@ -3,6 +3,8 @@
 #include "Arduino.h"
 #include "IOM_Base.h"
 #include "PCF8574.h"
+#include "APP_MCU11.h"
+#include "I2C_check.h"
 
 //#define DEBUG_HAL_REL11 
 
@@ -36,15 +38,24 @@ class HAL_REL11 {
     HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_REL2);
     HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_REL2, Output* P_REL3);
 
-    void        begin();
-    void        tick();
+    e_BPLC_ERROR_t begin();
+    void          tick();
     
+    e_BPLC_ERROR_t getError();
+
     private:    
+    //Applikation
+
+    //Safety
+    I2C_check   selfCheck;
+    bool        f_error; 
+
+    //Settings
     Output*         p_REL   [REL_PORT_COUNT];
     const uint8_t   pins    [REL_PORT_COUNT] = {REL_PORT_1, REL_PORT_2, REL_PORT_3};  
-
+    
     PCF8574 PCF;
-    int deviceAdress;
+    int deviceAddress;
     int usedPortCount; 
 };
 

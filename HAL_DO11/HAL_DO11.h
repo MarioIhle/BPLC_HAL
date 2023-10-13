@@ -4,6 +4,8 @@
 #include "SpecialFunctions.h"
 #include "IOM_Base.h"
 #include "PCA9685.h"
+#include "APP_MCU11.h"
+#include "I2C_check.h"
 
 typedef enum
 {
@@ -50,16 +52,24 @@ class HAL_DO11 {
     HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7);
     HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7, Output* P_DO8);
     
-    void begin();
+    e_BPLC_ERROR_t begin();
     void tick();
+
+    e_BPLC_ERROR_t getError();
     
     private:
-    PCA9685 PCA;
+    //Applikation
 
+    //Safety
+    I2C_check   selfCheck;
+    bool        f_error;  
+
+    //Settings
     Output*         p_DO    [DO_PORT_COUNT];
     const uint8_t   pins    [DO_PORT_COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}
-                                            //  {15, 7}, {14, 6}, {13, 5}, {12, 4}, {8, 3}, {9, 2}, {10, 1}, {11, 0}
     uint8_t             usedPortCount;
+
     e_DO11_ADDRESS_t    deviceAddress;
+    PCA9685     PCA;
 };
 #endif

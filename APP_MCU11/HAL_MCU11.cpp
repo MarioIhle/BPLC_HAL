@@ -13,24 +13,19 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
     //LD1-3
     pinMode(this->pins.led[0], OUTPUT);
     this->LD1.begin(255);
-
     pinMode(this->pins.led[1], OUTPUT);
     this->LD2.begin(255);
-
     pinMode(this->pins.led[2], OUTPUT);    
-    this->LD3.begin(255);
-    
+    this->LD3.begin(255);    
     //BUZZER
     pinMode(this->pins.buzzer, OUTPUT);
     this->BUZZER.begin(50);
-
     //OEN
     this->OEN.begin(true);    
     pinMode(this->pins.OEN, OUTPUT);
     //INT
     pinMode(this->pins.INT, INPUT);
-    attachInterrupt(this->pins.INT, INT_callBack, CHANGE);
-   
+    attachInterrupt(this->pins.INT, INT_callBack, CHANGE);   
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
     Serial1.begin(this->baudrate.RS232);    //RS232
@@ -39,42 +34,31 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
 
 void HAL_MCU11::tick()
 {  
-    s_portValue_t TEMP_PORT_VALUE;
     //Encoder lesen
     Encoder_A.setPortState(digitalRead(this->pins.encoder[0]));
     Encoder_B.setPortState(digitalRead(this->pins.encoder[1]));
     Encoder_Z.setPortState(digitalRead(this->pins.encoder[2]));
-
     //OEN schreiben
     if(this->OEN.isThereANewPortValue())
     {
-        TEMP_PORT_VALUE = this->OEN.getValue();
-        digitalWrite(this->pins.OEN, TEMP_PORT_VALUE.value);
+        digitalWrite(this->pins.OEN, this->OEN.getValue().value);
     }
-
     //buzzer
     if(this->BUZZER.isThereANewPortValue())
     {
-        TEMP_PORT_VALUE = this->BUZZER.getValue();
-        analogWrite(this->pins.buzzer, TEMP_PORT_VALUE.value);
+        analogWrite(this->pins.buzzer, this->BUZZER.getValue().value);
     }
-
     //LD1-3
     if(this->LD1.isThereANewPortValue())
     {
-        TEMP_PORT_VALUE = this->LD1.getValue();
-        analogWrite(this->pins.led[0], TEMP_PORT_VALUE.value);
+        analogWrite(this->pins.led[0], this->LD1.getValue().value);
     }
-
     if(this->LD2.isThereANewPortValue())
     {
-        TEMP_PORT_VALUE = this->LD2.getValue();
-        analogWrite(this->pins.led[1], TEMP_PORT_VALUE.value);
+        analogWrite(this->pins.led[1], this->LD2.getValue().value);
     }
-
     if(this->LD3.isThereANewPortValue())
     {
-        TEMP_PORT_VALUE = this->LD3.getValue(); 
-        analogWrite(this->pins.led[2], TEMP_PORT_VALUE.value);  
+        analogWrite(this->pins.led[2], this->LD3.getValue().value);  
     }      
 }
