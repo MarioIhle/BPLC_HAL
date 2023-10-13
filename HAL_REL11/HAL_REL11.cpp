@@ -36,23 +36,25 @@ e_APP_ERROR_t HAL_REL11::begin()
     
     //Debug Error ausgabe
     Serial.println("##############################");  
-    Serial.print("setup REL11 ");
+    Serial.println("setup REL11 ");
+
+    Serial.print("address: ");
     switch(this->deviceAddress)
     {
         case REL11_CARD_1:
-            Serial.print("1");
+            Serial.println("1");
         break;
         case REL11_CARD_2:
-            Serial.print("2");
+            Serial.println("2");
         break;
         case REL11_CARD_3:
-            Serial.print("3");
+            Serial.println("3");
         break;
         case REL11_CARD_4:
-            Serial.print("4");
+            Serial.println("4");
         break;
     }
-    Serial.println("/4");
+ 
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/3");
  
     this->selfCheck.begin(this->deviceAddress);

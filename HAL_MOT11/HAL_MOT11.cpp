@@ -14,20 +14,22 @@ e_APP_ERROR_t HAL_MOT11::begin()
     
     //Debug Error ausgabe
     Serial.println("##############################");  
-    Serial.print("setup MOT11 ");
+    Serial.println("setup MOT11 ");
+
+    Serial.print("address: ");
     switch(this->deviceAddress)
     {
         case MOT11_CARD_1:
-            Serial.print("1");
+            Serial.println("1");
         break;
         case MOT11_CARD_2:
-            Serial.print("2");
+            Serial.println("2");
         break;
         case MOT11_CARD_3:
-            Serial.print("3");
+            Serial.println("3");
         break;
         case MOT11_CARD_4:
-            Serial.print("4");
+            Serial.println("4");
         break;
     }
 
@@ -71,6 +73,8 @@ e_APP_ERROR_t HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
     //Debug Error ausgabe
     Serial.println("##############################");  
     Serial.println("setup MOT11 ");
+
+    Serial.print("address: ");
     switch(this->deviceAddress)
     {
         case MOT11_CARD_1:

@@ -49,23 +49,25 @@ e_APP_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
     
     //Debug Error ausgabe
     Serial.println("##############################");  
-    Serial.print("setup AIN11 ");
+    Serial.println("setup AIN11 ");
+
+    Serial.print("address: ");
     switch(this->deviceAddress)
     {
         case AIN11_CARD_1:
-            Serial.print("1");
+            Serial.println("1");
         break;
         case AIN11_CARD_2:
-            Serial.print("2");
+            Serial.println("2");
         break;
         case AIN11_CARD_3:
-            Serial.print("3");
+            Serial.println("3");
         break;
         case AIN11_CARD_4:
-            Serial.print("4");
+            Serial.println("4");
         break;
     }
-    Serial.println("/4");
+
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/4");
  
     this->selfCheck.begin(this->deviceAddress);
