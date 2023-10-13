@@ -56,13 +56,14 @@ void APP_MCU11::tick()
       break;
 
       case APP_MODE__START:             
-         this->hal.LD1.set();   
+         this->hal.LD1.set();  
+         this->hal.BUZZER.blink(1, 100); 
       break;
 
       case APP_MODE__SAFE_STATE:
          this->hal.LD1.blink(1, 100);     
          this->hal.LD2.blinkWithBreak((uint8_t)this->hardwareErrorCode, 500, 1500);    
-         this->hal.BUZZER.blinkWithBreak(3, 50, 30000);
+         this->hal.BUZZER.blinkWithBreak(3, 100, 30000);
          this->hal.OEN.reset();          
       break;
 
