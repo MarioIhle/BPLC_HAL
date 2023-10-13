@@ -44,10 +44,10 @@ class HAL_AIN11
     HAL_AIN11    (const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3);
     HAL_AIN11    (const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3, AnalogInput* P_PORT_4);
 
-    e_APP_ERROR_t begin   (const uint16_t READ_INTERVAL = 1000);
+    e_BPLC_ERROR_t begin   (const uint16_t READ_INTERVAL = 1000);
     void          tick    ();  
 
-    e_APP_ERROR_t getError();  
+    e_BPLC_ERROR_t getError();  
 
     private: 
     //Applikation

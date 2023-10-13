@@ -17,15 +17,25 @@ void APP_MCU11::begin(void (*INT_callBack)(void))
    this->deviceSettings.f_beepOnEncoderInput = false;
 
    this->deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
-   memset(&this->errorCode, 0, sizeof(this->errorCode));
+   this->hardwareErrorCode = BPLC_ERROR__NO_ERROR;
    
    this->temp_ParameterStorage = 0;
-   this->errorCode = APP_ERROR__NO_ERROR;
+
+   //Runntime error
+   this->to_runnntime.setInterval(1000);
+   this->to_runnntime.reset();
 }
 
 void APP_MCU11::tick()
 {
-   if(this->errorCode != APP_ERROR__NO_ERROR)
+   //Runntime überwachung der Applikation
+   if(this->to_runnntime.check())
+   {
+      this->setHardwareError(BPLC_ERROR__RUNNTIME);
+   }
+   this->to_runnntime.reset();
+
+   if(this->isThereAnyHardwareError())
    {
       this->deviceMode = APP_MODE__SAFE_STATE;
    }
@@ -51,7 +61,8 @@ void APP_MCU11::tick()
 
       case APP_MODE__SAFE_STATE:
          this->hal.LD1.blink(1, 100);     
-         this->hal.LD2.blinkWithBreak((uint8_t)this->errorCode, 500, 1500);    
+         this->hal.LD2.blinkWithBreak((uint8_t)this->hardwareErrorCode, 500, 1500);    
+         this->hal.BUZZER.blinkWithBreak(3, 50, 30000);
          this->hal.OEN.reset();          
       break;
 
@@ -93,6 +104,7 @@ void APP_MCU11::handleDisplay()
          {
             this->oled.showPrevioursTextOfThisMenu();
          }           
+         this->oled.setParamValueToShow(this->deviceMode);
       break;
 
       case menu_deviceMode:
@@ -160,23 +172,22 @@ int APP_MCU11::getVDip(const e_V_DIP_t DIP_NUM)
    return this->virtualDipSwitch[DIP_NUM];
 }
 
-void APP_MCU11::setError(const e_APP_ERROR_t ERROR_CODE)
+void APP_MCU11::setHardwareError(const e_BPLC_ERROR_t ERROR_CODE)
 {      
-   if(this->errorCode == APP_ERROR__NO_ERROR)
+   //Errors nicht überschreiben
+   if(this->hardwareErrorCode == BPLC_ERROR__NO_ERROR)
    {
-      this->errorCode = ERROR_CODE;
-   }
+      this->hardwareErrorCode = ERROR_CODE;
+   }   
 }
 
-void APP_MCU11::resetError()
+bool APP_MCU11::isThereAnyHardwareError()
 {
-   this->errorCode = APP_ERROR__NO_ERROR;
+   const bool THERE_IS_A_BPLC_HARDWARE_ERROR = (bool)(this->hardwareErrorCode != BPLC_ERROR__NO_ERROR);
+
+   return THERE_IS_A_BPLC_HARDWARE_ERROR;
 }
 
-e_APP_ERROR_t APP_MCU11::checkForErrors()
-{
-   return this->errorCode;
-}
 //Diplay handling
 void APP_MCU11::editDeviceMode()
 {
@@ -252,7 +263,6 @@ void APP_MCU11::errorOut()
       {
          this->oled.setMenu(menu_mainMenu);         
       } 
-      this->errorCode = APP_ERROR__NO_ERROR;
    }
 
    if(this->hal.ENCODER.getTurningDirection() == movement_right)
@@ -264,7 +274,7 @@ void APP_MCU11::errorOut()
       this->oled.showPrevioursTextOfThisMenu();
    } 
 
-   this->oled.setParamValueToShow(this->errorCode);    
+   this->oled.setParamValueToShow(this->hardwareErrorCode);    
 }
 
 void APP_MCU11::handle_vDip()

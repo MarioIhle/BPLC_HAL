@@ -103,12 +103,12 @@ class OLED_MCU11
     void        showMenuText    (const String TEXT, const bool ROW);
     uint8_t     getMenuText     (const uint8_t LAST_AVAILABLE_TEXT, const uint8_t ACTIVE_TEXT);
   
-    void        showScreenSaver ();
-    void        showMainMenu    ();
-    void        showDeviceMode  ();
-    void        showErrorCodes  ();
-    void        showSettings    ();
-    void        showDipswitches ();    
+    void        showScreenSaver      ();
+    void        showMainMenu         ();
+    void        showDeviceMode       ();
+    void        showHardwareErrorCode();
+    void        showSettings         ();
+    void        showDipswitches      ();    
 
     s_display_t display;
     s_menu_t    menu;

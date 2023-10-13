@@ -8,9 +8,9 @@ HAL_MOT11::HAL_MOT11(const e_MOT11_ADDRESS_t ADDRESS)
     this->deviceAddress = ADDRESS;
 }
 
-e_APP_ERROR_t HAL_MOT11::begin()
+e_BPLC_ERROR_t HAL_MOT11::begin()
 {
-    e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
+    e_BPLC_ERROR_t error = BPLC_ERROR__NO_ERROR;
     
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -43,11 +43,11 @@ e_APP_ERROR_t HAL_MOT11::begin()
     else
     {
         Serial.println("I2C connection failed!");
-        error = APP_ERROR__MOT11_COMMUNICATION_FAILED;        
+        error = BPLC_ERROR__MOT11_COMMUNICATION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
-    if(error == APP_ERROR__NO_ERROR)
+    if(error == BPLC_ERROR__NO_ERROR)
     {   
         //Timeouts
         this->to_parameterPoll.setInterval(1000);
@@ -68,9 +68,9 @@ e_APP_ERROR_t HAL_MOT11::begin()
     return error;
 }
 
-e_APP_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
+e_BPLC_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
 {
-    e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
+    e_BPLC_ERROR_t error = BPLC_ERROR__NO_ERROR;
     
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -103,11 +103,11 @@ e_APP_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
     else
     {
         Serial.println("I2C connection failed!");
-        error = APP_ERROR__MOT11_COMMUNICATION_FAILED;        
+        error = BPLC_ERROR__MOT11_COMMUNICATION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
-    if(error == APP_ERROR__NO_ERROR)
+    if(error == BPLC_ERROR__NO_ERROR)
     {   
         //I2C Address
         this->deviceAddress = ADDRESS;
@@ -231,38 +231,37 @@ void HAL_MOT11::setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t
     this->motParams.speed     = SPEED;   
 }
 
-e_APP_ERROR_t HAL_MOT11::getError()
+e_BPLC_ERROR_t HAL_MOT11::getError()
 {
-    e_APP_ERROR_t tempError = APP_ERROR__NO_ERROR;
+    e_BPLC_ERROR_t tempError = BPLC_ERROR__NO_ERROR;
 
     switch(this->error.code)
     {
         case motError_noError:
-            tempError = APP_ERROR__NO_ERROR;
+            tempError = BPLC_ERROR__NO_ERROR;
         break;
 
         case motError_i2cConnectionFailed:
-            tempError = APP_ERROR__MOT11_COMMUNICATION_FAILED;
+            tempError = BPLC_ERROR__MOT11_COMMUNICATION_FAILED;
         break;
 
         case motError_overcurrent:
-            tempError = APP_ERROR__MOT11_OVER_CURRENT;
+            tempError = BPLC_ERROR__MOT11_OVER_CURRENT;
         break;
 
         case motError_overtemperature:
-            tempError = APP_ERROR__MOT11_OVER_TEMPERATURE;
+            tempError = BPLC_ERROR__MOT11_OVER_TEMPERATURE;
         break;
 
         case motError_OEN_disabled: //kein Error für MCU an sich
-            tempError = APP_ERROR__NO_ERROR;
+            tempError = BPLC_ERROR__NO_ERROR;
         break;
 
         case motError_notTeached:
-            tempError = APP_ERROR__MOT11_CURRENT_NOT_TEACHED;
+            tempError = BPLC_ERROR__MOT11_CURRENT_NOT_TEACHED;
         break;
     }
-
-    Serial.print("error: "); Serial.println(tempError);
+    
     return tempError;
 }
 

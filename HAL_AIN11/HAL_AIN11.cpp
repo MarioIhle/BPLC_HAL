@@ -43,9 +43,9 @@ HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, Ana
     this->usedPortCount = 4;
 }
 
-e_APP_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
+e_BPLC_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
 {    
-    e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
+    e_BPLC_ERROR_t error = BPLC_ERROR__NO_ERROR;
     
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -80,11 +80,11 @@ e_APP_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
     else
     {
         Serial.println("I2C connection failed!");
-        error = APP_ERROR__AIN11_COMMUNICATION_FAILED;        
+        error = BPLC_ERROR__AIN11_COMMUNICATION_FAILED;        
     }
 
     //Applikationsparameter initialisieren         
-    if(error == APP_ERROR__NO_ERROR)
+    if(error == BPLC_ERROR__NO_ERROR)
     {   
         // The ADC input range (or gain) can be changed via the following
         // functions, but be careful never to exceed VDD +0.3V max, or to
@@ -154,13 +154,13 @@ void HAL_AIN11::tick()
     }
 }
 
-e_APP_ERROR_t HAL_AIN11::getError()
+e_BPLC_ERROR_t HAL_AIN11::getError()
 {
-    e_APP_ERROR_t tempError = APP_ERROR__NO_ERROR;
+    e_BPLC_ERROR_t tempError = BPLC_ERROR__NO_ERROR;
 
     if(this->f_error)
     {
-        tempError = APP_ERROR__AIN11_COMMUNICATION_FAILED;
+        tempError = BPLC_ERROR__AIN11_COMMUNICATION_FAILED;
     }
     return tempError;
 }

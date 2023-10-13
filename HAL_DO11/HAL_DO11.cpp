@@ -103,9 +103,9 @@ HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2,
     this->usedPortCount = 8;
 }   
 
-e_APP_ERROR_t HAL_DO11::begin()
+e_BPLC_ERROR_t HAL_DO11::begin()
 {
-    e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
+    e_BPLC_ERROR_t error = BPLC_ERROR__NO_ERROR;
     
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -140,11 +140,11 @@ e_APP_ERROR_t HAL_DO11::begin()
     else
     {
         Serial.println("I2C connection failed!");
-        error = APP_ERROR__DO11_COMMUNICATION_FAILED;        
+        error = BPLC_ERROR__DO11_COMMUNICATION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
-    if(error == APP_ERROR__NO_ERROR)
+    if(error == BPLC_ERROR__NO_ERROR)
     {        
         PCA.setI2CAddress(this->deviceAddress);
         PCA.init();
@@ -248,12 +248,12 @@ void HAL_DO11::tick()
     }
 }
 
-e_APP_ERROR_t HAL_DO11::getError()
+e_BPLC_ERROR_t HAL_DO11::getError()
 {
-    e_APP_ERROR_t tempError = APP_ERROR__NO_ERROR;
+    e_BPLC_ERROR_t tempError = BPLC_ERROR__NO_ERROR;
     if(this->f_error)
     {
-        tempError = APP_ERROR__DO11_COMMUNICATION_FAILED;
+        tempError = BPLC_ERROR__DO11_COMMUNICATION_FAILED;
     }
     return tempError;
 }

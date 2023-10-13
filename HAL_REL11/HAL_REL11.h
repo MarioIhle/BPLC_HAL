@@ -38,10 +38,10 @@ class HAL_REL11 {
     HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_REL2);
     HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_REL2, Output* P_REL3);
 
-    e_APP_ERROR_t begin();
+    e_BPLC_ERROR_t begin();
     void          tick();
     
-    e_APP_ERROR_t getError();
+    e_BPLC_ERROR_t getError();
 
     private:    
     //Applikation

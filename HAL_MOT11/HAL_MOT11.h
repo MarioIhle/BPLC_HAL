@@ -7,7 +7,7 @@
 #include "I2C_check.h"
 #include "APP_MCU11.h"
 
-#define DEBUG_HAL_MOT11 
+//#define DEBUG_HAL_MOT11 
 
 //I2C Commands
 #define ACK 0x06
@@ -82,8 +82,8 @@ class HAL_MOT11
     //Init
     HAL_MOT11   ();
     HAL_MOT11   (const e_MOT11_ADDRESS_t ADDRESS);
-    e_APP_ERROR_t begin  ();
-    e_APP_ERROR_t begin  (const e_MOT11_ADDRESS_t ADDRESS);
+    e_BPLC_ERROR_t begin  ();
+    e_BPLC_ERROR_t begin  (const e_MOT11_ADDRESS_t ADDRESS);
     
     //Routine aufruf
     void tick();
@@ -97,7 +97,7 @@ class HAL_MOT11
     void setDirectionAndSpeed (const e_movement_t DIRECTION, const uint8_t SPEED);
     
     //Getter 
-    e_APP_ERROR_t   getError();
+    e_BPLC_ERROR_t   getError();
     float           getCurrent();
     e_movement_t    getDirection();
     uint8_t         getSpeed();

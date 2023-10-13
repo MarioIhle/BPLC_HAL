@@ -58,11 +58,11 @@ class HAL_DIN11
     HAL_DIN11    (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7);
     HAL_DIN11    (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7, DigitalInput* P_PORT_8);
 
-    e_APP_ERROR_t   begin();
+    e_BPLC_ERROR_t   begin();
 
     void tick ();    
     void somePinOfsomeDinCardChanged();
-    e_APP_ERROR_t getError();    
+    e_BPLC_ERROR_t getError();    
 
     private: 
     //Applikation  

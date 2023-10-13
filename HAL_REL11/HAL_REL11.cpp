@@ -30,9 +30,9 @@ HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_
     this->deviceAddress  = ADDRESS;    
 }
 
-e_APP_ERROR_t HAL_REL11::begin()
+e_BPLC_ERROR_t HAL_REL11::begin()
 {    
-    e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
+    e_BPLC_ERROR_t error = BPLC_ERROR__NO_ERROR;
     
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -67,11 +67,11 @@ e_APP_ERROR_t HAL_REL11::begin()
     else
     {
         Serial.println("I2C connection failed!");
-        error = APP_ERROR__REL11_COMMUNICATION_FAILED;        
+        error = BPLC_ERROR__REL11_COMMUNICATION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
-    if(error == APP_ERROR__NO_ERROR)
+    if(error == BPLC_ERROR__NO_ERROR)
     {   
         this->PCF.setAddress(this->deviceAddress);       //Tatsächliche Adresse schreiben
         this->PCF.begin();                              //Kommunikation hetstellen
@@ -124,12 +124,12 @@ void HAL_REL11::tick()
     } 
 }
 
-e_APP_ERROR_t HAL_REL11::getError()
+e_BPLC_ERROR_t HAL_REL11::getError()
 {
-    e_APP_ERROR_t tempError = APP_ERROR__NO_ERROR;
+    e_BPLC_ERROR_t tempError = BPLC_ERROR__NO_ERROR;
     if(this->f_error)
     {
-        tempError = APP_ERROR__REL11_COMMUNICATION_FAILED;
+        tempError = BPLC_ERROR__REL11_COMMUNICATION_FAILED;
     }
     return tempError;
 }

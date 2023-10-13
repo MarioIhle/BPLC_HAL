@@ -17,15 +17,13 @@
 //#define DEBUG_APP_MCU11_OLED_HANDLING
 
 #include "Arduino.h"
-//Lib includes
 #include "SpecialFunctions.h"
-
-//--------------------------------------------------------------------
-//Typdefinitionen
-//--------------------------------------------------------------------
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
 #include "IOM_base.h"
+//--------------------------------------------------------------------
+//Typdefinitionen
+//--------------------------------------------------------------------
 
 typedef enum
 {
@@ -55,26 +53,26 @@ typedef enum
 }e_APP_MODE_t;
 
 typedef enum
-{
+{    
+    BPLC_ERROR__NO_ERROR,
     //MCU Errors
-    APP_ERROR__NO_ERROR,
-    APP_ERROR__WTD_TIMEOUT,
+    BPLC_ERROR__RUNNTIME,
     //I2C Kommunikation unterbrochen
-    APP_ERROR__OLED_COMMUNICATION_FAILED ,
-    APP_ERROR__DIN11_COMMUNICATION_FAILED,
-    APP_ERROR__AIN11_COMMUNICATION_FAILED,
-    APP_ERROR__REL11_COMMUNICATION_FAILED,
-    APP_ERROR__DO11_COMMUNICATION_FAILED,
-    APP_ERROR__MOT11_COMMUNICATION_FAILED,
-    APP_ERROR__FUSE11_COMMUNICATION_FAILED,
-    APP_ERROR__NANO_11_COMMUNICATION_FAILED,
+    BPLC_ERROR__OLED_COMMUNICATION_FAILED ,
+    BPLC_ERROR__DIN11_COMMUNICATION_FAILED,
+    BPLC_ERROR__AIN11_COMMUNICATION_FAILED,
+    BPLC_ERROR__REL11_COMMUNICATION_FAILED,
+    BPLC_ERROR__DO11_COMMUNICATION_FAILED,
+    BPLC_ERROR__MOT11_COMMUNICATION_FAILED,
+    BPLC_ERROR__FUSE11_COMMUNICATION_FAILED,
+    BPLC_ERROR__NANO_11_COMMUNICATION_FAILED,
     //MOT11 Errrors
-    APP_ERROR__MOT11_OVER_CURRENT,
-    APP_ERROR__MOT11_OVER_TEMPERATURE,   
-    APP_ERROR__MOT11_CURRENT_NOT_TEACHED, 
-    //Error aus Applikation 
-    APP_ERROR__EXTERNAL,  
-}e_APP_ERROR_t;
+    BPLC_ERROR__MOT11_OVER_CURRENT,
+    BPLC_ERROR__MOT11_OVER_TEMPERATURE,   
+    BPLC_ERROR__MOT11_CURRENT_NOT_TEACHED, 
+
+    BPLC_ERROR__COUNT,
+}e_BPLC_ERROR_t;
 
 
 class APP_MCU11
@@ -83,21 +81,20 @@ class APP_MCU11
     APP_MCU11();
     void begin(void (*INT_callBack)(void));
     void tick();
-
+    
     e_APP_MODE_t    getDeviceMode();    
     void            setDeviceMode(const e_APP_MODE_t MODE);
 
+    //Buzzer aus Applikation heraus nutzen
     void    beep(const uint8_t BEEPS, const int BEEP_INTERVAL);
 
     //Dip Controll
     void    setVDip(const e_V_DIP_t DIP_NUM, const uint8_t VALUE);
     int     getVDip(const e_V_DIP_t DIP_NUM);
 
-    //Error flags
-    void    setError(const e_APP_ERROR_t ERROR_CODE);
-    void    resetError();
+    //Externer aufruf, wenn HAL Objekt ein Error meldet
+    void setHardwareError(const e_BPLC_ERROR_t ERROR_CODE);
     
-  
     private:
     HAL_MCU11   hal;
     OLED_MCU11  oled;
@@ -106,12 +103,12 @@ class APP_MCU11
 
     //Variablen
     uint8_t         virtualDipSwitch[vDIP_COUNT];
-    e_APP_ERROR_t   errorCode;          //Sobald ein Error anliegt, wird Applikation gestoppt und im Safemode auf Userinput gewartet
-    
+
     byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
 
-    e_APP_ERROR_t checkForErrors();     //return=0, wenn kein Error gesetzt
-
+    bool isThereAnyHardwareError();     //return=0, wenn kein Error gesetzt
+    e_BPLC_ERROR_t  hardwareErrorCode;          //Hardware Error, sofort Applikation anhalten
+    
     void handleDisplay();
     void beepOnEncoderInput();
 
@@ -123,5 +120,8 @@ class APP_MCU11
     {
         bool f_beepOnEncoderInput;
     }deviceSettings;    
+
+    //Safety
+    Timeout to_runnntime;
 };
 #endif

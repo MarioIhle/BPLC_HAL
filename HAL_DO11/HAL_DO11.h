@@ -52,10 +52,10 @@ class HAL_DO11 {
     HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7);
     HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7, Output* P_DO8);
     
-    e_APP_ERROR_t begin();
+    e_BPLC_ERROR_t begin();
     void tick();
 
-    e_APP_ERROR_t getError();
+    e_BPLC_ERROR_t getError();
     
     private:
     //Applikation
