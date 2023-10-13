@@ -170,8 +170,7 @@ void HAL_DO11::tick()
             if(this->p_DO[PORT]->isThereANewPortValue())    //Nur Wert abrufen und schreiben, falls dier sich geändert hat
             {     
                 //PWM von 0-255 laden und umrechnen
-                const s_portValue_t     VALUE_TO_WRITE      = this->p_DO[PORT]->getValue();
-                const uint16_t          TARGET_PWM_VALUE    = map(VALUE_TO_WRITE.value, 0, 255, 0, 4095);
+                const uint16_t          TARGET_PWM_VALUE    = map(this->p_DO[PORT]->getValue().value, 0, 255, 0, 4095);
 
                 switch(p_DO[PORT]->getOutputType())
                 {

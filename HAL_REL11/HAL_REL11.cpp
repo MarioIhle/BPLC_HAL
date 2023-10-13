@@ -98,13 +98,11 @@ void HAL_REL11::tick()
         {
             if(this->p_REL[PORT]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
             {
-                const s_portValue_t VALUE_TO_WRITE = this->p_REL[PORT]->getValue();
-
-                if(VALUE_TO_WRITE.value >= 1)
+                if(this->p_REL[PORT]->getValue().value >= 1)
                 {
                     this->PCF.write(this->pins[PORT], true);
                 }
-                else if(VALUE_TO_WRITE.value == false)
+                else if(this->p_REL[PORT]->getValue().value == false)
                 {
                     this->PCF.write(this->pins[PORT], false);
                 } 
