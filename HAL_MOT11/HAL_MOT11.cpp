@@ -388,7 +388,7 @@ bool HAL_MOT11::waitForDriveParameter()
     }
 
 #ifdef DEBUG_HAL_MOT11 
-Serial.println("Heartbeat info:");
+Serial.println("Drive Parameter:");
 Serial.print("KEY: ");        Serial.println(inCommand.extract.key);
 Serial.print("DIRECTION: ");  Serial.println(inCommand.extract.direction);
 Serial.print("SPEED: ");      Serial.println(inCommand.extract.speed);
