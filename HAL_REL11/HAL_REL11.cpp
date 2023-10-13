@@ -30,40 +30,97 @@ HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_
     this->deviceAddress  = ADDRESS;    
 }
 
-void HAL_REL11::begin()
-{
-    this->PCF.setAddress(this->deviceAddress);       //Tatsächliche Adresse schreiben
-    this->PCF.begin();                              //Kommunikation hetstellen
-    this->PCF.write8(false);                        //Alle Ports LOW
+e_APP_ERROR_t HAL_REL11::begin()
+{    
+    e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
+    
+    //Debug Error ausgabe
+    Serial.println("##############################");  
+    Serial.print("setup REL11 ");
+    switch(this->deviceAddress)
+    {
+        case REL11_CARD_1:
+            Serial.print("1");
+        break;
+        case REL11_CARD_2:
+            Serial.print("2");
+        break;
+        case REL11_CARD_3:
+            Serial.print("3");
+        break;
+        case REL11_CARD_4:
+            Serial.print("4");
+        break;
+    }
+    Serial.println("/4");
+    Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/3");
+ 
+    this->selfCheck.begin(this->deviceAddress);
+    if(this->selfCheck.checkI2CConnection())
+    {
+        Serial.println("I2C connection ok!");
+    }
+    else
+    {
+        Serial.println("I2C connection failed!");
+        error = APP_ERROR__DIN11_COMMUNICATION_FAILED;        
+    }
 
-#ifdef DEBUG_HAL_REL11 
-Serial.print("HAL_REL11.begin with I2C Address"); Serial.println(this->deviceAddress);
-Serial.print("portCount: "); Serial.println(this->usedPortCount);
-#endif
-}
+    //Applikationsparameter initialisieren
+    if(error == APP_ERROR__NO_ERROR)
+    {   
+        this->PCF.setAddress(this->deviceAddress);       //Tatsächliche Adresse schreiben
+        this->PCF.begin();                              //Kommunikation hetstellen
+        this->PCF.write8(false);                        //Alle Ports LOW    
+    
+        this->f_error = false;  
+    }
+    else
+    {
+        this->f_error = true;                      
+    }
+
+    return error;
+}   
 
 void HAL_REL11::tick()
 {
-    for(int PORT = 0; PORT < this->usedPortCount; PORT++)
-    {
-        if(this->p_REL[PORT]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
+    //I2C Verbindung zyklisch prüfen
+    this->f_error = !this->selfCheck.requestHeartbeat();
+
+    if(!this->f_error)
+    {              
+        for(int PORT = 0; PORT < this->usedPortCount; PORT++)
         {
-            const s_portValue_t VALUE_TO_WRITE = this->p_REL[PORT]->getValue();
-
-            if(VALUE_TO_WRITE.value >= 1)
+            if(this->p_REL[PORT]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
             {
-                this->PCF.write(this->pins[PORT], true);
-            }
-            else if(VALUE_TO_WRITE.value == false)
-            {
-                this->PCF.write(this->pins[PORT], false);
-            } 
+                const s_portValue_t VALUE_TO_WRITE = this->p_REL[PORT]->getValue();
 
-#ifdef DEBUG_HAL_REL11 
-Serial.print("value: "); Serial.println(VALUE_TO_WRITE.value);
-Serial.print("previours value: "); Serial.println(VALUE_TO_WRITE.previousValue);
-#endif
+                if(VALUE_TO_WRITE.value >= 1)
+                {
+                    this->PCF.write(this->pins[PORT], true);
+                }
+                else if(VALUE_TO_WRITE.value == false)
+                {
+                    this->PCF.write(this->pins[PORT], false);
+                } 
 
-        }               
-    }    
+    #ifdef DEBUG_HAL_REL11 
+    Serial.print("value: "); Serial.println(VALUE_TO_WRITE.value);
+    Serial.print("previours value: "); Serial.println(VALUE_TO_WRITE.previousValue);
+    #endif
+
+            }               
+        }   
+    } 
+}
+
+e_APP_ERROR_t HAL_REL11::getError()
+{
+    e_APP_ERROR_t tempError = APP_ERROR__NO_ERROR;
+    if(this->f_error)
+    {
+        tempError = APP_ERROR__DIN11_COMMUNICATION_FAILED;
+    }
+    return tempError;
 }
