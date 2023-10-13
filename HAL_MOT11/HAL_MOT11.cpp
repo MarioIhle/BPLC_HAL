@@ -141,9 +141,7 @@ void HAL_MOT11::tick()
 
     //I2C Error check
     const bool I2C_ERROR_COUNT_LIMIT_REACHED = (bool)(this->error.i2cError.count >= this->error.i2cError.countLimit);
-    const bool NOT_I2C_HEARTBEAT_RESPONSE    = (bool)(this->selfCheck.requestHeartbeat() == false); 
-
-    if(I2C_ERROR_COUNT_LIMIT_REACHED || NOT_I2C_HEARTBEAT_RESPONSE)
+    if(I2C_ERROR_COUNT_LIMIT_REACHED)
     {
         this->error.code = motError_i2cConnectionFailed;
     }
