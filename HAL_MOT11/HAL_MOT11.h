@@ -81,9 +81,9 @@ class HAL_MOT11
     public:
     //Init
     HAL_MOT11   ();
-    HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS);
+    HAL_MOT11   (const e_MOT11_ADDRESS_t ADDRESS);
     e_APP_ERROR_t begin  ();
-    e_APP_ERROR_t begin  (e_MOT11_ADDRESS_t ADDRESS);
+    e_APP_ERROR_t begin  (const e_MOT11_ADDRESS_t ADDRESS);
     
     //Routine aufruf
     void tick();
@@ -141,8 +141,8 @@ class HAL_MOT11
     {
       struct 
       {
-        uint8_t       count;      //counter bis error ausgegeben wird
-        uint8_t       countLimit; //Limit ab wann error ausgegeben wird
+        uint8_t count;      //counter bis error ausgegeben wird
+        uint8_t countLimit; //Limit ab wann error ausgegeben wird
       }i2cError;    
       
       e_motError_t  code;       //aktueller Erororcode

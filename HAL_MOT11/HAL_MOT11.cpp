@@ -2,12 +2,18 @@
 
 HAL_MOT11::HAL_MOT11()
 {}
-
-HAL_MOT11::HAL_MOT11(e_MOT11_ADDRESS_t ADDRESS)
+/**
+ * @param device Address
+ * @return no return 
+*/
+HAL_MOT11::HAL_MOT11(const e_MOT11_ADDRESS_t ADDRESS)
 {
     this->deviceAddress = ADDRESS;
 }
-
+/**
+ * @param   void
+ * @return  e_APP_ERROR_t error 
+*/
 e_APP_ERROR_t HAL_MOT11::begin()
 {
     e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
@@ -67,8 +73,11 @@ e_APP_ERROR_t HAL_MOT11::begin()
 
     return error;
 }
-
-e_APP_ERROR_t HAL_MOT11::begin(e_MOT11_ADDRESS_t ADDRESS)
+/**
+ * @param   e_MOT11_ADDRESS_t   ADDRESS
+ * @return  e_APP_ERROR_t       ERROR 
+*/
+e_APP_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
 {
     e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
     
