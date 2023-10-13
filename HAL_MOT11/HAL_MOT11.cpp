@@ -16,7 +16,7 @@ e_APP_ERROR_t HAL_MOT11::begin()
     Serial.println("##############################");  
     Serial.println("setup MOT11 ");
 
-    Serial.print("address: ");
+    Serial.print("CARD: ");
     switch(this->deviceAddress)
     {
         case MOT11_CARD_1:
@@ -32,6 +32,8 @@ e_APP_ERROR_t HAL_MOT11::begin()
             Serial.println("4");
         break;
     }
+    //Tatsächliche I2C Addresse ausgeben
+    Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
 
     this->selfCheck.begin(this->deviceAddress);
     if(this->selfCheck.checkI2CConnection())
@@ -74,7 +76,7 @@ e_APP_ERROR_t HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
     Serial.println("##############################");  
     Serial.println("setup MOT11 ");
 
-    Serial.print("address: ");
+    Serial.print("CARD: ");
     switch(this->deviceAddress)
     {
         case MOT11_CARD_1:
@@ -90,6 +92,8 @@ e_APP_ERROR_t HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
             Serial.println("4");
         break;
     }
+    //Tatsächliche I2C Addresse ausgeben
+    Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
 
     this->selfCheck.begin(this->deviceAddress);
     if(this->selfCheck.checkI2CConnection())
@@ -131,7 +135,7 @@ void HAL_MOT11::tick()
     //Über Heartbeat wird zyklisch Errors und Stromaufnahme abgefragt
     if(this->to_parameterPoll.check())
     {
-        this->sendHeartbeat(); 
+        this->requestDriveParameter(); 
         this->to_parameterPoll.reset();
     }    
 
@@ -294,16 +298,16 @@ Serial.println("kein ACK empfangen");
     } 
 }
 
-void HAL_MOT11::sendHeartbeat()
+void HAL_MOT11::requestDriveParameter()
 {
     Wire.requestFrom(this->deviceAddress, sizeof(u_mot11_i2c_payload_t));
     
-    if(this->waitForHeartbeat())
+    if(this->waitForDriveParameter())
     {
         this->error.i2cError.count = 0;
 
 #ifdef DEBUG_HAL_MOT11
-Serial.println("Heartbeat empfangen");
+Serial.println("Drive Parameter empfangen");
 #endif
     }   
     else
@@ -311,7 +315,7 @@ Serial.println("Heartbeat empfangen");
         this->error.i2cError.count++;
 
 #ifdef DEBUG_HAL_MOT11
-Serial.println("kein Heartbeat empfangen");
+Serial.println("keine Drive Parameter empfangen");
 #endif
     } 
 }
@@ -322,7 +326,7 @@ void HAL_MOT11::sendFrame(const u_mot11_i2c_payload_t COMMAND)
 
     for(uint8_t bytes; bytes < sizeof(u_mot11_i2c_payload_t); bytes++)
     {
-        //Serial.println(COMMAND.data[bytes]);
+        Serial.println(COMMAND.data[bytes]);
         Wire.write(COMMAND.data[bytes]);
     }                
 
@@ -331,7 +335,7 @@ void HAL_MOT11::sendFrame(const u_mot11_i2c_payload_t COMMAND)
 
 bool HAL_MOT11::waitForACK()
 {
-    uint8_t inByte      = NAK;
+    uint8_t inByte = NAK;
     
     Wire.requestFrom(this->deviceAddress, 1); 
 
@@ -353,7 +357,7 @@ bool HAL_MOT11::waitForACK()
     return (bool)(inByte == ACK);
 }
 
-bool HAL_MOT11::waitForHeartbeat()
+bool HAL_MOT11::waitForDriveParameter()
 {
     u_mot11_i2c_payload_t inCommand;
     inCommand.extract.key = mot11_i2c_key__count;

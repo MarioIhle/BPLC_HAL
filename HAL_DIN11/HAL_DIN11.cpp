@@ -108,7 +108,7 @@ e_APP_ERROR_t HAL_DIN11::begin()
     Serial.println("##############################");  
     Serial.println("setup DIN11 ");
 
-    Serial.print("address: ");
+    Serial.print("CARD: ");
     switch(this->deviceAddress)
     {
         case DIN11_CARD_1:
@@ -124,7 +124,9 @@ e_APP_ERROR_t HAL_DIN11::begin()
             Serial.println("4");
         break;
     }
-
+    //Tatsächliche I2C Addresse ausgeben
+    Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
+    
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/8");
  
     this->selfCheck.begin(this->deviceAddress);

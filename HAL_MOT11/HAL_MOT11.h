@@ -7,7 +7,7 @@
 #include "I2C_check.h"
 #include "APP_MCU11.h"
 
-//#define DEBUG_HAL_MOT11 
+#define DEBUG_HAL_MOT11 
 
 //I2C Commands
 #define ACK 0x06
@@ -108,11 +108,11 @@ class HAL_MOT11
     e_driveState_t driveState;
 
     //I2C Kommunikation
-    void sendDriveCommand   ();
-    void sendHeartbeat      ();
-    void sendFrame          (const u_mot11_i2c_payload_t COMMAND);
-    bool waitForACK         ();
-    bool waitForHeartbeat   ();
+    void sendDriveCommand     ();
+    void requestDriveParameter();
+    void sendFrame            (const u_mot11_i2c_payload_t COMMAND);
+    bool waitForACK           ();
+    bool waitForDriveParameter();
 
     e_MOT11_ADDRESS_t   deviceAddress;  
     bool                f_thereIsANewDriveCommand;

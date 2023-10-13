@@ -38,7 +38,7 @@ e_APP_ERROR_t HAL_REL11::begin()
     Serial.println("##############################");  
     Serial.println("setup REL11 ");
 
-    Serial.print("address: ");
+    Serial.print("CARD: ");
     switch(this->deviceAddress)
     {
         case REL11_CARD_1:
@@ -54,7 +54,9 @@ e_APP_ERROR_t HAL_REL11::begin()
             Serial.println("4");
         break;
     }
- 
+    //Tatsächliche I2C Addresse ausgeben
+    Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
+
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/3");
  
     this->selfCheck.begin(this->deviceAddress);

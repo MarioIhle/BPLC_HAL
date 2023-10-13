@@ -111,7 +111,7 @@ e_APP_ERROR_t HAL_DO11::begin()
     Serial.println("##############################");  
     Serial.println("setup DO11 ");
 
-    Serial.print("address: ");
+    Serial.print("CARD: ");
     switch(this->deviceAddress)
     {
         case DO11_CARD_1:
@@ -127,6 +127,8 @@ e_APP_ERROR_t HAL_DO11::begin()
             Serial.println("4");
         break;
     }
+    //Tatsächliche I2C Addresse ausgeben
+    Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
 
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/8");
  

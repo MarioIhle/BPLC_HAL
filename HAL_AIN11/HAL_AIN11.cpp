@@ -51,7 +51,7 @@ e_APP_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
     Serial.println("##############################");  
     Serial.println("setup AIN11 ");
 
-    Serial.print("address: ");
+    Serial.print("CARD: ");
     switch(this->deviceAddress)
     {
         case AIN11_CARD_1:
@@ -67,6 +67,8 @@ e_APP_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
             Serial.println("4");
         break;
     }
+    //Tatsächliche I2C Addresse ausgeben
+    Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
 
     Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/4");
  
