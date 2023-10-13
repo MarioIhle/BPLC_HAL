@@ -1,9 +1,9 @@
 #include "HAL_MOT11.h"
 
-HAL_MOT11::HAL_MOT11   ()
+HAL_MOT11::HAL_MOT11()
 {}
 
-HAL_MOT11::HAL_MOT11   (e_MOT11_ADDRESS_t ADDRESS)
+HAL_MOT11::HAL_MOT11(e_MOT11_ADDRESS_t ADDRESS)
 {
     this->deviceAddress = ADDRESS;
 }
@@ -68,7 +68,7 @@ e_APP_ERROR_t HAL_MOT11::begin()
     return error;
 }
 
-e_APP_ERROR_t HAL_MOT11::begin (e_MOT11_ADDRESS_t ADDRESS)
+e_APP_ERROR_t HAL_MOT11::begin(e_MOT11_ADDRESS_t ADDRESS)
 {
     e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
     
