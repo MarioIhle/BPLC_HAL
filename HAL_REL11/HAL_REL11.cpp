@@ -67,7 +67,7 @@ e_APP_ERROR_t HAL_REL11::begin()
     else
     {
         Serial.println("I2C connection failed!");
-        error = APP_ERROR__DIN11_COMMUNICATION_FAILED;        
+        error = APP_ERROR__REL11_COMMUNICATION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
@@ -90,10 +90,17 @@ e_APP_ERROR_t HAL_REL11::begin()
 void HAL_REL11::tick()
 {
     //I2C Verbindung zyklisch prüfen
-    this->f_error = !this->selfCheck.requestHeartbeat();
+    if(!this->selfCheck.requestHeartbeat())
+    {
+        this->f_error = true;
+    }
+    else
+    {
+        //this->f_error = false;    //selbrücksetellung des Fehlerzustands, zur zeit nicht genutzt
+    }
 
     if(!this->f_error)
-    {              
+    {         
         for(int PORT = 0; PORT < this->usedPortCount; PORT++)
         {
             if(this->p_REL[PORT]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
@@ -122,7 +129,7 @@ e_APP_ERROR_t HAL_REL11::getError()
     e_APP_ERROR_t tempError = APP_ERROR__NO_ERROR;
     if(this->f_error)
     {
-        tempError = APP_ERROR__DIN11_COMMUNICATION_FAILED;
+        tempError = APP_ERROR__REL11_COMMUNICATION_FAILED;
     }
     return tempError;
 }

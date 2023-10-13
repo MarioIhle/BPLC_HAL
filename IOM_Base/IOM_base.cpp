@@ -151,7 +151,7 @@ void Output::begin(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
     this->mode 					= OUTPUTMODE__OFF;
 }
 
-void Output::blink(const uint8_t BLINKS, const int BLINK_INTERVAL)
+void Output::blink(const uint8_t BLINKS, const unsigned long BLINK_INTERVAL)
 {
 	const bool ALREADY_IN_BLINK_MODE 		= (bool)(this->mode == OUTPUTMODE__BLINK);
 	const bool PARAMETERS_DID_NOT_CHANGED 	= (bool)((this->blinkParameter.blinks_requested == BLINKS) 
@@ -170,7 +170,7 @@ void Output::blink(const uint8_t BLINKS, const int BLINK_INTERVAL)
 	this->mode = OUTPUTMODE__BLINK;	
 }
 
-void Output::blinkWithBreak(const uint8_t BLINKS, const int BLINK_INTERVAL, const int BREAK_TIME)
+void Output::blinkWithBreak(const uint8_t BLINKS, const unsigned long BLINK_INTERVAL, const unsigned long BREAK_TIME)
 {
 	const bool ALREADY_IN_BLINK__WITH_BRAKE_MODE 	= (bool)(this->mode == OUTPUTMODE__BLINK_WITH_BREAK);
 	const bool PARAMETERS_DID_NOT_CHANGED 			= (bool)((this->blinkParameter.blinks_requested == BLINKS) 

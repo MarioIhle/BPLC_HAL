@@ -7,7 +7,7 @@
 #include "I2C_check.h"
 #include "APP_MCU11.h"
 
-//#define DEBUG_HAL_MOT11 
+#define DEBUG_HAL_MOT11 
 
 //I2C Commands
 #define ACK 0x06

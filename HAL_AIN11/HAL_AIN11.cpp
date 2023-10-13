@@ -114,11 +114,15 @@ e_APP_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
 
 void HAL_AIN11::tick()
 {   
-#ifdef DEBUG_HAL_AIN11
-Serial.print("AIN11 "); Serial.print(this->deviceAddress); Serial.print(" VALUES:");
-#endif
-//I2C Verbindung zyklisch prüfen
-    this->f_error = !this->selfCheck.requestHeartbeat();
+    //I2C Verbindung zyklisch prüfen
+    if(!this->selfCheck.requestHeartbeat())
+    {
+        this->f_error = true;
+    }
+    else
+    {
+        //this->f_error = false;    //selbrücksetellung des Fehlerzustands, zur zeit nicht genutzt
+    }
 
     if(!this->f_error)
     {
@@ -148,11 +152,6 @@ Serial.print("AIN11 "); Serial.print(this->deviceAddress); Serial.print(" VALUES
             this->to_read.reset(); 
         }
     }
-
-#ifdef DEBUG_HAL_AIN11
-Serial.println(" "); 
-delay(1000);    
-#endif  
 }
 
 e_APP_ERROR_t HAL_AIN11::getError()

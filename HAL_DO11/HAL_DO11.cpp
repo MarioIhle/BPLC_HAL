@@ -161,7 +161,15 @@ e_APP_ERROR_t HAL_DO11::begin()
 
 void HAL_DO11::tick()
 {
-    this->f_error = !this->selfCheck.requestHeartbeat();
+    //I2C Verbindung zyklisch prüfen
+    if(!this->selfCheck.requestHeartbeat())
+    {
+        this->f_error = true;
+    }
+    else
+    {
+        //this->f_error = false;    //selbrücksetellung des Fehlerzustands, zur zeit nicht genutzt
+    }
 
     if(!this->f_error)
     {

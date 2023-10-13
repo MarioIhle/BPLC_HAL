@@ -2,18 +2,12 @@
 
 HAL_MOT11::HAL_MOT11()
 {}
-/**
- * @param device Address
- * @return no return 
-*/
+
 HAL_MOT11::HAL_MOT11(const e_MOT11_ADDRESS_t ADDRESS)
 {
     this->deviceAddress = ADDRESS;
 }
-/**
- * @param   void
- * @return  e_APP_ERROR_t error 
-*/
+
 e_APP_ERROR_t HAL_MOT11::begin()
 {
     e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
@@ -49,14 +43,14 @@ e_APP_ERROR_t HAL_MOT11::begin()
     else
     {
         Serial.println("I2C connection failed!");
-        error = APP_ERROR__DIN11_COMMUNICATION_FAILED;        
+        error = APP_ERROR__MOT11_COMMUNICATION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
     if(error == APP_ERROR__NO_ERROR)
     {   
         //Timeouts
-        this->to_parameterPoll.setInterval(5000);
+        this->to_parameterPoll.setInterval(1000);
         this->to_I2C.setInterval(50);  
         
         //Errorout
@@ -73,10 +67,7 @@ e_APP_ERROR_t HAL_MOT11::begin()
 
     return error;
 }
-/**
- * @param   e_MOT11_ADDRESS_t   ADDRESS
- * @return  e_APP_ERROR_t       ERROR 
-*/
+
 e_APP_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
 {
     e_APP_ERROR_t error = APP_ERROR__NO_ERROR;
@@ -112,7 +103,7 @@ e_APP_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
     else
     {
         Serial.println("I2C connection failed!");
-        error = APP_ERROR__DIN11_COMMUNICATION_FAILED;        
+        error = APP_ERROR__MOT11_COMMUNICATION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
@@ -121,7 +112,7 @@ e_APP_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
         //I2C Address
         this->deviceAddress = ADDRESS;
         //Timeouts
-        this->to_parameterPoll.setInterval(5000);
+        this->to_parameterPoll.setInterval(1000);
         this->to_I2C.setInterval(50);  
         
         //Errorout
@@ -133,7 +124,7 @@ e_APP_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
     }
     else
     {
-        this->error.code = motError_i2cConnectionFailed;                   
+        this->error.code = motError_i2cConnectionFailed;             
     }
 
     return error;
@@ -141,18 +132,24 @@ e_APP_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
 
 void HAL_MOT11::tick()
 {
-    //Über Heartbeat wird zyklisch Errors und Stromaufnahme abgefragt
-    if(this->to_parameterPoll.check())
-    {
-        this->requestDriveParameter(); 
-        this->to_parameterPoll.reset();
-    }    
-
     //I2C Error check
     const bool I2C_ERROR_COUNT_LIMIT_REACHED = (bool)(this->error.i2cError.count >= this->error.i2cError.countLimit);
     if(I2C_ERROR_COUNT_LIMIT_REACHED)
     {
         this->error.code = motError_i2cConnectionFailed;
+
+        #ifdef DEBUG_HAL_MOT11
+        Serial.println("count limit reachded");
+        #endif
+    }
+    //Error behandlung
+    if(this->error.code != motError_noError)
+    {
+        this->driveState = driveState_safeState;
+
+        #ifdef DEBUG_HAL_MOT11
+        Serial.println("go to safe state");
+        #endif
     }
 
     switch(this->driveState)
@@ -176,6 +173,12 @@ void HAL_MOT11::tick()
                 this->motParams.old.direction = this->motParams.direction;
                 this->motParams.old.speed     = this->motParams.speed;
             }
+            //Über Request wird zyklisch alle live Parameter abgefragt
+            if(this->to_parameterPoll.check())
+            {
+                this->requestDriveParameter(); 
+                this->to_parameterPoll.reset();
+            }  
         break;
 
         case driveState_stop:        
@@ -196,17 +199,17 @@ void HAL_MOT11::tick()
 
     }
 }
-//Nur Stop senden, danach aber wierder letzte Parameter laden, bei Start diese senden
+//Nur Stop senden, letzte parameter aber speichern
 void HAL_MOT11::stop()
 {
     this->driveState = driveState_stop;
 }
-//Nur Temporärer Stop und EMI bremse aktivieren senden, bei start wieder mit letzten Parameter anlaufen
+//Nur Stop und EMI bremse aktivieren senden, letzte parameter aber speichern
 void HAL_MOT11::stopAndBreak()
 {
     this->driveState = driveState_stopAndBreak;
 }
-//Nur Temporärer Stop senden, bei start wieder mit letzten Parameter anlaufen
+//Nach Stopp, wieder mit letzten Parameter anlaufen
 void HAL_MOT11::start()
 {
     this->driveState = driveState_start;
@@ -258,6 +261,8 @@ e_APP_ERROR_t HAL_MOT11::getError()
             tempError = APP_ERROR__MOT11_CURRENT_NOT_TEACHED;
         break;
     }
+
+    Serial.print("error: "); Serial.println(tempError);
     return tempError;
 }
 
@@ -388,8 +393,10 @@ bool HAL_MOT11::waitForDriveParameter()
         }     
     }
 
-    //Empfangenen Errorcode auswerten
-    if(inCommand.extract.error != motError_noError)
+    //Empfangenen Errorcode auswerten, wenn plausibel
+    const bool RECEIVED_ERROR_CODE_PLAUSIBLE = (bool)(inCommand.extract.error < motError_count);
+
+    if(RECEIVED_ERROR_CODE_PLAUSIBLE)
     {
         this->error.code = (e_motError_t)inCommand.extract.error;
     }

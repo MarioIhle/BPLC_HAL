@@ -50,7 +50,8 @@ void APP_MCU11::tick()
       break;
 
       case APP_MODE__SAFE_STATE:
-         this->hal.LD1.blink(1, 100);         
+         this->hal.LD1.blink(1, 100);     
+         this->hal.LD2.blinkWithBreak((uint8_t)this->errorCode, 500, 1500);    
          this->hal.OEN.reset();          
       break;
 

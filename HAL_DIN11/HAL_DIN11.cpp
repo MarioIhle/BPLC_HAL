@@ -158,12 +158,19 @@ e_APP_ERROR_t HAL_DIN11::begin()
 }
 
 void HAL_DIN11::tick()
-{   
+{      
     //I2C Verbindung zyklisch prüfen
-    this->f_error = !this->selfCheck.requestHeartbeat();
+    if(!this->selfCheck.requestHeartbeat())
+    {
+        this->f_error = true;
+    }
+    else
+    {
+        //this->f_error = false;    //selbrücksetellung des Fehlerzustands, zur zeit nicht genutzt
+    }
 
     if(!this->f_error)
-    {    
+    {           
         if(this->f_somePinOfsomePinCardChanged > 0)
         {
             #ifdef DEBUG_HAL_DIN11
