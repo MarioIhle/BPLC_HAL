@@ -324,7 +324,7 @@ void HAL_MOT11::sendFrame(const u_mot11_i2c_payload_t COMMAND)
 
     for(uint8_t bytes; bytes < sizeof(u_mot11_i2c_payload_t); bytes++)
     {
-        Serial.println(COMMAND.data[bytes]);
+        //Serial.println(COMMAND.data[bytes]);
         Wire.write(COMMAND.data[bytes]);
     }                
 
