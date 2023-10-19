@@ -5,7 +5,7 @@
 #include "IOM_base.h"
 #include "Wire.h"
 #include "I2C_check.h"
-#include "APP_MCU11.h"
+#include "BPLC_TYPES.h"
 
 //#define DEBUG_HAL_MOT11 
 
@@ -13,6 +13,7 @@
 #define ACK 0x06
 #define NAK 0x15
 
+//State auf MCU
 typedef enum
 {
   driveState_stop,
@@ -21,10 +22,23 @@ typedef enum
   driveState_start,
   driveState_runningWithParameters,
   driveState_safeState,
+  driveState_autoTuningRunning,
 
   driveState_count,
 
 }e_driveState_t;
+
+//State auf Mot11
+typedef enum
+{
+  deviceState_init,
+  deviceState_running,
+  deviceState_safeState,
+  deviceState_autotuning,
+
+  deviceState_count,
+}e_deviceState_t;
+
 //Error out
 typedef enum
 {
@@ -54,6 +68,7 @@ typedef enum
   //setter 
   mot11_i2c_key__driveCommand,
   mot11_i2c_key__getDriveState,
+  mot11_i2c_key__startCurrentAutotuning,
 
   mot11_i2c_key__count,
 }e_mot11_i2c_key_t;
@@ -66,6 +81,7 @@ typedef union
   struct 
   {
     uint8_t key;
+    uint8_t deviceState;
     uint8_t direction;
     uint8_t speed;
     uint8_t error;
@@ -95,9 +111,10 @@ class HAL_MOT11
     void setSpeed             (const uint8_t SPEED);
     void setDirection         (const e_movement_t DIRECTION);
     void setDirectionAndSpeed (const e_movement_t DIRECTION, const uint8_t SPEED);
+    void startAutotuning();
     
     //Getter 
-    e_BPLC_ERROR_t   getError();
+    e_BPLC_ERROR_t  getError();
     float           getCurrent();
     e_movement_t    getDirection();
     uint8_t         getSpeed();

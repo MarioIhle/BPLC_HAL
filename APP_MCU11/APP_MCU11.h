@@ -21,6 +21,7 @@
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
 #include "IOM_base.h"
+#include "BPLC_TYPES.h"
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
@@ -51,28 +52,6 @@ typedef enum
 
     APP_MODE__COUNT,
 }e_APP_MODE_t;
-
-typedef enum
-{    
-    BPLC_ERROR__NO_ERROR,
-    //MCU Errors
-    BPLC_ERROR__RUNNTIME,
-    //I2C Kommunikation unterbrochen
-    BPLC_ERROR__OLED_COMMUNICATION_FAILED ,
-    BPLC_ERROR__DIN11_COMMUNICATION_FAILED,
-    BPLC_ERROR__AIN11_COMMUNICATION_FAILED,
-    BPLC_ERROR__REL11_COMMUNICATION_FAILED,
-    BPLC_ERROR__DO11_COMMUNICATION_FAILED,
-    BPLC_ERROR__MOT11_COMMUNICATION_FAILED,
-    BPLC_ERROR__FUSE11_COMMUNICATION_FAILED,
-    BPLC_ERROR__NANO_11_COMMUNICATION_FAILED,
-    //MOT11 Errrors
-    BPLC_ERROR__MOT11_OVER_CURRENT,
-    BPLC_ERROR__MOT11_OVER_TEMPERATURE,   
-    BPLC_ERROR__MOT11_CURRENT_NOT_TEACHED, 
-
-    BPLC_ERROR__COUNT,
-}e_BPLC_ERROR_t;
 
 
 class APP_MCU11

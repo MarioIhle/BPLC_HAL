@@ -197,6 +197,10 @@ void HAL_MOT11::tick()
             this->driveState = driveState_waitForStart;
         break;
 
+        case driveState_autoTuningRunning:
+            
+        break;
+
     }
 }
 //Nur Stop senden, letzte parameter aber speichern
