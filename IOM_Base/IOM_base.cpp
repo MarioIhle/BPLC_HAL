@@ -165,6 +165,7 @@ void Output::blink(const uint8_t BLINKS, const unsigned long BLINK_INTERVAL)
 	{
 		this->blinkParameter.blinks_requested = BLINKS;
 		this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
+		this->blinkParameter.to_blink.now();
 		this->blinkParameter.count = 0;		
 	}
 	this->mode = OUTPUTMODE__BLINK;	
@@ -174,8 +175,8 @@ void Output::blinkWithBreak(const uint8_t BLINKS, const unsigned long BLINK_INTE
 {
 	const bool ALREADY_IN_BLINK__WITH_BRAKE_MODE 	= (bool)(this->mode == OUTPUTMODE__BLINK_WITH_BREAK);
 	const bool PARAMETERS_DID_NOT_CHANGED 			= (bool)((this->blinkParameter.blinks_requested == BLINKS) 
-															&& (this->blinkParameter.to_blink.getInterval() == BLINK_INTERVAL)
-															&& (this->blinkParameter.to_break.getInterval() == BREAK_TIME));
+															&&(this->blinkParameter.to_blink.getInterval() == BLINK_INTERVAL)
+															&&(this->blinkParameter.to_break.getInterval() == BREAK_TIME));
 
 	if(ALREADY_IN_BLINK__WITH_BRAKE_MODE && PARAMETERS_DID_NOT_CHANGED)
 	{
@@ -185,7 +186,9 @@ void Output::blinkWithBreak(const uint8_t BLINKS, const unsigned long BLINK_INTE
 	{
 		this->blinkParameter.blinks_requested = BLINKS;
 		this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
+		this->blinkParameter.to_blink.now();
 		this->blinkParameter.to_break.setInterval(BREAK_TIME);
+		this->blinkParameter.to_break.now();
 		this->blinkParameter.count = 0; 
 	}
 	
@@ -269,7 +272,7 @@ void Output::tick()
 				}
 				else
 				{
-					this->mode = OUTPUTMODE__OFF;
+					this->actualValue.value = 0;
 				}			
 			}
 		break;

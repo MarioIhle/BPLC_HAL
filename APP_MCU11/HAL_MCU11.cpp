@@ -19,7 +19,7 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
     this->LD3.begin(255);    
     //BUZZER
     pinMode(this->pins.buzzer, OUTPUT);
-    this->BUZZER.begin(50);
+    this->BUZZER.begin(150);
     //OEN
     this->OEN.begin(true);    
     pinMode(this->pins.OEN, OUTPUT);

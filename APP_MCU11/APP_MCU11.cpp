@@ -16,7 +16,7 @@ void APP_MCU11::begin(void (*INT_callBack)(void))
 
    this->deviceSettings.f_beepOnEncoderInput = false;
 
-   this->deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
+   this->deviceMode = APP_MODE__START;
    this->hardwareErrorCode = BPLC_ERROR__NO_ERROR;
    
    this->temp_ParameterStorage = 0;
@@ -44,24 +44,25 @@ void APP_MCU11::tick()
    switch(this->deviceMode)
    {
       case APP_MODE__STOP:
-         this->hal.LD1.blink(1, 500);      
+         this->hal.LD1.blinkWithBreak(1, 500, 500);      
          this->hal.OEN.reset();    
       break;
 
       case APP_MODE__RUN_WITH_CONFIG_1:   
       case APP_MODE__RUN_WITH_CONFIG_2:
       case APP_MODE__RUN_WITH_CONFIG_3:               
-         this->hal.LD1.blink(1, 2500);   
-         this->hal.OEN.set();         
+         this->hal.LD1.blinkWithBreak(1, 2500, 2500);           
       break;
 
       case APP_MODE__START:             
          this->hal.LD1.set();  
          this->hal.BUZZER.blink(1, 100); 
+         this->hal.OEN.set(); 
+         this->deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
       break;
 
       case APP_MODE__SAFE_STATE:
-         this->hal.LD1.blink(1, 100);     
+         this->hal.LD1.blinkWithBreak(1, 100, 100);     
          this->hal.LD2.blinkWithBreak((uint8_t)this->hardwareErrorCode, 500, 1500);    
          this->hal.BUZZER.blinkWithBreak(3, 100, 30000);
          this->hal.OEN.reset();          
