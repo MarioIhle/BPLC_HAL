@@ -198,7 +198,16 @@ void HAL_MOT11::tick()
         break;
 
         case driveState_autoTuningRunning:
-            
+            //Status abfragen, solange Autotuning aktiv nix tun
+            if(this->to_parameterPoll.check())
+            {
+                this->requestDriveParameter(); 
+                this->to_parameterPoll.reset();
+            }  
+            if(this->deviceState == deviceState_running)
+            {
+                this->driveState = driveState_start;
+            }
         break;
 
     }
@@ -396,13 +405,17 @@ bool HAL_MOT11::waitForDriveParameter()
         }     
     }
 
+    
     //Empfangenen Errorcode auswerten, wenn plausibel
     const bool RECEIVED_ERROR_CODE_PLAUSIBLE = (bool)(inCommand.extract.error < motError_count);
-
+    //Empfangene Parameter übernehemen
     if(RECEIVED_ERROR_CODE_PLAUSIBLE)
     {
         this->error.code = (e_motError_t)inCommand.extract.error;
     }
+
+    this->deviceState       = (e_deviceState_t)inCommand.extract.deviceState;
+    this->motParams.current = inCommand.extract.current;
 
 #ifdef DEBUG_HAL_MOT11 
 Serial.println("Drive Parameter:");

@@ -76,17 +76,18 @@ typedef enum
 
 #pragma pack (push, 1)
 typedef union 
-{ 
-  uint8_t data[8];
+{   
   struct 
   {
-    uint8_t key;
-    uint8_t deviceState;
-    uint8_t direction;
-    uint8_t speed;
-    uint8_t error;
-    float   current;
+    uint8_t key;          //1
+    uint8_t deviceState;  //1+1 = 2
+    uint8_t direction;    //2+1 = 3
+    uint8_t speed;        //3+1 = 4
+    uint8_t error;        //4+1 = 5
+    float   current;      //5+4 = 9
   }extract; 
+
+  uint8_t data[9];
 
 }u_mot11_i2c_payload_t;
 #pragma pack (pop)
@@ -122,7 +123,8 @@ class HAL_MOT11
 
     private:
     //Applikation
-    e_driveState_t driveState;
+    e_driveState_t  driveState;       
+    e_deviceState_t deviceState;
 
     //I2C Kommunikation
     void sendDriveCommand     ();
