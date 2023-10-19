@@ -161,7 +161,7 @@ void HAL_MOT11::tick()
         case driveState_start:
             this->motParams.direction = this->motParams.old.direction;
             this->motParams.speed     = this->motParams.old.speed;
-            this->sendDriveCommand(); 
+            this->sendDriveCommand(mot11_i2c_key__driveCommand); 
 
             this->driveState = driveState_runningWithParameters;               
         break;
@@ -169,7 +169,7 @@ void HAL_MOT11::tick()
         case driveState_runningWithParameters:   //Normalbetreb
             if((this->motParams.old.direction != this->motParams.direction) || (this->motParams.old.speed != this->motParams.speed))
             {
-                this->sendDriveCommand();
+                this->sendDriveCommand(mot11_i2c_key__driveCommand);
                 this->motParams.old.direction = this->motParams.direction;
                 this->motParams.old.speed     = this->motParams.speed;
             }
@@ -184,7 +184,7 @@ void HAL_MOT11::tick()
         case driveState_stop:        
             this->motParams.speed     = 0;
             this->motParams.direction = movement_idle;     
-            this->sendDriveCommand();   //Stop senden
+            this->sendDriveCommand(mot11_i2c_key__driveCommand);   //Stop senden
 
             this->driveState = driveState_waitForStart;      
         break;
@@ -192,7 +192,7 @@ void HAL_MOT11::tick()
         case driveState_stopAndBreak:
             this->motParams.speed     = 255;
             this->motParams.direction = movement_idle; 
-            this->sendDriveCommand();  
+            this->sendDriveCommand(mot11_i2c_key__driveCommand);  
 
             this->driveState = driveState_waitForStart;
         break;
@@ -244,6 +244,13 @@ void HAL_MOT11::setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t
     this->motParams.speed     = SPEED;   
 }
 
+void HAL_MOT11::startAutotuning()
+{
+    this->sendDriveCommand(mot11_i2c_key__startCurrentAutotuning);
+    this->deviceState = deviceState_autotuning;
+    this->driveState  = driveState_autoTuningRunning;
+}
+
 e_BPLC_ERROR_t HAL_MOT11::getError()
 {
     e_BPLC_ERROR_t tempError = BPLC_ERROR__NO_ERROR;
@@ -293,12 +300,12 @@ uint8_t HAL_MOT11::getSpeed()
     return this->motParams.speed;
 }
 
-void HAL_MOT11::sendDriveCommand()
+void HAL_MOT11::sendDriveCommand(e_mot11_i2c_key_t KEY)
 {  
     u_mot11_i2c_payload_t COMMAND;
     memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
 
-    COMMAND.extract.key         = mot11_i2c_key__driveCommand;
+    COMMAND.extract.key         = (uint8_t)KEY;
     COMMAND.extract.direction   = this->motParams.direction;
     COMMAND.extract.speed       = this->motParams.speed;
 

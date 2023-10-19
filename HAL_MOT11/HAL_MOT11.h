@@ -127,7 +127,7 @@ class HAL_MOT11
     e_deviceState_t deviceState;
 
     //I2C Kommunikation
-    void sendDriveCommand     ();
+    void sendDriveCommand     (e_mot11_i2c_key_t KEY);
     void requestDriveParameter();
     void sendFrame            (const u_mot11_i2c_payload_t COMMAND);
     bool waitForACK           ();
