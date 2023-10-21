@@ -272,7 +272,9 @@ void Output::tick()
 				}
 				else
 				{
-					this->actualValue.value = 0;
+					this->actualValue.value 				= 0;					
+					this->blinkParameter.count 				= 0;
+					this->blinkParameter.blinks_requested 	= 0;
 				}			
 			}
 		break;
