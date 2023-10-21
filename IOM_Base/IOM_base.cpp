@@ -153,21 +153,11 @@ void Output::begin(const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE)
 
 void Output::blink(const uint8_t BLINKS, const unsigned long BLINK_INTERVAL)
 {
-	const bool ALREADY_IN_BLINK_MODE 		= (bool)(this->mode == OUTPUTMODE__BLINK);
-	const bool PARAMETERS_DID_NOT_CHANGED 	= (bool)((this->blinkParameter.blinks_requested == BLINKS) 
-												&& (this->blinkParameter.to_blink.getInterval() == BLINK_INTERVAL));
-
-	if(ALREADY_IN_BLINK_MODE && PARAMETERS_DID_NOT_CHANGED)
-	{
-		//nichts ändern, sonst wird Blinktakt immer neu gestartet
-	}
-	else
-	{
-		this->blinkParameter.blinks_requested = BLINKS;
-		this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
-		this->blinkParameter.to_blink.now();
-		this->blinkParameter.count = 0;		
-	}
+	this->blinkParameter.blinks_requested = BLINKS;
+	this->blinkParameter.to_blink.setInterval(BLINK_INTERVAL);
+	this->blinkParameter.to_blink.now();
+	this->blinkParameter.count = 0;		
+	
 	this->mode = OUTPUTMODE__BLINK;	
 }
 
@@ -272,10 +262,8 @@ void Output::tick()
 				}
 				else
 				{
-					this->actualValue.value 				= 0;					
-					this->blinkParameter.count 				= 0;
-					this->blinkParameter.blinks_requested 	= 0;
-				}			
+					this->mode = OUTPUTMODE__OFF;
+				}
 			}
 		break;
 
