@@ -22,6 +22,13 @@
 #include "OLED_DISPLAY.h" 
 #include "IOM_base.h"
 #include "BPLC_TYPES.h"
+
+#include "HAL_DIN11.h"
+#include "HAL_AIN11.h"
+#include "HAL_REL11.h"
+#include "HAL_FUSE11.h"
+#include "HAL_DO11.h"
+#include "HAL_MOT11.h"
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
@@ -54,11 +61,13 @@ typedef enum
 }e_APP_MODE_t;
 
 
+
 class APP_MCU11
 {
     public:
     APP_MCU11();
     void begin(void (*INT_callBack)(void));
+    void setupHardware(const uint8_t DIN11_CARD__COUNT, const uint8_t AIN11_CARD__COUNT, const uint8_t DO11_CARD__COUNT, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT);    
     void tick();
     
     e_APP_MODE_t    getDeviceMode();    
@@ -94,6 +103,19 @@ class APP_MCU11
     void editDeviceMode();
     void errorOut();
     void handle_vDip();
+
+    
+    struct
+    {
+        uint8_t din11CardCount;
+        uint8_t ain11CardCount;
+        uint8_t do11CardCount;
+        uint8_t rel11CardCount;
+        uint8_t mot11CardCount;
+        uint8_t fuse11CardCount;
+        uint8_t nano11CardCount;
+    }hardware;
+    
 
     struct 
     {

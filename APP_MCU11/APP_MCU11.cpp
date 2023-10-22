@@ -24,6 +24,22 @@ void APP_MCU11::begin(void (*INT_callBack)(void))
    //Runntime error
    this->to_runnntime.setInterval(1000);
    this->to_runnntime.reset();
+   
+   #ifdef DIN_COUNT
+   Serial.println("config.h worked");
+   #endif
+   
+   }
+
+void APP_MCU11::setupHardware(const uint8_t DIN11_CARD__COUNT, const uint8_t AIN11_CARD__COUNT, const uint8_t DO11_CARD__COUNT, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT)
+{
+   this->hardware.din11CardCount    = DIN11_CARD__COUNT;
+   this->hardware.ain11CardCount    = AIN11_CARD__COUNT;
+   this->hardware.do11CardCount     = DO11_CARD__COUNT;
+   this->hardware.rel11CardCount    = REL11_CARD__COUNT;
+   this->hardware.mot11CardCount    = MOT11_CARD__COUNT;
+   this->hardware.fuse11CardCount   = FUSE11_CARD__COUNT;
+   this->hardware.nano11CardCount   = NANO11_CARD__COUNT;
 }
 
 void APP_MCU11::tick()

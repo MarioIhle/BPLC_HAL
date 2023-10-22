@@ -5,8 +5,11 @@
 #include "IOM_base.h"
 #include <Adafruit_ADS1X15.h>
 #include "SpecialFunctions.h"
-#include "APP_MCU11.h"
+#include "BPLC_TYPES.h"
 #include "I2C_check.h"
+
+
+
 
 
 //#define DEBUG_HAL_AIN11

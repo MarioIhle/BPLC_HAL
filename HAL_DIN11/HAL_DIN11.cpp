@@ -157,6 +157,21 @@ e_BPLC_ERROR_t HAL_DIN11::begin()
     return error;
 }
 
+void HAL_DIN11::begin(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1 = nullptr, DigitalInput* P_PORT_2 = nullptr, DigitalInput* P_PORT_3 = nullptr, DigitalInput* P_PORT_4 = nullptr, DigitalInput* P_PORT_5 = nullptr, DigitalInput* P_PORT_6 = nullptr, DigitalInput* P_PORT_7 = nullptr, DigitalInput* P_PORT_8 = nullptr)
+{  
+    this->deviceAddress = ADDRESS;
+
+    this->p_ports[DI_PORT_1] = P_PORT_1;
+    this->p_ports[DI_PORT_2] = P_PORT_2;
+    this->p_ports[DI_PORT_3] = P_PORT_3;
+    this->p_ports[DI_PORT_4] = P_PORT_4;
+    this->p_ports[DI_PORT_5] = P_PORT_5;
+    this->p_ports[DI_PORT_6] = P_PORT_6;
+    this->p_ports[DI_PORT_7] = P_PORT_7;
+    this->p_ports[DI_PORT_8] = P_PORT_8; 
+    this->usedPortCount = 8;
+}
+
 void HAL_DIN11::tick()
 {      
     //I2C Verbindung zyklisch prüfen
