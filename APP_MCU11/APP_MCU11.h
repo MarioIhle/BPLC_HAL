@@ -66,10 +66,14 @@ class APP_MCU11
 {
     public:
     APP_MCU11();
-    void begin(void (*INT_callBack)(void));
+    void begin();
     void setupHardware(const uint8_t DIN11_CARD__COUNT, const uint8_t AIN11_CARD__COUNT, const uint8_t DO11_CARD__COUNT, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT);    
     void tick();
     
+    void mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD);    //Je nach Reihenfolge werden Ports vergeben
+    void mapObjectToCard(Output* P_OBJECT, e_DO11_ADDRESS_t CARD);
+
+
     e_APP_MODE_t    getDeviceMode();    
     void            setDeviceMode(const e_APP_MODE_t MODE);
 
@@ -95,7 +99,7 @@ class APP_MCU11
     byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
 
     bool isThereAnyHardwareError();     //return=0, wenn kein Error gesetzt
-    e_BPLC_ERROR_t  hardwareErrorCode;          //Hardware Error, sofort Applikation anhalten
+    e_BPLC_ERROR_t  hardwareErrorCode;  //Hardware Error, sofort Applikation anhalten
     
     void handleDisplay();
     void beepOnEncoderInput();
@@ -103,8 +107,7 @@ class APP_MCU11
     void editDeviceMode();
     void errorOut();
     void handle_vDip();
-
-    
+  
     struct
     {
         uint8_t din11CardCount;
@@ -115,6 +118,9 @@ class APP_MCU11
         uint8_t fuse11CardCount;
         uint8_t nano11CardCount;
     }hardware;
+
+    HAL_DIN11 DIN11_CARD[DIN11_CARD__COUNT]; 
+    HAL_DO11  DO11_CARD[DO11_CARD_COUNT];
     
 
     struct 

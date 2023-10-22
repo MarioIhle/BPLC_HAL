@@ -6,7 +6,7 @@ HAL_REL11::HAL_REL11()
 HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1)
 {
     this->p_REL[0] = P_REL1;    
-    this->usedPortCount = 1;
+    this->usedPorts = 1;
 
     this->deviceAddress  = ADDRESS;
 }
@@ -15,7 +15,7 @@ HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_
 {
     this->p_REL[0] = P_REL1;
     this->p_REL[1] = P_REL2;    
-    this->usedPortCount = 2;
+    this->usedPorts = 2;
 
     this->deviceAddress  = ADDRESS;
 }
@@ -25,7 +25,7 @@ HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t ADDRESS, Output* P_REL1, Output* P_
     this->p_REL[0] = P_REL1;
     this->p_REL[1] = P_REL2;
     this->p_REL[2] = P_REL3;
-    this->usedPortCount = 3;
+    this->usedPorts = 3;
 
     this->deviceAddress  = ADDRESS;    
 }
@@ -57,7 +57,7 @@ e_BPLC_ERROR_t HAL_REL11::begin()
     //Tatsächliche I2C Addresse ausgeben
     Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
 
-    Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/3");
+    Serial.print("Ports defined: "); Serial.print(this->usedPorts); Serial.println("/3");
  
     this->selfCheck.begin(this->deviceAddress);
     if(this->selfCheck.checkI2CConnection())
@@ -101,7 +101,7 @@ void HAL_REL11::tick()
 
     if(!this->f_error)
     {         
-        for(int PORT = 0; PORT < this->usedPortCount; PORT++)
+        for(int PORT = 0; PORT < this->usedPorts; PORT++)
         {
             if(this->p_REL[PORT]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
             {

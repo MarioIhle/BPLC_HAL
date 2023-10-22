@@ -9,7 +9,7 @@ HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1)
 
     this->p_DO[DO_PORT_1]   = P_DO1;    
 
-    this->usedPortCount     = 1;
+    this->usedPorts     = 1;
 }   
 
 HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2)
@@ -19,7 +19,7 @@ HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2)
     this->p_DO[DO_PORT_1]   = P_DO1;    
     this->p_DO[DO_PORT_2]   = P_DO2; 
     
-    this->usedPortCount     = 2;
+    this->usedPorts     = 2;
 }   
 
 HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3)
@@ -30,7 +30,7 @@ HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2,
     this->p_DO[DO_PORT_2] = P_DO2; 
     this->p_DO[DO_PORT_3] = P_DO3; 
     
-    this->usedPortCount = 3;
+    this->usedPorts = 3;
 }   
 
 HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4)
@@ -42,7 +42,7 @@ HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2,
     this->p_DO[DO_PORT_3] = P_DO3; 
     this->p_DO[DO_PORT_4] = P_DO4; 
     
-    this->usedPortCount = 4;
+    this->usedPorts = 4;
 }   
 
 HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5)
@@ -55,7 +55,7 @@ HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2,
     this->p_DO[DO_PORT_4] = P_DO4; 
     this->p_DO[DO_PORT_5] = P_DO5; 
     
-    this->usedPortCount = 5;
+    this->usedPorts = 5;
 }   
 
 HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6)
@@ -69,7 +69,7 @@ HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2,
     this->p_DO[DO_PORT_5] = P_DO5; 
     this->p_DO[DO_PORT_6] = P_DO6; 
 
-    this->usedPortCount = 6;
+    this->usedPorts = 6;
 }   
 
 HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7)
@@ -84,7 +84,7 @@ HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2,
     this->p_DO[DO_PORT_6] = P_DO6; 
     this->p_DO[DO_PORT_7] = P_DO7;  
 
-    this->usedPortCount = 7;
+    this->usedPorts = 7;
 }   
 
 HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7, Output* P_DO8)
@@ -100,7 +100,7 @@ HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2,
     this->p_DO[DO_PORT_7] = P_DO7; 
     this->p_DO[DO_PORT_8] = P_DO8; 
 
-    this->usedPortCount = 8;
+    this->usedPorts = 8;
 }   
 
 e_BPLC_ERROR_t HAL_DO11::begin()
@@ -130,7 +130,7 @@ e_BPLC_ERROR_t HAL_DO11::begin()
     //Tatsächliche I2C Addresse ausgeben
     Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
 
-    Serial.print("Ports defined: "); Serial.print(this->usedPortCount); Serial.println("/8");
+    Serial.print("Ports defined: "); Serial.print(this->usedPorts); Serial.println("/8");
  
     this->selfCheck.begin(this->deviceAddress);
     if(this->selfCheck.checkI2CConnection())
@@ -159,6 +159,15 @@ e_BPLC_ERROR_t HAL_DO11::begin()
     return error;
 }
 
+void HAL_DO11::begin(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1)
+{
+    this->deviceAddress     = ADDRESS;
+
+    this->p_DO[DO_PORT_1]   = P_DO1;    
+
+    this->usedPorts     = 1;
+}
+
 void HAL_DO11::tick()
 {
     //I2C Verbindung zyklisch prüfen
@@ -173,7 +182,7 @@ void HAL_DO11::tick()
 
     if(!this->f_error)
     {
-        for(uint8_t PORT; PORT < this->usedPortCount; PORT++)
+        for(uint8_t PORT; PORT < this->usedPorts; PORT++)
         {                
             if(this->p_DO[PORT]->isThereANewPortValue())    //Nur Wert abrufen und schreiben, falls dier sich geändert hat
             {     

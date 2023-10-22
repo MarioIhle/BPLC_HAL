@@ -62,7 +62,7 @@ class HAL_AIN11
     //Settings
     Adafruit_ADS1115    ADC;
     uint8_t             deviceAddress;
-    uint8_t             usedPortCount;
+    uint8_t             usedPorts;
     Timeout             to_read;
 
     AnalogInput*   p_ports [AI_PORT_COUNT];    

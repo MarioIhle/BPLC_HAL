@@ -56,7 +56,7 @@ class HAL_REL11 {
     
     PCF8574 PCF;
     int deviceAddress;
-    int usedPortCount; 
+    int usedPorts; 
 };
 
 #endif

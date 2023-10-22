@@ -70,7 +70,7 @@ class HAL_FUSE11 {
     }pins;
     
     PCF8574 PCF;
-    int     usedPortCount;
+    int     usedPorts;
     uint8_t f_somePinOfsomePinCardChanged;
     uint8_t deviceAddress;
     Timeout to_fuseCheck;

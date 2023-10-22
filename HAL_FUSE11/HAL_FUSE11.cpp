@@ -6,7 +6,7 @@ HAL_FUSE11::HAL_FUSE11()
 HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1)
 {
     this->p_DO[OUT_PORT_1]  = P_DO1;
-    this->usedPortCount     = 1;
+    this->usedPorts     = 1;
 
     this->deviceAddress  = ADDRESS;
 }
@@ -15,7 +15,7 @@ HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* 
 {
     this->p_DO[OUT_PORT_1]  = P_DO1;
     this->p_DO[OUT_PORT_2]  = P_DO2;
-    this->usedPortCount     = 2;
+    this->usedPorts     = 2;
 
     this->deviceAddress  = ADDRESS;
 }
@@ -25,7 +25,7 @@ HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* 
     this->p_DO[OUT_PORT_1]  = P_DO1;
     this->p_DO[OUT_PORT_2]  = P_DO2;
     this->p_DO[OUT_PORT_3]  = P_DO3;  
-    this->usedPortCount     = 3;
+    this->usedPorts     = 3;
 
     this->deviceAddress  = ADDRESS;
 }
@@ -36,7 +36,7 @@ HAL_FUSE11::HAL_FUSE11(const e_FUSE11_ADDRESS_t ADDRESS, Output* P_DO1, Output* 
     this->p_DO[OUT_PORT_2]  = P_DO2;
     this->p_DO[OUT_PORT_3]  = P_DO3;
     this->p_DO[OUT_PORT_4]  = P_DO4;
-    this->usedPortCount     = 4;
+    this->usedPorts     = 4;
 
     this->deviceAddress  = ADDRESS;
 }
@@ -51,7 +51,7 @@ void HAL_FUSE11::begin()
     
 #ifdef DEBUG_HAL_FUSE11 
 Serial.print("HAL_REL11.begin with I2C Address"); Serial.println(this->deviceAddress);
-Serial.print("portCount: "); Serial.println(this->usedPortCount);
+Serial.print("portCount: "); Serial.println(this->usedPorts);
 #endif
 }
 
@@ -75,7 +75,7 @@ Serial.println(" ");
 #endif  
     }
 
-    for(int PORT = 0; PORT < this->usedPortCount; PORT++)
+    for(int PORT = 0; PORT < this->usedPorts; PORT++)
     {
         //OUTPUTs
         if(this->p_DO[PORT]->isThereANewPortValue())    //Nur Wert abrufen und schreiben, falls dier sich geändert hat
@@ -98,7 +98,7 @@ uint8_t HAL_FUSE11::isAFuseBroken()
 {
     uint8_t BROKEN_FUSE = 0;
 
-    for(int FUSE = 0; FUSE < this->usedPortCount ; FUSE++)
+    for(int FUSE = 0; FUSE < this->usedPorts ; FUSE++)
     {
         if(this->FUSE[FUSE].islow())
         {

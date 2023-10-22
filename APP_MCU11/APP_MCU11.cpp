@@ -1,14 +1,22 @@
 #include "APP_MCU11.h"
 
+//Callback für Hardware Interrupt 
+bool f_ISR_called;
+
+void INT_ISR()
+{
+   f_ISR_called = true;
+}
+
 APP_MCU11::APP_MCU11()
 {}
 
 /**
  * @param   INT_callBack   Zeiger auf ISR  
 */
-void APP_MCU11::begin(void (*INT_callBack)(void))
+void APP_MCU11::begin()
 {
-   this->hal.begin(INT_callBack); 
+   this->hal.begin(INT_ISR); 
    Serial.println("##############################");  
    Serial.println("setup MCU11");  
 
@@ -25,9 +33,13 @@ void APP_MCU11::begin(void (*INT_callBack)(void))
    this->to_runnntime.setInterval(1000);
    this->to_runnntime.reset();
    
-   #ifdef DIN_COUNT
-   Serial.println("config.h worked");
-   #endif
+
+
+   this->DIN11_CARD[0].begin(DIN11_CARD_1_ADDRESS);
+   this->DIN11_CARD[1].begin(DIN11_CARD_2_ADDRESS);
+   this->DIN11_CARD[2].begin(DIN11_CARD_3_ADDRESS);
+   this->DIN11_CARD[3].begin(DIN11_CARD_4_ADDRESS);
+
    
    }
 
@@ -40,6 +52,16 @@ void APP_MCU11::setupHardware(const uint8_t DIN11_CARD__COUNT, const uint8_t AIN
    this->hardware.mot11CardCount    = MOT11_CARD__COUNT;
    this->hardware.fuse11CardCount   = FUSE11_CARD__COUNT;
    this->hardware.nano11CardCount   = NANO11_CARD__COUNT;
+}
+
+void APP_MCU11::mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
+{
+   this->DIN11_CARD[CARD].mapObjectToPort(P_OBJECT);
+}
+
+void APP_MCU11::mapObjectToCard(Output* P_PORT, e_DO11_ADDRESS_t CARD)
+{
+   this->DO11_CARD[CARD].begin(CARD, P_PORT);
 }
 
 void APP_MCU11::tick()
