@@ -35,13 +35,16 @@ void APP_MCU11::begin()
    
 
 
-   this->DIN11_CARD[0].begin(DIN11_CARD_1_ADDRESS);
-   this->DIN11_CARD[1].begin(DIN11_CARD_2_ADDRESS);
-   this->DIN11_CARD[2].begin(DIN11_CARD_3_ADDRESS);
-   this->DIN11_CARD[3].begin(DIN11_CARD_4_ADDRESS);
+   this->DIN11_CARD[DIN11_CARD__1].begin(DIN11_CARD_1_ADDRESS);
+   this->DIN11_CARD[DIN11_CARD__2].begin(DIN11_CARD_2_ADDRESS);
+   this->DIN11_CARD[DIN11_CARD__3].begin(DIN11_CARD_3_ADDRESS);
+   this->DIN11_CARD[DIN11_CARD__4].begin(DIN11_CARD_4_ADDRESS);   
 
-   
-   }
+   this->DO11_CARD[DO11_CARD__1].begin(DO11_CARD_1_ADDRESS);
+   this->DO11_CARD[DO11_CARD__2].begin(DO11_CARD_2_ADDRESS);
+   this->DO11_CARD[DO11_CARD__3].begin(DO11_CARD_3_ADDRESS);
+   this->DO11_CARD[DO11_CARD__4].begin(DO11_CARD_4_ADDRESS); 
+}
 
 void APP_MCU11::setupHardware(const uint8_t DIN11_CARD__COUNT, const uint8_t AIN11_CARD__COUNT, const uint8_t DO11_CARD__COUNT, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT)
 {
@@ -59,13 +62,30 @@ void APP_MCU11::mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
    this->DIN11_CARD[CARD].mapObjectToPort(P_OBJECT);
 }
 
-void APP_MCU11::mapObjectToCard(Output* P_PORT, e_DO11_ADDRESS_t CARD)
+void APP_MCU11::mapObjectToCard(Output* P_OBJECT, e_DO11_ADDRESS_t CARD)
 {
-   this->DO11_CARD[CARD].begin(CARD, P_PORT);
+   this->DO11_CARD[CARD].mapObjectToPort(P_OBJECT);
 }
 
 void APP_MCU11::tick()
 {
+   this->hal.tick();
+   this->oled.tick();
+   this->handleDisplay();
+
+   //Handle DIN11 Cards
+   for(uint8_t CARD=0; CARD < DIN11_CARD__COUNT; CARD++)
+   {
+      this->DIN11_CARD[CARD].tick();
+   }
+   //Handle DO11 Cards
+   for(uint8_t CARD=0; CARD < DO11_CARD__COUNT; CARD++)
+   {
+      this->DO11_CARD[CARD].tick();
+   }
+
+
+
    //Runntime überwachung der Applikation
    if(this->to_runnntime.check())
    {
@@ -115,10 +135,6 @@ void APP_MCU11::tick()
    {
       this->beepOnEncoderInput(); 
    }   
-
-   this->hal.tick();
-   this->oled.tick();
-   this->handleDisplay();
 }
 
 void APP_MCU11::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)

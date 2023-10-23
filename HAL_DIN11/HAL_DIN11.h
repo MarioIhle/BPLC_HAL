@@ -80,7 +80,7 @@ class HAL_DIN11
     void begin();
     void begin(const e_DIN11_ADDRESS_t I2C_ADDRESS);
     
-    void mapObjectToPort(DigitalInput* P_PORT);
+    void mapObjectToPort(DigitalInput* P_OBJECT);
 
     void tick ();    
     void somePinOfsomeDinCardChanged();
@@ -95,7 +95,7 @@ class HAL_DIN11
     e_DIN11_ERROR_t errorCode;
 
     //Settings
-    PCF8574     PCF;
+    PCF8574           PCF;
     e_DIN11_ADDRESS_t deviceAddress;
     uint8_t           usedPorts;
 

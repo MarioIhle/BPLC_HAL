@@ -60,7 +60,7 @@ class HAL_FUSE11 {
     uint8_t     isAFuseBroken();
 
     private:
-    Output*         p_DO    [OUT_PORT_COUNT];    
+    Output*         p_ports    [OUT_PORT_COUNT];    
     DigitalInput    FUSE    [IN_PORT_COUNT];
     
     struct 

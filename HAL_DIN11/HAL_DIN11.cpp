@@ -202,9 +202,9 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     }
 }
 
-void HAL_DIN11::mapObjectToPort(DigitalInput* P_PORT)
+void HAL_DIN11::mapObjectToPort(DigitalInput* P_OBJECT)
 {  
-    this->p_ports[usedPorts] = P_PORT;
+    this->p_ports[usedPorts] = P_OBJECT;
     this->usedPorts++;
 
     //Plausibilitätsprüfung

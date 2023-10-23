@@ -120,7 +120,7 @@ class APP_MCU11
     }hardware;
 
     HAL_DIN11 DIN11_CARD[DIN11_CARD__COUNT]; 
-    HAL_DO11  DO11_CARD[DO11_CARD_COUNT];
+    HAL_DO11  DO11_CARD [DO11_CARD__COUNT];
     
 
     struct 
