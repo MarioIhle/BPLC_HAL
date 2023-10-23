@@ -1,16 +1,48 @@
 #ifndef HAL_MOT11_h
 #define HAL_MOT11_h
 
+//-------------------------------------------------------------
+//INCLUDES
+//-------------------------------------------------------------
 #include "Arduino.h"
 #include "IOM_base.h"
 #include "Wire.h"
 #include "I2C_check.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
-
+//-------------------------------------------------------------
+//HARDWARE DEBUGGING
+//-------------------------------------------------------------
 //#define DEBUG_HAL_MOT11 
 
-//I2C Commands
+//-------------------------------------------------------------
+//HARDWARE SPEZIFISCHE TYPES
+//-------------------------------------------------------------
+typedef enum
+{
+    MOT11_CARD__1,
+    MOT11_CARD__2,
+    MOT11_CARD__3,
+    MOT11_CARD__4,
+    
+    MOT11_CARD__MAX,
+
+}e_MOT11_CARD_t;
+
+typedef enum
+{
+    MOT11_CARD_1_ADDRESS = 0x10,
+    MOT11_CARD_2_ADDRESS = 0x11,
+    MOT11_CARD_3_ADDRESS = 0x12,
+    MOT11_CARD_4_ADDRESS = 0x13,
+    
+    MOT11_CARD_ADDRESS_COUNT = 4,
+
+}e_MOT11_ADDRESS_t;
+
+//-------------------------------------------------------------
+//APPLIKATION
+//-------------------------------------------------------------
 #define ACK 0x06
 #define NAK 0x15
 
@@ -29,7 +61,7 @@ typedef enum
 
 }e_driveState_t;
 
-//State auf Mot11
+//State auf MOT11
 typedef enum
 {
   deviceState_init,
@@ -39,30 +71,6 @@ typedef enum
 
   deviceState_count,
 }e_deviceState_t;
-
-//Error out
-typedef enum
-{
-  motError_noError,
-  motError_overcurrent,
-  motError_overtemperature,
-  motError_notTeached, 
-  motError_OEN_disabled,
-  motError_i2cConnectionFailed,
-
-  motError_count,
-}e_motError_t;
-
-typedef enum
-{
-    MOT11_CARD_1 = 0x10,
-    MOT11_CARD_2 = 0x11,
-    MOT11_CARD_3 = 0x12,
-    MOT11_CARD_4 = 0x13,
-    
-    MOT11_CARD_COUNT = 4,
-
-}e_MOT11_ADDRESS_t;
 
 typedef enum
 {
@@ -93,15 +101,17 @@ typedef union
 }u_mot11_i2c_payload_t;
 #pragma pack (pop)
 
-
+//-------------------------------------------------------------
+//HAL_DIN11 KLASSE
+//-------------------------------------------------------------
 class HAL_MOT11
 {
     public:
     //Init
     HAL_MOT11   ();
     HAL_MOT11   (const e_MOT11_ADDRESS_t ADDRESS);
-    e_BPLC_ERROR_t begin  ();
-    e_BPLC_ERROR_t begin  (const e_MOT11_ADDRESS_t ADDRESS);
+    void begin  ();
+    void begin  (const e_MOT11_ADDRESS_t ADDRESS);
     
     //Routine aufruf
     void tick();
@@ -113,13 +123,13 @@ class HAL_MOT11
     void setSpeed             (const uint8_t SPEED);
     void setDirection         (const e_movement_t DIRECTION);
     void setDirectionAndSpeed (const e_movement_t DIRECTION, const uint8_t SPEED);
-    void startAutotuning();
+    void startAutotuning      ();
     
     //Getter 
-    e_BPLC_ERROR_t  getError();
-    float           getCurrent();
+    e_BPLC_ERROR_t  getError    ();
+    float           getCurrent  ();
     e_movement_t    getDirection();
-    uint8_t         getSpeed();
+    uint8_t         getSpeed    ();
 
 
     private:
@@ -165,7 +175,7 @@ class HAL_MOT11
         uint8_t countLimit; //Limit ab wann error ausgegeben wird
       }i2cError;    
       
-      e_motError_t  code;       //aktueller Erororcode
+      e_BPLC_ERROR_t code;       //aktueller Erororcode
     }error;
 };
 #endif

@@ -3,15 +3,13 @@
 HAL_MOT11::HAL_MOT11()
 {}
 
-HAL_MOT11::HAL_MOT11(const e_MOT11_ADDRESS_t ADDRESS)
+HAL_MOT11::HAL_MOT11(const e_MOT11_ADDRESS_t I2C_ADDRESS)
 {
-    this->deviceAddress = ADDRESS;
+    this->deviceAddress = I2C_ADDRESS;
 }
 
-e_BPLC_ERROR_t HAL_MOT11::begin()
+void HAL_MOT11::begin()
 {
-    e_BPLC_ERROR_t error = BPLC_ERROR__NO_ERROR;
-    
     //Debug Error ausgabe
     Serial.println("##############################");  
     Serial.println("setup MOT11 ");
@@ -19,16 +17,16 @@ e_BPLC_ERROR_t HAL_MOT11::begin()
     Serial.print("CARD: ");
     switch(this->deviceAddress)
     {
-        case MOT11_CARD_1:
+        case MOT11_CARD_1_ADDRESS:
             Serial.println("1");
         break;
-        case MOT11_CARD_2:
+        case MOT11_CARD_2_ADDRESS:
             Serial.println("2");
         break;
-        case MOT11_CARD_3:
+        case MOT11_CARD_3_ADDRESS:
             Serial.println("3");
         break;
-        case MOT11_CARD_4:
+        case MOT11_CARD_4_ADDRESS:
             Serial.println("4");
         break;
     }
@@ -43,11 +41,11 @@ e_BPLC_ERROR_t HAL_MOT11::begin()
     else
     {
         Serial.println("I2C connection failed!");
-        error = BPLC_ERROR__MOT11_COMMUNICATION_FAILED;        
+        this->error.code = MOT11_ERROR__I2C_CONNECTION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
-    if(error == BPLC_ERROR__NO_ERROR)
+    if(this->error.code == BPLC_ERROR__NO_ERROR)
     {   
         //Timeouts
         this->to_parameterPoll.setInterval(1000);
@@ -56,22 +54,16 @@ e_BPLC_ERROR_t HAL_MOT11::begin()
         //Errorout
         this->error.i2cError.countLimit = 3;
         this->error.i2cError.count      = 0;
-        this->error.code                = motError_noError;
+        this->error.code                = BPLC_ERROR__NO_ERROR;
         //Statusmaschine
         this->driveState = driveState_start;      
     }
-    else
-    {
-        this->error.code = motError_i2cConnectionFailed;                   
-    }
-
-    return error;
 }
 
-e_BPLC_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
+void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
 {
-    e_BPLC_ERROR_t error = BPLC_ERROR__NO_ERROR;
-    
+    this->deviceAddress = I2C_ADDRESS;
+
     //Debug Error ausgabe
     Serial.println("##############################");  
     Serial.println("setup MOT11 ");
@@ -79,16 +71,16 @@ e_BPLC_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
     Serial.print("CARD: ");
     switch(this->deviceAddress)
     {
-        case MOT11_CARD_1:
+        case MOT11_CARD_1_ADDRESS:
             Serial.println("1");
         break;
-        case MOT11_CARD_2:
+        case MOT11_CARD_2_ADDRESS:
             Serial.println("2");
         break;
-        case MOT11_CARD_3:
+        case MOT11_CARD_3_ADDRESS:
             Serial.println("3");
         break;
-        case MOT11_CARD_4:
+        case MOT11_CARD_4_ADDRESS:
             Serial.println("4");
         break;
     }
@@ -103,14 +95,12 @@ e_BPLC_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
     else
     {
         Serial.println("I2C connection failed!");
-        error = BPLC_ERROR__MOT11_COMMUNICATION_FAILED;        
+        this->error.code = MOT11_ERROR__I2C_CONNECTION_FAILED;        
     }
 
     //Applikationsparameter initialisieren
-    if(error == BPLC_ERROR__NO_ERROR)
+    if(this->error.code == BPLC_ERROR__NO_ERROR)
     {   
-        //I2C Address
-        this->deviceAddress = ADDRESS;
         //Timeouts
         this->to_parameterPoll.setInterval(1000);
         this->to_I2C.setInterval(50);  
@@ -118,16 +108,10 @@ e_BPLC_ERROR_t HAL_MOT11::begin(const e_MOT11_ADDRESS_t ADDRESS)
         //Errorout
         this->error.i2cError.countLimit = 3;
         this->error.i2cError.count      = 0;
-        this->error.code                = motError_noError;
+        this->error.code                = BPLC_ERROR__NO_ERROR;
         //Statusmaschine
         this->driveState = driveState_start;      
     }
-    else
-    {
-        this->error.code = motError_i2cConnectionFailed;             
-    }
-
-    return error;
 }
 
 void HAL_MOT11::tick()
@@ -136,14 +120,14 @@ void HAL_MOT11::tick()
     const bool I2C_ERROR_COUNT_LIMIT_REACHED = (bool)(this->error.i2cError.count >= this->error.i2cError.countLimit);
     if(I2C_ERROR_COUNT_LIMIT_REACHED)
     {
-        this->error.code = motError_i2cConnectionFailed;
+        this->error.code = MOT11_ERROR__I2C_CONNECTION_FAILED;
 
         #ifdef DEBUG_HAL_MOT11
         Serial.println("count limit reachded");
         #endif
     }
     //Error behandlung
-    if(this->error.code != motError_noError)
+    if(this->error.code != BPLC_ERROR__NO_ERROR)
     {
         this->driveState = driveState_safeState;
 
@@ -253,36 +237,7 @@ void HAL_MOT11::startAutotuning()
 
 e_BPLC_ERROR_t HAL_MOT11::getError()
 {
-    e_BPLC_ERROR_t tempError = BPLC_ERROR__NO_ERROR;
-
-    switch(this->error.code)
-    {
-        case motError_noError:
-            tempError = BPLC_ERROR__NO_ERROR;
-        break;
-
-        case motError_i2cConnectionFailed:
-            tempError = BPLC_ERROR__MOT11_COMMUNICATION_FAILED;
-        break;
-
-        case motError_overcurrent:
-            tempError = BPLC_ERROR__MOT11_OVER_CURRENT;
-        break;
-
-        case motError_overtemperature:
-            tempError = BPLC_ERROR__MOT11_OVER_TEMPERATURE;
-        break;
-
-        case motError_OEN_disabled: //kein Error für MCU an sich
-            tempError = BPLC_ERROR__NO_ERROR;
-        break;
-
-        case motError_notTeached:
-            tempError = BPLC_ERROR__MOT11_CURRENT_NOT_TEACHED;
-        break;
-    }
-    
-    return tempError;
+    return this->error.code;
 }
 
 float HAL_MOT11::getCurrent()
@@ -414,11 +369,11 @@ bool HAL_MOT11::waitForDriveParameter()
 
     
     //Empfangenen Errorcode auswerten, wenn plausibel
-    const bool RECEIVED_ERROR_CODE_PLAUSIBLE = (bool)(inCommand.extract.error < motError_count);
+    const bool RECEIVED_ERROR_CODE_PLAUSIBLE = (bool)(inCommand.extract.error < MOT11_ERROR__COUNT && inCommand.extract.error >= MOT11_ERROR__I2C_CONNECTION_FAILED);
     //Empfangene Parameter übernehemen
     if(RECEIVED_ERROR_CODE_PLAUSIBLE)
     {
-        this->error.code = (e_motError_t)inCommand.extract.error;
+        this->error.code = (e_BPLC_ERROR_t)inCommand.extract.error;
     }
 
     this->deviceState       = (e_deviceState_t)inCommand.extract.deviceState;
