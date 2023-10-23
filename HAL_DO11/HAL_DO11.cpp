@@ -298,7 +298,7 @@ void HAL_DO11::tick()
     }
 }
 
-e_DO11_ERROR_t HAL_DO11::getError()
+e_BPLC_ERROR_t HAL_DO11::getError()
 {
     return this->errorCode;
 }

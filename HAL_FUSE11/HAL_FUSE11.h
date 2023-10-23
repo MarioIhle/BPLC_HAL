@@ -3,6 +3,7 @@
 #include "Arduino.h"
 #include "SpecialFunctions.h"
 #include "IOM_Base.h"
+#include "BPLC_ERRORS.h"
 #include "PCF8574.h"
 
 #define DEBUG_HAL_FUSE11

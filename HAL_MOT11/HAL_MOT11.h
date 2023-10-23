@@ -6,6 +6,7 @@
 #include "Wire.h"
 #include "I2C_check.h"
 #include "BPLC_TYPES.h"
+#include "BPLC_ERRORS.h"
 
 //#define DEBUG_HAL_MOT11 
 

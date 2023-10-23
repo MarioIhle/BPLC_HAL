@@ -5,6 +5,7 @@
 #include "IOM_Base.h"
 #include "PCA9685.h"
 #include "BPLC_TYPES.h"
+#include "BPLC_ERRORS.h"
 #include "I2C_check.h"
 
 typedef enum
@@ -28,16 +29,6 @@ typedef enum
     DO11_CARD_ADDRESS_COUNT = 4,
 
 }e_DO11_ADDRESS_t;
-
-typedef enum
-{
-    DO11_ERROR__NO_ERROR,
-    DO11_ERROR__I2C_CONNECTION_FAILED, //i2c verbindung fehlgeschlagen
-    DO11_ERROR__PORT_ALREADY_DEFINED,
-    DO11_ERROR__PORT_OVERFLOW,         //9/8 Ports definert
-
-    DO11_ERROR__COUNT,
-}e_DO11_ERROR_t;
 
 #define LS_MOSFET 0
 #define HS_MOSFET 1
@@ -79,14 +70,14 @@ class HAL_DO11 {
 
     void tick();
 
-    e_DO11_ERROR_t getError();
+    e_BPLC_ERROR_t getError();
     
     private:
     //Applikation
 
     //Safety
     I2C_check       selfCheck;
-    e_DO11_ERROR_t  errorCode;  
+    e_BPLC_ERROR_t  errorCode;  
 
     //Settings
     PCA9685             PCA;

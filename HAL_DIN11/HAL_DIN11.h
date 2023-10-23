@@ -5,6 +5,7 @@
 #include "PCF8574.h"
 #include "IOM_base.h"
 #include "BPLC_TYPES.h"
+#include "BPLC_ERRORS.h"
 #include "I2C_check.h"
 
 //#define DEBUG_HAL_DIN11
@@ -50,17 +51,6 @@ typedef enum
 
 }e_DIN11_PORTS_t;
 
-typedef enum
-{
-    DIN11_ERROR__NO_ERROR,
-    DIN11_ERROR__I2C_CONNECTION_FAILED, //i2c verbindung fehlgeschlagen
-    DIN11_ERROR__PORT_ALREADY_DEFINED,
-    DIN11_ERROR__PORT_OVERFLOW,         //9/8 Ports definert
-
-    DIN11_ERROR__COUNT,
-}e_DIN11_ERROR_t;
-
-
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
@@ -84,7 +74,7 @@ class HAL_DIN11
 
     void tick ();    
     void somePinOfsomeDinCardChanged();
-    e_DIN11_ERROR_t getError();    
+    e_BPLC_ERROR_t getError();    
 
     private: 
     //Applikation  
@@ -92,7 +82,7 @@ class HAL_DIN11
     
     //Safety
     I2C_check       selfCheck;
-    e_DIN11_ERROR_t errorCode;
+    e_BPLC_ERROR_t  errorCode;
 
     //Settings
     PCF8574           PCF;

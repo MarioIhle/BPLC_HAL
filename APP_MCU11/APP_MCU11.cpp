@@ -72,17 +72,10 @@ void APP_MCU11::tick()
    this->hal.tick();
    this->oled.tick();
    this->handleDisplay();
+   this->handleDIN11();
+   this->handleDO11();
 
-   //Handle DIN11 Cards
-   for(uint8_t CARD=0; CARD < DIN11_CARD__COUNT; CARD++)
-   {
-      this->DIN11_CARD[CARD].tick();
-   }
-   //Handle DO11 Cards
-   for(uint8_t CARD=0; CARD < DO11_CARD__COUNT; CARD++)
-   {
-      this->DO11_CARD[CARD].tick();
-   }
+
 
 
 
@@ -402,3 +395,38 @@ Serial.println("");
 
 }
 
+//BPLC extension Cards handling
+void APP_MCU11::handleDIN11()
+{
+   for(uint8_t CARD=0; CARD < DIN11_CARD__COUNT; CARD++)
+   {
+      this->DIN11_CARD[CARD].tick();
+   
+      switch (this->DIN11_CARD->getError())
+      {
+         case DIN11_ERROR__NO_ERROR:
+         break;
+
+         case DIN11_ERROR__I2C_CONNECTION_FAILED:
+            this->setHardwareError(DIN11_ERROR__I2C_CONNECTION_FAILED);
+         break;
+
+         case DIN11_ERROR__PORT_ALREADY_DEFINED:
+         break;
+         
+         case DIN11_ERROR__PORT_OVERFLOW:
+         break;
+
+         default:
+         break;
+      }
+   }
+}
+
+void APP_MCU11::handleDO11()
+{
+   for(uint8_t CARD=0; CARD < DO11_CARD__COUNT; CARD++)
+   {
+      this->DO11_CARD[CARD].tick();
+   }
+}

@@ -257,7 +257,7 @@ void HAL_DIN11::somePinOfsomeDinCardChanged()
     this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;
 }
 
-e_DIN11_ERROR_t HAL_DIN11::getError()
+e_BPLC_ERROR_t HAL_DIN11::getError()
 {
     return this->errorCode;
 }

@@ -80,7 +80,7 @@ e_BPLC_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
     else
     {
         Serial.println("I2C connection failed!");
-        error = BPLC_ERROR__AIN11_COMMUNICATION_FAILED;        
+        error = AIN11_ERROR__I2C_CONNECTION_FAILED;        
     }
 
     //Applikationsparameter initialisieren         

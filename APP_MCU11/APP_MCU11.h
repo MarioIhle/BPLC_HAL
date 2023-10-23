@@ -21,7 +21,7 @@
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
 #include "IOM_base.h"
-#include "BPLC_TYPES.h"
+#include "BPLC_ERRORS.h"
 
 #include "HAL_DIN11.h"
 #include "HAL_AIN11.h"
@@ -107,6 +107,9 @@ class APP_MCU11
     void editDeviceMode();
     void errorOut();
     void handle_vDip();
+
+    void handleDIN11();
+    void handleDO11();
   
     struct
     {
