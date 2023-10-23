@@ -9,7 +9,7 @@ HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1)
 {    
     this->deviceAddress = ADDRESS;
 
-    this->p_ports[AI_PORT_1] = P_PORT_1; 
+    this->p_ports[AIN11_PORT__1] = P_PORT_1; 
     this->usedPorts = 1;
 }
          
@@ -17,8 +17,8 @@ HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, Ana
 {   
     this->deviceAddress = ADDRESS;
 
-    this->p_ports[AI_PORT_1] = P_PORT_1; 
-    this->p_ports[AI_PORT_2] = P_PORT_2;
+    this->p_ports[AIN11_PORT__1] = P_PORT_1; 
+    this->p_ports[AIN11_PORT__2] = P_PORT_2;
     this->usedPorts = 2;
 }
 
@@ -26,9 +26,9 @@ HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, Ana
 {    
     this->deviceAddress = ADDRESS;
 
-    this->p_ports[AI_PORT_1] = P_PORT_1;
-    this->p_ports[AI_PORT_2] = P_PORT_2;
-    this->p_ports[AI_PORT_3] = P_PORT_3;    
+    this->p_ports[AIN11_PORT__1] = P_PORT_1;
+    this->p_ports[AIN11_PORT__2] = P_PORT_2;
+    this->p_ports[AIN11_PORT__3] = P_PORT_3;    
     this->usedPorts = 3;
 }
 
@@ -36,17 +36,17 @@ HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, Ana
 {    
     this->deviceAddress = ADDRESS;
 
-    this->p_ports[AI_PORT_1] = P_PORT_1;
-    this->p_ports[AI_PORT_2] = P_PORT_2;
-    this->p_ports[AI_PORT_3] = P_PORT_3;
-    this->p_ports[AI_PORT_4] = P_PORT_4;    
+    this->p_ports[AIN11_PORT__1] = P_PORT_1;
+    this->p_ports[AIN11_PORT__2] = P_PORT_2;
+    this->p_ports[AIN11_PORT__3] = P_PORT_3;
+    this->p_ports[AIN11_PORT__4] = P_PORT_4;    
     this->usedPorts = 4;
 }
 
-e_BPLC_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
+void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL)
 {    
-    e_BPLC_ERROR_t error = BPLC_ERROR__NO_ERROR;
-    
+    this->deviceAddress = I2C_ADDRESS;
+
     //Debug Error ausgabe
     Serial.println("##############################");  
     Serial.println("setup AIN11 ");
@@ -54,16 +54,16 @@ e_BPLC_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
     Serial.print("CARD: ");
     switch(this->deviceAddress)
     {
-        case AIN11_CARD_1:
+        case AIN11_CARD_1_ADDRESS:
             Serial.println("1");
         break;
-        case AIN11_CARD_2:
+        case AIN11_CARD_2_ADDRESS:
             Serial.println("2");
         break;
-        case AIN11_CARD_3:
+        case AIN11_CARD_3_ADDRESS:
             Serial.println("3");
         break;
-        case AIN11_CARD_4:
+        case AIN11_CARD_4_ADDRESS:
             Serial.println("4");
         break;
     }
@@ -80,11 +80,11 @@ e_BPLC_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
     else
     {
         Serial.println("I2C connection failed!");
-        error = AIN11_ERROR__I2C_CONNECTION_FAILED;        
+        this->errorCode = AIN11_ERROR__I2C_CONNECTION_FAILED;        
     }
 
     //Applikationsparameter initialisieren         
-    if(error == BPLC_ERROR__NO_ERROR)
+    if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {   
         // The ADC input range (or gain) can be changed via the following
         // functions, but be careful never to exceed VDD +0.3V max, or to
@@ -101,30 +101,30 @@ e_BPLC_ERROR_t HAL_AIN11::begin(const uint16_t READ_INTERVAL)
 
         this->ADC.begin(this->deviceAddress);
         this->to_read.setInterval(READ_INTERVAL); 
-   
-        this->f_error = false;  
     }
-    else
-    {
-        this->f_error = true;                      
-    }
-
-    return error;
 }
 
+void HAL_AIN11::mapObjectToPort(AnalogInput* P_OBJECT)
+{  
+    this->p_ports[usedPorts] = P_OBJECT;
+    this->usedPorts++;
+
+    //Plausibilitätsprüfung
+    if(this->usedPorts > AIN11_PORT__COUNT)
+    {
+        this->errorCode = AIN11_ERROR__PORT_OVERFLOW;
+    }
+}
+//Applikation
 void HAL_AIN11::tick()
 {   
     //I2C Verbindung zyklisch prüfen
     if(!this->selfCheck.requestHeartbeat())
     {
-        this->f_error = true;
+        this->errorCode = AIN11_ERROR__I2C_CONNECTION_FAILED;
     }
-    else
-    {
-        //this->f_error = false;    //selbrücksetellung des Fehlerzustands, zur zeit nicht genutzt
-    }
-
-    if(!this->f_error)
+  
+    if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {
         if(this->to_read.check())
         {
@@ -156,11 +156,5 @@ void HAL_AIN11::tick()
 
 e_BPLC_ERROR_t HAL_AIN11::getError()
 {
-    e_BPLC_ERROR_t tempError = BPLC_ERROR__NO_ERROR;
-
-    if(this->f_error)
-    {
-        tempError = BPLC_ERROR__AIN11_COMMUNICATION_FAILED;
-    }
-    return tempError;
+    return this->errorCode;
 }
