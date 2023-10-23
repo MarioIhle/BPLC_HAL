@@ -15,7 +15,7 @@ typedef enum
     DO11_CARD__3,
     DO11_CARD__4,
     
-    DO11_CARD__COUNT = 4,
+    DO11_CARD__MAX = 4,
 
 }e_DO11_CARD_t;
 
@@ -85,6 +85,6 @@ class HAL_DO11 {
     uint8_t             usedPorts;
 
     Output*         p_ports [DO11_PORT__COUNT];
-    const uint8_t   pins    [DO11_PORT__COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}  
+    const uint8_t   PINS    [DO11_PORT__COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}  
 };
 #endif

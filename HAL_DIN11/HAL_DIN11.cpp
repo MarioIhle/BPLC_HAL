@@ -143,7 +143,7 @@ void HAL_DIN11::begin()
     }
 
     //Applikationsparameter initialisieren
-    if(this->errorCode == DIN11_ERROR__NO_ERROR)
+    if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {   
         PCF.setAddress(this->deviceAddress);   
         PCF.begin();    
@@ -193,7 +193,7 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     }
 
     //Applikationsparameter initialisieren
-    if(this->errorCode == DIN11_ERROR__NO_ERROR)
+    if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {   
         PCF.setAddress(this->deviceAddress);   
         PCF.begin();    
@@ -208,7 +208,7 @@ void HAL_DIN11::mapObjectToPort(DigitalInput* P_OBJECT)
     this->usedPorts++;
 
     //Plausibilitätsprüfung
-    if(this->usedPorts < DIN11_PORT__COUNT)
+    if(this->usedPorts > DIN11_PORT__COUNT)
     {
         this->errorCode = DIN11_ERROR__PORT_OVERFLOW;
     }
@@ -226,7 +226,7 @@ void HAL_DIN11::tick()
         //this->f_error = false;    //selbrücksetellung des Fehlerzustands, zur zeit nicht genutzt
     }
 
-    if(this->errorCode == DIN11_ERROR__NO_ERROR)
+    if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {           
         if(this->f_somePinOfsomePinCardChanged > 0)
         {

@@ -62,7 +62,7 @@ void HAL_FUSE11::tick()
     {
         for(int PORT = 0; PORT < IN_PORT_COUNT ; PORT++)
         {       
-            const bool STATE = PCF.read(this->pins.input[PORT]);     
+            const bool STATE = PCF.read(this->PINS.input[PORT]);     
             this->FUSE[PORT].setPortState(STATE);    
             f_somePinOfsomePinCardChanged--;  
 #ifdef DEBUG_HAL_FUSE11
@@ -84,11 +84,11 @@ Serial.println(" ");
                        
             if(VALUE_TO_WRITE.value >= 1)
             {
-                PCF.write(this->pins.output[PORT], false);
+                PCF.write(this->PINS.output[PORT], false);
             }
             else if(VALUE_TO_WRITE.value == false)
             {
-                PCF.write(this->pins.output[PORT], true);
+                PCF.write(this->PINS.output[PORT], true);
             }            
         }                      
     } 

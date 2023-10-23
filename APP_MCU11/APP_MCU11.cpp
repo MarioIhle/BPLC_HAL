@@ -46,34 +46,13 @@ void APP_MCU11::begin()
    this->DO11_CARD[DO11_CARD__4].begin(DO11_CARD_4_ADDRESS); 
 }
 
-void APP_MCU11::setupHardware(const uint8_t DIN11_CARD__COUNT, const uint8_t AIN11_CARD__COUNT, const uint8_t DO11_CARD__COUNT, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT)
-{
-   this->hardware.din11CardCount    = DIN11_CARD__COUNT;
-   this->hardware.ain11CardCount    = AIN11_CARD__COUNT;
-   this->hardware.do11CardCount     = DO11_CARD__COUNT;
-   this->hardware.rel11CardCount    = REL11_CARD__COUNT;
-   this->hardware.mot11CardCount    = MOT11_CARD__COUNT;
-   this->hardware.fuse11CardCount   = FUSE11_CARD__COUNT;
-   this->hardware.nano11CardCount   = NANO11_CARD__COUNT;
-}
-
-void APP_MCU11::mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
-{
-   this->DIN11_CARD[CARD].mapObjectToPort(P_OBJECT);
-}
-
-void APP_MCU11::mapObjectToCard(Output* P_OBJECT, e_DO11_ADDRESS_t CARD)
-{
-   this->DO11_CARD[CARD].mapObjectToPort(P_OBJECT);
-}
-
 void APP_MCU11::tick()
 {
    this->hal.tick();
    this->oled.tick();
    this->handleDisplay();
-   this->handleDIN11();
-   this->handleDO11();
+   this->handleDIN11Cards();
+   this->handleDO11Cards();
 
 
 
@@ -396,37 +375,84 @@ Serial.println("");
 }
 
 //BPLC extension Cards handling
-void APP_MCU11::handleDIN11()
+void APP_MCU11::setupHardware(const uint8_t DIN11_CARD__MAX, const uint8_t AIN11_CARD__MAX, const uint8_t DO11_CARD__MAX, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT)
 {
-   for(uint8_t CARD=0; CARD < DIN11_CARD__COUNT; CARD++)
+   this->hardware.din11CardCount    = DIN11_CARD__MAX;
+   this->hardware.ain11CardCount    = AIN11_CARD__MAX;
+   this->hardware.do11CardCount     = DO11_CARD__MAX;
+   this->hardware.rel11CardCount    = REL11_CARD__COUNT;
+   this->hardware.mot11CardCount    = MOT11_CARD__COUNT;
+   this->hardware.fuse11CardCount   = FUSE11_CARD__COUNT;
+   this->hardware.nano11CardCount   = NANO11_CARD__COUNT;
+}
+
+void APP_MCU11::mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
+{
+   this->DIN11_CARD[CARD].mapObjectToPort(P_OBJECT);
+}
+
+void APP_MCU11::mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD)
+{
+   this->DO11_CARD[CARD].mapObjectToPort(P_OBJECT);
+}
+
+void APP_MCU11::mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD)
+{
+   this->AIN11_CARD[CARD].mapObjectToPort(P_OBJECT);
+}
+
+void APP_MCU11::handleDIN11Cards()
+{
+   for(uint8_t CARD=0; CARD < DIN11_CARD__MAX; CARD++)
    {
       this->DIN11_CARD[CARD].tick();
+      const e_BPLC_ERROR_t ERROR = this->DIN11_CARD[CARD].getError();
    
-      switch (this->DIN11_CARD->getError())
+      if(ERROR != BPLC_ERROR__NO_ERROR)
       {
-         case DIN11_ERROR__NO_ERROR:
-         break;
-
-         case DIN11_ERROR__I2C_CONNECTION_FAILED:
-            this->setHardwareError(DIN11_ERROR__I2C_CONNECTION_FAILED);
-         break;
-
-         case DIN11_ERROR__PORT_ALREADY_DEFINED:
-         break;
-         
-         case DIN11_ERROR__PORT_OVERFLOW:
-         break;
-
-         default:
-         break;
+         this->setHardwareError(ERROR);
       }
    }
 }
 
-void APP_MCU11::handleDO11()
+void APP_MCU11::handleDO11Cards()
 {
-   for(uint8_t CARD=0; CARD < DO11_CARD__COUNT; CARD++)
+   for(uint8_t CARD=0; CARD < DO11_CARD__MAX; CARD++)
    {
       this->DO11_CARD[CARD].tick();
+      const e_BPLC_ERROR_t ERROR = this->DO11_CARD[CARD].getError();
+   
+      if(ERROR != BPLC_ERROR__NO_ERROR)
+      {
+         this->setHardwareError(ERROR);
+      }
+   }
+}
+
+void APP_MCU11::handleAIN11Cards()
+{
+   for(uint8_t CARD=0; CARD < AIN11_CARD__MAX; CARD++)
+   {
+      this->AIN11_CARD[CARD].tick();
+      const e_BPLC_ERROR_t ERROR = this->AIN11_CARD[CARD].getError();
+   
+      if(ERROR != BPLC_ERROR__NO_ERROR)
+      {
+         this->setHardwareError(ERROR);
+      }
+   }
+}
+
+void APP_MCU11::handleMOT11Cards()
+{
+   for(uint8_t CARD=0; CARD < MOT11_CARD__MAX; CARD++)
+   {
+      this->MOT11_CARD[CARD].tick();
+      const e_BPLC_ERROR_t ERROR = this->MOT11_CARD[CARD].getError();
+   
+      if(ERROR != BPLC_ERROR__NO_ERROR)
+      {
+         this->setHardwareError(ERROR);
+      }
    }
 }

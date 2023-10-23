@@ -1,6 +1,9 @@
 #ifndef HAL_DIN11_h
 #define HAL_DIN11_h
 
+//-------------------------------------------------------------
+//INCLUDES
+//-------------------------------------------------------------
 #include "Arduino.h"
 #include "PCF8574.h"
 #include "IOM_base.h"
@@ -8,10 +11,13 @@
 #include "BPLC_ERRORS.h"
 #include "I2C_check.h"
 
+//-------------------------------------------------------------
+//HARDWARE DEBUGGING
+//-------------------------------------------------------------
 //#define DEBUG_HAL_DIN11
 
 //-------------------------------------------------------------
-//HARDWARE SPEZIFISCHE PORTS
+//HARDWARE SPEZIFISCHE TYPES
 //-------------------------------------------------------------
 typedef enum
 {
@@ -20,7 +26,7 @@ typedef enum
     DIN11_CARD__3,
     DIN11_CARD__4,
     
-    DIN11_CARD__COUNT = 4,
+    DIN11_CARD__MAX = 4,
 
 }e_DIN11_CARD_t;
 
@@ -35,7 +41,6 @@ typedef enum
 
 }e_DIN11_ADDRESS_t;
 
-//DIGITAL INPUTS
 typedef enum
 {
     DIN11_PORT__1,

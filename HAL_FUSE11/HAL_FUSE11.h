@@ -68,7 +68,7 @@ class HAL_FUSE11 {
     {
         const uint8_t   input    [IN_PORT_COUNT]    = {4, 5, 6, 7};    
         const uint8_t   output   [OUT_PORT_COUNT]   = {0, 1, 2, 4};    
-    }pins;
+    }PINS;
     
     PCF8574 PCF;
     int     usedPorts;

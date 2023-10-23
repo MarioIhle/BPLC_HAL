@@ -67,12 +67,12 @@ class APP_MCU11
     public:
     APP_MCU11();
     void begin();
-    void setupHardware(const uint8_t DIN11_CARD__COUNT, const uint8_t AIN11_CARD__COUNT, const uint8_t DO11_CARD__COUNT, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT);    
+    void setupHardware(const uint8_t DIN11_CARD__MAX, const uint8_t AIN11_CARD__MAX, const uint8_t DO11_CARD__MAX, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT);    
     void tick();
     
     void mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD);    //Je nach Reihenfolge werden Ports vergeben
-    void mapObjectToCard(Output* P_OBJECT, e_DO11_ADDRESS_t CARD);
-
+    void mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD);
+    void mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD);
 
     e_APP_MODE_t    getDeviceMode();    
     void            setDeviceMode(const e_APP_MODE_t MODE);
@@ -108,8 +108,11 @@ class APP_MCU11
     void errorOut();
     void handle_vDip();
 
-    void handleDIN11();
-    void handleDO11();
+    void handleDIN11Cards();
+    void handleDO11Cards();
+    void handleAIN11Cards();
+    void handleMOT11Cards();
+    
   
     struct
     {
@@ -122,8 +125,10 @@ class APP_MCU11
         uint8_t nano11CardCount;
     }hardware;
 
-    HAL_DIN11 DIN11_CARD[DIN11_CARD__COUNT]; 
-    HAL_DO11  DO11_CARD [DO11_CARD__COUNT];
+    HAL_DIN11 DIN11_CARD[DIN11_CARD__MAX]; 
+    HAL_DO11  DO11_CARD [DO11_CARD__MAX];
+    HAL_AIN11 AIN11_CARD[AIN11_CARD__MAX];
+    HAL_MOT11 MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
     
 
     struct 

@@ -142,7 +142,7 @@ void HAL_DO11::begin()
     }
 
     //Applikationsparameter initialisieren
-    if(this->errorCode == DO11_ERROR__NO_ERROR)
+    if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {        
         PCA.setI2CAddress(this->deviceAddress);
         PCA.init();
@@ -192,7 +192,7 @@ void HAL_DO11::begin(const e_DO11_ADDRESS_t I2C_ADDRESS)
     }
 
     //Applikationsparameter initialisieren
-    if(this->errorCode == DO11_ERROR__NO_ERROR)
+    if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {        
         PCA.setI2CAddress(this->deviceAddress);
         PCA.init();
@@ -221,7 +221,7 @@ void HAL_DO11::tick()
         this->errorCode = DO11_ERROR__I2C_CONNECTION_FAILED;
     }
 
-    if(this->errorCode == DO11_ERROR__NO_ERROR)
+    if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {
         for(uint8_t PORT; PORT < this->usedPorts; PORT++)
         {                
@@ -233,63 +233,63 @@ void HAL_DO11::tick()
                 switch(p_ports[PORT]->getOutputType())
                 {
                     case OUTPUTTYPE__PULL:
-                        PCA.setChannelPWM(this->pins[PORT][LS_MOSFET], 0, TARGET_PWM_VALUE);        //lowSide
-                        PCA.setChannelOff(this->pins[PORT][HS_MOSFET]);                             //highside
+                        PCA.setChannelPWM(this->PINS[PORT][LS_MOSFET], 0, TARGET_PWM_VALUE);        //lowSide
+                        PCA.setChannelOff(this->PINS[PORT][HS_MOSFET]);                             //highside
                     break;
 
                     case OUTPUTTYPE__PUSH:
-                        PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);                             //lowSide
-                        PCA.setChannelPWM(this->pins[PORT][HS_MOSFET], 0, TARGET_PWM_VALUE);        //highside
+                        PCA.setChannelOff(this->PINS[PORT][LS_MOSFET]);                             //lowSide
+                        PCA.setChannelPWM(this->PINS[PORT][HS_MOSFET], 0, TARGET_PWM_VALUE);        //highside
                     break;
 
                     case OUTPUTTYPE__PUSH_PULL:                            
                         //Um überschneidung bei umschalten der PWM zu vermeiden, sonst FETS = rauch :C
-                        PCA.setChannelOff(this->pins[PORT][HS_MOSFET]); //Spannungsführend zuerst aus
-                        PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);                                       
+                        PCA.setChannelOff(this->PINS[PORT][HS_MOSFET]); //Spannungsführend zuerst aus
+                        PCA.setChannelOff(this->PINS[PORT][LS_MOSFET]);                                       
                         delay(1);       
                                                 
                         //FULL OFF
                         if(TARGET_PWM_VALUE < DEAD_TIME)
                         {
-                            PCA.setChannelOn(this->pins[PORT][LS_MOSFET]);
-                            //PCA.setChannelOff(this->pins[PORT][HS_MOSFET]);    
+                            PCA.setChannelOn(this->PINS[PORT][LS_MOSFET]);
+                            //PCA.setChannelOff(this->PINS[PORT][HS_MOSFET]);    
                         }
                         //FULL ON
                         else if(TARGET_PWM_VALUE > 4096 - DEAD_TIME)
                         {
-                            //PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);
-                            PCA.setChannelOn(this->pins[PORT][HS_MOSFET]);    
+                            //PCA.setChannelOff(this->PINS[PORT][LS_MOSFET]);
+                            PCA.setChannelOn(this->PINS[PORT][HS_MOSFET]);    
                         }
                         //PWM
                         else
                         {                        
-                            PCA.setChannelPWM(this->pins[PORT][LS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
-                            PCA.setChannelPWM(this->pins[PORT][HS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
+                            PCA.setChannelPWM(this->PINS[PORT][LS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
+                            PCA.setChannelPWM(this->PINS[PORT][HS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
                         }
                     break;
                     case OUTPUTTYPE__PUSH_PULL_INVERT:                            
                         //Um überschneidung bei umschalten der PWM zu vermeiden, sonst FETS = rauch :C
-                        PCA.setChannelOff(this->pins[PORT][HS_MOSFET]); //Spannungsführend zuerst aus
-                        PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);                                       
+                        PCA.setChannelOff(this->PINS[PORT][HS_MOSFET]); //Spannungsführend zuerst aus
+                        PCA.setChannelOff(this->PINS[PORT][LS_MOSFET]);                                       
                         delay(1);       
                                                 
                         //FULL OFF
                         if(TARGET_PWM_VALUE < DEAD_TIME)
                         {
-                            PCA.setChannelOn(this->pins[PORT][HS_MOSFET]);
-                            //PCA.setChannelOff(this->pins[PORT][HS_MOSFET]);    
+                            PCA.setChannelOn(this->PINS[PORT][HS_MOSFET]);
+                            //PCA.setChannelOff(this->PINS[PORT][HS_MOSFET]);    
                         }
                         //FULL ON
                         else if(TARGET_PWM_VALUE > 4096 - DEAD_TIME)
                         {
-                            //PCA.setChannelOff(this->pins[PORT][LS_MOSFET]);
-                            PCA.setChannelOn(this->pins[PORT][LS_MOSFET]);    
+                            //PCA.setChannelOff(this->PINS[PORT][LS_MOSFET]);
+                            PCA.setChannelOn(this->PINS[PORT][LS_MOSFET]);    
                         }
                         //PWM
                         else
                         {                        
-                            PCA.setChannelPWM(this->pins[PORT][HS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
-                            PCA.setChannelPWM(this->pins[PORT][LS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
+                            PCA.setChannelPWM(this->PINS[PORT][HS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
+                            PCA.setChannelPWM(this->PINS[PORT][LS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
                         }
                     break;
                 }  
