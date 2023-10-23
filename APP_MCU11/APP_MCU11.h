@@ -100,20 +100,23 @@ class APP_MCU11
 
     byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
 
-    bool isThereAnyHardwareError();     //return=0, wenn kein Error gesetzt
-    e_BPLC_ERROR_t  hardwareErrorCode;  //Hardware Error, sofort Applikation anhalten
+    e_BPLC_ERROR_t hardwareErrorCode;   //Hardware Error, sofort Applikation anhalten. Letzter ErrorCode! Bei mehreren muss in Oled menü oder per PC nachgeschaut werden
     
+    //Applikation
+
+    //Display handling
     void handleDisplay();
     void beepOnEncoderInput();
-
     void editDeviceMode();
-    void errorOut();
+    void hardwareErrorOut();
     void handle_vDip();
 
+    //Hardware Handling
     void handleDIN11Cards();
     void handleDO11Cards();
     void handleAIN11Cards();
     void handleMOT11Cards();
+    void handleREL11Cards();
 
   
     struct

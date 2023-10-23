@@ -48,15 +48,17 @@ void APP_MCU11::begin()
 
 void APP_MCU11::tick()
 {
+   //BPLC Hardware handling
+   //MCU 
    this->hal.tick();
    this->oled.tick();
    this->handleDisplay();
+   //extension Cards
    this->handleDIN11Cards();
+   this->handleAIN11Cards();
    this->handleDO11Cards();
-
-
-
-
+   this->handleREL11Cards();
+   this->handleMOT11Cards();
 
    //Runntime überwachung der Applikation
    if(this->to_runnntime.check())
@@ -65,7 +67,7 @@ void APP_MCU11::tick()
    }
    this->to_runnntime.reset();
 
-   if(this->isThereAnyHardwareError())
+   if(this->hardwareErrorCode != BPLC_ERROR__NO_ERROR)
    {
       this->deviceMode = APP_MODE__SAFE_STATE;
    }
@@ -140,7 +142,7 @@ void APP_MCU11::handleDisplay()
       break;
 
       case menu_errorCodes:
-         errorOut();
+         hardwareErrorOut();
       break;
 
       case menu_settings:
@@ -209,13 +211,6 @@ void APP_MCU11::setHardwareError(const e_BPLC_ERROR_t ERROR_CODE)
    }   
 }
 
-bool APP_MCU11::isThereAnyHardwareError()
-{
-   const bool THERE_IS_A_BPLC_HARDWARE_ERROR = (bool)(this->hardwareErrorCode != BPLC_ERROR__NO_ERROR);
-
-   return THERE_IS_A_BPLC_HARDWARE_ERROR;
-}
-
 //Diplay handling
 void APP_MCU11::editDeviceMode()
 {
@@ -282,7 +277,7 @@ void APP_MCU11::editDeviceMode()
    }   
 }
 
-void APP_MCU11::errorOut()
+void APP_MCU11::hardwareErrorOut()
 {
    if(this->hal.ENCODER.isButtonPressed())
    {            
@@ -459,6 +454,20 @@ void APP_MCU11::handleMOT11Cards()
    {
       this->MOT11_CARD[CARD].tick();
       const e_BPLC_ERROR_t ERROR = this->MOT11_CARD[CARD].getError();
+   
+      if(ERROR != BPLC_ERROR__NO_ERROR)
+      {
+         this->setHardwareError(ERROR);
+      }
+   }
+}
+
+void APP_MCU11::handleREL11Cards()
+{
+   for(uint8_t CARD=0; CARD < REL11_CARD__MAX; CARD++)
+   {
+      this->REL11_CARD[CARD].tick();
+      const e_BPLC_ERROR_t ERROR = this->REL11_CARD[CARD].getError();
    
       if(ERROR != BPLC_ERROR__NO_ERROR)
       {
