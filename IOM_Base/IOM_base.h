@@ -203,7 +203,62 @@ class PT10x
 };
 
 //--------------------------------------------------------------------
-//H-BRÜCKE KLASSE
+//MOTOR KLASSE
+//-------------------------------------------------------------------- 
+typedef enum
+{
+    DRIVE_STATE__IDLE,
+    DRIVE_STATE__START,
+    DRIVE_STATE__STOP,
+    DRIVE_STATE__STOP_AND_BREAK,  
+    DRIVE_STATE__RUNNING,
+
+    DRIVE_STATE__COUNT,
+}e_DRIVE_STATE_t;
+
+class MOTOR
+{
+    public: 
+    MOTOR();
+
+    //Drive Commands
+    void stop                 ();
+    void start                ();
+    void stopAndBreak         ();
+    void setSpeed             (const uint8_t SPEED);
+    void setDirection         (const e_movement_t DIRECTION);
+    void setDirectionAndSpeed (const e_movement_t DIRECTION, const uint8_t SPEED);
+
+    //Getter 
+    float           getCurrent   ();
+    e_movement_t    getDirection ();
+    uint8_t         getSpeed     ();
+    e_DRIVE_STATE_t getDriveState();
+
+    //Für Hal
+    void setCurrent(const float CURRENT);
+    bool newDriveParameterAvailable();
+
+    private:
+    e_DRIVE_STATE_t driveState; 
+    bool            f_thereAreNewDriveParametersAvailable;
+    //Motor Parameter
+    struct 
+    {
+      e_movement_t direction;   //Aktuell angesteuerte Drehrichtung
+      uint8_t      speed;       //Aktuell angesteuerte Geschwindigkeit
+      float        current;     //Aktuelle Stromaufnahme
+    
+      struct  //Merke Struktur um nach Stop, letzte geschriebene Bewegung fortzusetzten 
+      {
+        e_movement_t direction;  
+        uint8_t      speed;
+      }old;    
+    }motParams;
+};
+
+//--------------------------------------------------------------------
+//SOFTWARE H-BRÜCKE KLASSE
 //-------------------------------------------------------------------- 
 class Software_H_Bridge{
     public:

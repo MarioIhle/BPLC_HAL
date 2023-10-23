@@ -75,11 +75,11 @@ class HAL_DIN11
     void begin();
     void begin(const e_DIN11_ADDRESS_t I2C_ADDRESS);
     
-    void mapObjectToPort(DigitalInput* P_OBJECT);
 
-    void tick ();    
-    void somePinOfsomeDinCardChanged();
-    e_BPLC_ERROR_t getError();    
+    void            tick ();    
+    void            somePinOfsomeDinCardChanged();
+    e_BPLC_ERROR_t  getError();    
+    void            mapObjectToPort(DigitalInput* P_OBJECT);
 
     private: 
     //Applikation  

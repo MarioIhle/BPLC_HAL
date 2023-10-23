@@ -56,8 +56,13 @@ void HAL_MOT11::begin()
         this->error.i2cError.count      = 0;
         this->error.code                = BPLC_ERROR__NO_ERROR;
         //Statusmaschine
-        this->driveState = driveState_start;      
+        this->deviceState = deviceState_running;      
     }
+    else
+    {
+        this->deviceState = deviceState_safeState;
+    }
+    
 }
 
 void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
@@ -110,7 +115,23 @@ void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
         this->error.i2cError.count      = 0;
         this->error.code                = BPLC_ERROR__NO_ERROR;
         //Statusmaschine
-        this->driveState = driveState_start;      
+        this->deviceState = deviceState_running;      
+    }
+    else
+    {
+        this->deviceState = deviceState_safeState;
+    }
+}
+
+void HAL_MOT11::mapObjectToPort(MOTOR* P_OBJECT)
+{
+    this->P_MOTOR = P_OBJECT;
+    this->usedPorts++;
+
+    //Plausibilitätsprüfung
+    if(this->usedPorts > MOT11_PORT__COUNT)
+    {
+        this->error.code= MOT11_ERROR__PORT_ALREADY_DEFINED;
     }
 }
 
@@ -129,33 +150,19 @@ void HAL_MOT11::tick()
     //Error behandlung
     if(this->error.code != BPLC_ERROR__NO_ERROR)
     {
-        this->driveState = driveState_safeState;
-
-        #ifdef DEBUG_HAL_MOT11
-        Serial.println("go to safe state");
-        #endif
+        this->deviceState = deviceState_safeState;
     }
 
-    switch(this->driveState)
+    switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
     {
-        case driveState_waitForStart:  
-        case driveState_safeState:          
+        case deviceState_init:    
+        case deviceState_safeState:    
         break;
 
-        case driveState_start:
-            this->motParams.direction = this->motParams.old.direction;
-            this->motParams.speed     = this->motParams.old.speed;
-            this->sendDriveCommand(mot11_i2c_key__driveCommand); 
-
-            this->driveState = driveState_runningWithParameters;               
-        break;
-
-        case driveState_runningWithParameters:   //Normalbetreb
-            if((this->motParams.old.direction != this->motParams.direction) || (this->motParams.old.speed != this->motParams.speed))
+        case deviceState_running:   //Normalbetreb
+            if(this->P_MOTOR->newDriveParameterAvailable())
             {
-                this->sendDriveCommand(mot11_i2c_key__driveCommand);
-                this->motParams.old.direction = this->motParams.direction;
-                this->motParams.old.speed     = this->motParams.speed;
+                this->sendDriveCommand(this->P_MOTOR->getDirection(), this->P_MOTOR->getSpeed());
             }
             //Über Request wird zyklisch alle live Parameter abgefragt
             if(this->to_parameterPoll.check())
@@ -165,74 +172,16 @@ void HAL_MOT11::tick()
             }  
         break;
 
-        case driveState_stop:        
-            this->motParams.speed     = 0;
-            this->motParams.direction = movement_idle;     
-            this->sendDriveCommand(mot11_i2c_key__driveCommand);   //Stop senden
-
-            this->driveState = driveState_waitForStart;      
-        break;
-
-        case driveState_stopAndBreak:
-            this->motParams.speed     = 255;
-            this->motParams.direction = movement_idle; 
-            this->sendDriveCommand(mot11_i2c_key__driveCommand);  
-
-            this->driveState = driveState_waitForStart;
-        break;
-
-        case driveState_autoTuningRunning:
+        case deviceState_autotuning:
             //Status abfragen, solange Autotuning aktiv nix tun
             if(this->to_parameterPoll.check())
             {
                 this->requestDriveParameter(); 
                 this->to_parameterPoll.reset();
-            }  
-            if(this->deviceState == deviceState_running)
-            {
-                this->driveState = driveState_start;
-            }
+            }              
         break;
 
     }
-}
-//Nur Stop senden, letzte parameter aber speichern
-void HAL_MOT11::stop()
-{
-    this->driveState = driveState_stop;
-}
-//Nur Stop und EMI bremse aktivieren senden, letzte parameter aber speichern
-void HAL_MOT11::stopAndBreak()
-{
-    this->driveState = driveState_stopAndBreak;
-}
-//Nach Stopp, wieder mit letzten Parameter anlaufen
-void HAL_MOT11::start()
-{
-    this->driveState = driveState_start;
-}
-
-void HAL_MOT11::setSpeed(const uint8_t SPEED)
-{   
-    this->motParams.speed = SPEED;
-}
-
-void HAL_MOT11::setDirection(const e_movement_t DIRECTION)
-{
-    this->motParams.direction = DIRECTION;    
-}
-
-void HAL_MOT11::setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t SPEED)
-{
-    this->motParams.direction = DIRECTION; 
-    this->motParams.speed     = SPEED;   
-}
-
-void HAL_MOT11::startAutotuning()
-{
-    this->sendDriveCommand(mot11_i2c_key__startCurrentAutotuning);
-    this->deviceState = deviceState_autotuning;
-    this->driveState  = driveState_autoTuningRunning;
 }
 
 e_BPLC_ERROR_t HAL_MOT11::getError()
@@ -240,29 +189,14 @@ e_BPLC_ERROR_t HAL_MOT11::getError()
     return this->error.code;
 }
 
-float HAL_MOT11::getCurrent()
-{
-    return this->motParams.current;
-}
-
-e_movement_t HAL_MOT11::getDirection()
-{
-    return this->motParams.direction;
-}
-
-uint8_t HAL_MOT11::getSpeed()
-{
-    return this->motParams.speed;
-}
-
-void HAL_MOT11::sendDriveCommand(e_mot11_i2c_key_t KEY)
+void HAL_MOT11::sendDriveCommand(const e_movement_t DIRECTION, const uint8_t SPEED)
 {  
     u_mot11_i2c_payload_t COMMAND;
     memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
 
-    COMMAND.extract.key         = (uint8_t)KEY;
-    COMMAND.extract.direction   = this->motParams.direction;
-    COMMAND.extract.speed       = this->motParams.speed;
+    COMMAND.extract.key         = (uint8_t)mot11_i2c_key__driveCommand;
+    COMMAND.extract.direction   = DIRECTION;
+    COMMAND.extract.speed       = SPEED;
 
     this->sendFrame(COMMAND);    
 
@@ -366,7 +300,6 @@ bool HAL_MOT11::waitForDriveParameter()
             break;
         }     
     }
-
     
     //Empfangenen Errorcode auswerten, wenn plausibel
     const bool RECEIVED_ERROR_CODE_PLAUSIBLE = (bool)(inCommand.extract.error < MOT11_ERROR__COUNT && inCommand.extract.error >= MOT11_ERROR__I2C_CONNECTION_FAILED);
@@ -375,9 +308,13 @@ bool HAL_MOT11::waitForDriveParameter()
     {
         this->error.code = (e_BPLC_ERROR_t)inCommand.extract.error;
     }
+    else
+    {
+        this->error.code = MOT11_ERROR__RECEIVED_DRIVE_PARAMETER_NOT_PLAUSIBLE;
+    }
 
-    this->deviceState       = (e_deviceState_t)inCommand.extract.deviceState;
-    this->motParams.current = inCommand.extract.current;
+    this->deviceState = (e_deviceState_t)inCommand.extract.deviceState;
+    this->P_MOTOR->setCurrent(inCommand.extract.current);
 
 #ifdef DEBUG_HAL_MOT11 
 Serial.println("Drive Parameter:");
