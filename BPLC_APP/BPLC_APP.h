@@ -1,8 +1,8 @@
-#ifndef APP_MCU11_h
-#define APP_MCU11_h
+#ifndef BPLC_APP_h
+#define BPLC_APP_H
 //---------------------------------------------------
 /**
- * @file APP_MCU11.h
+ * @file BPLC_APP.h
  * @author MIE
  * @brief 
  * Steuerbar mithilfe des Encoders und Oled Display
@@ -18,11 +18,12 @@
 
 #include "Arduino.h"
 #include "SpecialFunctions.h"
-#include "HAL_MCU11.h"
-#include "OLED_DISPLAY.h" 
+
 #include "IOM_base.h"
 #include "BPLC_ERRORS.h"
 
+#include "HAL_MCU11.h"
+#include "OLED_DISPLAY.h" 
 #include "HAL_DIN11.h"
 #include "HAL_AIN11.h"
 #include "HAL_REL11.h"
@@ -62,10 +63,10 @@ typedef enum
 
 
 
-class APP_MCU11
+class BPLC_APP
 {
     public:
-    APP_MCU11();
+    BPLC_APP();
     void begin();
     void setupHardware(const uint8_t DIN11_CARD__MAX, const uint8_t AIN11_CARD__MAX, const uint8_t DO11_CARD__MAX, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT);    
     void tick();
@@ -112,13 +113,19 @@ class APP_MCU11
     void handle_vDip();
 
     //Hardware Handling
+    void ISR_CALLED();
     void handleDIN11Cards();
     void handleDO11Cards();
     void handleAIN11Cards();
     void handleMOT11Cards();
     void handleREL11Cards();
 
-  
+    //Hal objecte zu allen möglichen Erweiterungskarten
+    HAL_DIN11 DIN11_CARD[DIN11_CARD__MAX]; 
+    HAL_AIN11 AIN11_CARD[AIN11_CARD__MAX];
+    HAL_DO11  DO11_CARD [DO11_CARD__MAX];
+    HAL_REL11 REL11_CARD[REL11_CARD__MAX];
+    HAL_MOT11 MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
     struct
     {
         uint8_t din11CardCount;
@@ -129,14 +136,8 @@ class APP_MCU11
         uint8_t fuse11CardCount;
         uint8_t nano11CardCount;
     }hardware;
-
-    HAL_DIN11 DIN11_CARD[DIN11_CARD__MAX]; 
-    HAL_AIN11 AIN11_CARD[AIN11_CARD__MAX];
-    HAL_DO11  DO11_CARD [DO11_CARD__MAX];
-    HAL_REL11 REL11_CARD[REL11_CARD__MAX];
-    HAL_MOT11 MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
     
-
+    //Settings
     struct 
     {
         bool f_beepOnEncoderInput;

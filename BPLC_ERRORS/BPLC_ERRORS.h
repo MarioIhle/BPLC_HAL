@@ -5,7 +5,7 @@
 typedef enum
 {    
     BPLC_ERROR__NO_ERROR,
-    //MCU Errors
+    //BPLC Errors
     BPLC_ERROR__OLED_COMMUNICATION_FAILED,
     BPLC_ERROR__RUNNTIME,
     //DIN11 errors
