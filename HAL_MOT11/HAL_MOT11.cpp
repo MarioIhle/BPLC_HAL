@@ -5,7 +5,13 @@ HAL_MOT11::HAL_MOT11()
 
 void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
 {
-    this->deviceAddress = I2C_ADDRESS;
+    this->deviceAddress             = I2C_ADDRESS;
+    this->error.code                = BPLC_ERROR__NO_ERROR;
+    this->error.i2cError.countLimit = 3;
+    this->error.i2cError.count      = 0;
+ 
+    this->to_parameterPoll.setInterval(1000);
+    this->to_I2C.setInterval(50);                 
 
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -43,16 +49,7 @@ void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
 
     //Applikationsparameter initialisieren
     if(this->error.code == BPLC_ERROR__NO_ERROR)
-    {   
-        //Timeouts
-        this->to_parameterPoll.setInterval(1000);
-        this->to_I2C.setInterval(50);  
-        
-        //Errorout
-        this->error.i2cError.countLimit = 3;
-        this->error.i2cError.count      = 0;
-        this->error.code                = BPLC_ERROR__NO_ERROR;
-        //Statusmaschine
+    {         
         this->deviceState = deviceState_running;      
     }
     else

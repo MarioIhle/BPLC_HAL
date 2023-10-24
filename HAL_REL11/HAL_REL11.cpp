@@ -8,6 +8,7 @@ HAL_REL11::HAL_REL11()
 void HAL_REL11::begin(const e_REL11_ADDRESS_t I2C_ADDRESS)
 {    
     this->deviceAddress = I2C_ADDRESS;
+    this->errorCode     = BPLC_ERROR__NO_ERROR;
     
     //Debug Error ausgabe
     Serial.println("##############################");  

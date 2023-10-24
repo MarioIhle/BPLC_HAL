@@ -9,7 +9,9 @@ HAL_DIN11::HAL_DIN11()
 
 void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 {  
-    this->deviceAddress = I2C_ADDRESS;
+    this->deviceAddress                 = I2C_ADDRESS;
+    this->errorCode                     = BPLC_ERROR__NO_ERROR;
+    this->f_somePinOfsomeDinCardChanged = READ_TWO_TIMES;
 
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -49,9 +51,7 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {   
         PCF.setAddress(this->deviceAddress);   
-        PCF.begin();    
-
-        this->f_somePinOfsomeDinCardChanged = READ_TWO_TIMES;        
+        PCF.begin();            
     }
 }
 

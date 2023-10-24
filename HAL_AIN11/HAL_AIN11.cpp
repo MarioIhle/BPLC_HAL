@@ -8,6 +8,8 @@ HAL_AIN11::HAL_AIN11()
 void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL)
 {    
     this->deviceAddress = I2C_ADDRESS;
+    this->errorCode     = BPLC_ERROR__NO_ERROR;
+    this->to_read.setInterval(READ_INTERVAL);
 
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -59,8 +61,7 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
         // ads.setGain(GAIN_EIGHT);           // 8x gain   +/- 0.512V  1 bit = 0.25mV   0.015625mV
         // ads.setGain(GAIN_SIXTEEN);         // 16x gain  +/- 0.256V  1 bit = 0.125mV  0.0078125mV
 
-        this->ADC.begin(this->deviceAddress);
-        this->to_read.setInterval(READ_INTERVAL); 
+        this->ADC.begin(this->deviceAddress); 
     }
 }
 

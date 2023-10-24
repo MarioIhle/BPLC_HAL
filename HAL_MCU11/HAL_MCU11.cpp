@@ -19,7 +19,7 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
     this->LD3.begin(255);    
     //BUZZER
     pinMode(this->PIN.buzzer, OUTPUT);
-    this->BUZZER.begin(150);
+    this->BUZZER.begin(50);
     //OEN
     this->OEN.begin(true);    
     pinMode(this->PIN.OEN, OUTPUT);
@@ -30,6 +30,8 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
     Serial.begin(this->baudrate.USB);       //USB
     Serial1.begin(this->baudrate.RS232);    //RS232
     Serial2.begin(this->baudrate.RS485);    //RS485
+    //I2C
+    Wire.begin();
 }
 
 void HAL_MCU11::tick()

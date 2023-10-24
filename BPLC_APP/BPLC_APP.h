@@ -1,6 +1,6 @@
 #ifndef BPLC_APP_h
 #define BPLC_APP_H
-//---------------------------------------------------
+//------------------------------------------------------------
 /**
  * @file BPLC_APP.h
  * @author MIE
@@ -12,10 +12,11 @@
  * @version 1.0
  * @date 2022-12-19 * 
  */
-//---------------------------------------------------
+//-------------------------------------------------------------
 
-//#define DEBUG_APP_MCU11_OLED_HANDLING
-
+//-------------------------------------------------------------
+//INCLUDES
+//-------------------------------------------------------------
 #include "Arduino.h"
 #include "SpecialFunctions.h"
 
@@ -31,10 +32,15 @@
 #include "HAL_FUSE11.h"
 #include "HAL_DO11.h"
 #include "HAL_MOT11.h"
-//--------------------------------------------------------------------
-//Typdefinitionen
-//--------------------------------------------------------------------
 
+//-------------------------------------------------------------
+//HARDWARE DEBUGGING
+//-------------------------------------------------------------
+//#define DEBUG_APP_MCU11_OLED_HANDLING
+
+//-------------------------------------------------------------
+//HARDWARE SPEZIFISCHE TYPES
+//-------------------------------------------------------------
 typedef enum
 {
     vDIP_1,
@@ -49,7 +55,6 @@ typedef enum
     vDIP_COUNT,
 }e_V_DIP_t;
 
-
 typedef enum
 {
     APP_MODE__STOP,    
@@ -62,21 +67,24 @@ typedef enum
     APP_MODE__COUNT,
 }e_APP_MODE_t;
 
-
-
+//-------------------------------------------------------------
+//BPLC_APP KLASSE
+//-------------------------------------------------------------
 class BPLC_APP
 {
     public:
     BPLC_APP();
     void begin();
-    void setupHardware(const uint8_t DIN11_CARD__MAX, const uint8_t AIN11_CARD__MAX, const uint8_t DO11_CARD__MAX, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT);    
-    void tick();
-    
+    void defineHardwareSetup(const uint8_t DIN11_CARD_COUNT, const uint8_t AIN11_CARD_COUNT, const uint8_t DO11_CARD_COUNT, const uint8_t REL11_CARD_COUNT, const uint8_t MOT11_CARD_COUNT, const uint8_t FUSE11_CARD_COUNT, const uint8_t NANO11_CARD_COUNT);    
     void mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD);    //Je nach Reihenfolge werden Ports vergeben
     void mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD);
     void mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD);
     void mapObjectToCard(Output* P_OBJECT, e_REL11_CARD_t CARD);
     void mapObjectToCard(MOTOR* P_OBJECT, e_MOT11_CARD_t CARD);
+
+    void tick();
+    
+    
 
     e_APP_MODE_t    getDeviceMode();    
     void            setDeviceMode(const e_APP_MODE_t MODE);
@@ -102,7 +110,7 @@ class BPLC_APP
 
     byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
 
-    e_BPLC_ERROR_t hardwareErrorCode;   //Hardware Error, sofort Applikation anhalten. Letzter ErrorCode! Bei mehreren muss in Oled menü oder per PC nachgeschaut werden
+    e_BPLC_ERROR_t hardwareErrorCode;   //Hardware Error, sofort Applikation anhalten. Es wird immer der erste eraknnte fehler gespeichert
     
     //Applikation
 
@@ -114,6 +122,7 @@ class BPLC_APP
     void handle_vDip();
 
     //Hardware Handling
+    void setupExtensionCards();
     void ISR_CALLED();
     void handleDIN11Cards();
     void handleDO11Cards();
