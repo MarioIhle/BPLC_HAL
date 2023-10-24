@@ -3,6 +3,7 @@
 #include "Arduino.h"
 #include "SpecialFunctions.h"
 #include "IOM_Base.h"
+#include "BPLC_ERRORS.h"
 #include "PCF8574.h"
 
 #define DEBUG_HAL_FUSE11
@@ -60,17 +61,17 @@ class HAL_FUSE11 {
     uint8_t     isAFuseBroken();
 
     private:
-    Output*         p_DO    [OUT_PORT_COUNT];    
+    Output*         p_ports    [OUT_PORT_COUNT];    
     DigitalInput    FUSE    [IN_PORT_COUNT];
     
     struct 
     {
         const uint8_t   input    [IN_PORT_COUNT]    = {4, 5, 6, 7};    
         const uint8_t   output   [OUT_PORT_COUNT]   = {0, 1, 2, 4};    
-    }pins;
+    }PINS;
     
     PCF8574 PCF;
-    int     usedPortCount;
+    int     usedPorts;
     uint8_t f_somePinOfsomePinCardChanged;
     uint8_t deviceAddress;
     Timeout to_fuseCheck;

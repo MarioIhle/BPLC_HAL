@@ -367,7 +367,91 @@ int  PT10x::getTemperatur()
 }
 
 //--------------------------------------------------------------------
-//H-Bridge
+//MOTOR
+MOTOR::MOTOR()
+{}
+
+void MOTOR::stop()
+{
+	//Bei Stopp letzte Parameter merken 
+    this->motParams.old.direction = this->motParams.direction; 
+    this->motParams.old.speed     = this->motParams.speed;
+    this->motParams.direction     = movement_idle; 
+    this->motParams.speed     	  = 0;   
+	f_thereAreNewDriveParametersAvailable = true;
+}
+
+void MOTOR::stopAndBreak()
+{
+	//Bei Stopp letzte Parameter merken 
+    this->motParams.old.direction = this->motParams.direction; 
+    this->motParams.old.speed     = this->motParams.speed;
+    this->motParams.direction     = movement_idle; 
+    this->motParams.speed     	  = 255;   
+	f_thereAreNewDriveParametersAvailable = true;
+}
+
+void MOTOR::start()
+{
+	//Bei Start letzte gemerkte Parameter laden 
+    this->motParams.direction     = this->motParams.old.direction; 
+    this->motParams.speed     	  = this->motParams.old.speed;   
+	f_thereAreNewDriveParametersAvailable = true;
+}
+
+void MOTOR::setSpeed(const uint8_t SPEED)
+{   
+    this->motParams.speed     	  = SPEED;   
+	f_thereAreNewDriveParametersAvailable = true;
+}
+
+void MOTOR::setDirection(const e_movement_t DIRECTION)
+{
+    this->motParams.direction     = DIRECTION; 
+	f_thereAreNewDriveParametersAvailable = true;    
+}
+
+void MOTOR::setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t SPEED)
+{
+    this->motParams.direction     = DIRECTION; 
+    this->motParams.speed     	  = SPEED;   
+	f_thereAreNewDriveParametersAvailable = true;
+}
+
+float MOTOR::getCurrent()
+{
+    return this->motParams.current;
+}
+
+e_movement_t MOTOR::getDirection()
+{
+    return this->motParams.direction;
+}
+
+uint8_t MOTOR::getSpeed()
+{
+    return this->motParams.speed;
+}
+
+e_DRIVE_STATE_t MOTOR::getDriveState()
+{
+	return this->driveState;
+}
+
+void MOTOR::setCurrent(const float CURRENT)
+{
+	this->motParams.current = CURRENT;
+}
+
+bool MOTOR::newDriveParameterAvailable()
+{
+	const bool newDriveParameterAvailable 		= this->f_thereAreNewDriveParametersAvailable;
+	this->f_thereAreNewDriveParametersAvailable = false;
+	return newDriveParameterAvailable;
+}
+
+//--------------------------------------------------------------------
+//Software H-Bridge
 Software_H_Bridge::Software_H_Bridge()
 {}
 

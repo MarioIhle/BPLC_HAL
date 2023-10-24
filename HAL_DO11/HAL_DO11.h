@@ -4,40 +4,51 @@
 #include "SpecialFunctions.h"
 #include "IOM_Base.h"
 #include "PCA9685.h"
-#include "APP_MCU11.h"
+#include "BPLC_TYPES.h"
+#include "BPLC_ERRORS.h"
 #include "I2C_check.h"
 
 typedef enum
 {
-    DO11_CARD_1 = 0x43,
-    DO11_CARD_2 = 0x42,
-    DO11_CARD_3 = 0x41,
-    DO11_CARD_4 = 0x40,
+    DO11_CARD__1,
+    DO11_CARD__2,
+    DO11_CARD__3,
+    DO11_CARD__4,
     
-    DO11_CARD_COUNT = 4,
+    DO11_CARD__MAX = 4,
+
+}e_DO11_CARD_t;
+
+typedef enum
+{
+    DO11_CARD_1_ADDRESS = 0x43,
+    DO11_CARD_2_ADDRESS = 0x42,
+    DO11_CARD_3_ADDRESS = 0x41,
+    DO11_CARD_4_ADDRESS = 0x40,
+    
+    DO11_CARD_ADDRESS_COUNT = 4,
 
 }e_DO11_ADDRESS_t;
-
 
 #define LS_MOSFET 0
 #define HS_MOSFET 1
 
 typedef enum
 {
-    DO_PORT_1,
-    DO_PORT_2,
-    DO_PORT_3,   
-    DO_PORT_4,
-    DO_PORT_5,
-    DO_PORT_6,
-    DO_PORT_7,
-    DO_PORT_8,
+    DO11_PORT__1,
+    DO11_PORT__2,
+    DO11_PORT__3,   
+    DO11_PORT__4,
+    DO11_PORT__5,
+    DO11_PORT__6,
+    DO11_PORT__7,
+    DO11_PORT__8,
 
-    DO_PORT_COUNT,
+    DO11_PORT__COUNT,
 
-}e_digitalOutputPorts_t;
+}e_DO11_PORTs_t;
 
-#define DEAD_TIME   100 //besser geht nicht ohne kurzeitige KS bei PWM änderung
+#define DEAD_TIME   100 //besser geht nicht, ohne kurzeitigen Kurzschluss bei PWM änderung
 
 class HAL_DO11 {
 
@@ -52,7 +63,11 @@ class HAL_DO11 {
     HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7);
     HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7, Output* P_DO8);
     
-    e_BPLC_ERROR_t begin();
+    void begin();
+    void begin(const e_DO11_ADDRESS_t I2C_ADDRESS);
+    
+    void mapObjectToPort(Output* P_OBJECT);
+
     void tick();
 
     e_BPLC_ERROR_t getError();
@@ -61,15 +76,15 @@ class HAL_DO11 {
     //Applikation
 
     //Safety
-    I2C_check   selfCheck;
-    bool        f_error;  
+    I2C_check       selfCheck;
+    e_BPLC_ERROR_t  errorCode;  
 
     //Settings
-    Output*         p_DO    [DO_PORT_COUNT];
-    const uint8_t   pins    [DO_PORT_COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}
-    uint8_t             usedPortCount;
-
+    PCA9685             PCA;
     e_DO11_ADDRESS_t    deviceAddress;
-    PCA9685     PCA;
+    uint8_t             usedPorts;
+
+    Output*         p_ports [DO11_PORT__COUNT];
+    const uint8_t   PINS    [DO11_PORT__COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}  
 };
 #endif

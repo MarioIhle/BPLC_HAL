@@ -1,14 +1,22 @@
 #include "APP_MCU11.h"
 
+//Callback für Hardware Interrupt 
+bool f_ISR_called;
+
+void INT_ISR()
+{
+   f_ISR_called = true;
+}
+
 APP_MCU11::APP_MCU11()
 {}
 
 /**
  * @param   INT_callBack   Zeiger auf ISR  
 */
-void APP_MCU11::begin(void (*INT_callBack)(void))
+void APP_MCU11::begin()
 {
-   this->hal.begin(INT_callBack); 
+   this->hal.begin(INT_ISR); 
    Serial.println("##############################");  
    Serial.println("setup MCU11");  
 
@@ -24,10 +32,34 @@ void APP_MCU11::begin(void (*INT_callBack)(void))
    //Runntime error
    this->to_runnntime.setInterval(1000);
    this->to_runnntime.reset();
+   
+
+
+   this->DIN11_CARD[DIN11_CARD__1].begin(DIN11_CARD_1_ADDRESS);
+   this->DIN11_CARD[DIN11_CARD__2].begin(DIN11_CARD_2_ADDRESS);
+   this->DIN11_CARD[DIN11_CARD__3].begin(DIN11_CARD_3_ADDRESS);
+   this->DIN11_CARD[DIN11_CARD__4].begin(DIN11_CARD_4_ADDRESS);   
+
+   this->DO11_CARD[DO11_CARD__1].begin(DO11_CARD_1_ADDRESS);
+   this->DO11_CARD[DO11_CARD__2].begin(DO11_CARD_2_ADDRESS);
+   this->DO11_CARD[DO11_CARD__3].begin(DO11_CARD_3_ADDRESS);
+   this->DO11_CARD[DO11_CARD__4].begin(DO11_CARD_4_ADDRESS); 
 }
 
 void APP_MCU11::tick()
 {
+   //BPLC Hardware handling
+   //MCU 
+   this->hal.tick();
+   this->oled.tick();
+   this->handleDisplay();
+   //extension Cards
+   this->handleDIN11Cards();
+   this->handleAIN11Cards();
+   this->handleDO11Cards();
+   this->handleREL11Cards();
+   this->handleMOT11Cards();
+
    //Runntime überwachung der Applikation
    if(this->to_runnntime.check())
    {
@@ -35,7 +67,7 @@ void APP_MCU11::tick()
    }
    this->to_runnntime.reset();
 
-   if(this->isThereAnyHardwareError())
+   if(this->hardwareErrorCode != BPLC_ERROR__NO_ERROR)
    {
       this->deviceMode = APP_MODE__SAFE_STATE;
    }
@@ -77,10 +109,6 @@ void APP_MCU11::tick()
    {
       this->beepOnEncoderInput(); 
    }   
-
-   this->hal.tick();
-   this->oled.tick();
-   this->handleDisplay();
 }
 
 void APP_MCU11::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
@@ -114,7 +142,7 @@ void APP_MCU11::handleDisplay()
       break;
 
       case menu_errorCodes:
-         errorOut();
+         hardwareErrorOut();
       break;
 
       case menu_settings:
@@ -183,13 +211,6 @@ void APP_MCU11::setHardwareError(const e_BPLC_ERROR_t ERROR_CODE)
    }   
 }
 
-bool APP_MCU11::isThereAnyHardwareError()
-{
-   const bool THERE_IS_A_BPLC_HARDWARE_ERROR = (bool)(this->hardwareErrorCode != BPLC_ERROR__NO_ERROR);
-
-   return THERE_IS_A_BPLC_HARDWARE_ERROR;
-}
-
 //Diplay handling
 void APP_MCU11::editDeviceMode()
 {
@@ -256,7 +277,7 @@ void APP_MCU11::editDeviceMode()
    }   
 }
 
-void APP_MCU11::errorOut()
+void APP_MCU11::hardwareErrorOut()
 {
    if(this->hal.ENCODER.isButtonPressed())
    {            
@@ -348,3 +369,109 @@ Serial.println("");
 
 }
 
+//BPLC extension Cards handling
+void APP_MCU11::setupHardware(const uint8_t DIN11_CARD__MAX, const uint8_t AIN11_CARD__MAX, const uint8_t DO11_CARD__MAX, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11_CARD__COUNT)
+{
+   this->hardware.din11CardCount    = DIN11_CARD__MAX;
+   this->hardware.ain11CardCount    = AIN11_CARD__MAX;
+   this->hardware.do11CardCount     = DO11_CARD__MAX;
+   this->hardware.rel11CardCount    = REL11_CARD__COUNT;
+   this->hardware.mot11CardCount    = MOT11_CARD__COUNT;
+   this->hardware.fuse11CardCount   = FUSE11_CARD__COUNT;
+   this->hardware.nano11CardCount   = NANO11_CARD__COUNT;
+}
+
+void APP_MCU11::mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
+{
+   this->DIN11_CARD[CARD].mapObjectToPort(P_OBJECT);
+}
+
+void APP_MCU11::mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD)
+{
+   this->AIN11_CARD[CARD].mapObjectToPort(P_OBJECT);
+}
+
+void APP_MCU11::mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD)
+{
+   this->DO11_CARD[CARD].mapObjectToPort(P_OBJECT);
+}
+
+void APP_MCU11::mapObjectToCard(Output* P_OBJECT, e_REL11_CARD_t CARD)
+{
+   this->REL11_CARD[CARD].mapObjectToPort(P_OBJECT);
+}
+
+void APP_MCU11::mapObjectToCard(MOTOR* P_OBJECT, e_MOT11_CARD_t CARD)
+{
+   this->MOT11_CARD[CARD].mapObjectToPort(P_OBJECT);
+}
+
+void APP_MCU11::handleDIN11Cards()
+{
+   for(uint8_t CARD=0; CARD < DIN11_CARD__MAX; CARD++)
+   {
+      this->DIN11_CARD[CARD].tick();
+      const e_BPLC_ERROR_t ERROR = this->DIN11_CARD[CARD].getError();
+   
+      if(ERROR != BPLC_ERROR__NO_ERROR)
+      {
+         this->setHardwareError(ERROR);
+      }
+   }
+}
+
+void APP_MCU11::handleDO11Cards()
+{
+   for(uint8_t CARD=0; CARD < DO11_CARD__MAX; CARD++)
+   {
+      this->DO11_CARD[CARD].tick();
+      const e_BPLC_ERROR_t ERROR = this->DO11_CARD[CARD].getError();
+   
+      if(ERROR != BPLC_ERROR__NO_ERROR)
+      {
+         this->setHardwareError(ERROR);
+      }
+   }
+}
+
+void APP_MCU11::handleAIN11Cards()
+{
+   for(uint8_t CARD=0; CARD < AIN11_CARD__MAX; CARD++)
+   {
+      this->AIN11_CARD[CARD].tick();
+      const e_BPLC_ERROR_t ERROR = this->AIN11_CARD[CARD].getError();
+   
+      if(ERROR != BPLC_ERROR__NO_ERROR)
+      {
+         this->setHardwareError(ERROR);
+      }
+   }
+}
+
+void APP_MCU11::handleMOT11Cards()
+{
+   for(uint8_t CARD=0; CARD < MOT11_CARD__MAX; CARD++)
+   {
+      this->MOT11_CARD[CARD].tick();
+      const e_BPLC_ERROR_t ERROR = this->MOT11_CARD[CARD].getError();
+   
+      if(ERROR != BPLC_ERROR__NO_ERROR)
+      {
+         this->setHardwareError(ERROR);
+      }
+   }
+}
+
+void APP_MCU11::handleREL11Cards()
+{
+   for(uint8_t CARD=0; CARD < REL11_CARD__MAX; CARD++)
+   {
+      this->REL11_CARD[CARD].tick();
+      const e_BPLC_ERROR_t ERROR = this->REL11_CARD[CARD].getError();
+   
+      if(ERROR != BPLC_ERROR__NO_ERROR)
+      {
+         this->setHardwareError(ERROR);
+      }
+   }
+}

@@ -77,7 +77,7 @@ class HAL_MCU11
         const uint8_t OEN       = 13;
         const uint8_t INT       = 35;
         const uint8_t buzzer    = 15;
-    }pins;
+    }PINS;
 
     DigitalInput    Encoder_A;
     DigitalInput    Encoder_B;
