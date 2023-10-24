@@ -1,5 +1,5 @@
-#ifndef IOM_base_h
-#define IOM_base_h
+#ifndef BPLC_IOM_h
+#define BPLC_IOM_h
 
 #include "Arduino.h"
 #include "SpecialFunctions.h"

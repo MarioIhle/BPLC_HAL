@@ -2,7 +2,11 @@
 #define HAL_NANO11_h
 #include "Arduino.h"
 
+
+#include "BPLC_IOM.h"
+#include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
+
 //Error out
 typedef enum
 {

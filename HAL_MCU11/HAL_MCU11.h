@@ -18,7 +18,7 @@
 
 #include "Arduino.h"
 #include "SpecialFunctions.h"
-#include "IOM_base.h"
+#include "BPLC_IOM.h"
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------

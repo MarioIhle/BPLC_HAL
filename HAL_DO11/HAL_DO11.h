@@ -2,8 +2,8 @@
 #define HAL_DO11_h
 #include "Arduino.h"
 #include "SpecialFunctions.h"
-#include "IOM_Base.h"
 #include "PCA9685.h"
+#include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
 #include "I2C_check.h"

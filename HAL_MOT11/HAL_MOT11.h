@@ -5,9 +5,9 @@
 //INCLUDES
 //-------------------------------------------------------------
 #include "Arduino.h"
-#include "IOM_base.h"
 #include "Wire.h"
 #include "I2C_check.h"
+#include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
 //-------------------------------------------------------------

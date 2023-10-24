@@ -19,7 +19,8 @@
 #include "Arduino.h"
 #include "SpecialFunctions.h"
 
-#include "IOM_base.h"
+#include "BPLC_IOM.h"
+#include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
 
 #include "HAL_MCU11.h"

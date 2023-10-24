@@ -6,7 +6,7 @@
 //-------------------------------------------------------------
 #include "Arduino.h"
 #include "PCF8574.h"
-#include "IOM_base.h"
+#include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
 #include "I2C_check.h"

@@ -1,4 +1,4 @@
-#include "IOM_base.h"
+#include "BPLC_IOM.h"
 
 //####################################################################
 //BASIS OBJEKTE

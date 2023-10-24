@@ -17,7 +17,7 @@
 #include "Arduino.h"
 
 //Lib includes
-#include "IOM_base.h"
+#include "BPLC_IOM.h"
 #include "SpecialFunctions.h"
 #include <Wire.h>
 #include "Adafruit_GFX.h"
