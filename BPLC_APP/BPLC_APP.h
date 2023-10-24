@@ -110,9 +110,15 @@ class BPLC_APP
 
     byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
 
-    e_BPLC_ERROR_t hardwareErrorCode;   //Hardware Error, sofort Applikation anhalten. Es wird immer der erste eraknnte fehler gespeichert
+    e_BPLC_ERROR_t hardwareErrorCode;   //Hardware Error, sofort Applikation anhalten. Es wird immer der lettzte erkannte Fehler gespeichert
     
     //Applikation
+    struct 
+    {
+        e_APP_MODE_t deviceModeOld;
+    }debug;
+    
+    void debugOut();
 
     //Display handling
     void handleDisplay();

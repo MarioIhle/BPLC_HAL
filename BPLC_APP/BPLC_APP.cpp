@@ -181,6 +181,12 @@ void BPLC_APP::tick()
       this->deviceMode = APP_MODE__SAFE_STATE;
    }
 
+   if(this->debug.deviceModeOld != this->deviceMode)
+   {
+      Serial.println("##############################");  
+      Serial.print("DEVICE MODE: "); Serial.println(this->deviceMode);
+      this->debug.deviceModeOld = this->deviceMode;
+   }
    //Hauptapplikation BPLC
    switch(this->deviceMode)
    {
@@ -313,11 +319,9 @@ int BPLC_APP::getVDip(const e_V_DIP_t DIP_NUM)
 
 void BPLC_APP::setHardwareError(const e_BPLC_ERROR_t ERROR_CODE)
 {      
-   //Errors nicht überschreiben
-   Serial.print("SET HARDWARE ERROR: "); Serial.println(ERROR_CODE);
-
-   if(this->hardwareErrorCode == BPLC_ERROR__NO_ERROR)
+   if(this->hardwareErrorCode != ERROR_CODE)
    {
+      Serial.print("SET HARDWARE ERROR: "); Serial.println(ERROR_CODE);
       this->hardwareErrorCode = ERROR_CODE;
    }   
 }

@@ -12,8 +12,12 @@ void receiveCallback(int howMany)
         //Serial.println(Wire.peek());
         callback_inBuffer[BYTE] = Wire.read();    
     }
-    callback_f_thereIsANewMessage  = true;
-    callback_sizeOfLastMessage     = howMany;
+    //bei >1 war es ein HB ping ohne payload
+    if(howMany>1)
+    {
+        callback_f_thereIsANewMessage  = true;
+        callback_sizeOfLastMessage     = howMany;
+    }
 }
 
 I2C_BPLC_Slave::I2C_BPLC_Slave()
@@ -32,7 +36,6 @@ bool I2C_BPLC_Slave::thereIsANewMessage()
 {
     for(uint8_t BYTE = 0; BYTE < callback_sizeOfLastMessage; BYTE++)
     {    
-        //Serial.println(Wire.peek());
         this->inBuffer[BYTE] = callback_inBuffer[BYTE];    
     }
     this->f_thereIsANewMessage  = callback_f_thereIsANewMessage;
