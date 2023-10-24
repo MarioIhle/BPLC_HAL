@@ -113,11 +113,11 @@ void HAL_REL11::tick()
                 {
                     if(this->ports.p_object[PORT]->getValue().value >= 1)
                     {
-                        this->PCF.write(this->ports.PIN[PORT], true);
+                        this->PCF.write(this->PIN[PORT], true);
                     }
                     else if(this->ports.p_object[PORT]->getValue().value == false)
                     {
-                        this->PCF.write(this->ports.PIN[PORT], false);
+                        this->PCF.write(this->PIN[PORT], false);
                     }
                 }               
             }

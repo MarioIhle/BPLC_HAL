@@ -80,9 +80,9 @@ class HAL_REL11 {
     struct
     {
         e_PORT_USEAGE_t used    [REL11_PORT__COUNT];
-        Output*         p_object[REL11_PORT__COUNT];
-        const uint8_t   PIN     [REL11_PORT__COUNT] = {0, 1, 2}; 
+        Output*         p_object[REL11_PORT__COUNT];        
     }ports; 
+    const uint8_t   PIN     [REL11_PORT__COUNT] = {0, 1, 2}; 
 };
 
 #endif

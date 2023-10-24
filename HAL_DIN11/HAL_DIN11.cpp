@@ -57,10 +57,35 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 
 void HAL_DIN11::mapObjectToNextFreePort(DigitalInput* P_OBJECT)
 {  
+    #ifdef DEBUG_HAL_DIN11
+    Serial.println("##############################");  
+    Serial.print("DIN11 CARD: ");
+    switch(this->deviceAddress)
+    {
+        case DIN11_CARD_1_ADDRESS:
+            Serial.println("1");
+        break;
+        case DIN11_CARD_2_ADDRESS:
+            Serial.println("2");
+        break;
+        case DIN11_CARD_3_ADDRESS:
+            Serial.println("3");
+        break;
+        case DIN11_CARD_4_ADDRESS:
+            Serial.println("4");
+        break;
+    }
+    #endif
     for(uint8_t PORT = 0; PORT < DIN11_PORT__COUNT; PORT++)
     {
+        #ifdef DEBUG_HAL_DIN11
+        Serial.print("PORT: "); Serial.print(PORT);
+        #endif
         if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
         {
+            #ifdef DEBUG_HAL_DIN11
+            Serial.println(" not defined yet");
+            #endif
             this->ports.p_object[PORT] = P_OBJECT;
             this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
             break;
@@ -68,6 +93,12 @@ void HAL_DIN11::mapObjectToNextFreePort(DigitalInput* P_OBJECT)
         else if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT && PORT == DIN11_PORT__8)
         {
             this->errorCode = DIN11_ERROR__PORT_OVERFLOW;
+        }
+        else
+        {
+            #ifdef DEBUG_HAL_DIN11
+            Serial.println(" already defined");
+            #endif
         }
     }
 }
@@ -113,7 +144,8 @@ void HAL_DIN11::tick()
             {      
                 if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)   
                 {
-                    const bool STATE = !PCF.read(this->ports.PIN[PORT]);     
+                    //Serial.print("DI11 PORT: "); Serial.print(PORT); Serial.print(" State: "); Serial.println(!PCF.read(this->ports.PIN[PORT]));
+                    const bool STATE = !PCF.read(this->PIN[PORT]);     
                     this->ports.p_object[PORT]->setPortState(STATE);   
                 }                   
             } 

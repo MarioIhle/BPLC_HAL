@@ -123,7 +123,7 @@ void HAL_AIN11::tick()
             {            
                 if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)
                 {
-                    const int16_t   RAW_ADC_VALUE = this->ADC.readADC_SingleEnded(this->ports.PIN[PORT]);
+                    const int16_t   RAW_ADC_VALUE = this->ADC.readADC_SingleEnded(this->PIN[PORT]);
                     const float     VALUE_IN_VOLT = this->ADC.computeVolts(RAW_ADC_VALUE);
 
                     if(RAW_ADC_VALUE >= 0)

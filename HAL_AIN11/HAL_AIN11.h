@@ -80,9 +80,10 @@ class HAL_AIN11
     struct
     {
         e_PORT_USEAGE_t used     [AIN11_PORT__COUNT];
-        AnalogInput*    p_object [AIN11_PORT__COUNT];    
-        const uint8_t   PIN      [AIN11_PORT__COUNT] = {2, 3, 1, 0};  
+        AnalogInput*    p_object [AIN11_PORT__COUNT];      
     }ports; 
+
+    const uint8_t   PIN      [AIN11_PORT__COUNT] = {2, 3, 1, 0};
  };
 
 #endif

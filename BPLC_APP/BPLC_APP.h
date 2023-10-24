@@ -76,7 +76,7 @@ class BPLC_APP
     BPLC_APP();
     void begin();
     void defineHardwareSetup(const uint8_t DIN11_CARD_COUNT, const uint8_t AIN11_CARD_COUNT, const uint8_t DO11_CARD_COUNT, const uint8_t REL11_CARD_COUNT, const uint8_t MOT11_CARD_COUNT, const uint8_t FUSE11_CARD_COUNT, const uint8_t NANO11_CARD_COUNT);    
-    void mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD);    //Je nach Reihenfolge werden Ports vergeben
+    void mapObjectToDIN11Card(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD);    //Je nach Reihenfolge werden Ports vergeben
     void mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD);
     void mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD);
     void mapObjectToCard(Output* P_OBJECT, e_REL11_CARD_t CARD);

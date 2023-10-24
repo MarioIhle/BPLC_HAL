@@ -88,8 +88,9 @@ class HAL_DIN11
     struct
     {
         e_PORT_USEAGE_t used    [DIN11_PORT__COUNT];
-        DigitalInput*   p_object[DIN11_PORT__COUNT]; 
-        const uint8_t   PIN     [DIN11_PORT__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};
+        DigitalInput*   p_object[DIN11_PORT__COUNT];         
     }ports;    
+    
+    const uint8_t   PIN     [DIN11_PORT__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};
  };
 #endif

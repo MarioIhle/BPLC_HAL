@@ -496,7 +496,7 @@ void BPLC_APP::defineHardwareSetup(const uint8_t DIN11_CARD_COUNT, const uint8_t
    this->hardware.nano11CardCount   = NANO11_CARD_COUNT;
 }
 
-void BPLC_APP::mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
+void BPLC_APP::mapObjectToDIN11Card(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
 {
    this->DIN11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
 }

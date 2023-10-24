@@ -77,8 +77,8 @@ class HAL_DO11 {
     struct
     {
         e_PORT_USEAGE_t used    [DO11_PORT__COUNT];
-        Output*         p_object[DO11_PORT__COUNT];
-        const uint8_t   PIN     [DO11_PORT__COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}  
-    }ports;    
+        Output*         p_object[DO11_PORT__COUNT];        
+    }ports; 
+    const uint8_t   PIN     [DO11_PORT__COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}     
 };
 #endif
