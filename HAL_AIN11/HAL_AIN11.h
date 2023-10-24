@@ -56,13 +56,9 @@ class HAL_AIN11
 {
     public:
     HAL_AIN11();
-    HAL_AIN11(const e_AIN11_ADDRESS_t I2C_ADDRESS, AnalogInput* P_PORT_1);
-    HAL_AIN11(const e_AIN11_ADDRESS_t I2C_ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2);
-    HAL_AIN11(const e_AIN11_ADDRESS_t I2C_ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3);
-    HAL_AIN11(const e_AIN11_ADDRESS_t I2C_ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3, AnalogInput* P_PORT_4);
-
-    void begin          (const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL = 1000);
-    void mapObjectToPort(AnalogInput* P_OBJECT);
+    void begin                  (const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL = 1000);
+    void mapObjectToNextFreePort(AnalogInput* P_OBJECT);
+    void mapObjectToSpecificPort(AnalogInput* P_OBJECT, const uint8_t PORT);
 
     void           tick    ();  
     e_BPLC_ERROR_t getError();  
@@ -77,11 +73,16 @@ class HAL_AIN11
     //Settings
     Adafruit_ADS1115    ADC;
     e_AIN11_ADDRESS_t   deviceAddress;
-    uint8_t             usedPorts;
+
     Timeout             to_read;
 
-    AnalogInput*   p_ports [AIN11_PORT__COUNT];    
-    const uint8_t  PINS    [AIN11_PORT__COUNT] = {AIN11_PORT__3, AIN11_PORT__4, AIN11_PORT__2, AIN11_PORT__1};    
+    //Object handling
+    struct
+    {
+        e_PORT_USEAGE_t used     [AIN11_PORT__COUNT];
+        AnalogInput*    p_object [AIN11_PORT__COUNT];    
+        const uint8_t   PIN      [AIN11_PORT__COUNT] = {2, 3, 1, 0};  
+    }ports; 
  };
 
 #endif

@@ -61,18 +61,18 @@ class HAL_FUSE11 {
     uint8_t     isAFuseBroken();
 
     private:
-    Output*         p_ports    [OUT_PORT_COUNT];    
+    Output*         p_object    [OUT_PORT_COUNT];    
     DigitalInput    FUSE    [IN_PORT_COUNT];
     
     struct 
     {
         const uint8_t   input    [IN_PORT_COUNT]    = {4, 5, 6, 7};    
         const uint8_t   output   [OUT_PORT_COUNT]   = {0, 1, 2, 4};    
-    }PINS;
+    }PIN;
     
     PCF8574 PCF;
     int     usedPorts;
-    uint8_t f_somePinOfsomePinCardChanged;
+    uint8_t f_somePinOfsomeDinCardChanged;
     uint8_t deviceAddress;
     Timeout to_fuseCheck;
 };

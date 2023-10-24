@@ -102,10 +102,11 @@ class HAL_MOT11
     HAL_MOT11   (const e_MOT11_ADDRESS_t ADDRESS);
     void begin  ();
     void begin  (const e_MOT11_ADDRESS_t ADDRESS);
+    void mapObjectToPort(MOTOR* P_OBJECT);
     
     //Applikation
     void            tick();
-    void            mapObjectToPort(MOTOR* P_OBJECT);
+    
     e_BPLC_ERROR_t  getError();
   
     private:
@@ -135,9 +136,14 @@ class HAL_MOT11
       e_BPLC_ERROR_t code;       //aktueller Erororcode
     }error;
 
-    //Settings
-    MOTOR*              P_MOTOR;   //zeiger auf ausgegebenes Objekt
-    uint8_t             usedPorts;
+    //Settings    
     e_MOT11_ADDRESS_t   deviceAddress;
+
+    //Object handling
+    struct 
+    {
+      e_PORT_USEAGE_t used;
+      MOTOR*          p_object;   
+    }ports;
 };
 #endif

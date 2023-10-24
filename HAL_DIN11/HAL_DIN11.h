@@ -63,27 +63,18 @@ class HAL_DIN11
 {
     public:
     HAL_DIN11 ();
-    HAL_DIN11 (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1);
-    HAL_DIN11 (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2);
-    HAL_DIN11 (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3);
-    HAL_DIN11 (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4);
-    HAL_DIN11 (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5);
-    HAL_DIN11 (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6);
-    HAL_DIN11 (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7);
-    HAL_DIN11 (const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7, DigitalInput* P_PORT_8);
-
-    void begin();
     void begin(const e_DIN11_ADDRESS_t I2C_ADDRESS);
+    void mapObjectToNextFreePort(DigitalInput* P_OBJECT);
+    void mapObjectToSpecificPort(DigitalInput* P_OBJECT, const uint8_t PORT);
     
-
     void            tick ();    
     void            somePinOfsomeDinCardChanged();
     e_BPLC_ERROR_t  getError();    
-    void            mapObjectToPort(DigitalInput* P_OBJECT);
+    
 
     private: 
     //Applikation  
-    uint8_t f_somePinOfsomePinCardChanged;
+    uint8_t f_somePinOfsomeDinCardChanged;
     
     //Safety
     I2C_check       selfCheck;
@@ -92,9 +83,13 @@ class HAL_DIN11
     //Settings
     PCF8574           PCF;
     e_DIN11_ADDRESS_t deviceAddress;
-    uint8_t           usedPorts;
 
-    DigitalInput* p_ports   [DIN11_PORT__COUNT]; 
-    const uint8_t PINS      [DIN11_PORT__COUNT] = {DIN11_PORT__4, DIN11_PORT__3, DIN11_PORT__2, DIN11_PORT__1, DIN11_PORT__5, DIN11_PORT__6, DIN11_PORT__7, DIN11_PORT__8};
+    //Object handling
+    struct
+    {
+        e_PORT_USEAGE_t used    [DIN11_PORT__COUNT];
+        DigitalInput*   p_object[DIN11_PORT__COUNT]; 
+        const uint8_t   PIN     [DIN11_PORT__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};
+    }ports;    
  };
 #endif

@@ -383,22 +383,22 @@ void APP_MCU11::setupHardware(const uint8_t DIN11_CARD__MAX, const uint8_t AIN11
 
 void APP_MCU11::mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
 {
-   this->DIN11_CARD[CARD].mapObjectToPort(P_OBJECT);
+   this->DIN11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
 }
 
 void APP_MCU11::mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD)
 {
-   this->AIN11_CARD[CARD].mapObjectToPort(P_OBJECT);
+   this->AIN11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
 }
 
 void APP_MCU11::mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD)
 {
-   this->DO11_CARD[CARD].mapObjectToPort(P_OBJECT);
+   this->DO11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
 }
 
 void APP_MCU11::mapObjectToCard(Output* P_OBJECT, e_REL11_CARD_t CARD)
 {
-   this->REL11_CARD[CARD].mapObjectToPort(P_OBJECT);
+   this->REL11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
 }
 
 void APP_MCU11::mapObjectToCard(MOTOR* P_OBJECT, e_MOT11_CARD_t CARD)

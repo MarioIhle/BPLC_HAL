@@ -2,45 +2,7 @@
 
 HAL_AIN11::HAL_AIN11()
 {
-    this->usedPorts = 0;
-}
-
-HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1)
-{    
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[AIN11_PORT__1] = P_PORT_1; 
-    this->usedPorts = 1;
-}
-         
-HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2)
-{   
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[AIN11_PORT__1] = P_PORT_1; 
-    this->p_ports[AIN11_PORT__2] = P_PORT_2;
-    this->usedPorts = 2;
-}
-
-HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3)
-{    
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[AIN11_PORT__1] = P_PORT_1;
-    this->p_ports[AIN11_PORT__2] = P_PORT_2;
-    this->p_ports[AIN11_PORT__3] = P_PORT_3;    
-    this->usedPorts = 3;
-}
-
-HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t ADDRESS, AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_3, AnalogInput* P_PORT_4)
-{    
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[AIN11_PORT__1] = P_PORT_1;
-    this->p_ports[AIN11_PORT__2] = P_PORT_2;
-    this->p_ports[AIN11_PORT__3] = P_PORT_3;
-    this->p_ports[AIN11_PORT__4] = P_PORT_4;    
-    this->usedPorts = 4;
+    memset(&this->ports, 0, sizeof(this->ports));
 }
 
 void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL)
@@ -70,8 +32,6 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
     //Tatsächliche I2C Addresse ausgeben
     Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
 
-    Serial.print("Ports defined: "); Serial.print(this->usedPorts); Serial.println("/4");
- 
     this->selfCheck.begin(this->deviceAddress);
     if(this->selfCheck.checkI2CConnection())
     {
@@ -104,15 +64,33 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
     }
 }
 
-void HAL_AIN11::mapObjectToPort(AnalogInput* P_OBJECT)
+void HAL_AIN11::mapObjectToNextFreePort(AnalogInput* P_OBJECT)
 {  
-    this->p_ports[usedPorts] = P_OBJECT;
-    this->usedPorts++;
-
-    //Plausibilitätsprüfung
-    if(this->usedPorts > AIN11_PORT__COUNT)
+    for(uint8_t PORT = 0; PORT < AIN11_PORT__COUNT; PORT++)
     {
-        this->errorCode = AIN11_ERROR__PORT_OVERFLOW;
+        if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
+        {
+            this->ports.p_object[PORT] = P_OBJECT;
+            this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
+            break;
+        }
+        else if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT && PORT == AIN11_PORT__4)
+        {
+            this->errorCode = AIN11_ERROR__PORT_OVERFLOW;
+        }
+    }
+}
+
+void HAL_AIN11::mapObjectToSpecificPort(AnalogInput* P_OBJECT, const uint8_t PORT)
+{
+    if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
+    {
+        this->ports.p_object[PORT] = P_OBJECT;
+        this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
+    }
+    else 
+    {
+        this->errorCode = AIN11_ERROR__PORT_ALREADY_DEFINED;
     }
 }
 //Applikation
@@ -123,31 +101,42 @@ void HAL_AIN11::tick()
     {
         this->errorCode = AIN11_ERROR__I2C_CONNECTION_FAILED;
     }
+    //Prüfen ob überhaupt ein Port in benutzung
+    for(uint8_t PORT = 0; PORT < AIN11_PORT__COUNT; PORT++)
+    {            
+        if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)
+        {
+            break;
+        }
+        else if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE && PORT == (AIN11_PORT__COUNT - 1))
+        {//letzter Port und immernoch keiner in nutzung
+            this->errorCode = AIN11_ERROR__NO_PORT_IN_USE;
+        }
+    }
   
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {
         if(this->to_read.check())
         {
-            for(uint8_t PORT = 0; PORT < this->usedPorts; PORT++)
+            for(uint8_t PORT = 0; PORT < AIN11_PORT__COUNT; PORT++)
             {            
-                const int16_t   RAW_ADC_VALUE = this->ADC.readADC_SingleEnded(this->PINS[PORT]);
-                const float     VALUE_IN_VOLT = this->ADC.computeVolts(RAW_ADC_VALUE);
-
-                if(RAW_ADC_VALUE >= 0)
+                if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)
                 {
-                    this->p_ports[PORT]->setPortValue(RAW_ADC_VALUE);
-                    this->p_ports[PORT]->setValueInVolt(VALUE_IN_VOLT); 
-                }     
-                else
-                {
-                    this->p_ports[PORT]->setPortValue(0);
-                    this->p_ports[PORT]->setValueInVolt(0);
-                }               
+                    const int16_t   RAW_ADC_VALUE = this->ADC.readADC_SingleEnded(this->ports.PIN[PORT]);
+                    const float     VALUE_IN_VOLT = this->ADC.computeVolts(RAW_ADC_VALUE);
 
-                #ifdef DEBUG_HAL_AIN11
-                Serial.print(", PORT "); Serial.print(PORT + 1); Serial.print(": "); Serial.print(RAW_ADC_VALUE); Serial.print(", IN VOLT: "); Serial.print(VALUE_IN_VOLT);    
-                #endif
+                    if(RAW_ADC_VALUE >= 0)
+                    {
+                        this->ports.p_object[PORT]->setPortValue(RAW_ADC_VALUE);
+                        this->ports.p_object[PORT]->setValueInVolt(VALUE_IN_VOLT); 
+                    }     
+                    else
+                    {
+                        this->ports.p_object[PORT]->setPortValue(0);
+                        this->ports.p_object[PORT]->setValueInVolt(0);
+                    }               
 
+                }                
             }
             this->to_read.reset(); 
         }
