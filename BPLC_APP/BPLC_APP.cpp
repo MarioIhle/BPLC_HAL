@@ -24,8 +24,8 @@ void BPLC_APP::begin()
    Serial.println("setup MCU11");  
 
    //Applikation
-   this->deviceMode        = APP_MODE__START;
-   this->hardwareErrorCode = BPLC_ERROR__NO_ERROR;
+   this->deviceMode = APP_MODE__START;
+   memset(&this->hardwareErrorCode[0], 0, sizeof(this->hardwareErrorCode));
 
    //Try to init all hardware
    this->oled.begin();
@@ -186,7 +186,7 @@ void BPLC_APP::tick()
    }
    this->to_runnntime.reset();
 
-   if(this->hardwareErrorCode != BPLC_ERROR__NO_ERROR)
+   if(this->isThereAnyHardwareError())
    {
       this->deviceMode = APP_MODE__SAFE_STATE;
    }
@@ -220,7 +220,7 @@ void BPLC_APP::tick()
 
       case APP_MODE__SAFE_STATE:
          this->hal.LD1.blinkWithBreak(1, 100, 100);     
-         this->hal.LD2.blinkWithBreak((uint8_t)this->hardwareErrorCode, 500, 1500);    
+         this->hal.LD2.blinkWithBreak((uint8_t)this->hardwareErrorCode[0], 500, 1500);    
          this->hal.BUZZER.blinkWithBreak(3, 100, 30000);
          this->hal.OEN.reset();          
       break;
@@ -327,17 +327,6 @@ int BPLC_APP::getVDip(const e_V_DIP_t DIP_NUM)
    return this->virtualDipSwitch[DIP_NUM];
 }
 
-void BPLC_APP::setHardwareError(const e_BPLC_ERROR_t ERROR_CODE)
-{      
-   if(this->hardwareErrorCode != ERROR_CODE && ERROR_CODE != BPLC_ERROR__NO_ERROR)
-   {     
-      Serial.print("ERROR CODE: "); Serial.print(ERROR_CODE); Serial.print(", ");
-      Serial.println(this->errorOut.getErrorCodeText(ERROR_CODE));
-      
-      this->hardwareErrorCode = ERROR_CODE;
-   }   
-}
-
 //Display handling
 void BPLC_APP::editDeviceMode()
 {
@@ -424,7 +413,7 @@ void BPLC_APP::hardwareErrorOut()
       this->oled.showPrevioursTextOfThisMenu();
    } 
 
-   this->oled.setParamValueToShow(this->hardwareErrorCode);    
+   this->oled.setParamValueToShow(this->hardwareErrorCode[0]);    
 }
 
 void BPLC_APP::handle_vDip()
@@ -497,6 +486,42 @@ Serial.println("");
 }
 
 //BPLC extension Cards handling
+void BPLC_APP::setHardwareError(const e_BPLC_ERROR_t ERROR_CODE)
+{        
+   for(uint8_t ERROR_CODE_BUFFER_SLOT = 0; ERROR_CODE_BUFFER_SLOT < HARDWARE_ERROR_BUFFER_SIZE; ERROR_CODE_BUFFER_SLOT++)
+   {
+      if(this->hardwareErrorCode[ERROR_CODE_BUFFER_SLOT] == ERROR_CODE)
+      {//error schon gespeichert
+         //Serial.println("error schon gespeichert");
+         break;
+      }//freier slot
+      else if(this->hardwareErrorCode[ERROR_CODE_BUFFER_SLOT] == BPLC_ERROR__NO_ERROR)
+      {
+         Serial.print("ERROR CODE: "); Serial.print(ERROR_CODE); Serial.print(", "); Serial.println(this->errorOut.getErrorCodeText(ERROR_CODE));
+         this->hardwareErrorCode[ERROR_CODE_BUFFER_SLOT] = ERROR_CODE;
+         break;
+      }
+      else
+      {//Slot schon belegt
+         //Serial.println("error slot schon belegt");
+      }
+   }  
+}
+
+bool BPLC_APP::isThereAnyHardwareError()
+{
+   bool THERE_IS_AN_ERROR = false;
+
+   for(uint8_t ERROR_CODE_BUFFER_SLOT = 0; ERROR_CODE_BUFFER_SLOT < HARDWARE_ERROR_BUFFER_SIZE; ERROR_CODE_BUFFER_SLOT++)
+   {
+      if(this->hardwareErrorCode[ERROR_CODE_BUFFER_SLOT] != BPLC_ERROR__NO_ERROR)
+      {
+         THERE_IS_AN_ERROR = true;
+      }
+   }
+   return THERE_IS_AN_ERROR;
+}
+
 void BPLC_APP::defineHardwareSetup(const uint8_t DIN11_CARD_COUNT, const uint8_t AIN11_CARD_COUNT, const uint8_t DO11_CARD_COUNT, const uint8_t REL11_CARD_COUNT, const uint8_t MOT11_CARD_COUNT, const uint8_t FUSE11_CARD_COUNT, const uint8_t NANO11_CARD_COUNT)
 {
    this->hardware.din11CardCount    = DIN11_CARD_COUNT;

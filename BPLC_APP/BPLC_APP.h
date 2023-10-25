@@ -70,6 +70,8 @@ typedef enum
 //-------------------------------------------------------------
 //BPLC_APP KLASSE
 //-------------------------------------------------------------
+#define HARDWARE_ERROR_BUFFER_SIZE 10
+
 class BPLC_APP
 {
     public:
@@ -100,6 +102,7 @@ class BPLC_APP
 
     //Externer aufruf, wenn HAL Objekt ein Error meldet
     void setHardwareError(const e_BPLC_ERROR_t ERROR_CODE);
+    bool isThereAnyHardwareError();
     
     private:
     HAL_MCU11   hal;
@@ -113,7 +116,7 @@ class BPLC_APP
 
     byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
 
-    e_BPLC_ERROR_t hardwareErrorCode;   //Hardware Error, sofort Applikation anhalten. Es wird immer der lettzte erkannte Fehler gespeichert
+    e_BPLC_ERROR_t hardwareErrorCode[HARDWARE_ERROR_BUFFER_SIZE];   //Hardware Error, sofort Applikation anhalten. Es wird immer der letzte erkannte Fehler in der nächsten freien stelle gespeichert gespeichert
     
     //Applikation
     struct 

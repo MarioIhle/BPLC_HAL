@@ -122,6 +122,8 @@ class OLED_MCU11
  
     String          TEXT_OUTPUT[2];
 
+    ERROR_OUT errorOut;
+
     s_screenSaverParameter_t    screenSaverParameter;
     s_deviceSettingsParameter_t deviceSettings;        
 };
