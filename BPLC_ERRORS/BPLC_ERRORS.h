@@ -1,8 +1,8 @@
 #ifndef BPLC_ERRORS_h
 #define BPLC_ERRORS_h
-
+#include "Arduino.h"
 //Bei änderungen immer auch MOT11 Firmware updaten, da sonst Fehler falsch interpretiert werden!!!
-//BPLC ERROR TYPE
+//case BPLC ERROR TYPE
 typedef enum
 {    
     BPLC_ERROR__NO_ERROR,
@@ -63,10 +63,88 @@ typedef enum
     MOT11_ERROR__OEN_DISABLED,
     MOT11_ERROR__PORT_ALREADY_DEFINED,
     MOT11_ERROR__PORT_OVERFLOW,
-    MOT11_ERROR__COUNT,
 
     BPLC_ERROR__COUNT,
 }e_BPLC_ERROR_t;
 
 
+class ERROR_OUT
+{
+    public:
+    ERROR_OUT(){};
+
+    String ERROR_TEXT[BPLC_ERROR__COUNT]=
+    {
+        {"BPLC_ERROR__NO_ERROR"},
+        //BPLC Errors
+        {"BPLC_ERROR__OLED_COMMUNICATION_FAILED"},
+        {"BPLC_ERROR__RUNNTIME"},
+        //DIN11 errors
+        {"DIN11_ERROR__I2C_CONNECTION_FAILED"}, 
+        {"DIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED"},
+        {"DIN11_ERROR__CARD_NOT_DEFINED"},
+        {"DIN11_ERROR__NO_PORT_IN_USE"},
+        {"DIN11_ERROR__PORT_ALREADY_DEFINED"},
+        {"DIN11_ERROR__PORT_OVERFLOW"},   
+        //AIN11 errors
+        {"AIN11_ERROR__I2C_CONNECTION_FAILED"}, 
+        {"AIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED"},
+        {"AIN11_ERROR__CARD_NOT_DEFINED"},
+        {"AIN11_ERROR__NO_PORT_IN_USE"},
+        {"AIN11_ERROR__PORT_ALREADY_DEFINED"},
+        {"AIN11_ERROR__PORT_OVERFLOW"},
+        //REL11 errors
+        {"REL11_ERROR__I2C_CONNECTION_FAILED"}, 
+        {"REL11_ERROR__CARD_FOUND_BUT_NOT_DEFINED"},
+        {"REL11_ERROR__CARD_NOT_DEFINED"},
+        {"REL11_ERROR__NO_PORT_IN_USE"},
+        {"REL11_ERROR__PORT_ALREADY_DEFINED"},
+        {"REL11_ERROR__PORT_OVERFLOW"},
+        //DO11 errors
+        {"DO11_ERROR__I2C_CONNECTION_FAILED"}, 
+        {"DO11_ERROR__CARD_FOUND_BUT_NOT_DEFINED"},
+        {"DO11_ERROR__CARD_NOT_DEFINED"},
+        {"DO11_ERROR__NO_PORT_IN_USE"},
+        {"DO11_ERROR__PORT_ALREADY_DEFINED"},
+        {"DO11_ERROR__PORT_OVERFLOW"},
+        //FUSE11 errors
+        {"FUSE11_ERROR__I2C_CONNECTION_FAILED"}, 
+        {"FUSE11_ERROR__CARD_FOUND_BUT_NOT_DEFINED"},
+        {"FUSE11_ERROR__CARD_NOT_DEFINED"},
+        {"FUSE11_ERROR__NO_PORT_IN_USE"},
+        {"FUSE11_ERROR__PORT_ALREADY_DEFINED"},
+        {"FUSE11_ERROR__PORT_OVERFLOW"},
+        //NANO11 errors
+        {"NANO11_ERROR__I2C_CONNECTION_FAILED"}, 
+        {"NANO11_ERROR__CARD_FOUND_BUT_NOT_DEFINED"},
+        {"NANO11_ERROR__CARD_NOT_DEFINED"},
+        {"NANO11_ERROR__NO_PORT_IN_USE"},
+        {"NANO11_ERROR__PORT_ALREADY_DEFINED"},
+        {"NANO11_ERROR__PORT_OVERFLOW"},
+        //MOT11 errors
+        {"MOT11_ERROR__I2C_CONNECTION_FAILED"},
+        {"MOT11_ERROR__CARD_FOUND_BUT_NOT_DEFINED"},
+        {"MOT11_ERROR__CARD_NOT_DEFINED"},
+        {"MOT11_ERROR__NO_PORT_IN_USE"},
+        {"MOT11_ERROR__RECEIVED_DRIVE_PARAMETER_NOT_PLAUSIBLE"}, 
+        {"MOT11_ERROR__OVER_CURRENT"},
+        {"MOT11_ERROR__OVER_TEMPERATURE"},   
+        {"MOT11_ERROR__CURRENT_NOT_TEACHED"}, 
+        {"MOT11_ERROR__OEN_DISABLED"},
+        {"MOT11_ERROR__PORT_ALREADY_DEFINED"},
+        {"MOT11_ERROR__PORT_OVERFLOW"}
+    };
+
+    String getErrorCodeText(const e_BPLC_ERROR_t ERROR_CODE)
+    {      
+        if(BPLC_ERROR__COUNT != 50)
+        {
+            return("BPLC_ERROR__ERROR_TEXTS_NEED_UPDATE!");
+        }
+        else
+        {
+            return ERROR_TEXT[ERROR_CODE];
+        }          
+    }       
+};
 #endif

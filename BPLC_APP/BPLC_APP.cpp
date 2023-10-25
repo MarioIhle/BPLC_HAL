@@ -45,10 +45,14 @@ void BPLC_APP::begin()
 void BPLC_APP::setupExtensionCards()
 {
    //DIN11
+   Serial.println("##############################");  
+   Serial.println("setup DIN11 CARDS"); 
    this->DIN11_CARD[DIN11_CARD__1].begin(DIN11_CARD_1_ADDRESS);
    this->DIN11_CARD[DIN11_CARD__2].begin(DIN11_CARD_2_ADDRESS);
    this->DIN11_CARD[DIN11_CARD__3].begin(DIN11_CARD_3_ADDRESS);
    this->DIN11_CARD[DIN11_CARD__4].begin(DIN11_CARD_4_ADDRESS);
+   Serial.println("##############################");  
+   Serial.println("check DIN11 CARDS for errors ");
    //Auf errors prüfen
    for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
    {
@@ -326,8 +330,10 @@ int BPLC_APP::getVDip(const e_V_DIP_t DIP_NUM)
 void BPLC_APP::setHardwareError(const e_BPLC_ERROR_t ERROR_CODE)
 {      
    if(this->hardwareErrorCode != ERROR_CODE && ERROR_CODE != BPLC_ERROR__NO_ERROR)
-   {
-      Serial.print("SET HARDWARE ERROR: "); Serial.println(ERROR_CODE);
+   {     
+      Serial.print("ERROR CODE: "); Serial.print(ERROR_CODE); Serial.print(", ");
+      Serial.println(this->errorOut.getErrorCodeText(ERROR_CODE));
+      
       this->hardwareErrorCode = ERROR_CODE;
    }   
 }

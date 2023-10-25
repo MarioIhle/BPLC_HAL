@@ -165,5 +165,6 @@ class BPLC_APP
 
     //Safety
     Timeout to_runnntime;
+    ERROR_OUT errorOut;
 };
 #endif
