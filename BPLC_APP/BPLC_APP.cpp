@@ -14,7 +14,8 @@ BPLC_APP::BPLC_APP()
 void BPLC_APP::begin()
 {
    this->hal.begin(INT_ISR); 
-   this->deviceSettings.f_useBuzzer = false;
+
+   this->deviceSettings.f_useBuzzer = true;
    if(this->deviceSettings.f_useBuzzer == false)
    {
       this->hal.BUZZER.setOnValue(0);
