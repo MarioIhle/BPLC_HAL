@@ -102,7 +102,7 @@ class HAL_MOT11
     HAL_MOT11   (const e_MOT11_ADDRESS_t ADDRESS);
     void begin  ();
     void begin  (const e_MOT11_ADDRESS_t ADDRESS);
-    void mapObjectToPort(MOTOR* P_OBJECT);
+    e_BPLC_ERROR_t mapObjectToPort(MOTOR* P_OBJECT);
     
     //Applikation
     void            tick();

@@ -58,7 +58,7 @@ void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
     }
 }
 
-void HAL_MOT11::mapObjectToPort(MOTOR* P_OBJECT)
+e_BPLC_ERROR_t HAL_MOT11::mapObjectToPort(MOTOR* P_OBJECT)
 {
     if(this->ports.used == PORT_USEAGE__NOT_IN_USE)
     {
@@ -69,6 +69,7 @@ void HAL_MOT11::mapObjectToPort(MOTOR* P_OBJECT)
     {
         this->error.code = MOT11_ERROR__PORT_ALREADY_DEFINED;
     }
+    return this->error.code;
 }
 
 void HAL_MOT11::tick()

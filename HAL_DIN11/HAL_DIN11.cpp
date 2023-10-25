@@ -55,7 +55,7 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     }
 }
 
-void HAL_DIN11::mapObjectToNextFreePort(DigitalInput* P_OBJECT)
+e_BPLC_ERROR_t  HAL_DIN11::mapObjectToNextFreePort(DigitalInput* P_OBJECT)
 {  
     #ifdef DEBUG_HAL_DIN11
     Serial.println("##############################");  
@@ -101,9 +101,10 @@ void HAL_DIN11::mapObjectToNextFreePort(DigitalInput* P_OBJECT)
             #endif
         }
     }
+    return this->errorCode;
 }
 
-void HAL_DIN11::mapObjectToSpecificPort(DigitalInput* P_OBJECT, const uint8_t PORT)
+e_BPLC_ERROR_t HAL_DIN11::mapObjectToSpecificPort(DigitalInput* P_OBJECT, const e_DIN11_PORTS_t PORT)
 {
     if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
     {
@@ -114,6 +115,7 @@ void HAL_DIN11::mapObjectToSpecificPort(DigitalInput* P_OBJECT, const uint8_t PO
     {
         this->errorCode = DIN11_ERROR__PORT_ALREADY_DEFINED;
     }
+    return this->errorCode;
 }
 
 void HAL_DIN11::tick()

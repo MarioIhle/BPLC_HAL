@@ -53,7 +53,7 @@ void HAL_REL11::begin(const e_REL11_ADDRESS_t I2C_ADDRESS)
     }
 }   
 
-void HAL_REL11::mapObjectToNextFreePort(Output* P_OBJECT)
+e_BPLC_ERROR_t HAL_REL11::mapObjectToNextFreePort(Output* P_OBJECT)
 {  
     for(uint8_t PORT = 0; PORT < REL11_PORT__COUNT; PORT++)
     {
@@ -68,9 +68,10 @@ void HAL_REL11::mapObjectToNextFreePort(Output* P_OBJECT)
             this->errorCode = REL11_ERROR__PORT_OVERFLOW;
         }
     }
+    return this->errorCode;
 }
 
-void HAL_REL11::mapObjectToSpecificPort(Output* P_OBJECT, const uint8_t PORT)
+e_BPLC_ERROR_t HAL_REL11::mapObjectToSpecificPort(Output* P_OBJECT, const uint8_t PORT)
 {
     if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
     {
@@ -81,6 +82,7 @@ void HAL_REL11::mapObjectToSpecificPort(Output* P_OBJECT, const uint8_t PORT)
     {
         this->errorCode = REL11_ERROR__PORT_ALREADY_DEFINED;
     }
+    return this->errorCode;
 }
 
 void HAL_REL11::tick()

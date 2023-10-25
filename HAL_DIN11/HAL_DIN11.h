@@ -64,8 +64,8 @@ class HAL_DIN11
     public:
     HAL_DIN11 ();
     void begin(const e_DIN11_ADDRESS_t I2C_ADDRESS);
-    void mapObjectToNextFreePort(DigitalInput* P_OBJECT);
-    void mapObjectToSpecificPort(DigitalInput* P_OBJECT, const uint8_t PORT);
+    e_BPLC_ERROR_t mapObjectToNextFreePort(DigitalInput* P_OBJECT);
+    e_BPLC_ERROR_t mapObjectToSpecificPort(DigitalInput* P_OBJECT, const e_DIN11_PORTS_t PORT);
     
     void            tick ();    
     void            somePinOfsomeDinCardChanged();

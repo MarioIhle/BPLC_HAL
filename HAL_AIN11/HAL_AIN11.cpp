@@ -65,7 +65,7 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
     }
 }
 
-void HAL_AIN11::mapObjectToNextFreePort(AnalogInput* P_OBJECT)
+e_BPLC_ERROR_t HAL_AIN11::mapObjectToNextFreePort(AnalogInput* P_OBJECT)
 {  
     for(uint8_t PORT = 0; PORT < AIN11_PORT__COUNT; PORT++)
     {
@@ -80,9 +80,10 @@ void HAL_AIN11::mapObjectToNextFreePort(AnalogInput* P_OBJECT)
             this->errorCode = AIN11_ERROR__PORT_OVERFLOW;
         }
     }
+    return this->errorCode;
 }
 
-void HAL_AIN11::mapObjectToSpecificPort(AnalogInput* P_OBJECT, const uint8_t PORT)
+e_BPLC_ERROR_t HAL_AIN11::mapObjectToSpecificPort(AnalogInput* P_OBJECT, const e_AIN11_PORTS_t PORT)
 {
     if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
     {
@@ -93,6 +94,7 @@ void HAL_AIN11::mapObjectToSpecificPort(AnalogInput* P_OBJECT, const uint8_t POR
     {
         this->errorCode = AIN11_ERROR__PORT_ALREADY_DEFINED;
     }
+    return this->errorCode;
 }
 //Applikation
 void HAL_AIN11::tick()

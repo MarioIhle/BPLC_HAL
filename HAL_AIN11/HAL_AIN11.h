@@ -47,7 +47,7 @@ typedef enum
     AIN11_PORT__4,
 
     AIN11_PORT__COUNT,
-}e_analogInputPorts_t;
+}e_AIN11_PORTS_t;
 
 //-------------------------------------------------------------
 //HAL_AIN11 KLASSE
@@ -57,8 +57,8 @@ class HAL_AIN11
     public:
     HAL_AIN11();
     void begin                  (const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL = 1000);
-    void mapObjectToNextFreePort(AnalogInput* P_OBJECT);
-    void mapObjectToSpecificPort(AnalogInput* P_OBJECT, const uint8_t PORT);
+    e_BPLC_ERROR_t mapObjectToNextFreePort(AnalogInput* P_OBJECT);
+    e_BPLC_ERROR_t mapObjectToSpecificPort(AnalogInput* P_OBJECT, const e_AIN11_PORTS_t PORT);
 
     void           tick    ();  
     e_BPLC_ERROR_t getError();  

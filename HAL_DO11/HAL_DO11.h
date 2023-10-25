@@ -46,7 +46,7 @@ typedef enum
 
     DO11_PORT__COUNT,
 
-}e_DO11_PORTs_t;
+}e_DO11_PORTS_t;
 
 #define DEAD_TIME   100 //besser geht nicht, ohne kurzeitigen Kurzschluss bei PWM änderung
 
@@ -56,8 +56,8 @@ class HAL_DO11 {
     HAL_DO11();
     void begin(const e_DO11_ADDRESS_t I2C_ADDRESS);
     
-    void mapObjectToNextFreePort(Output* P_OBJECT);
-    void mapObjectToSpecificPort(Output* P_OBJECT, const uint8_t PORT);
+    e_BPLC_ERROR_t mapObjectToNextFreePort(Output* P_OBJECT);
+    e_BPLC_ERROR_t mapObjectToSpecificPort(Output* P_OBJECT, const e_DO11_PORTS_t PORT);
 
     void tick();
 

@@ -14,6 +14,12 @@ BPLC_APP::BPLC_APP()
 void BPLC_APP::begin()
 {
    this->hal.begin(INT_ISR); 
+   this->deviceSettings.f_useBuzzer = false;
+   if(this->deviceSettings.f_useBuzzer == false)
+   {
+      this->hal.BUZZER.setOnValue(0);
+   }
+   
    Serial.println("##############################");  
    Serial.println("setup MCU11");  
 
@@ -319,7 +325,7 @@ int BPLC_APP::getVDip(const e_V_DIP_t DIP_NUM)
 
 void BPLC_APP::setHardwareError(const e_BPLC_ERROR_t ERROR_CODE)
 {      
-   if(this->hardwareErrorCode != ERROR_CODE)
+   if(this->hardwareErrorCode != ERROR_CODE && ERROR_CODE != BPLC_ERROR__NO_ERROR)
    {
       Serial.print("SET HARDWARE ERROR: "); Serial.println(ERROR_CODE);
       this->hardwareErrorCode = ERROR_CODE;
@@ -496,29 +502,166 @@ void BPLC_APP::defineHardwareSetup(const uint8_t DIN11_CARD_COUNT, const uint8_t
    this->hardware.nano11CardCount   = NANO11_CARD_COUNT;
 }
 
-void BPLC_APP::mapObjectToDIN11Card(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
+void BPLC_APP::mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
 {
-   this->DIN11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
+   Serial.println("##############################");  
+   Serial.print("map object to DIN11_CARD "); Serial.println((1 + (uint8_t)CARD));
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+
+   if(CARD < this->hardware.din11CardCount)
+   {
+      ERROR = this->DIN11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
+   }
+   else
+   {
+      ERROR = DIN11_ERROR__CARD_NOT_DEFINED;
+   }  
+   this->setHardwareError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD)
 {
-   this->AIN11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
+   Serial.println("##############################");  
+   Serial.print("map object to AIN11_CARD "); Serial.println((1 + (uint8_t)CARD));
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+
+   if(CARD < this->hardware.ain11CardCount)
+   {
+      ERROR = this->AIN11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
+   }
+   else
+   {
+      ERROR = AIN11_ERROR__CARD_NOT_DEFINED;
+   }      
+   this->setHardwareError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD)
-{
-   this->DO11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
+{   
+   Serial.println("##############################");  
+   Serial.print("map object to DO11_CARD "); Serial.println((1 + (uint8_t)CARD)); 
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+
+   if(CARD < this->hardware.do11CardCount)
+   {
+      ERROR = this->DO11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
+   }
+   else
+   {
+      ERROR = DO11_ERROR__CARD_NOT_DEFINED;
+   }   
+   this->setHardwareError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCard(Output* P_OBJECT, e_REL11_CARD_t CARD)
 {
-   this->REL11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
+   Serial.println("##############################");  
+   Serial.print("map object to REL11_CARD "); Serial.println((1 + (uint8_t)CARD));
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+   
+   if(CARD < this->hardware.rel11CardCount)
+   {
+      ERROR = this->REL11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
+   }
+   else
+   {
+      ERROR = REL11_ERROR__CARD_NOT_DEFINED;
+   }   
+   this->setHardwareError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCard(MOTOR* P_OBJECT, e_MOT11_CARD_t CARD)
 {
-   this->MOT11_CARD[CARD].mapObjectToPort(P_OBJECT);
+   Serial.println("##############################");  
+   Serial.print("map object to MOT11_CARD "); Serial.println((1 + (uint8_t)CARD));
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+
+   if(CARD < this->hardware.mot11CardCount)
+   {
+      ERROR = this->MOT11_CARD[CARD].mapObjectToPort(P_OBJECT);
+   }
+   else
+   {
+      ERROR = MOT11_ERROR__CARD_NOT_DEFINED;
+   }   
+   this->setHardwareError(ERROR); 
+}
+
+void BPLC_APP::mapObjectToCardAndPort(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_PORTS_t PORT)
+{   
+   Serial.println("##############################");  
+   Serial.print("map object to DIN11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" PORT: "); Serial.println((1 + (uint8_t)PORT));
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+
+   if(CARD < this->hardware.din11CardCount)
+   {
+      ERROR = this->DIN11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
+   }
+   else
+   {
+      ERROR = DIN11_ERROR__CARD_NOT_DEFINED;
+   }   
+   this->setHardwareError(ERROR); 
+}
+
+void BPLC_APP::mapObjectToCardAndPort(Output* P_OBJECT,const e_DO11_CARD_t CARD, const e_DO11_PORTS_t PORT)
+{   
+   Serial.println("##############################");  
+   Serial.print("map object to DO11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" PORT: "); Serial.println((1 + (uint8_t)PORT));
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+
+   if(CARD < this->hardware.do11CardCount)
+   {
+      ERROR = this->DO11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
+   }
+   else
+   {
+      ERROR = DO11_ERROR__CARD_NOT_DEFINED;
+   }   
+   this->setHardwareError(ERROR); 
+}
+
+void BPLC_APP::mapObjectToCardAndPort(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_PORTS_t PORT)
+{   
+   Serial.println("##############################");  
+   Serial.print("map object to AIN11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" PORT: "); Serial.println((1 + (uint8_t)PORT));
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+
+   if(CARD < this->hardware.ain11CardCount)
+   {
+      ERROR = this->AIN11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
+   }
+   else
+   {
+      ERROR = AIN11_ERROR__CARD_NOT_DEFINED;
+   }   
+   this->setHardwareError(ERROR); 
+}
+
+void BPLC_APP::mapObjectToCardAndPort(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t PORT)
+{
+   Serial.println("##############################");  
+   Serial.print("map object to REL11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" PORT: "); Serial.println((1 + (uint8_t)PORT));
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+
+   if(CARD < this->hardware.rel11CardCount)
+   {
+      ERROR = this->REL11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
+   }
+   else
+   {
+      ERROR = REL11_ERROR__CARD_NOT_DEFINED;
+   }   
+   this->setHardwareError(ERROR); 
 }
 
 void BPLC_APP::ISR_CALLED()
@@ -617,6 +760,10 @@ void BPLC_APP::handleMOT11Cards()
    
       if(ERROR == BPLC_ERROR__NO_ERROR)
       {
+         this->MOT11_CARD[CARD].tick();
+      }
+      else if(ERROR == MOT11_ERROR__OEN_DISABLED && this->hal.OEN.getValue().value == false)
+      {//Kein Fehler, wenn von MCU gesteuert abgeschaltet wird
          this->MOT11_CARD[CARD].tick();
       }
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)

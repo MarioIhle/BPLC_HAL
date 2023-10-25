@@ -76,16 +76,18 @@ class BPLC_APP
     BPLC_APP();
     void begin();
     void defineHardwareSetup(const uint8_t DIN11_CARD_COUNT, const uint8_t AIN11_CARD_COUNT, const uint8_t DO11_CARD_COUNT, const uint8_t REL11_CARD_COUNT, const uint8_t MOT11_CARD_COUNT, const uint8_t FUSE11_CARD_COUNT, const uint8_t NANO11_CARD_COUNT);    
-    void mapObjectToDIN11Card(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD);    //Je nach Reihenfolge werden Ports vergeben
-    void mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD);
-    void mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD);
-    void mapObjectToCard(Output* P_OBJECT, e_REL11_CARD_t CARD);
-    void mapObjectToCard(MOTOR* P_OBJECT, e_MOT11_CARD_t CARD);
+    void mapObjectToCard(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD);    //Je nach Reihenfolge werden Ports vergeben
+    void mapObjectToCard(Output* P_OBJECT, const e_DO11_CARD_t CARD);
+    void mapObjectToCard(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD);
+    void mapObjectToCard(Output* P_OBJECT, const e_REL11_CARD_t CARD);
+    void mapObjectToCard(MOTOR* P_OBJECT, const e_MOT11_CARD_t CARD);
+    void mapObjectToCardAndPort(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_PORTS_t PORT);    //Je nach Reihenfolge werden Ports vergeben
+    void mapObjectToCardAndPort(Output* P_OBJECT,const e_DO11_CARD_t CARD, const e_DO11_PORTS_t);
+    void mapObjectToCardAndPort(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_PORTS_t PORT);
+    void mapObjectToCardAndPort(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t PORT);
 
     void tick();
     
-    
-
     e_APP_MODE_t    getDeviceMode();    
     void            setDeviceMode(const e_APP_MODE_t MODE);
 
@@ -102,6 +104,7 @@ class BPLC_APP
     private:
     HAL_MCU11   hal;
     OLED_MCU11  oled;
+    
 
     e_APP_MODE_t    deviceMode;
 
@@ -157,6 +160,7 @@ class BPLC_APP
     struct 
     {
         bool f_beepOnEncoderInput;
+        bool f_useBuzzer;
     }deviceSettings;    
 
     //Safety
