@@ -272,7 +272,7 @@ void BPLC_APP::handleDisplay()
       break;
 
       case menu_settings:
-        
+         displaySettings();        
       break;
 
       case menu_dipSwitch:
@@ -415,6 +415,31 @@ void BPLC_APP::hardwareErrorOut()
    } 
 
    this->oled.setParamValueToShow(this->hardwareErrorCode[0]);    
+}
+
+void BPLC_APP::displaySettings()
+{
+   if(this->hal.ENCODER.isButtonPressed())
+   {            
+      //Cursor on "exit"
+      if(this->oled.readyToExitMenu())
+      {
+         this->oled.setMenu(menu_mainMenu);         
+      } 
+      else
+      {
+         this->MOT11_CARD[MOT11_CARD__1].startCurrentAutotuning();
+      }
+   }
+
+   if(this->hal.ENCODER.getTurningDirection() == movement_right)
+   {
+      this->oled.showNextTextOfThisMenu();
+   }
+   else if(this->hal.ENCODER.getTurningDirection() == movement_left)
+   {
+      this->oled.showPrevioursTextOfThisMenu();
+   } 
 }
 
 void BPLC_APP::handle_vDip()

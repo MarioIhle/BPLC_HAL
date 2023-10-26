@@ -137,6 +137,33 @@ void HAL_MOT11::tick()
     }
 }
 
+void HAL_MOT11::startCurrentAutotuning()
+{
+    u_mot11_i2c_payload_t COMMAND;
+    memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
+    
+    COMMAND.extract.key = (uint8_t)mot11_i2c_key__startCurrentAutotuning;
+
+    this->sendFrame(COMMAND);
+
+    if(this->waitForACK())
+    {
+        this->error.i2cError.count = 0;
+
+#ifdef DEBUG_HAL_MOT11
+Serial.println("ACK empfangen");
+#endif    
+    }   
+    else
+    {
+        this->error.i2cError.count++;
+
+#ifdef DEBUG_HAL_MOT11
+Serial.println("kein ACK empfangen");
+#endif 
+    } 
+}
+
 e_BPLC_ERROR_t HAL_MOT11::getError()
 {
     return this->error.code;

@@ -13,7 +13,7 @@
 //-------------------------------------------------------------
 //HARDWARE DEBUGGING
 //-------------------------------------------------------------
-//#define DEBUG_HAL_MOT11 
+#define DEBUG_HAL_MOT11 
 
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES
@@ -105,7 +105,8 @@ class HAL_MOT11
     e_BPLC_ERROR_t mapObjectToPort(MOTOR* P_OBJECT);
     
     //Applikation
-    void            tick();
+    void tick();
+    void startCurrentAutotuning();
     
     e_BPLC_ERROR_t  getError();
   

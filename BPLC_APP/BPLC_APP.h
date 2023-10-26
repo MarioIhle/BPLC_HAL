@@ -131,6 +131,7 @@ class BPLC_APP
     void beepOnEncoderInput();
     void editDeviceMode();
     void hardwareErrorOut();
+    void displaySettings();
     void handle_vDip();
 
     //Hardware Handling

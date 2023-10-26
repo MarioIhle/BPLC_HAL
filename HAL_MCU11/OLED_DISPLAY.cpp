@@ -11,7 +11,7 @@ String HEADLINE_TEXT [menu_count][10] =
   {{"EDIT MODE"}, {EXIT}, {LAST_TEXT}},
   {{"BPLC ERROR"}, {EXIT}, {LAST_TEXT}},
   {{"DIP1"}, {"DIP2"}, {"DIP3"}, {"DIP4"}, {"DIP5"}, {"DIP6"}, {"DIP7"}, {"DIP8"}, {EXIT}, {LAST_TEXT}},
-  {{"SETTING1"}, {"SETTING2"}, {EXIT}, {LAST_TEXT}}
+  {{"SETTING1"}, {"MOT11_1 TEACHIN"}, {EXIT}, {LAST_TEXT}}
 };
 //---------------------------------------------------
 //CONSTRUCTOR
@@ -303,7 +303,6 @@ void OLED_MCU11::showHardwareErrorCode()
 
 void OLED_MCU11::showSettings()
 {
-  
 }
 
 void OLED_MCU11::showDipswitches()
