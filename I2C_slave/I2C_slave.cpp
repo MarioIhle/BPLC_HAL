@@ -9,7 +9,6 @@ void receiveCallback(int howMany)
 {
     for(uint8_t BYTE = 0; BYTE < howMany; BYTE++)
     {    
-        //Serial.println(Wire.peek());
         callback_inBuffer[BYTE] = Wire.read();    
     }
     //bei >1 war es ein HB ping ohne payload
@@ -70,11 +69,7 @@ void I2C_BPLC_Slave::setNextRequestPayload(const uint8_t* PAYLOAD_BUFFER, const 
         {
             this->requestResponseBuffer[i] = PAYLOAD_BUFFER[i];
         }
-    }
-    else
-    {
-        Serial.println("Paylaod too big for buffer");
-    }  
+    } 
 }
 
 void I2C_BPLC_Slave::sendACK()
