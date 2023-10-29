@@ -24,7 +24,7 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
     this->OEN.begin(true);    
     pinMode(this->PIN.OEN, OUTPUT);
     //INT
-    pinMode(this->PIN.INT, INPUT);
+    pinMode(this->PIN.INT, INPUT_PULLUP);
     attachInterrupt(this->PIN.INT, INT_callBack, CHANGE);   
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
