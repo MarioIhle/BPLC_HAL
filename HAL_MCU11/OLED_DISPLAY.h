@@ -37,95 +37,82 @@
 //MENÜS
 typedef enum
 {        
-    menu_mainMenu,
-    menu_deviceMode,
-    menu_errorCodes,
-    menu_dipSwitch,
-    menu_settings,
+    OLED_MENU__MAIN,
+    OLED_MENU__DEVICE_MODE,
+    OLED_MENU__BPLC_HARDWARE,
+    OLED_MENU__VDIP,
+    OLED_MENU__DEVICE_SETTINGS,
 
-    menu_screenSaver,
+    OLED_MENU__SCREENSAVER,
 
-    menu_count,
-}e_oledMenu_t;
+    OLED_MENU__COUNT,
+}e_OLED_MENU_t;
 
-typedef struct
+typedef struct 
 {
-  e_oledMenu_t      activeMenu;
-  e_oledMenu_t      previousActiveMenu;
+    e_OLED_MENU_t   name;
+    uint8_t         textCount;
+    String          texts[30];   
 
-  int               activeText;             
 }s_menu_t;
 
-typedef struct
-{     
-    int             cursorPos;    
-}s_display_t;
-//---------------------------------------------------
-//DEVICE SETTINGS
-typedef struct{
-    uint32_t    sleepTime;
-    bool        screenSaverIsEnbaled;
-}s_deviceSettingsParameter_t;
-//---------------------------------------------------
-//SCREENSAVER
-typedef struct{          
-    Timeout         to_sleep;
-}s_screenSaverParameter_t;
-
 
 //---------------------------------------------------
-//MCU11 KLASSE
+//OLED MCU11 KLASSE
 //---------------------------------------------------
 class OLED_MCU11
 {
     public:
             OLED_MCU11  ();
-    void    begin       ();
+    void    begin       (s_menu_t* P_MENUS, const uint8_t MENU_COUNT);
     void    tick        ();
 
+    void showScreenSaver ();
+
+    bool readyToExitMenu ();
+    void setTextToShow   (const String TEXT, const bool ROW);
+    void blinkText       (const bool ROW, const unsigned long INTERVAL);
+
+
+
     //Menüsteuernug
-    void            showNextTextOfThisMenu      ();
-    void            showPrevioursTextOfThisMenu ();
-    void            enterMenu                   ();
-    e_oledMenu_t    getActiveMenu               ();      
-    uint8_t         getActiveMenuTextNum        ();
-    void            setMenu                     (const e_oledMenu_t MENU);
-    bool            readyToExitMenu             ();
-    //Parametereingabe
-    void            enterParameter              ();
-    void            exitParameter               ();
-    bool            parameterEntered            ();
-    void            setParamValueToShow         (const uint8_t VALUE);    
+    //void            showNextTextOfThisMenu      ();
+    //void            showPrevioursTextOfThisMenu ();
+    //e_OLED_MENU_t   getActiveMenu               ();      
+    //uint8_t         getActiveTextOfThisMenu     ();
+    //void            setParamValueToShow         (const uint8_t VALUE);    
 
     private:
     Adafruit_SSD1306 oled;
 
-    void        showHeadlineText();       
-    void        showMenuText    (const String TEXT, const bool ROW);
-    uint8_t     getMenuText     (const uint8_t LAST_AVAILABLE_TEXT, const uint8_t ACTIVE_TEXT);
-  
-    void        showScreenSaver      ();
-    void        showMainMenu         ();
-    void        showDeviceMode       ();
-    void        showHardwareErrorCode();
-    void        showSettings         ();
-    void        showDipswitches      ();    
+    void showMenuText    (const String TEXT, const bool ROW);  
+    
+           
+    struct 
+    {
+        bool            f_refresh;
+        uint8_t         paramValue;
 
-    s_display_t display;
-    s_menu_t    menu;
-    bool        f_refresh;
-
-    uint8_t         paramValue;
-    bool            f_parmParameter;
-    Timeout         to_parmeter;
-    bool            f_parameterBlink;
- 
-    String          TEXT_OUTPUT[2];
+        bool            f_blinkRow_0;
+        bool            f_blinkRow_1;
+        Timeout         to_textBlink;
+        bool            f_parameterBlink;
+    
+        String          TEXT_OUTPUT[2];
+    }display;
+     
 
     ERROR_OUT errorOut;
 
-    s_screenSaverParameter_t    screenSaverParameter;
-    s_deviceSettingsParameter_t deviceSettings;        
-};
+    struct
+    {          
+        Timeout         to_sleep;
+    }screenSaverParameter;  
 
+    struct
+    {
+    uint32_t    sleepTime;
+    bool        screenSaverIsEnbaled;
+    }deviceSettings;      
+};
 #endif

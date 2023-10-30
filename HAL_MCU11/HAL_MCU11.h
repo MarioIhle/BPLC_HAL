@@ -20,6 +20,10 @@
 #include "Wire.h"
 #include "SpecialFunctions.h"
 #include "BPLC_IOM.h"
+
+#define revA
+//#define revB
+
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
@@ -71,6 +75,7 @@ class HAL_MCU11
     }baudrate;    
     
     //Pinsdefinition
+    #ifdef revA
     struct 
     {        
         const uint8_t encoder[3]= {39, 36, 34};
@@ -79,6 +84,17 @@ class HAL_MCU11
         const uint8_t INT       = 35;
         const uint8_t buzzer    = 15;
     }PIN;
+    #endif
+    #ifdef revB
+    struct 
+    {        
+        const uint8_t encoder[3]= {39, 36, 34};
+        const uint8_t led[3]    = {27, 26, 25};
+        const uint8_t OEN       = 2;
+        const uint8_t INT       = 35;
+        const uint8_t buzzer    = 5;
+    }PIN;
+    #endif
 
     DigitalInput    Encoder_A;
     DigitalInput    Encoder_B;

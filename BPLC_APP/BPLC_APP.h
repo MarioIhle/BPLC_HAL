@@ -106,33 +106,41 @@ class BPLC_APP
     
     private:
     HAL_MCU11   hal;
-    OLED_MCU11  oled;
-    
+    OLED_MCU11  oled;    
 
     e_APP_MODE_t    deviceMode;
-
-    //Variablen
     uint8_t         virtualDipSwitch[vDIP_COUNT];
-
-    byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
-
-    e_BPLC_ERROR_t hardwareErrorCode[HARDWARE_ERROR_BUFFER_SIZE];   //Hardware Error, sofort Applikation anhalten. Es wird immer der letzte erkannte Fehler in der nächsten freien stelle gespeichert gespeichert
-    
+    e_BPLC_ERROR_t  hardwareErrorCode[HARDWARE_ERROR_BUFFER_SIZE];   //Hardware Error, sofort Applikation anhalten. Es wird immer der letzte erkannte Fehler in der nächsten freien stelle gespeichert gespeichert
+        
     //Applikation
     struct 
     {
         e_APP_MODE_t deviceModeOld;
     }debug;
     
-    void debugOut();
-
     //Display handling
     void handleDisplay();
+    bool readyToExitMenu();
+
     void beepOnEncoderInput();
+    void showMainMenu();
     void editDeviceMode();
-    void hardwareErrorOut();
+    void hardwareState();
     void displaySettings();
     void handle_vDip();
+
+    struct 
+    {
+        bool    f_editParameterOnDisplay;
+        uint8_t tempValueToShow;
+ 
+        e_OLED_MENU_t   activeMenu;
+        e_OLED_MENU_t   previousActiveMenu;
+        uint8_t         menuCount;
+        uint8_t         activeText;            
+   
+    }displayHandling;
+    
 
     //Hardware Handling
     void setupExtensionCards();
