@@ -1,5 +1,5 @@
-#ifndef IOM_base_h
-#define IOM_base_h
+#ifndef BPLC_IOM_h
+#define BPLC_IOM_h
 
 #include "Arduino.h"
 #include "SpecialFunctions.h"
@@ -45,13 +45,13 @@ typedef struct
 class DigitalInput
 {
     public:
-    DigitalInput    ();
+    DigitalInput();
 
     //Getter für Applikation
-    bool 	ishigh		();
-    bool	islow		();
-	bool 	posFlank	();	
-	bool 	negFlank	();	
+    bool 	ishigh ();
+    bool	islow  ();
+	bool 	posEdge();	
+	bool 	negEdge();	
 
     //Setter für HAL
     void setPortState(const bool STATE);

@@ -11,7 +11,7 @@ String HEADLINE_TEXT [menu_count][10] =
   {{"EDIT MODE"}, {EXIT}, {LAST_TEXT}},
   {{"BPLC ERROR"}, {EXIT}, {LAST_TEXT}},
   {{"DIP1"}, {"DIP2"}, {"DIP3"}, {"DIP4"}, {"DIP5"}, {"DIP6"}, {"DIP7"}, {"DIP8"}, {EXIT}, {LAST_TEXT}},
-  {{"SETTING1"}, {"SETTING2"}, {EXIT}, {LAST_TEXT}}
+  {{"SETTING1"}, {"MOT11_1 TEACHIN"}, {EXIT}, {LAST_TEXT}}
 };
 //---------------------------------------------------
 //CONSTRUCTOR
@@ -275,7 +275,6 @@ uint8_t OLED_MCU11::getMenuText(const uint8_t LAST_AVAILABLE_TEXT, const uint8_t
 //MENU AUSGABE
 //Texte 2. Zeile
 String DEVICE_MODE[]  = {{"stop"}, {"start"}, {"safestate"}, {"running C1"}, {"running C2"}, {"running C3"}};
-String BPLC_ERROR[]   = {{"no error"}, {"runntime too long"}, {"oled i2c failed"}, {"DIN11 i2c failed"}, {"AIN11 i2c failed"}, {"REL11 i2c failed"}, {"DO11 i2c failed"},{"MOT11 i2c failed"},{"FUSE11 i2c failed"},{"NANO11 i2c failed"},{"MOT11 overcurrent"},{"MOT11 overtemperature"},{"MOT11 currnet not teached"}};
 
 void OLED_MCU11::showScreenSaver()
 { 
@@ -298,13 +297,12 @@ void OLED_MCU11::showHardwareErrorCode()
 {
   if(this->menu.activeText < 1)
   {
-    this->showMenuText(BPLC_ERROR[this->paramValue], 1);
+    this->showMenuText(errorOut.getErrorCodeText((e_BPLC_ERROR_t)this->paramValue), 1);
   }
 }
 
 void OLED_MCU11::showSettings()
 {
-  
 }
 
 void OLED_MCU11::showDipswitches()

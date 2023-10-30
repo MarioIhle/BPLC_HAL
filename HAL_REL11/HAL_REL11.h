@@ -5,8 +5,8 @@
 //INCLUDES
 //-------------------------------------------------------------
 #include "Arduino.h"
-#include "IOM_Base.h"
 #include "PCF8574.h"
+#include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
 #include "I2C_check.h"
@@ -57,13 +57,10 @@ class HAL_REL11 {
 
     public:
     HAL_REL11();
-    HAL_REL11(const e_REL11_ADDRESS_t I2C_ADDRESS, Output* P_REL1);
-    HAL_REL11(const e_REL11_ADDRESS_t I2C_ADDRESS, Output* P_REL1, Output* P_REL2);
-    HAL_REL11(const e_REL11_ADDRESS_t I2C_ADDRESS, Output* P_REL1, Output* P_REL2, Output* P_REL3);
 
-    void begin();
     void begin(const e_REL11_ADDRESS_t I2C_ADDRESS);
-    void mapObjectToPort(Output* P_OBJECT);
+    e_BPLC_ERROR_t mapObjectToNextFreePort(Output* P_OBJECT);
+    e_BPLC_ERROR_t mapObjectToSpecificPort(Output* P_OBJECT, const uint8_t PORT);
 
     void tick();
     
@@ -79,10 +76,13 @@ class HAL_REL11 {
     //Settings
     PCF8574 PCF;
     e_REL11_ADDRESS_t   deviceAddress;
-    uint8_t             usedPorts; 
 
-    Output*         p_REL   [REL11_PORT__COUNT];
-    const uint8_t   PINS    [REL11_PORT__COUNT] = {0, 1, 2};  
+    struct
+    {
+        e_PORT_USEAGE_t used    [REL11_PORT__COUNT];
+        Output*         p_object[REL11_PORT__COUNT];        
+    }ports; 
+    const uint8_t   PIN     [REL11_PORT__COUNT] = {0, 1, 2}; 
 };
 
 #endif

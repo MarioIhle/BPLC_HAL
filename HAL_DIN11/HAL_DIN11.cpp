@@ -4,157 +4,14 @@
 
 HAL_DIN11::HAL_DIN11()
 {
-    this->usedPorts = 0;
-}
-
-HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1)
-{    
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[DIN11_PORT__1] = P_PORT_1;
-
-    this->usedPorts = 1;
-}
-         
-HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2)
-{   
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[DIN11_PORT__1] = P_PORT_1;
-    this->p_ports[DIN11_PORT__2] = P_PORT_2;
-    
-    this->usedPorts = 2;
-}
-
-HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3)
-{    
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[DIN11_PORT__1] = P_PORT_1;
-    this->p_ports[DIN11_PORT__2] = P_PORT_2;
-    this->p_ports[DIN11_PORT__3] = P_PORT_3;
-        
-    this->usedPorts = 3;
-}
-
-HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4)
-{    
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[DIN11_PORT__1] = P_PORT_1;
-    this->p_ports[DIN11_PORT__2] = P_PORT_2;
-    this->p_ports[DIN11_PORT__3] = P_PORT_3;
-    this->p_ports[DIN11_PORT__4] = P_PORT_4;
- 
-    this->usedPorts = 4;
-}
-
-HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5)
-{    
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[DIN11_PORT__1] = P_PORT_1;
-    this->p_ports[DIN11_PORT__2] = P_PORT_2;
-    this->p_ports[DIN11_PORT__3] = P_PORT_3;
-    this->p_ports[DIN11_PORT__4] = P_PORT_4;
-    this->p_ports[DIN11_PORT__5] = P_PORT_5;
-
-    this->usedPorts = 5;
-}
-
-HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6)
-{    
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[DIN11_PORT__1] = P_PORT_1;
-    this->p_ports[DIN11_PORT__2] = P_PORT_2;
-    this->p_ports[DIN11_PORT__3] = P_PORT_3;
-    this->p_ports[DIN11_PORT__4] = P_PORT_4;
-    this->p_ports[DIN11_PORT__5] = P_PORT_5;
-    this->p_ports[DIN11_PORT__6] = P_PORT_6;
-    this->usedPorts = 6;
-}
-
-HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1, DigitalInput* P_PORT_2, DigitalInput* P_PORT_3, DigitalInput* P_PORT_4, DigitalInput* P_PORT_5, DigitalInput* P_PORT_6, DigitalInput* P_PORT_7)
-{    
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[DIN11_PORT__1] = P_PORT_1;
-    this->p_ports[DIN11_PORT__2] = P_PORT_2;
-    this->p_ports[DIN11_PORT__3] = P_PORT_3;
-    this->p_ports[DIN11_PORT__4] = P_PORT_4;
-    this->p_ports[DIN11_PORT__5] = P_PORT_5;
-    this->p_ports[DIN11_PORT__6] = P_PORT_6;
-    this->p_ports[DIN11_PORT__7] = P_PORT_7;
-    this->usedPorts = 7;
-}
-
-HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t ADDRESS, DigitalInput* P_PORT_1 = nullptr, DigitalInput* P_PORT_2 = nullptr, DigitalInput* P_PORT_3 = nullptr, DigitalInput* P_PORT_4 = nullptr, DigitalInput* P_PORT_5 = nullptr, DigitalInput* P_PORT_6 = nullptr, DigitalInput* P_PORT_7 = nullptr, DigitalInput* P_PORT_8 = nullptr)
-{  
-    this->deviceAddress = ADDRESS;
-
-    this->p_ports[DIN11_PORT__1] = P_PORT_1;
-    this->p_ports[DIN11_PORT__2] = P_PORT_2;
-    this->p_ports[DIN11_PORT__3] = P_PORT_3;
-    this->p_ports[DIN11_PORT__4] = P_PORT_4;
-    this->p_ports[DIN11_PORT__5] = P_PORT_5;
-    this->p_ports[DIN11_PORT__6] = P_PORT_6;
-    this->p_ports[DIN11_PORT__7] = P_PORT_7;
-    this->p_ports[DIN11_PORT__8] = P_PORT_8;
-    this->usedPorts = 8;
-}
-
-void HAL_DIN11::begin()
-{    
-    //Debug Error ausgabe
-    Serial.println("##############################");  
-    Serial.println("setup DIN11 ");
-
-    Serial.print("CARD: ");
-    switch(this->deviceAddress)
-    {
-        case DIN11_CARD_1_ADDRESS:
-            Serial.println("1");
-        break;
-        case DIN11_CARD_2_ADDRESS:
-            Serial.println("2");
-        break;
-        case DIN11_CARD_3_ADDRESS:
-            Serial.println("3");
-        break;
-        case DIN11_CARD_4_ADDRESS:
-            Serial.println("4");
-        break;
-    }
-    //Tatsächliche I2C Addresse ausgeben
-    Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
-    
-    Serial.print("Ports defined: "); Serial.print(this->usedPorts); Serial.println("/8");
- 
-    this->selfCheck.begin(this->deviceAddress);
-    if(this->selfCheck.checkI2CConnection())
-    {
-        Serial.println("I2C connection ok!");
-    }
-    else
-    {
-        Serial.println("I2C connection failed!");
-        this->errorCode = DIN11_ERROR__I2C_CONNECTION_FAILED;        
-    }
-
-    //Applikationsparameter initialisieren
-    if(this->errorCode == BPLC_ERROR__NO_ERROR)
-    {   
-        PCF.setAddress(this->deviceAddress);   
-        PCF.begin();    
-
-        this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;        
-    }
+    memset(&this->ports, 0, sizeof(this->ports));
 }
 
 void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 {  
-    this->deviceAddress = I2C_ADDRESS;
+    this->deviceAddress                 = I2C_ADDRESS;
+    this->errorCode                     = BPLC_ERROR__NO_ERROR;
+    this->f_somePinOfsomeDinCardChanged = READ_TWO_TIMES;
 
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -179,8 +36,6 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     //Tatsächliche I2C Addresse ausgeben
     Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
     
-    Serial.print("Ports defined: "); Serial.print(this->usedPorts); Serial.println("/8");
- 
     this->selfCheck.begin(this->deviceAddress);
     if(this->selfCheck.checkI2CConnection())
     {
@@ -196,22 +51,71 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {   
         PCF.setAddress(this->deviceAddress);   
-        PCF.begin();    
-
-        this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;        
+        PCF.begin();            
     }
 }
 
-void HAL_DIN11::mapObjectToPort(DigitalInput* P_OBJECT)
+e_BPLC_ERROR_t  HAL_DIN11::mapObjectToNextFreePort(DigitalInput* P_OBJECT)
 {  
-    this->p_ports[this->usedPorts] = P_OBJECT;
-    this->usedPorts++;
-
-    //Plausibilitätsprüfung
-    if(this->usedPorts > DIN11_PORT__COUNT)
+    #ifdef DEBUG_HAL_DIN11
+    Serial.println("##############################");  
+    Serial.print("DIN11 CARD: ");
+    switch(this->deviceAddress)
     {
-        this->errorCode = DIN11_ERROR__PORT_OVERFLOW;
+        case DIN11_CARD_1_ADDRESS:
+            Serial.println("1");
+        break;
+        case DIN11_CARD_2_ADDRESS:
+            Serial.println("2");
+        break;
+        case DIN11_CARD_3_ADDRESS:
+            Serial.println("3");
+        break;
+        case DIN11_CARD_4_ADDRESS:
+            Serial.println("4");
+        break;
     }
+    #endif
+    for(uint8_t PORT = 0; PORT < DIN11_PORT__COUNT; PORT++)
+    {
+        #ifdef DEBUG_HAL_DIN11
+        Serial.print("PORT: "); Serial.print(PORT);
+        #endif
+        if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
+        {
+            #ifdef DEBUG_HAL_DIN11
+            Serial.println(" not defined yet");
+            #endif
+            this->ports.p_object[PORT] = P_OBJECT;
+            this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
+            break;
+        }
+        else if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT && PORT == DIN11_PORT__8)
+        {
+            this->errorCode = DIN11_ERROR__PORT_OVERFLOW;
+        }
+        else
+        {
+            #ifdef DEBUG_HAL_DIN11
+            Serial.println(" already defined");
+            #endif
+        }
+    }
+    return this->errorCode;
+}
+
+e_BPLC_ERROR_t HAL_DIN11::mapObjectToSpecificPort(DigitalInput* P_OBJECT, const e_DIN11_PORTS_t PORT)
+{
+    if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
+    {
+        this->ports.p_object[PORT] = P_OBJECT;
+        this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
+    }
+    else 
+    {
+        this->errorCode = DIN11_ERROR__PORT_ALREADY_DEFINED;
+    }
+    return this->errorCode;
 }
 
 void HAL_DIN11::tick()
@@ -221,40 +125,40 @@ void HAL_DIN11::tick()
     {
         this->errorCode = DIN11_ERROR__I2C_CONNECTION_FAILED;
     }
-    else
-    {
-        //this->f_error = false;    //selbrücksetellung des Fehlerzustands, zur zeit nicht genutzt
+    //Prüfen ob überhaupt ein Port in benutzung
+    for(uint8_t PORT = 0; PORT < DIN11_PORT__COUNT; PORT++)
+    {            
+        if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)
+        {
+            break;
+        }
+        else if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE && PORT == (DIN11_PORT__COUNT - 1))
+        {//letzter Port und immernoch keiner in nutzung
+            this->errorCode = DIN11_ERROR__NO_PORT_IN_USE;
+        }
     }
 
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {           
-        if(this->f_somePinOfsomePinCardChanged > 0)
+        if(this->f_somePinOfsomeDinCardChanged > 0)
         {
-            #ifdef DEBUG_HAL_DIN11
-            Serial.print("DIN11 "); Serial.print(this->deviceAddress); Serial.println("STATES:");
-            #endif
-
-            for(uint8_t PORT = 0; PORT < this->usedPorts; PORT++)
-            {            
-                const bool STATE = !PCF.read(this->PINS[PORT]);     
-                this->p_ports[PORT]->setPortState(STATE);   
-
-                #ifdef DEBUG_HAL_DIN11
-                Serial.print(", PORT "); Serial.print(PORT); Serial.print(": "); Serial.print(STATE);       
-                #endif
+            for(uint8_t PORT = 0; PORT < DIN11_PORT__COUNT; PORT++)
+            {      
+                if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)   
+                {
+                    //Serial.print("DI11 PORT: "); Serial.print(PORT); Serial.print(" State: "); Serial.println(!PCF.read(this->ports.PIN[PORT]));
+                    const bool STATE = !PCF.read(this->PIN[PORT]);     
+                    this->ports.p_object[PORT]->setPortState(STATE);   
+                }                   
             } 
-            
-            #ifdef DEBUG_HAL_DIN11
-            Serial.println(" ");       
-            #endif
-            this->f_somePinOfsomePinCardChanged--;
+            this->f_somePinOfsomeDinCardChanged--;
         }    
     }
 }
 
 void HAL_DIN11::somePinOfsomeDinCardChanged()
 {
-    this->f_somePinOfsomePinCardChanged = READ_TWO_TIMES;
+    this->f_somePinOfsomeDinCardChanged = READ_TWO_TIMES;
 }
 
 e_BPLC_ERROR_t HAL_DIN11::getError()

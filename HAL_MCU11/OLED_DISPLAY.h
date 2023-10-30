@@ -17,7 +17,7 @@
 #include "Arduino.h"
 
 //Lib includes
-#include "IOM_base.h"
+#include "BPLC_IOM.h"
 #include "SpecialFunctions.h"
 #include <Wire.h>
 #include "Adafruit_GFX.h"
@@ -121,6 +121,8 @@ class OLED_MCU11
     bool            f_parameterBlink;
  
     String          TEXT_OUTPUT[2];
+
+    ERROR_OUT errorOut;
 
     s_screenSaverParameter_t    screenSaverParameter;
     s_deviceSettingsParameter_t deviceSettings;        

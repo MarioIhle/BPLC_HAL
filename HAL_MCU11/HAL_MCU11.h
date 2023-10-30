@@ -17,8 +17,9 @@
 //---------------------------------------------------
 
 #include "Arduino.h"
+#include "Wire.h"
 #include "SpecialFunctions.h"
-#include "IOM_base.h"
+#include "BPLC_IOM.h"
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
@@ -77,7 +78,7 @@ class HAL_MCU11
         const uint8_t OEN       = 13;
         const uint8_t INT       = 35;
         const uint8_t buzzer    = 15;
-    }PINS;
+    }PIN;
 
     DigitalInput    Encoder_A;
     DigitalInput    Encoder_B;

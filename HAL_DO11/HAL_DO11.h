@@ -2,8 +2,8 @@
 #define HAL_DO11_h
 #include "Arduino.h"
 #include "SpecialFunctions.h"
-#include "IOM_Base.h"
 #include "PCA9685.h"
+#include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
 #include "I2C_check.h"
@@ -46,7 +46,7 @@ typedef enum
 
     DO11_PORT__COUNT,
 
-}e_DO11_PORTs_t;
+}e_DO11_PORTS_t;
 
 #define DEAD_TIME   100 //besser geht nicht, ohne kurzeitigen Kurzschluss bei PWM änderung
 
@@ -54,19 +54,10 @@ class HAL_DO11 {
 
     public:
     HAL_DO11();
-    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1);
-    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2);
-    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3);
-    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4);
-    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5);
-    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6);
-    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7);
-    HAL_DO11(const e_DO11_ADDRESS_t ADDRESS, Output* P_DO1, Output* P_DO2, Output* P_DO3, Output* P_DO4, Output* P_DO5, Output* P_DO6, Output* P_DO7, Output* P_DO8);
-    
-    void begin();
     void begin(const e_DO11_ADDRESS_t I2C_ADDRESS);
     
-    void mapObjectToPort(Output* P_OBJECT);
+    e_BPLC_ERROR_t mapObjectToNextFreePort(Output* P_OBJECT);
+    e_BPLC_ERROR_t mapObjectToSpecificPort(Output* P_OBJECT, const e_DO11_PORTS_t PORT);
 
     void tick();
 
@@ -82,9 +73,12 @@ class HAL_DO11 {
     //Settings
     PCA9685             PCA;
     e_DO11_ADDRESS_t    deviceAddress;
-    uint8_t             usedPorts;
-
-    Output*         p_ports [DO11_PORT__COUNT];
-    const uint8_t   PINS    [DO11_PORT__COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}  
+    
+    struct
+    {
+        e_PORT_USEAGE_t used    [DO11_PORT__COUNT];
+        Output*         p_object[DO11_PORT__COUNT];        
+    }ports; 
+    const uint8_t   PIN     [DO11_PORT__COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}     
 };
 #endif
