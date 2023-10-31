@@ -54,13 +54,13 @@ typedef enum
 //State auf MOT11
 typedef enum
 {
-  deviceState_init,
-  deviceState_running,
-  deviceState_safeState,
-  deviceState_autotuning,
+  MOT11_DEVICE_STATE__INIT,
+  MOT11_DEVICE_STATE__RUNNING,
+  MOT11_DEVICE_STATE__SAFE,
+  MOT11_DEVICE_STATE__CURRENT_TEACH_IN,
 
-  deviceState_count,
-}e_deviceState_t;
+  MOT11_DEVICE_STATE__COUNT,
+}e_MOT11_DEVICE_STATE_t;
 
 typedef enum
 {
@@ -107,13 +107,13 @@ class HAL_MOT11
     //Applikation
     void tick();
     void startCurrentAutotuning();
-    e_deviceState_t getDeviceState();
+    e_MOT11_DEVICE_STATE_t getDeviceState();
     
     e_BPLC_ERROR_t  getError();
   
     private:
     //Applikation      
-    e_deviceState_t deviceState;
+    e_MOT11_DEVICE_STATE_t deviceState;
 
     //I2C Kommunikation
     void sendDriveCommand     (const e_movement_t DIRECTION, const uint8_t SPEED);

@@ -54,11 +54,11 @@ void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
     //Applikationsparameter initialisieren
     if(this->error.code == BPLC_ERROR__NO_ERROR)
     {         
-        this->deviceState = deviceState_running;      
+        this->deviceState = MOT11_DEVICE_STATE__RUNNING;      
     }
     else
     {
-        this->deviceState = deviceState_safeState;
+        this->deviceState = MOT11_DEVICE_STATE__SAFE;
     }
 }
 
@@ -91,7 +91,7 @@ void HAL_MOT11::tick()
     //Error behandlung
     if(this->error.code != BPLC_ERROR__NO_ERROR)
     {
-        this->deviceState = deviceState_safeState;
+        this->deviceState = MOT11_DEVICE_STATE__SAFE;
     }
 
     if(this->error.code != MOT11_ERROR__I2C_CONNECTION_FAILED)
@@ -101,8 +101,8 @@ void HAL_MOT11::tick()
             switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
             {
                 default:
-                case deviceState_init:    
-                case deviceState_safeState:    
+                case MOT11_DEVICE_STATE__INIT:    
+                case MOT11_DEVICE_STATE__SAFE:    
                     //Über Request wird zyklisch alle live Parameter abgefragt
                     if(this->to_parameterPoll.check())
                     {
@@ -111,7 +111,7 @@ void HAL_MOT11::tick()
                     } 
                 break;
 
-                case deviceState_running:   //Normalbetreb
+                case MOT11_DEVICE_STATE__RUNNING:   //Normalbetreb
                     if(this->ports.p_object->newDriveParameterAvailable())
                     {
                         this->sendDriveCommand(this->ports.p_object->getDirection(), this->ports.p_object->getSpeed());
@@ -124,7 +124,7 @@ void HAL_MOT11::tick()
                     }  
                 break;
 
-                case deviceState_autotuning:
+                case MOT11_DEVICE_STATE__CURRENT_TEACH_IN:
                     //Status abfragen, solange Autotuning aktiv nix tun
                     if(this->to_parameterPoll.check())
                     {
@@ -140,7 +140,7 @@ void HAL_MOT11::tick()
         }
     }
 }
-e_deviceState_t HAL_MOT11::getDeviceState()
+e_MOT11_DEVICE_STATE_t HAL_MOT11::getDeviceState()
 {
     return this->deviceState;
 }
@@ -294,7 +294,7 @@ bool HAL_MOT11::waitForDriveParameter()
     //Empfangene Parameter übernehemen
     if(RECEIVED_ERROR_CODE_PLAUSIBLE && inCommand.extract.key == mot11_i2c_key__getDriveState)
     {
-        this->deviceState = (e_deviceState_t)inCommand.extract.deviceState;
+        this->deviceState = (e_MOT11_DEVICE_STATE_t)inCommand.extract.deviceState;
         this->ports.p_object->setCurrent(inCommand.extract.current);
         this->error.code = (e_BPLC_ERROR_t)inCommand.extract.error;
     }

@@ -68,6 +68,25 @@ typedef enum
 }e_APP_MODE_t;
 
 //-------------------------------------------------------------
+//OLED SPEZIFISCHE TYPES
+//-------------------------------------------------------------
+//MENÜS
+typedef enum
+{        
+    OLED_MENU__MAIN,
+    OLED_MENU__DEVICE_MODE,
+    OLED_MENU__VDIP,
+    OLED_MENU__BPLC_HARDWARE_STATE,
+    OLED_MENU__MOT11_AUTOTUNING,
+    OLED_MENU__DEVICE_SETTINGS,
+
+    OLED_MENU__SCREENSAVER,
+    OLED_MENU__BACK_TO_MAIN,
+
+    OLED_MENU__COUNT,
+}e_OLED_MENU_t;
+
+//-------------------------------------------------------------
 //BPLC_APP KLASSE
 //-------------------------------------------------------------
 #define HARDWARE_ERROR_BUFFER_SIZE 10
@@ -119,13 +138,16 @@ class BPLC_APP
     }debug;
     
     //Display handling
+    void displayBegin();
     void handleDisplay();
     bool readyToExitMenu();
+    void useEncoderForNavigation(uint8_t* P_VALUE_TO_EDIT, const uint8_t MAX_VALUE);
 
     void beepOnEncoderInput();
     void showMainMenu();
     void editDeviceMode();
     void hardwareState();
+    void mot11CurrentAutotuning();
     void displaySettings();
     void handle_vDip();
 
@@ -139,8 +161,14 @@ class BPLC_APP
         uint8_t         menuCount;
         uint8_t         activeText;            
    
-    }displayHandling;
-    
+    }displayHandling;    
+
+    struct
+    {          
+        Timeout     to_sleep;
+        uint64_t    sleepTime;
+        bool        screenSaverIsEnbaled;
+    }screenSaverParameter;  
 
     //Hardware Handling
     void setupExtensionCards();

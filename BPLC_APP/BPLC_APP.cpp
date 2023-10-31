@@ -15,7 +15,7 @@ void BPLC_APP::begin()
 {
    this->hal.begin(INT_ISR); 
 
-   this->deviceSettings.f_useBuzzer = false;
+   this->deviceSettings.f_useBuzzer = true;
    if(this->deviceSettings.f_useBuzzer == false)
    {
       this->hal.BUZZER.setOnValue(0);
@@ -29,14 +29,14 @@ void BPLC_APP::begin()
    memset(&this->hardwareErrorCode[0], 0, sizeof(this->hardwareErrorCode));
 
    //Try to init all hardware
-   this->oled.begin();
+   this->displayBegin();
    this->setupExtensionCards(); 
 
    //Setting
    this->deviceSettings.f_beepOnEncoderInput = false;   
    
    //Display handling
-   this->temp_ParameterStorage = 0;
+
 
    //Runntime error
    this->to_runnntime.setInterval(1000);
