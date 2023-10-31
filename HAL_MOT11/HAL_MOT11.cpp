@@ -140,6 +140,10 @@ void HAL_MOT11::tick()
         }
     }
 }
+e_deviceState_t HAL_MOT11::getDeviceState()
+{
+    return this->deviceState;
+}
 
 void HAL_MOT11::startCurrentAutotuning()
 {

@@ -107,6 +107,7 @@ class HAL_MOT11
     //Applikation
     void tick();
     void startCurrentAutotuning();
+    e_deviceState_t getDeviceState();
     
     e_BPLC_ERROR_t  getError();
   
