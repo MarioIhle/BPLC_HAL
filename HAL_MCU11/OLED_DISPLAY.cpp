@@ -65,8 +65,9 @@ void OLED_MCU11::clearAllTexts()
 {
   for(uint8_t ROW = 0; ROW < OLED_ROW__COUNT; ROW++)
   {
-    this->TEXT_OUTPUT[ROW] = "";
-  }
+    this->TEXT_OUTPUT[ROW] = "";   
+  }  
+  this->f_refresh = true;
 }
 
 void OLED_MCU11::startBlinkText(const e_OLED_ROW_t ROW, const unsigned long INTERVAL)

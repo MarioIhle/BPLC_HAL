@@ -36,6 +36,7 @@
 typedef struct 
 {
     uint8_t name;
+    uint8_t nameOfMenuWhenExiting;
     uint8_t textCount;
     String  texts[30];   
 
