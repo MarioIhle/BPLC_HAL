@@ -21,7 +21,7 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
 #include "SpecialFunctions.h"
-
+#include "BPLC_IOM.h"
 //#define DEBUG_OLED_DISPLAY
 
 
@@ -31,26 +31,24 @@
 #define SCREEN_HEIGHT   64
 #define OLED_RESET      4
 //---------------------------------------------------
-
-
-typedef struct 
-{
-    uint8_t name;
-    uint8_t nameOfMenuWhenExiting;
-    uint8_t textCount;
-    String  texts[30];   
-
-}s_menu_t;
-
 typedef enum
 {
     OLED_ROW__1,
     OLED_ROW__2,
     OLED_ROW__3,
-    OLED_ROW__4,
 
     OLED_ROW__COUNT,
 }e_OLED_ROW_t;
+
+typedef struct 
+{
+    uint8_t  name;    
+    uint8_t  nameOfMenuWhenExiting;
+    uint8_t  textCount;
+    String   headline;           //row1
+    String   subHeadline[30];    //row2
+    uint8_t* p_VAR;              //row3
+}s_menu_t;
 
 //---------------------------------------------------
 //OLED MCU11 KLASSE
@@ -59,13 +57,15 @@ class OLED_MCU11
 {
     public:
     OLED_MCU11  ();
-    void begin  ();
+    void begin  (RotaryEncoder* P_ENCODER);
     void tick   ();    
 
     void setTextToShow (const String TEXT, const e_OLED_ROW_t ROW);
-    void clearAllTexts();
+    void clearAllTexts ();
     void startBlinkText(const e_OLED_ROW_t ROW, const unsigned long INTERVAL);
     void stopBlinkText (const e_OLED_ROW_t ROW);
+    void showScreensaver();
+    bool isSceensaverActive();
 
     //Menüsteuernug
     //void            showNextTextOfThisMenu      ();
@@ -74,10 +74,21 @@ class OLED_MCU11
     //uint8_t         getActiveTextOfThisMenu     ();
     //void            setParamValueToShow         (const uint8_t VALUE);    
 
+    
     private:
     Adafruit_SSD1306 oled;
+    RotaryEncoder*   p_encoder; 
+
+    struct
+    {          
+        Timeout     to_sleep;
+        uint64_t    sleepTime;
+        bool        screenSaverIsEnbaled;
+        bool        screenSaverActive;
+    }screenSaverParameter;  
 
     void            showText();
+
     bool            f_refresh;
     uint8_t         paramValue;
 
@@ -87,6 +98,5 @@ class OLED_MCU11
     bool            f_parameterBlink;
 
     String          TEXT_OUTPUT[OLED_ROW__COUNT];
-
 };
 #endif

@@ -140,7 +140,7 @@ class BPLC_APP
     //Display handling
     void displayBegin();
     void handleDisplay();
-    bool readyToExitMenu();
+    bool readyToExitMenu(const uint8_t SHOWN_TEXT, const uint8_t LAST_TEXT_OF_THIS_MENU);
     void useEncoderForNavigation(uint8_t* P_VALUE_TO_EDIT, const uint8_t MAX_VALUE);
 
     void beepOnEncoderInput();
@@ -150,6 +150,10 @@ class BPLC_APP
     void mot11CurrentAutotuning();
     void displaySettings();
     void handle_vDip();
+
+    void showAnyDefinedMenu(s_menu_t MENU, String VAR);
+
+    s_menu_t MENU_DEFINITION[2];
 
     struct 
     {
@@ -163,12 +167,7 @@ class BPLC_APP
    
     }displayHandling;    
 
-    struct
-    {          
-        Timeout     to_sleep;
-        uint64_t    sleepTime;
-        bool        screenSaverIsEnbaled;
-    }screenSaverParameter;  
+    
 
     //Hardware Handling
     void setupExtensionCards();

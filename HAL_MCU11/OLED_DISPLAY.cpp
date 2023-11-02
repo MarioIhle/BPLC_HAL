@@ -9,7 +9,7 @@ OLED_MCU11::OLED_MCU11()
 
 //---------------------------------------------------
 //INIT
-void OLED_MCU11::begin()
+void OLED_MCU11::begin(RotaryEncoder* P_ENCODER)
 {  
   this->oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   Wire.beginTransmission(0x3C);
@@ -32,20 +32,41 @@ void OLED_MCU11::begin()
   this->setTextToShow("booting", OLED_ROW__1);
   this->showText();
 
+  this->p_encoder = P_ENCODER;
+
+  this->screenSaverParameter.screenSaverIsEnbaled = true;
+  this->screenSaverParameter.sleepTime = 60000;
+  this->screenSaverParameter.to_sleep.setInterval(this->screenSaverParameter.sleepTime); 
+  this->screenSaverParameter.to_sleep.reset(); 
+
   this->to_textBlink.setInterval(500);
   this->f_parameterBlink = 0;
   this->f_refresh = 0;
   this->f_blinkRow[OLED_ROW__1] = false;
   this->f_blinkRow[OLED_ROW__2] = false;
   this->f_blinkRow[OLED_ROW__3] = false;
-  this->f_blinkRow[OLED_ROW__4] = false;
 }
 
 //---------------------------------------------------
 //MAIN ROUTINE
 void OLED_MCU11::tick()
 {  
-  this->showText();  
+  if(!this->isSceensaverActive())
+  {
+    this->showText();  
+  }
+
+  //Timeout abgelaufen 
+  if(this->screenSaverParameter.to_sleep.check() && this->screenSaverParameter.screenSaverIsEnbaled == true)
+  {
+    this->showScreensaver();
+  }
+  //Solange userinput da ist, nicht in Screensaver
+  if(this->p_encoder->isButtonPressed() || this->p_encoder->getTurningDirection() != movement_idle)
+  {
+    this->screenSaverParameter.to_sleep.reset(); 
+    this->screenSaverParameter.screenSaverActive = false;
+  }
 }
 
 //---------------------------------------------------
@@ -65,9 +86,12 @@ void OLED_MCU11::clearAllTexts()
 {
   for(uint8_t ROW = 0; ROW < OLED_ROW__COUNT; ROW++)
   {
-    this->TEXT_OUTPUT[ROW] = "";   
-  }  
-  this->f_refresh = true;
+    if(TEXT_OUTPUT[ROW] != "")
+    {
+      this->TEXT_OUTPUT[ROW] = ""; 
+      this->f_refresh = true;
+    }      
+  }    
 }
 
 void OLED_MCU11::startBlinkText(const e_OLED_ROW_t ROW, const unsigned long INTERVAL)
@@ -79,6 +103,21 @@ void OLED_MCU11::startBlinkText(const e_OLED_ROW_t ROW, const unsigned long INTE
 void OLED_MCU11::stopBlinkText(const e_OLED_ROW_t ROW)
 {
   this->f_blinkRow[ROW] = false;
+}
+
+void OLED_MCU11::showScreensaver()
+{
+  if(this->screenSaverParameter.screenSaverActive == false)
+  {
+    this->oled.clearDisplay();
+    this->oled.display(); 
+    this->screenSaverParameter.screenSaverActive = true;
+  }
+}
+
+bool OLED_MCU11::isSceensaverActive()
+{
+  return this->screenSaverParameter.screenSaverActive;
 }
 
 void OLED_MCU11::showText()
@@ -103,6 +142,7 @@ void OLED_MCU11::showText()
   {     
     //Display leeren
     this->oled.clearDisplay();
+    
     //Reihe für Reihe schreiben
     for(uint8_t ROW = 0; ROW < OLED_ROW__COUNT; ROW++)
     {
@@ -111,21 +151,22 @@ void OLED_MCU11::showText()
         //Bei bearbeiten von Parameter diesen Blinken lassen
         if(this->f_parameterBlink == true)
         {       
-          this->oled.setCursor(0, (ROW * 16));
+          this->oled.setCursor(0, (ROW * 21));
           this->oled.print(this->TEXT_OUTPUT[ROW]);          
         }  
         else
         {
-          //Nichts in Zeile 2 anzeigen
+          //Nichts anzeigen
         }   
       } 
       else
       {     
-        this->oled.setCursor(0, (ROW * 16));
+        this->oled.setCursor(0, (ROW * 21));
         this->oled.print(this->TEXT_OUTPUT[ROW]);      
       }  
     }  
     //an Hardware schicken  
+    this->oled.drawFastHLine(0, 17, 128, SSD1306_WHITE);
     this->oled.display();   
   }
 

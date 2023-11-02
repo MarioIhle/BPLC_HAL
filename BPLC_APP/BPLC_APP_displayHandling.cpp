@@ -4,83 +4,113 @@
 const String EXIT       = "EXIT";
 const String LOCK       = "LOCK";
 const String LAST_TEXT  = "LAST";
-
-const s_menu_t MENU_DEFINITION[6] = 
-{
-  //mainmenü
-  {
-    (uint8_t)OLED_MENU__MAIN, (uint8_t)OLED_MENU__SCREENSAVER, 6, 
-    {"EVENTLOG", "DEVICE MODE", "BPLC STATE", "MOT11 techIn", "vDIP", "SETUP"}
-  },
-  //edit device Mode
-  {
-    (uint8_t)OLED_MENU__DEVICE_MODE, (uint8_t)OLED_MENU__BACK_TO_MAIN, 6, 
-    {"stop", "start", "safestate", "running C1", "running C2", "running C3"}
-  },
-  //edit vDips
-  {
-    (uint8_t)OLED_MENU__VDIP, (uint8_t)OLED_MENU__BACK_TO_MAIN, 8, 
-    {"vDIP1", "vDIP2", "vDIP3", "vDIP4", "vDIP5", "vDIP6", "vDIP7", "vDIP8"}
-  },
-  //bplc device hardware states
-  {
-    (uint8_t)OLED_MENU__BPLC_HARDWARE_STATE, (uint8_t)OLED_MENU__BACK_TO_MAIN, 28,  
-    {
-      "DIN11 1",     "DIN11 2" ,     "DIN11 3",      "DIN11 4", //0-3
-      "AIN11 1",     "AIN11 2" ,     "AIN11 3",      "AIN11 4", //4-7
-      "DO11 1",      "DO11 2" ,      "DO11 3",       "DO11 4",  //8-11
-      "REL11 1",     "REL11 2" ,     "REL11 3",      "REL11 4", //12-15
-      "MOT11 1",     "MOT11 2" ,     "MOT11 3",      "MOT11 4", //16-19
-      "FUSE11 1",    "FUSE11 2" ,    "FUSE11 3",     "FUSE11 4",//20-23
-      "NANO11 1",    "NANO11 2" ,    "NANO11 3",     "NANO11 4", //24-27
-    }
-  },                                      
-  //bplc mot11 current autotuning starten
-  {
-    (uint8_t)OLED_MENU__MOT11_AUTOTUNING, (uint8_t)OLED_MENU__BACK_TO_MAIN, 4, 
-    {"MOT11 1", "MOT11 2" , "MOT11 3", "MOT11 4"}
-  },
-  //edit device settings
-  {
-    (uint8_t)OLED_MENU__DEVICE_SETTINGS, (uint8_t)OLED_MENU__BACK_TO_MAIN, 2, 
-    {"SCREENSAVER", "SLEEP TIME"}
-  },
-};
+uint8_t NO_VAR = 123;
 
 void BPLC_APP::displayBegin()
 {
-  this->oled.begin();
-  this->screenSaverParameter.screenSaverIsEnbaled = true;
-  this->screenSaverParameter.sleepTime = 60000;
-  this->screenSaverParameter.to_sleep.setInterval(this->screenSaverParameter.sleepTime); 
-  this->screenSaverParameter.to_sleep.reset(); 
-
+  this->oled.begin(&this->hal.ENCODER);
+  
   this->displayHandling.activeMenu = OLED_MENU__MAIN;
   this->displayHandling.activeText = 0;
-  this->displayHandling.tempValueToShow = 0;
-
+  this->displayHandling.tempValueToShow = 0; 
+  //Main menu
+  this->MENU_DEFINITION[OLED_MENU__MAIN].name                  = (uint8_t)OLED_MENU__MAIN;
+  this->MENU_DEFINITION[OLED_MENU__MAIN].nameOfMenuWhenExiting = (uint8_t)OLED_MENU__SCREENSAVER;
+  this->MENU_DEFINITION[OLED_MENU__MAIN].textCount             = 5;
+  this->MENU_DEFINITION[OLED_MENU__MAIN].headline              = "BPLC V1.0";
+  this->MENU_DEFINITION[OLED_MENU__MAIN].p_VAR                 =  &NO_VAR;
+  this->MENU_DEFINITION[OLED_MENU__MAIN].subHeadline[0]        = "edit device mode";
+  this->MENU_DEFINITION[OLED_MENU__MAIN].subHeadline[1]        = "bplc cards";
+  this->MENU_DEFINITION[OLED_MENU__MAIN].subHeadline[2]        = "edit device mode";
+  //Device Mode
+  this->MENU_DEFINITION[OLED_MENU__DEVICE_MODE].name                  = (uint8_t)OLED_MENU__MAIN;
+  this->MENU_DEFINITION[OLED_MENU__DEVICE_MODE].nameOfMenuWhenExiting = (uint8_t)OLED_MENU__SCREENSAVER;
+  this->MENU_DEFINITION[OLED_MENU__DEVICE_MODE].textCount             = 2;
+  this->MENU_DEFINITION[OLED_MENU__DEVICE_MODE].headline              = "headline";
+  this->MENU_DEFINITION[OLED_MENU__DEVICE_MODE].p_VAR                 =  &NO_VAR;
+  this->MENU_DEFINITION[OLED_MENU__DEVICE_MODE].subHeadline[0]        = "subHedlin1";
+  this->MENU_DEFINITION[OLED_MENU__DEVICE_MODE].subHeadline[1]        = "subHedlin2";
 }
 
+/*
+//mainmenü
+  {
+    (uint8_t)OLED_MENU__MAIN, 
+    (uint8_t)OLED_MENU__SCREENSAVER, 
+    6, 
+    "MAINMENU", 
+    {"EVENTLOG", "DEVICE MODE", "BPLC STATE", "MOT11 techIn", "vDIP", "SETUP"}    ,
+    &this->deviceMode,      
+    "<<scroll>>"
+  }; 
+    //edit device Mode
+    {
+      (uint8_t)OLED_MENU__DEVICE_MODE,    
+      (uint8_t)OLED_MENU__MAIN, 
+      6,
+      "DEV MODE",      
+      {"stop", "start", "safestate", "running C1", "running C2", "running C3"},
+      &this->deviceMode,      
+      "press"      
+    },
+    
+    //edit vDips
+    {
+      (uint8_t)OLED_MENU__VDIP, 
+      (uint8_t)OLED_MENU__BACK_TO_MAIN, 
+      "vDIPs",
+      8, 
+      {"vDIP1", "vDIP2", "vDIP3", "vDIP4", "vDIP5", "vDIP6", "vDIP7", "vDIP8"},
+      &this->deviceMode,      
+      "press"
+    },
+    //bplc device hardware states
+    {
+      (uint8_t)OLED_MENU__BPLC_HARDWARE_STATE, 
+      (uint8_t)OLED_MENU__BACK_TO_MAIN, 
+      "BPLC CARDS",
+      28,  
+      {
+        "DIN11 1",     "DIN11 2" ,     "DIN11 3",      "DIN11 4", //0-3
+        "AIN11 1",     "AIN11 2" ,     "AIN11 3",      "AIN11 4", //4-7
+        "DO11 1",      "DO11 2" ,      "DO11 3",       "DO11 4",  //8-11
+        "REL11 1",     "REL11 2" ,     "REL11 3",      "REL11 4", //12-15
+        "MOT11 1",     "MOT11 2" ,     "MOT11 3",      "MOT11 4", //16-19
+        "FUSE11 1",    "FUSE11 2" ,    "FUSE11 3",     "FUSE11 4",//20-23
+        "NANO11 1",    "NANO11 2" ,    "NANO11 3",     "NANO11 4", //24-27
+      }
+      &this->deviceMode,      
+      "press"
+    },                                      
+    //bplc mot11 current autotuning starten
+    {
+      (uint8_t)OLED_MENU__MOT11_AUTOTUNING, 
+      (uint8_t)OLED_MENU__BACK_TO_MAIN, 
+      "MOT11 TEACH",
+      4, 
+      {"MOT11 1", "MOT11 2" , "MOT11 3", "MOT11 4"},
+      &this->deviceMode,      
+      "press"
+    },
+    //edit device settings
+    {
+      (uint8_t)OLED_MENU__DEVICE_SETTINGS, 
+      (uint8_t)OLED_MENU__BACK_TO_MAIN, 
+      "SETTINGS",
+      2, 
+      {"SCREENSAVER", "SLEEP TIME"},
+      &this->deviceMode,      
+      "press"
+    }*/
 //Menü handling
 void BPLC_APP::handleDisplay()
 {  
-  this->oled.tick();
-
-  //Timeout abgelaufen 
-  if(this->screenSaverParameter.to_sleep.check() && this->screenSaverParameter.screenSaverIsEnbaled == true)
-  {
-    this->displayHandling.activeMenu = OLED_MENU__SCREENSAVER;
-  }
-  //Solange userinput da ist, nicht in Screensaver
-  if(this->hal.ENCODER.isButtonPressed() || this->hal.ENCODER.getTurningDirection() != movement_idle)
-  {
-    this->screenSaverParameter.to_sleep.reset(); 
-  }
+  this->oled.tick(); 
 
   switch(this->displayHandling.activeMenu)
   {      
     case OLED_MENU__MAIN:
-      this->showMainMenu();         
+      showAnyDefinedMenu(this->MENU_DEFINITION[OLED_MENU__MAIN], "123");
       break;
 
     case OLED_MENU__DEVICE_MODE:
@@ -103,14 +133,9 @@ void BPLC_APP::handleDisplay()
       this->displaySettings();        
       break;
 
-    case OLED_MENU__SCREENSAVER:      
-      this->screenSaverParameter.to_sleep.now();
-      
-      if(this->hal.ENCODER.isButtonPressed() || this->hal.ENCODER.getTurningDirection() != movement_idle)
-      {
-        this->screenSaverParameter.to_sleep.reset();
-        this->displayHandling.activeMenu = OLED_MENU__BACK_TO_MAIN;        
-      }
+    case OLED_MENU__SCREENSAVER:     
+        this->oled.showScreensaver();
+        this->displayHandling.activeMenu = OLED_MENU__BACK_TO_MAIN;      
       break;
 
     default:
@@ -156,10 +181,47 @@ void BPLC_APP::useEncoderForNavigation(uint8_t* P_VALUE_TO_EDIT, const uint8_t M
 }
 
 //Menüs
-void BPLC_APP::showMainMenu()
+void BPLC_APP::showAnyDefinedMenu(s_menu_t MENU, String VAR)
 {
   const bool ENCODER_BUTTON_PRESSED = this->hal.ENCODER.isButtonPressed();
-  const bool READY_TO_EXIT_MENU     = this->readyToExitMenu();
+  const bool READY_TO_EXIT_MENU     = (bool)(this->displayHandling.activeText >= MENU.textCount);
+
+  this->useEncoderForNavigation(&this->displayHandling.activeText, MENU.textCount);
+
+  if(ENCODER_BUTTON_PRESSED)
+  {            
+    this->displayHandling.activeMenu = (e_OLED_MENU_t)MENU.nameOfMenuWhenExiting;
+    this->oled.clearAllTexts();    
+  }
+
+  //Textausgabe
+  this->oled.setTextToShow(MENU.headline, OLED_ROW__1);
+
+  if(READY_TO_EXIT_MENU)
+  {
+    this->oled.setTextToShow("exit", OLED_ROW__2);
+  } 
+  else
+  {
+    this->oled.setTextToShow(MENU.subHeadline[this->displayHandling.activeText], OLED_ROW__2);
+
+    if(VAR != "NO_VAR_TO_SHOW")
+    {  
+      this->oled.setTextToShow(VAR, OLED_ROW__3);
+    }  
+    else
+    {
+      this->oled.setTextToShow("", OLED_ROW__3);    
+    }
+  } 
+}
+
+
+void BPLC_APP::showMainMenu()
+{
+  /*
+  const bool ENCODER_BUTTON_PRESSED = this->hal.ENCODER.isButtonPressed();
+  const bool READY_TO_EXIT_MENU     = this->readyToExitMenu(this->displayHandling.activeText, MENU_DEFINITION[OLED_MENU__MAIN].textCount);
 
   this->useEncoderForNavigation(&this->displayHandling.activeText, MENU_DEFINITION[OLED_MENU__MAIN].textCount);
 
@@ -193,14 +255,16 @@ void BPLC_APP::showMainMenu()
       this->oled.setTextToShow("", OLED_ROW__3);   
       this->oled.setTextToShow("", OLED_ROW__4); 
     }
-  }
+  }*/
 }
 
 void BPLC_APP::editDeviceMode()
 {
+  /*
   const bool ENCODER_BUTTON_PRESSED = this->hal.ENCODER.isButtonPressed();
   const bool PARAMETER_ENTERED      = this->displayHandling.f_editParameterOnDisplay;
-  const bool READY_TO_EXIT_MENU     = (bool)(this->readyToExitMenu(this->displayHandling.activeText, 2) && PARAMETER_ENTERED == false);
+  const bool TEXT_TO_SHOW           = this->displayHandling.activeText;
+  const bool READY_TO_EXIT_MENU     = (bool)(TEXT_TO_SHOW >= 2 && PARAMETER_ENTERED == false);
 
   if(PARAMETER_ENTERED)
   {
@@ -218,7 +282,9 @@ void BPLC_APP::editDeviceMode()
     if(ENCODER_BUTTON_PRESSED)
     {
       this->displayHandling.activeMenu = (e_OLED_MENU_t)MENU_DEFINITION[OLED_MENU__DEVICE_MODE].nameOfMenuWhenExiting;
-      this->oled.clearAllTexts();       
+      this->oled.clearAllTexts();     
+      this->displayHandling.activeText = 0;
+      this->displayHandling.tempValueToShow = 0;  
     }      
   }
   else
@@ -249,7 +315,7 @@ void BPLC_APP::editDeviceMode()
     {
       this->oled.setTextToShow(MENU_DEFINITION[OLED_MENU__DEVICE_MODE].texts[this->deviceMode], OLED_ROW__3);
     } 
-  }  
+  }  */
 }
 
 void BPLC_APP::hardwareState()
@@ -259,6 +325,7 @@ void BPLC_APP::hardwareState()
 
 void BPLC_APP::mot11CurrentAutotuning()
 {
+ /*
   const bool    ENCODER_BUTTON_PRESSED  = this->hal.ENCODER.isButtonPressed();
   const bool    PARAMETER_ENTERED       = this->displayHandling.f_editParameterOnDisplay;
   const uint8_t SELECTED_MOT11_CARD     = (e_MOT11_CARD_t)this->displayHandling.activeText;
@@ -270,7 +337,7 @@ void BPLC_APP::mot11CurrentAutotuning()
       this->MOT11_CARD[SELECTED_MOT11_CARD].startCurrentAutotuning();        
     }    
     //Cursor on "exit"
-    if(this->readyToExitMenu())
+    if(this->readyToExitMenu(this->displayHandling.activeText, MENU_DEFINITION[OLED_MENU__MAIN].textCount))
     {
       this->displayHandling.activeMenu = OLED_MENU__BACK_TO_MAIN;
     } 
@@ -290,18 +357,19 @@ void BPLC_APP::mot11CurrentAutotuning()
   this->oled.setTextToShow(MENU_DEFINITION[OLED_MENU__MAIN].texts[OLED_MENU__MOT11_AUTOTUNING], OLED_ROW__1);   
   this->oled.setTextToShow(MENU_DEFINITION[OLED_MENU__MOT11_AUTOTUNING].texts[SELECTED_MOT11_CARD], OLED_ROW__2);   
   
-  if(this->readyToExitMenu())
+  if(this->readyToExitMenu(this->displayHandling.activeText, MENU_DEFINITION[OLED_MENU__MAIN].textCount))
   {
     this->oled.setTextToShow("", OLED_ROW__3);  
   }
   else
   {
     this->oled.setTextToShow("start", OLED_ROW__3);   
-  } 
+  } */
 }
 
 void BPLC_APP::displaySettings()
 {
+  /*
   const bool           ENCODER_BUTTON_PRESSED = this->hal.ENCODER.isButtonPressed();
   const bool           PARAMETER_ENTERED      = this->displayHandling.f_editParameterOnDisplay;
 
@@ -319,7 +387,7 @@ void BPLC_APP::displaySettings()
       this->displayHandling.f_editParameterOnDisplay = false;
     }
     //Cursor on "exit"
-    if(this->readyToExitMenu())
+    if(this->readyToExitMenu(this->displayHandling.activeText, MENU_DEFINITION[OLED_MENU__MAIN].textCount))
     {
       this->displayHandling.activeMenu = OLED_MENU__BACK_TO_MAIN;
     } 
@@ -344,11 +412,12 @@ void BPLC_APP::displaySettings()
   else
   {
     this->oled.setTextToShow((String)(this->screenSaverParameter.sleepTime * 1000), OLED_ROW__3);
-  }  
+  }  */
 }
 
 void BPLC_APP::handle_vDip()
 {  
+ /*
   const bool           ENCODER_BUTTON_PRESSED     = this->hal.ENCODER.isButtonPressed();
   const bool           PARAMETER_ENTERED          = this->displayHandling.f_editParameterOnDisplay;
   const e_V_DIP_t      SELECTED_DIP               = (e_V_DIP_t)this->displayHandling.activeText;
@@ -369,7 +438,7 @@ void BPLC_APP::handle_vDip()
       this->setVDip(SELECTED_DIP, this->displayHandling.tempValueToShow);               
     }
     //Cursor on "exit"
-    if(this->readyToExitMenu())
+    if(this->readyToExitMenu(this->displayHandling.activeText, MENU_DEFINITION[OLED_MENU__MAIN].textCount))
     {
       this->displayHandling.activeMenu = OLED_MENU__BACK_TO_MAIN;
     }  
@@ -394,5 +463,5 @@ void BPLC_APP::handle_vDip()
   else
   {
     this->oled.setTextToShow((String)this->getVDip(SELECTED_DIP), OLED_ROW__3);
-  }   
+  }   */
 }
