@@ -1,5 +1,5 @@
 #include "OLED_DISPLAY.h"
-//---------------------------------------------------
+
 
 
 //---------------------------------------------------
@@ -29,8 +29,14 @@ void OLED_MCU11::begin(RotaryEncoder* P_ENCODER)
   this->oled.setTextColor(SSD1306_WHITE);
   this->oled.display();  
   this->oled.clearDisplay();
+  this->oled.drawBitmap(0,0, Home, 128, 64, WHITE);
+  this->oled.display();
+  delay(5000);
+  
   this->setTextToShow("booting", OLED_ROW__1);
   this->showText();
+
+
 
   this->p_encoder = P_ENCODER;
 
@@ -142,7 +148,8 @@ void OLED_MCU11::showText()
   {     
     //Display leeren
     this->oled.clearDisplay();
-    
+    this->oled.setTextSize(2); 
+    this->oled.startscrollleft( 2,  4);   
     //Reihe für Reihe schreiben
     for(uint8_t ROW = 0; ROW < OLED_ROW__COUNT; ROW++)
     {
@@ -150,7 +157,7 @@ void OLED_MCU11::showText()
       {
         //Bei bearbeiten von Parameter diesen Blinken lassen
         if(this->f_parameterBlink == true)
-        {       
+        {    
           this->oled.setCursor(0, (ROW * 21));
           this->oled.print(this->TEXT_OUTPUT[ROW]);          
         }  
@@ -166,7 +173,7 @@ void OLED_MCU11::showText()
       }  
     }  
     //an Hardware schicken  
-    this->oled.drawFastHLine(0, 17, 128, SSD1306_WHITE);
+    this->oled.drawFastHLine(0, 16, 127, SSD1306_WHITE);
     this->oled.display();   
   }
 

@@ -22,6 +22,8 @@
 #include "Adafruit_SSD1306.h"
 #include "SpecialFunctions.h"
 #include "BPLC_IOM.h"
+
+#include "bitmap.cpp"
 //#define DEBUG_OLED_DISPLAY
 
 
