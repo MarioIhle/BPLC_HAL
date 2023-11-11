@@ -71,6 +71,7 @@ typedef enum
 //BPLC_APP KLASSE
 //-------------------------------------------------------------
 #define HARDWARE_ERROR_BUFFER_SIZE 10
+#define RUNTIME_ERRORS_MAX 3
 
 class BPLC_APP
 {
@@ -169,6 +170,8 @@ class BPLC_APP
 
     //Safety
     Timeout to_runnntime;
+    uint8_t runtimeExeeded;
+
     ERROR_OUT errorOut;
 };
 #endif

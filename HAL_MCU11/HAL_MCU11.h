@@ -20,6 +20,8 @@
 #include "Wire.h"
 #include "SpecialFunctions.h"
 #include "BPLC_IOM.h"
+
+#define DEBUGGING_MCU11_revA    //OEN und Buzzer pin wird verwedet für debugging
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
@@ -75,9 +77,19 @@ class HAL_MCU11
     {        
         const uint8_t encoder[3]= {39, 36, 34};
         const uint8_t led[3]    = {27, 26, 25};
+        #ifdef DEBUGGING_MCU11_revA
+        const uint8_t OEN       = 25;
+        #endif
+        #ifndef DEBUGGING_MCU11_revA
         const uint8_t OEN       = 13;
+        #endif
         const uint8_t INT       = 35;
-        const uint8_t buzzer    = 15;
+        #ifdef DEBUGGING_MCU11_revA
+        const uint8_t buzzer       = 25;
+        #endif
+        #ifndef DEBUGGING_MCU11_revA
+        const uint8_t buzzer       = 15;
+        #endif
     }PIN;
 
     DigitalInput    Encoder_A;
