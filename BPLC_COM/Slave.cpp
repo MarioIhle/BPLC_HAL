@@ -1,35 +1,27 @@
-#include "BPLC_Node.h"
+#include "BPLC_COM.h"
 //---------------------------------------------------------------------------------------
 //SALVE
 //---------------------------------------------------------------------------------------
-BertaSlave::BertaSlave(uint8_t ADRESS, HardwareSerial* P_SERIAL, uint8_t ENABLE_PIN, s_usedPorts_t* P_PORTS)
+BPLC_SlaveNode::BPLC_SlaveNode()
+{}
+
+//---------------------------------------------------------------------------------------
+void BPLC_SlaveNode::begin(uint8_t ADDRESS, HardwareSerial* P_SERIAL, uint8_t ENABLE_PIN, s_usedPorts_t* P_PORTS)
 {
 	memset(&this->networkParameter, 0, sizeof(s_networkParameter_t));	
 	this->networkParameter.serial			= P_SERIAL;
-	this->networkParameter.adress 			= ADRESS; 
+	this->networkParameter.adress 			= ADDRESS; 
 	this->networkParameter.enablePin 		= ENABLE_PIN; 
 	this->networkParameter.debuggingActive 	= false;
 	this->p_ports     						= P_PORTS;	
 	this->initializedPorts					= 0;
-
-	this->requestToSend = 0;  
-	memset(this->busRequestBuffer, 0, sizeof(busRequestBuffer));
-	for(uint8_t i=0; i< BUSREQUEST_BUFFER_SIZE; i++)
-	{
-		this->busRequestBuffer[i].key = noRequest;
-	}
-}
- 
-//---------------------------------------------------------------------------------------
-void BertaSlave::begin()
-{
 #ifdef DEBUG_SLAVE
 	Serial.begin(115200);
   	Serial.println("INIT BERTANETPORT SLAVE");
 
 	for(int i = 0; i<this->p_ports->count; i++)
 	{
-		Serial.print("INDEX OF PORT ["); Serial.print(i); Serial.print("]:"); Serial.println(this->p_ports->port[i]->getIndex());  		
+		Serial.print("INDEX OF PORT ["); Serial.print(i); Serial.print("]:"); Serial.println(this->p_ports->portIndex[i]->getIndex());  		
 	}		
 	this->networkParameter.debuggingActive = true;
 	delay(1500);
@@ -41,7 +33,7 @@ void BertaSlave::begin()
 	//PortCount berechen
 	for(uint8_t i = 0; i<PORT_COUNT_MAX; i++)
 	{
-		if(this->p_ports->port[i]!= NULL)
+		if(this->p_ports->portIndex[i]!= NULL)
 		{
 			this->p_ports->count++;
 		}
@@ -53,7 +45,7 @@ void BertaSlave::begin()
 }
 
 //---------------------------------------------------------------------------------------
-void BertaSlave::tick()
+void BPLC_SlaveNode::tick()
 {
 	#ifdef DEBUG_SLAVE 
 	Serial.print("NETWORKSTATE:"); Serial.println(this->network.getNetworkState());
@@ -114,7 +106,7 @@ void BertaSlave::tick()
 }
 
 //---------------------------------------------------------------------------------------
-bool BertaSlave::executeCommand()
+bool BPLC_SlaveNode::executeCommand()
 {
  	bool WAIT_FOR_RESPONSE 		= false;		
 	u_Sequence_t* P_SEQUENCE 	= this->network.getLastSequneceInMailbox();
@@ -131,11 +123,11 @@ bool BertaSlave::executeCommand()
 	switch(P_SEQUENCE->extract.head.key)
 	{
 		case readPort:	
-			this->network.buildAndSendCommandWithPayload(P_SEQUENCE->extract.head.senderAdress, readResponse, P_SEQUENCE->extract.head.port, this->getPortData(P_SEQUENCE->extract.head.port));
+			this->network.buildAndSendCommandWithPayload(P_SEQUENCE->extract.head.senderAdress, readResponse, P_SEQUENCE->extract.head.portIndex, this->getPortData(P_SEQUENCE->extract.head.portIndex));
 		break;
 
 		case readResponse:      
-			this->saveReceivedPortData(P_SEQUENCE->extract.head.port, P_SEQUENCE->extract.payload); 
+			this->saveReceivedPortData(P_SEQUENCE->extract.head.portIndex, P_SEQUENCE->extract.payload); 
 			this->flushRequestAndSkipToNextSlot();		
 
 			if(this->network.getNetworkState() == networkState_resync)
@@ -145,11 +137,11 @@ bool BertaSlave::executeCommand()
 		break;
 
 		case writePort:      
-			this->saveReceivedPortData(P_SEQUENCE->extract.head.port, P_SEQUENCE->extract.payload);     	
+			this->saveReceivedPortData(P_SEQUENCE->extract.head.portIndex, P_SEQUENCE->extract.payload);     	
 		break;
 
 		case writePushPort:
-			this->saveReceivedPortData(P_SEQUENCE->extract.head.port, P_SEQUENCE->extract.payload);     	
+			this->saveReceivedPortData(P_SEQUENCE->extract.head.portIndex, P_SEQUENCE->extract.payload);     	
 		break;
 
 		case poll:			
@@ -218,7 +210,7 @@ bool BertaSlave::executeCommand()
 }
 
 //---------------------------------------------------------------------------------------
-void BertaSlave::checkPorts()
+void BPLC_SlaveNode::checkPorts()
 {	
 	//Alle verfügbaren Ports iterieren
 	for(uint8_t P= 0; P < this->p_ports->count; P++)
@@ -227,13 +219,13 @@ void BertaSlave::checkPorts()
 		uint8_t	KEY;
 
 		//Neue Portdaten zu versenden
-		if(this->p_ports->port[P]->isNewPortDataAvailableToSend())
+		if(this->p_ports->portIndex[P]->isNewPortDataAvailableToSend())
 		{
 			#ifdef DEBUG_SLAVE
-			Serial.print("THERE IS NEW PORT DATA TO SEND AT PORTINDEX "); Serial.println(this->p_ports->port[P]->getIndex());
+			Serial.print("THERE IS NEW PORT DATA TO SEND AT PORTINDEX "); Serial.println(this->p_ports->portIndex[P]->getIndex());
 			#endif	
 			
-			switch(this->p_ports->port[P]->getType())
+			switch(this->p_ports->portIndex[P]->getType())
 			{
 				case eventPort:
 					KEY = writePort;
@@ -244,14 +236,14 @@ void BertaSlave::checkPorts()
 				break;
 			}
 
-			REQUEST_IS_SAVED = this->setBusRequest(BROADCAST, KEY, this->p_ports->port[P]->getIndex());
+			REQUEST_IS_SAVED = this->setBusRequest(BROADCAST, KEY, this->p_ports->portIndex[P]->getIndex());
 
 			if(REQUEST_IS_SAVED)
 			{
 				#ifdef DEBUG_SLAVE 
 				Serial.println("AND ITS SAVED IN THE REQUEST BUFFER"); 				
 				#endif
-				this->p_ports->port[P]->portDataStoredInRequestBuffer();				
+				this->p_ports->portIndex[P]->portDataStoredInRequestBuffer();				
 			}	
 			else
 			{
@@ -262,19 +254,19 @@ void BertaSlave::checkPorts()
 			}				
 		}		
 		//Portdaten von Master lesen
-		else if(this->p_ports->port[P]->isPortDataReqeuested())		
+		else if(this->p_ports->portIndex[P]->isPortDataReqeuested())		
 		{
 			#ifdef DEBUG_SLAVE
-			Serial.print("THERE IS NEW PORT DATA REQUESTED AT PORTINDEX "); Serial.println(this->p_ports->port[P]->getIndex());
+			Serial.print("THERE IS NEW PORT DATA REQUESTED AT PORTINDEX "); Serial.println(this->p_ports->portIndex[P]->getIndex());
 			#endif	
-			REQUEST_IS_SAVED = this->setBusRequest(MASTER_NODE, readPort, this->p_ports->port[P]->getIndex());
+			REQUEST_IS_SAVED = this->setBusRequest(MASTER_NODE, readPort, this->p_ports->portIndex[P]->getIndex());
 
 			if(REQUEST_IS_SAVED)
 			{
 				#ifdef DEBUG_SLAVE 
 				Serial.println("AND ITS SAVED IN THE REQUEST BUFFER"); 				
 				#endif
-				this->p_ports->port[P]->requestStoredInRequestBuffer();				
+				this->p_ports->portIndex[P]->requestStoredInRequestBuffer();				
 			}	
 			else
 			{
@@ -295,13 +287,13 @@ void BertaSlave::checkPorts()
 		Serial.print("REQUEST SLOT: "); Serial.println(i);
 		Serial.print("DA: 	"); Serial.println(this->busRequestBuffer[i].destinationAdress);
 		Serial.print("KEY: 	"); Serial.println(this->busRequestBuffer[i].key);
-		Serial.print("PORT:	"); Serial.println(this->busRequestBuffer[i].port);
+		Serial.print("PORT:	"); Serial.println(this->busRequestBuffer[i].portIndex);
 	}
 	#endif
 }
 
 //---------------------------------------------------------------------------------------
-u_Payload_t  BertaSlave::getPortData(uint8_t PORT)
+u_Payload_t  BPLC_SlaveNode::getPortData(uint8_t PORT)
 {
 #ifdef DEBUG_SLAVE 
 		Serial.print("SEARCHING PORT: "); Serial.println(PORT);
@@ -313,19 +305,19 @@ u_Payload_t  BertaSlave::getPortData(uint8_t PORT)
 		Serial.print("PORT: "); Serial.print(P+1); Serial.print("/"); Serial.println(this->p_ports->count); 
 		#endif
 		
-		if(this->p_ports->port[P]->getIndex() == PORT)
+		if(this->p_ports->portIndex[P]->getIndex() == PORT)
 		{ 
 			#ifdef DEBUG_SLAVE 
 			Serial.println("PORT FOUND!");
 			#endif			
 
-			return this->p_ports->port[P]->getPayload();					
+			return this->p_ports->portIndex[P]->getPayload();					
 		}	
 	}	
 }
 
 //---------------------------------------------------------------------------------------
-void BertaSlave::saveReceivedPortData(uint8_t PORT, u_Payload_t PAYLOAD)
+void BPLC_SlaveNode::saveReceivedPortData(uint8_t PORT, u_Payload_t PAYLOAD)
 {
 	#ifdef DEBUG_SLAVE 
 	Serial.print("SEARCH PORT TO SAVE: "); Serial.println(PORT);
@@ -339,12 +331,12 @@ void BertaSlave::saveReceivedPortData(uint8_t PORT, u_Payload_t PAYLOAD)
 
 		if(P < this->p_ports->count)
 		{
-			if(this->p_ports->port[P]->getIndex() == PORT)
+			if(this->p_ports->portIndex[P]->getIndex() == PORT)
 			{ 
 				#ifdef DEBUG_SLAVE 
 				Serial.println("PORT FOUND!");
 				#endif				
-				this->p_ports->port[P]->setPayload(PAYLOAD);				
+				this->p_ports->portIndex[P]->setPayload(PAYLOAD);				
 				return;
 			}					
 		}		
@@ -352,24 +344,24 @@ void BertaSlave::saveReceivedPortData(uint8_t PORT, u_Payload_t PAYLOAD)
 }
 
 //---------------------------------------------------------------------------------------
-bool BertaSlave::sendBusRequest()
+bool BPLC_SlaveNode::sendBusRequest()
 {
 	s_busRequest_t* P_REQUEST 			= &this->busRequestBuffer[this->requestToSend];	
 	const bool 		COMMAND_HAS_PAYLAOD = (bool)(P_REQUEST->key == writePort || P_REQUEST->key == writePushPort);
 	if(COMMAND_HAS_PAYLAOD)
 	{
-		this->network.buildAndSendCommandWithPayload(P_REQUEST->destinationAdress, P_REQUEST->key, P_REQUEST->port, this->getPortData(P_REQUEST->port));
+		this->network.buildAndSendCommandWithPayload(P_REQUEST->destinationAdress, P_REQUEST->key, P_REQUEST->portIndex, this->getPortData(P_REQUEST->portIndex));
 	}
 	else
 	{
-		this->network.buildAndSendCommand(P_REQUEST->destinationAdress, P_REQUEST->key, P_REQUEST->port);
+		this->network.buildAndSendCommand(P_REQUEST->destinationAdress, P_REQUEST->key, P_REQUEST->portIndex);
 	}	
 	//Antwort erwartet?
 	return (bool)(P_REQUEST->key == writePort || P_REQUEST->key == readPort);
 }
 
 //---------------------------------------------------------------------------------------
-bool BertaSlave::setBusRequest(uint8_t DESTINATION_ADRESS, uint8_t KEY, uint8_t PORT)
+bool BPLC_SlaveNode::setBusRequest(uint8_t DESTINATION_ADRESS, uint8_t KEY, uint8_t PORT)
 {	
 	bool REQUEST_IS_SAVED 	= false;
 	
@@ -378,14 +370,14 @@ bool BertaSlave::setBusRequest(uint8_t DESTINATION_ADRESS, uint8_t KEY, uint8_t 
 		uint8_t REQUEST_SLOT = getNextFreeBufferSlot();
 
 		this->busRequestBuffer[REQUEST_SLOT].destinationAdress 	= DESTINATION_ADRESS;
-		this->busRequestBuffer[REQUEST_SLOT].key 				= KEY;	
-		this->busRequestBuffer[REQUEST_SLOT].port 				= PORT;	
+		this->busRequestBuffer[REQUEST_SLOT].key 				= (e_BPLC_NETWORK_KEY_t)KEY;	
+		this->busRequestBuffer[REQUEST_SLOT].portIndex 			= PORT;	
 
 		#ifdef DEBUG_SLAVE 
 		Serial.print("REQUEST STORED AT SLOT: "); Serial.println(REQUEST_SLOT);
 		Serial.print("DA: 	"); Serial.println(this->busRequestBuffer[REQUEST_SLOT].destinationAdress);
 		Serial.print("KEY: 	"); Serial.println(this->busRequestBuffer[REQUEST_SLOT].key);
-		Serial.print("PORT:	"); Serial.println(this->busRequestBuffer[REQUEST_SLOT].port);
+		Serial.print("PORT:	"); Serial.println(this->busRequestBuffer[REQUEST_SLOT].portIndex);
 		#endif	
 		REQUEST_IS_SAVED = true;					
 	}	
@@ -393,7 +385,7 @@ bool BertaSlave::setBusRequest(uint8_t DESTINATION_ADRESS, uint8_t KEY, uint8_t 
 }
 
 //---------------------------------------------------------------------------------------
-bool BertaSlave::isThereAFreeBufferSlot()
+bool BPLC_SlaveNode::isThereAFreeBufferSlot()
 {
 	for(uint8_t i=0; i < BUSREQUEST_BUFFER_SIZE; i++)		
 	{
@@ -406,7 +398,7 @@ bool BertaSlave::isThereAFreeBufferSlot()
 }
 
 //---------------------------------------------------------------------------------------
-bool BertaSlave::thereARequestToSend()
+bool BPLC_SlaveNode::thereARequestToSend()
 {
 	const bool THERE_IS_A_REQUEST_TO_SEND = (bool)(this->busRequestBuffer[this->requestToSend].key != noRequest);
 	
@@ -426,7 +418,7 @@ bool BertaSlave::thereARequestToSend()
 }
 
 //---------------------------------------------------------------------------------------
-uint8_t BertaSlave::getNextFreeBufferSlot()
+uint8_t BPLC_SlaveNode::getNextFreeBufferSlot()
 {
 	uint8_t SLOT = this->requestToSend;
 
@@ -445,7 +437,7 @@ uint8_t BertaSlave::getNextFreeBufferSlot()
 }	
 
 //---------------------------------------------------------------------------------------
-void BertaSlave::flushRequestAndSkipToNextSlot()
+void BPLC_SlaveNode::flushRequestAndSkipToNextSlot()
 {
 	memset(&this->busRequestBuffer[this->requestToSend], 0, sizeof(s_busRequest_t));
 	this->busRequestBuffer[this->requestToSend].key = noRequest;
@@ -453,7 +445,7 @@ void BertaSlave::flushRequestAndSkipToNextSlot()
 }
 
 //---------------------------------------------------------------------------------------
-uint8_t BertaSlave::skipToNextRequestBufferSlot(uint8_t SLOT)
+uint8_t BPLC_SlaveNode::skipToNextRequestBufferSlot(uint8_t SLOT)
 {	
 	SLOT++;
 	
@@ -465,7 +457,7 @@ uint8_t BertaSlave::skipToNextRequestBufferSlot(uint8_t SLOT)
 }
 
 //---------------------------------------------------------------------------------------
-void BertaSlave::resyncNetwork()
+void BPLC_SlaveNode::resyncNetwork()
 {
 	//Warten auf Masterpoll oder andere Nachricht für diese Node
 	if(this->network.checkMailbox(false))	
@@ -495,6 +487,6 @@ void BertaSlave::resyncNetwork()
 #ifdef DEBUG_SLAVE
 		Serial.print("REQUEST PORT: "); Serial.println(this->initializedPorts);
 #endif
-		this->setBusRequest(MASTER_NODE, readPort, this->p_ports->port[this->initializedPorts]->getIndex());
+		this->setBusRequest(MASTER_NODE, readPort, this->p_ports->portIndex[this->initializedPorts]->getIndex());
 	}
 }

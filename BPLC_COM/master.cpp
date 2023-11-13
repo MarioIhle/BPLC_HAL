@@ -1,4 +1,4 @@
-#include "BPLC_Node.h"
+#include "BPLC_COM.h"
   
 //---------------------------------------------------------------------------------------
 //MASTER
@@ -187,16 +187,16 @@ void BPLC_MasterNode::executeCommand()
 		switch(P_SEQUENCE->extract.head.key)
 		{
 			case readPort:	
-				this->network.buildAndSendCommandWithPayload(P_SEQUENCE->extract.head.senderAdress, readResponse, P_SEQUENCE->extract.head.port, this->allPorts[P_SEQUENCE->extract.head.port].getPayload());
+				this->network.buildAndSendCommandWithPayload(P_SEQUENCE->extract.head.senderAdress, readResponse, P_SEQUENCE->extract.head.portIndex, this->allPorts[P_SEQUENCE->extract.head.portIndex].getPayload());
 			break;
 
 			case writePort:      
-				this->saveReceivedPortData(P_SEQUENCE->extract.head.port, P_SEQUENCE->extract.payload);  
-				this->network.buildAndSendCommand(P_SEQUENCE->extract.head.senderAdress, key_ACK, P_SEQUENCE->extract.head.port);
+				this->saveReceivedPortData(P_SEQUENCE->extract.head.portIndex, P_SEQUENCE->extract.payload);  
+				this->network.buildAndSendCommand(P_SEQUENCE->extract.head.senderAdress, key_ACK, P_SEQUENCE->extract.head.portIndex);
 			break;
 
 			case writePushPort:					
-				this->saveReceivedPortData(P_SEQUENCE->extract.head.port, P_SEQUENCE->extract.payload);     	
+				this->saveReceivedPortData(P_SEQUENCE->extract.head.portIndex, P_SEQUENCE->extract.payload);     	
 			break;
 
 			case noRequest:									

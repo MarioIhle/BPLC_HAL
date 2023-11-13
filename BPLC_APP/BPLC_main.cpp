@@ -38,18 +38,17 @@ void BPLC_APP::begin()
    //Display handling
    this->temp_ParameterStorage = 0;
 
+   //Network
+   this->SlaveNode.begin(0x01, &Serial2, 4, &ports);
+
    //Runntime error
    this->to_runnntime.setInterval(1000);
    this->to_runnntime.reset();
-
-
-   this->LOG.card.AIN_CARD = AIN11_CARD__1;
 }
 
 void BPLC_APP::tick()
 {
    //BPLC Hardware handling
-   //BPLC 
    this->hal.tick();
    this->oled.tick();
    this->handleDisplay();
@@ -60,6 +59,10 @@ void BPLC_APP::tick()
    this->handleREL11Cards();
    this->handleMOT11Cards();
    this->tickSafety();
+   //Network
+   this->SlaveNode.tick();
+
+
 
    if(f_ISR_called)
    {

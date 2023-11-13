@@ -1,6 +1,6 @@
 #include "BPLC_APP.h"
 
-void BPLC::tickSafety()
+void BPLC_APP::tickSafety()
 {
    //Runntime überwachung der Applikation   
    if(this->to_runnntime.check())

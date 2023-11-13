@@ -10,7 +10,7 @@
  * Onboard IOs setztbar/lesbar
  * 
  * @version 1.0
- * @date 2022-12-19 * 
+ * @date 2022-12-19
  */
 //-------------------------------------------------------------
 
@@ -24,6 +24,7 @@
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
 #include "BPLC_LOG.h"
+#include "BPLC_COM.h"
 
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
@@ -164,6 +165,9 @@ class BPLC_APP
         uint8_t nano11CardCount;
     }hardware;
     
+    //Network
+    BPLC_SlaveNode SlaveNode;
+    s_usedPorts_t ports;
     //Settings
     struct 
     {

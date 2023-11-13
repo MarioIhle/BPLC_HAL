@@ -1,4 +1,4 @@
-#include "BertaNetwork.h"
+#include "BPLC_Network.h"
 
 /*#################################################################################
   BUSHANDLING

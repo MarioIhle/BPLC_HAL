@@ -1,10 +1,11 @@
-#ifndef BPLC_Node_h
-#define BPLC_Node_h
+#ifndef BPLC_COM_h
+#define BPLC_COM_h
 
 #include "BPLC_Network.h"
 #include "BPLC_Port.h"
 
 #include "SpecialFunctions.h"
+#include "EEPROM.h"
 
 //---------------------------------------------------------------------------------------
 //BERTANET MASTER 
@@ -80,12 +81,22 @@ typedef struct
 } 
 s_busRequest_t;
 
+#define PORT_COUNT_MAX 50
+
+typedef struct 
+{
+  BertaPort* portIndex[PORT_COUNT_MAX];
+  uint8_t count;
+
+}s_usedPorts_t;
+
+
 //---------------------------------------------------------------------------------------
 class BPLC_SlaveNode
 {
   public:
-  BPLC_SlaveNode(uint8_t ADRESS, HardwareSerial* P_SERIAL, uint8_t ENABLE_PIN, s_usedPorts_t* P_PORTS); 
-  void begin  ();
+  BPLC_SlaveNode();
+  void begin(uint8_t ADDRESS, HardwareSerial* P_SERIAL, uint8_t ENABLE_PIN, s_usedPorts_t* P_PORTS); 
   void tick   ();  
 
   private:

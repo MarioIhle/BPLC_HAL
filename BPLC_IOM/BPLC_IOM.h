@@ -3,7 +3,6 @@
 
 #include "Arduino.h"
 #include "SpecialFunctions.h"
-#include "BPLC_LOG.h"
 
 //####################################################################
 //DEBUG INFO PRINT
@@ -59,7 +58,6 @@ class DigitalInput
 
     private:
     s_portValue_t   inputState;   
-    s_BASE_LOG_t    eventLog;
 };
 
 //--------------------------------------------------------------------
