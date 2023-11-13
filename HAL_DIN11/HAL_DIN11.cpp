@@ -127,7 +127,7 @@ void HAL_DIN11::tick()
     }
     //Prüfen ob überhaupt ein Port in benutzung
     for(uint8_t PORT = 0; PORT < DIN11_PORT__COUNT; PORT++)
-    {            
+    {   //Es wird ein Port benutzt, also nicht weiter Prüfen          
         if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)
         {
             break;
@@ -146,7 +146,6 @@ void HAL_DIN11::tick()
             {      
                 if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)   
                 {
-                    //Serial.print("DI11 PORT: "); Serial.print(PORT); Serial.print(" State: "); Serial.println(!PCF.read(this->ports.PIN[PORT]));
                     const bool STATE = !PCF.read(this->PIN[PORT]);     
                     this->ports.p_object[PORT]->setPortState(STATE);   
                 }                   

@@ -41,6 +41,9 @@ void BPLC_APP::begin()
    //Runntime error
    this->to_runnntime.setInterval(1000);
    this->to_runnntime.reset();
+
+
+   this->LOG.card.AIN_CARD = AIN11_CARD__1;
 }
 
 void BPLC_APP::setupExtensionCards()

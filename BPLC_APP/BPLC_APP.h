@@ -23,6 +23,7 @@
 #include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
+#include "BPLC_LOG.h"
 
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
@@ -108,7 +109,7 @@ class BPLC_APP
     private:
     HAL_MCU11   hal;
     OLED_MCU11  oled;
-    
+    s_BASE_LOG_t LOG;
 
     e_APP_MODE_t    deviceMode;
 

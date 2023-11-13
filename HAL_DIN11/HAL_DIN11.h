@@ -9,6 +9,7 @@
 #include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
+#include "BPLC_LOG.h"
 #include "I2C_check.h"
 
 //-------------------------------------------------------------
@@ -92,5 +93,8 @@ class HAL_DIN11
     }ports;    
     
     const uint8_t   PIN     [DIN11_PORT__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};
+
+    //Logging
+    s_BASE_LOG_t eventLog;
  };
 #endif
