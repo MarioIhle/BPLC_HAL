@@ -64,6 +64,8 @@ typedef enum
     APP_MODE__RUN_WITH_CONFIG_1,
     APP_MODE__RUN_WITH_CONFIG_2,
     APP_MODE__RUN_WITH_CONFIG_3,
+    APP_MODE__RUN_WITHOUT_BPLC_SAFETY,
+    APP_MODE__RUN_IN_SINGLE_DEVICE_MODE,
 
     APP_MODE__COUNT,
 }e_APP_MODE_t;
@@ -170,6 +172,8 @@ class BPLC_APP
     }deviceSettings;    
 
     //Safety
+    void tickSafety();
+
     Timeout to_runnntime;
     uint8_t runtimeExeeded;
 
