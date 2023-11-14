@@ -9,6 +9,7 @@
 
 typedef enum
 {
+    BPLC_EVENT_LOG__NO_EVENT_IN_THIS_SLOT,
     BPLC_EVENT_LOG__DIN11_CARD_PORT_CHANGED,
     BPLC_EVENT_LOG__REL11_CARD_PORT_WRITE_LOW, 
     BPLC_EVENT_LOG__REL11_CARD_PORT_WRITE_HIGH,
@@ -17,13 +18,21 @@ typedef enum
 }e_BPLC_EVENT_t;
 
 
-typedef struct 
+typedef struct data
 {
     e_BPLC_EVENT_t      event;
-    uint8_t             port;
+    uint8_t             payload;
     unsigned long       timeStamp;
 
 }s_BASE_LOG_t;
+
+typedef struct 
+{
+    s_BASE_LOG_t    loggedEvent;
+    bool            f_printedOnOled;
+    bool            f_printedOnSerialMonitor;
+}s_eventBuffer_t;
+
 
 #define MAX_EVENTS_PER_CYCLE 50
 
@@ -39,9 +48,9 @@ class BPLC_log
 
 
     private:
-
-    void            printEventBuffer();
-    s_BASE_LOG_t    eventBuffer[MAX_EVENTS_PER_CYCLE];
-
+    
+    void            printObjectMappedToREL11Card(const s_BASE_LOG_t* P_LOG);
+    
+    s_eventBuffer_t eventBuffer[MAX_EVENTS_PER_CYCLE];
 };
 #endif

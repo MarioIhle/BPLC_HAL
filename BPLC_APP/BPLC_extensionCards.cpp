@@ -184,8 +184,7 @@ void BPLC_APP::mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD)
 
 void BPLC_APP::mapObjectToCard(Output* P_OBJECT, e_REL11_CARD_t CARD)
 {
-   Serial.println("##############################");  
-   Serial.print("map object to REL11_CARD "); Serial.println((1 + (uint8_t)CARD));
+   this->LOG.logEvent(BPLC_EVENT_LOG__MAP_OBJECT_TO_REL11_CARD, (uint8_t)CARD, millis());
 
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
    
