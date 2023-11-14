@@ -4,10 +4,10 @@
 //BERTANET EVENTPORT KLASSE
 //---------------------------------------------------------------------------------------
 //STANDART CONSTRUCTOR
-BertaPort::BertaPort	()
+BPLC_COM_Port::BPLC_COM_Port	()
 {}      
 //EVENTPORT CONSTRUCTOR
-BertaPort::BertaPort(e_PortType_t TYPE, uint8_t PORT_INDEX)
+BPLC_COM_Port::BPLC_COM_Port(e_PortType_t TYPE, uint8_t PORT_INDEX)
 {
     this->type                      = TYPE;
     this->index                     = PORT_INDEX;
@@ -18,7 +18,7 @@ BertaPort::BertaPort(e_PortType_t TYPE, uint8_t PORT_INDEX)
 }
 
 //PUSHPORT CONSTRUCTOR
-BertaPort::BertaPort(e_PortType_t TYPE, uint8_t PORT_INDEX, uint32_t PUSH_INTERVALL)
+BPLC_COM_Port::BPLC_COM_Port(e_PortType_t TYPE, uint8_t PORT_INDEX, uint32_t PUSH_INTERVALL)
 {
     this->type                      = TYPE;
     this->index                     = PORT_INDEX;
@@ -31,28 +31,28 @@ BertaPort::BertaPort(e_PortType_t TYPE, uint8_t PORT_INDEX, uint32_t PUSH_INTERV
 
 //---------------------------------------------------------------------------------------
 //HANDLING
-uint8_t	BertaPort::getIndex()
+uint8_t	BPLC_COM_Port::getIndex()
 {
     return this->index;
 }
 
-e_PortType_t BertaPort::getType()
+e_PortType_t BPLC_COM_Port::getType()
 {
     return this->type;
 }
 
 
-void BertaPort::pushNow()
+void BPLC_COM_Port::pushNow()
 {
     this->to_push.now();
 }
 
-bool  BertaPort::newPortDataAvailable()
+bool  BPLC_COM_Port::newPortDataAvailable()
 {
     return this->f_newPortDataReceived;
 }
 
-bool BertaPort::isNewPortDataAvailableToSend()
+bool BPLC_COM_Port::isNewPortDataAvailableToSend()
 {  
     bool newPortDataAvailable = false;
 
@@ -72,7 +72,7 @@ bool BertaPort::isNewPortDataAvailableToSend()
     }
     return newPortDataAvailable;
 }
-void BertaPort::portDataStoredInRequestBuffer()
+void BPLC_COM_Port::portDataStoredInRequestBuffer()
 {
     switch(this->type)
     {
@@ -91,24 +91,24 @@ void BertaPort::portDataStoredInRequestBuffer()
 }
 
 //Daten von Master abfragen
-void BertaPort::read()
+void BPLC_COM_Port::read()
 {
     this->f_portDataRequested = true;
 }
 
-bool BertaPort::isPortDataReqeuested()
+bool BPLC_COM_Port::isPortDataReqeuested()
 {
     return this->f_portDataRequested;
 }   
 
-void BertaPort::requestStoredInRequestBuffer()
+void BPLC_COM_Port::requestStoredInRequestBuffer()
 {
     this->f_portDataRequested = false;
 }
 
 
 
-uint8_t* BertaPort::getDataLocation()
+uint8_t* BPLC_COM_Port::getDataLocation()
 {
     return &this->payload.DATA[0];
 }
@@ -117,13 +117,13 @@ uint8_t* BertaPort::getDataLocation()
 //---------------------------------------------------------------------------------------
 //SETTER
 //Wird von Network genutzt um empfangene Daten zu speichern
-void BertaPort::setPayload(u_Payload_t PAYLOAD)
+void BPLC_COM_Port::setPayload(u_Payload_t PAYLOAD)
 {
     this->payload = PAYLOAD;
     this->f_newPortDataReceived = true;   
 }
 //______________________________________________________________________________________
-void BertaPort::setBool(bool PAYLOAD)
+void BPLC_COM_Port::setBool(bool PAYLOAD)
 {
     if(PAYLOAD != this->payload.BOOL)
     {
@@ -132,7 +132,7 @@ void BertaPort::setBool(bool PAYLOAD)
     }    
 }    
 //______________________________________________________________________________________
-void BertaPort::setByte(uint8_t PAYLOAD)
+void BPLC_COM_Port::setByte(uint8_t PAYLOAD)
 {    
     if(PAYLOAD != this->payload.BYTE)
     {
@@ -141,7 +141,7 @@ void BertaPort::setByte(uint8_t PAYLOAD)
     }
 }
 //______________________________________________________________________________________
-void BertaPort::setInt(int PAYLOAD)
+void BPLC_COM_Port::setInt(int PAYLOAD)
 {    
     if(PAYLOAD != this->payload.INT)
     {
@@ -150,7 +150,7 @@ void BertaPort::setInt(int PAYLOAD)
     }    
 }
 //______________________________________________________________________________________
-void BertaPort::setFloat(float PAYLOAD)
+void BPLC_COM_Port::setFloat(float PAYLOAD)
 {    
     if(PAYLOAD != this->payload.FLOAT)
     {
@@ -159,7 +159,7 @@ void BertaPort::setFloat(float PAYLOAD)
     }
 }
 //______________________________________________________________________________________
-void BertaPort::setRgb(s_RGB_t PAYLOAD)
+void BPLC_COM_Port::setRgb(s_RGB_t PAYLOAD)
 {    
     if(PAYLOAD.red != this->payload.RGB.red || PAYLOAD.green != this->payload.RGB.green || PAYLOAD.blue != this->payload.RGB.blue)
     {
@@ -168,7 +168,7 @@ void BertaPort::setRgb(s_RGB_t PAYLOAD)
     } 
 }
 //______________________________________________________________________________________
-void BertaPort::setData(uint8_t BYTE, uint8_t PAYLOAD)
+void BPLC_COM_Port::setData(uint8_t BYTE, uint8_t PAYLOAD)
 {    
     if(PAYLOAD != this->payload.DATA[BYTE])
     {
@@ -180,42 +180,42 @@ void BertaPort::setData(uint8_t BYTE, uint8_t PAYLOAD)
 //---------------------------------------------------------------------------------------
 //GETTER
 //Wird von Network genutzt um Daten zum Senden zu lesen
-u_Payload_t BertaPort::getPayload()
+u_Payload_t BPLC_COM_Port::getPayload()
 {  
     return this->payload;         
 }
 
-bool BertaPort::getBool()
+bool BPLC_COM_Port::getBool()
 {
     this->f_newPortDataReceived = false;
     return this->payload.BOOL;        
 }
 
-uint8_t BertaPort::getByte()
+uint8_t BPLC_COM_Port::getByte()
 {
     this->f_newPortDataReceived = false;
     return this->payload.BYTE;        
 }
 
-int BertaPort::getInt()
+int BPLC_COM_Port::getInt()
 {
     this->f_newPortDataReceived = false;
     return this->payload.INT;        
 }
 
-float BertaPort::getFloat()
+float BPLC_COM_Port::getFloat()
 {
     this->f_newPortDataReceived = false;
     return this->payload.FLOAT;        
 }
 
-s_RGB_t BertaPort::getRgb()
+s_RGB_t BPLC_COM_Port::getRgb()
 {
     this->f_newPortDataReceived = false;
     return this->payload.RGB;        
 }
 
-uint8_t BertaPort::getData(uint8_t BYTE)
+uint8_t BPLC_COM_Port::getData(uint8_t BYTE)
 {
     this->f_newPortDataReceived = false;
     return this->payload.DATA[BYTE];        

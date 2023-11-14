@@ -3,11 +3,11 @@
 /*#################################################################################
   BUSHANDLING
   #################################################################################*/
-BertaNetwork::BertaNetwork()
+BPLC_Network::BPLC_Network()
 {}
 
 //---------------------------------------------------------------------------------------
-void BertaNetwork::begin(s_networkParameter_t PARAMETER)	
+void BPLC_Network::begin(s_networkParameter_t PARAMETER)	
 {
 	//Netzwerk Parameter
 	this->networkParameter = PARAMETER;
@@ -28,7 +28,7 @@ void BertaNetwork::begin(s_networkParameter_t PARAMETER)
 }
 
 //---------------------------------------------------------------------------------------
-void BertaNetwork::initInterface()	
+void BPLC_Network::initInterface()	
 {
 	//Netzwerk Parameter
 	memset(&this->mailbox, 0, sizeof(this->mailbox));
@@ -42,19 +42,19 @@ void BertaNetwork::initInterface()
 }
 
 //---------------------------------------------------------------------------------------
-void BertaNetwork::startBussystem()
+void BPLC_Network::startBussystem()
 {
 	this->networkState = networkState_running;	
 }
 
 //---------------------------------------------------------------------------------------
-void BertaNetwork::stopBussystem()
+void BPLC_Network::stopBussystem()
 {
 	this->networkState = networkState_stopped;	
 }
 
 //---------------------------------------------------------------------------------------
-void BertaNetwork::setNetworkTiming(bool DEBUGGING_ACTIVE)
+void BPLC_Network::setNetworkTiming(bool DEBUGGING_ACTIVE)
 {
 	if(DEBUGGING_ACTIVE || this->networkParameter.debuggingActive)
 	{
@@ -74,13 +74,13 @@ void BertaNetwork::setNetworkTiming(bool DEBUGGING_ACTIVE)
 }
 
 //---------------------------------------------------------------------------------------
-e_networkState_t BertaNetwork::getNetworkState()
+e_networkState_t BPLC_Network::getNetworkState()
 {
 	return this->networkState;
 }
 
 //---------------------------------------------------------------------------------------
-void  BertaNetwork::setNetworkState(e_networkState_t STATE)
+void  BPLC_Network::setNetworkState(e_networkState_t STATE)
 {
 	this->networkState = STATE;
 }
@@ -88,7 +88,7 @@ void  BertaNetwork::setNetworkState(e_networkState_t STATE)
 /*#################################################################################
   NETZWERKFUNKTIONEN
   #################################################################################*/
-bool BertaNetwork::checkMailbox(bool WAIT_FOR_RESPONSE)
+bool BPLC_Network::checkMailbox(bool WAIT_FOR_RESPONSE)
 {
 	this->to_response.reset();
 	bool THERE_IS_A_VALID_MESSAGE_FOR_THIS_NODE = false;
@@ -140,21 +140,21 @@ bool BertaNetwork::checkMailbox(bool WAIT_FOR_RESPONSE)
 }
 
 //---------------------------------------------------------------------------------------
-u_Sequence_t* BertaNetwork::getLastSequneceInMailbox()
+u_Sequence_t* BPLC_Network::getLastSequneceInMailbox()
 {	
 	u_Sequence_t* P_LAST_MAIL = &this->mailbox[this->inMessageCount - 1];
 	return P_LAST_MAIL;
 }
 
 //---------------------------------------------------------------------------------------
-void BertaNetwork::flushLastSequenceInMailbox()
+void BPLC_Network::flushLastSequenceInMailbox()
 {
 	this->inMessageCount--;
 	memset(&this->mailbox[inMessageCount], 0, sizeof(u_Sequence_t));	
 }
 
 //---------------------------------------------------------------------------------------
-bool BertaNetwork::checkMessageIndex(u_Sequence_t* P_SEQUENCE)
+bool BPLC_Network::checkMessageIndex(u_Sequence_t* P_SEQUENCE)
 {
 	this->lastKnownMessageIndex++;	
 	const bool INDEX_IS_AS_EXPECTED = (bool)(P_SEQUENCE->extract.head.messageIndex == lastKnownMessageIndex);
@@ -163,7 +163,7 @@ bool BertaNetwork::checkMessageIndex(u_Sequence_t* P_SEQUENCE)
 }	
 
 //---------------------------------------------------------------------------------------
-bool BertaNetwork::thereIsAnewValidMessageForThisNode()
+bool BPLC_Network::thereIsAnewValidMessageForThisNode()
 {
 	bool THERE_IS_A_VALIDE_NEW_MESSAGE = false;
 
@@ -190,7 +190,7 @@ bool BertaNetwork::thereIsAnewValidMessageForThisNode()
 //---------------------------------------------------------------------------------------
 //Checksumme Validiert Nachricht, auch wenn eine Nachricht verpasst wurde und der Index deshalb nicht ok ist, kann wenn die Nachricht unbeschädgt ist ausgewertet werden
 //Ist aber Checksumme falsch, ist Nachricht wertlos und muss erneut angefragt werden.
-bool BertaNetwork::validateReceivedMessage()
+bool BPLC_Network::validateReceivedMessage()
 {
 	u_Sequence_t*	P_SEQUENCE 					= this->getLastSequneceInMailbox();						
 	const bool 		CHECKSUM_OK					= this->checkFCS(P_SEQUENCE);
@@ -248,7 +248,7 @@ bool BertaNetwork::validateReceivedMessage()
 }
 
 //---------------------------------------------------------------------------------------
-bool BertaNetwork::recordEvent()
+bool BPLC_Network::recordEvent()
 {
 	uint8_t byteCount = 0;
 	u_Sequence_t inSequence;
@@ -298,7 +298,7 @@ bool BertaNetwork::recordEvent()
 }
 
 //---------------------------------------------------------------------------------------
-void BertaNetwork::flushInBuffer()
+void BPLC_Network::flushInBuffer()
 {	
 	while (this->networkParameter.serial->available() > 0) 
 	{
@@ -309,7 +309,7 @@ void BertaNetwork::flushInBuffer()
 /*#################################################################################
   SEQUENZ BAUEN UND VERSENDEN
   #################################################################################*/  
-void BertaNetwork::buildAndSendCommand(uint8_t DESTINATION_ADRESS, uint8_t KEY, uint8_t PORT)
+void BPLC_Network::buildAndSendCommand(uint8_t DESTINATION_ADRESS, uint8_t KEY, uint8_t PORT)
 {
 	//Sequenzkopf übertragen
 	s_SequenceHead_t HEAD;
@@ -341,7 +341,7 @@ void BertaNetwork::buildAndSendCommand(uint8_t DESTINATION_ADRESS, uint8_t KEY, 
 }
 
 //---------------------------------------------------------------------------------------
-void BertaNetwork::buildAndSendCommandWithPayload(uint8_t DESTINATION_ADRESS, uint8_t KEY, uint8_t PORT, u_Payload_t PAYLOAD)
+void BPLC_Network::buildAndSendCommandWithPayload(uint8_t DESTINATION_ADRESS, uint8_t KEY, uint8_t PORT, u_Payload_t PAYLOAD)
 {
 	//Sequenzkopf übertragen
 	s_SequenceHead_t HEAD;
@@ -356,7 +356,7 @@ void BertaNetwork::buildAndSendCommandWithPayload(uint8_t DESTINATION_ADRESS, ui
 }
 
 //---------------------------------------------------------------------------------------
-void BertaNetwork::calulateChecksumAndSendSequence(s_SequenceHead_t HEAD, u_Payload_t PAYLOAD)
+void BPLC_Network::calulateChecksumAndSendSequence(s_SequenceHead_t HEAD, u_Payload_t PAYLOAD)
 { 
 	u_Sequence_t OUT_SEQUENCE;
 	memset(&OUT_SEQUENCE, 0, sizeof(u_Sequence_t));	
@@ -410,7 +410,7 @@ void BertaNetwork::calulateChecksumAndSendSequence(s_SequenceHead_t HEAD, u_Payl
 }
 
 //---------------------------------------------------------------------------------------
-bool BertaNetwork::checkFCS(u_Sequence_t* P_SEQUENCE)
+bool BPLC_Network::checkFCS(u_Sequence_t* P_SEQUENCE)
 {
 	const s_CRC16_t FCS = calculateFCS(P_SEQUENCE->DATA, SEQUENCE_DATABYTES_COUNT);
 	//Berechnete mit zuprüfende Checksumme vergleichen
@@ -425,7 +425,7 @@ bool BertaNetwork::checkFCS(u_Sequence_t* P_SEQUENCE)
 }
 
 //---------------------------------------------------------------------------------------
-s_CRC16_t BertaNetwork::calculateFCS(uint8_t *DATA, uint8_t LENGTH)
+s_CRC16_t BPLC_Network::calculateFCS(uint8_t *DATA, uint8_t LENGTH)
 {
 	static unsigned char CRC_16Rev_Lo[] = 
 	{   //CRC16

@@ -156,10 +156,10 @@ typedef struct
 
 
 
-class BertaNetwork
+class BPLC_Network
 {
 	public:
-	BertaNetwork			();
+	BPLC_Network			();
 	void	begin(s_networkParameter_t PARAMETER);
 	void    initInterface();
 	//Bushandling

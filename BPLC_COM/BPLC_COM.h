@@ -46,9 +46,9 @@ class BPLC_MasterNode
   void                  saveReceivedPortData  (uint8_t PORT, u_Payload_t P_PAYLOAD);
 
   s_networkParameter_t  networkParameter;
-  BertaNetwork          network;
+  BPLC_Network          network;
 
-  BertaMasterPort       allPorts[PORT_COUNT];
+  BPLC_COM_Port         allPorts[PORT_COUNT];
   bool                  isPortSavedInEeprom[PORT_COUNT];
   void                  recoverPortData();
 
@@ -85,7 +85,7 @@ s_busRequest_t;
 
 typedef struct 
 {
-  BertaPort* portIndex[PORT_COUNT_MAX];
+  BPLC_COM_Port* portIndex[PORT_COUNT_MAX];
   uint8_t count;
 
 }s_usedPorts_t;
@@ -118,7 +118,7 @@ class BPLC_SlaveNode
   uint8_t 				requestToSend; 
 
   s_networkParameter_t  networkParameter;
-  BertaNetwork          network;
+  BPLC_Network          network;
   s_usedPorts_t*        p_ports;
   uint8_t               initializedPorts;
 };

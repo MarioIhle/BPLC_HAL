@@ -11,16 +11,16 @@
 
 typedef enum
 {
-    FUSE11_CARD_1 = 0x20,
-    FUSE11_CARD_2 = 0x21,
-    FUSE11_CARD_3 = 0x22,
-    FUSE11_CARD_4 = 0x23,
-    FUSE11_CARD_5 = 0x24,
-    FUSE11_CARD_6 = 0x25,
-    FUSE11_CARD_7 = 0x26,
-    FUSE11_CARD_8 = 0x27,
+    FUSE11_CARD__1 = 0x20,
+    FUSE11_CARD__2 = 0x21,
+    FUSE11_CARD__3 = 0x22,
+    FUSE11_CARD__4 = 0x23,
+    FUSE11_CARD__5 = 0x24,
+    FUSE11_CARD__6 = 0x25,
+    FUSE11_CARD__7 = 0x26,
+    FUSE11_CARD__8 = 0x27,
     
-    FUSE11_CARD_COUNT = 8,
+    FUSE11_CARD__COUNT = 8,
 
 }e_FUSE11_ADDRESS_t;
 

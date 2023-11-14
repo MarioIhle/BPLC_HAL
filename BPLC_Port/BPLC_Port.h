@@ -30,13 +30,13 @@ u_Payload_t;
 //---------------------------------------------------------------------------------------
 //BERTANET SLAVETPORT KLASSE
 //---------------------------------------------------------------------------------------
-class BertaPort
+class BPLC_COM_Port
 {
 	public:
 	//Constructoren
-	BertaPort	();
-	BertaPort	(e_PortType_t TYPE, uint8_t PORT_INDEX);							//Constructor für Eventport/readonlyport
-	BertaPort	(e_PortType_t TYPE, uint8_t PORT_INDEX, uint32_t PUSH_INTERVALL);	//Constructor für Pushport
+	BPLC_COM_Port	();
+	BPLC_COM_Port	(e_PortType_t TYPE, uint8_t PORT_INDEX);							//Constructor für Eventport/readonlyport
+	BPLC_COM_Port	(e_PortType_t TYPE, uint8_t PORT_INDEX, uint32_t PUSH_INTERVALL);	//Constructor für Pushport
 	//Setter	
 	void			setBool		(bool 			PAYLOAD);
 	void			setByte		(uint8_t 		PAYLOAD);
@@ -70,7 +70,16 @@ class BertaPort
 	//PushPort
 	void 	 		pushNow					();
 
-	private:	 
+
+	//EHEMALIG MASTER PORT FUNKTIONEN
+	//EEPROM
+	bool			isStoredInEeprom		();
+	uint16_t		getEepromLocation		();
+	void 			setEepromLocation		(uint16_t EEPROM_LOCATION);
+
+
+	private:
+
 	bool			f_newPortDataReceived;
 	bool			f_newPortDataToSend;	
 	bool 			f_portDataRequested;
@@ -79,29 +88,12 @@ class BertaPort
 	e_PortType_t	type;
 	u_Payload_t		payload;	
 	//Timeout für Pushport
-	Timeout			to_push;		
-};
+	Timeout			to_push;	
 
-//---------------------------------------------------------------------------------------
-//BERTANET MASTER PORT KLASSE
-//---------------------------------------------------------------------------------------
-class BertaMasterPort
-{
-	public:
-	BertaMasterPort	();
-	//Networkhandling
-	void 			setPayload		(u_Payload_t 	PAYLOAD);	
-	u_Payload_t 	getPayload		();	
-	//EEPROM
-	bool			isStoredInEeprom		();
-	uint16_t		getEepromLocation		();
-	void 			setEepromLocation		(uint16_t EEPROM_LOCATION);
-		
-	private:	 
+
+	//EHEMALIG MASTER PORT FUNKTIONEN	 
 	//EEPROM
 	uint16_t		eepromLocation;
 	bool			storedInEeprom;
-	//RAM Portdaten
-	u_Payload_t		payload;	
 };
 #endif

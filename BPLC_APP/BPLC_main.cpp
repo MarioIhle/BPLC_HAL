@@ -13,12 +13,12 @@ BPLC_APP::BPLC_APP()
 
 void BPLC_APP::begin()
 {
-   this->hal.begin(INT_ISR); 
+   this->MCU11.begin(INT_ISR); 
 
    this->deviceSettings.f_useBuzzer = true;
    if(this->deviceSettings.f_useBuzzer == false)
    {
-      this->hal.BUZZER.setOnValue(0);
+      this->MCU11.BUZZER.setOnValue(0);
    }
    
    Serial.println("##############################");  
@@ -29,7 +29,7 @@ void BPLC_APP::begin()
    memset(&this->hardwareErrorCode[0], 0, sizeof(this->hardwareErrorCode));
 
    //Try to init all hardware
-   this->oled.begin();
+   this->OLED.begin();
    this->setupExtensionCards(); 
 
    //Setting
@@ -49,8 +49,8 @@ void BPLC_APP::begin()
 void BPLC_APP::tick()
 {
    //BPLC Hardware handling
-   this->hal.tick();
-   this->oled.tick();
+   this->MCU11.tick();
+   this->OLED.tick();
    this->handleDisplay();
    //extension Cards
    this->handleDIN11Cards();
@@ -81,29 +81,29 @@ void BPLC_APP::tick()
    switch(this->deviceMode)
    {
       case APP_MODE__STOP:
-         this->hal.LD1.blinkWithBreak(1, 500, 500);      
-         this->hal.OEN.reset();    
+         this->MCU11.LD1.blinkWithBreak(1, 500, 500);      
+         this->MCU11.OEN.reset();    
          delay(1150);
       break;
 
       case APP_MODE__RUN_WITH_CONFIG_1:   
       case APP_MODE__RUN_WITH_CONFIG_2:
       case APP_MODE__RUN_WITH_CONFIG_3:               
-         this->hal.LD1.blinkWithBreak(1, 2500, 2500);           
+         this->MCU11.LD1.blinkWithBreak(1, 2500, 2500);           
       break;
 
       case APP_MODE__START:             
-         this->hal.LD1.set();  
-         this->hal.BUZZER.blink(1, 100); 
-         this->hal.OEN.set(); 
+         this->MCU11.LD1.set();  
+         this->MCU11.BUZZER.blink(1, 100); 
+         this->MCU11.OEN.set(); 
          this->deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
       break;
 
       case APP_MODE__SAFE_STATE:
-         this->hal.LD1.blinkWithBreak(1, 100, 100);     
-         this->hal.LD2.blinkWithBreak((uint8_t)this->hardwareErrorCode[0], 500, 1500);    
-         this->hal.BUZZER.blinkWithBreak(3, 100, 30000);
-         this->hal.OEN.reset();          
+         this->MCU11.LD1.blinkWithBreak(1, 100, 100);     
+         this->MCU11.LD2.blinkWithBreak((uint8_t)this->hardwareErrorCode[0], 500, 1500);    
+         this->MCU11.BUZZER.blinkWithBreak(3, 100, 30000);
+         this->MCU11.OEN.reset();          
       break;
 
       default:
@@ -119,19 +119,19 @@ void BPLC_APP::tick()
 
 void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
 {
-   this->hal.BUZZER.blink(BEEPS, BEEP_INTERVAL);
+   this->MCU11.BUZZER.blink(BEEPS, BEEP_INTERVAL);
 }
 
 void BPLC_APP::beepOnEncoderInput()
 {
-   if(this->hal.ENCODER.isButtonPressed())
+   if(this->MCU11.ENCODER.isButtonPressed())
    {      
-      this->hal.BUZZER.blink(1, 100);
+      this->MCU11.BUZZER.blink(1, 100);
    }
 
-   if(this->hal.ENCODER.getTurningDirection() != movement_idle)
+   if(this->MCU11.ENCODER.getTurningDirection() != movement_idle)
    {
-      this->hal.BUZZER.blink(1, 100);
+      this->MCU11.BUZZER.blink(1, 100);
    }
 }
 

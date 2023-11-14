@@ -35,6 +35,8 @@
 #include "HAL_DO11.h"
 #include "HAL_MOT11.h"
 
+#include "BPLC_HARDWARE_CONFIG.h"
+
 //-------------------------------------------------------------
 //HARDWARE DEBUGGING
 //-------------------------------------------------------------
@@ -80,21 +82,32 @@ typedef enum
 class BPLC_APP
 {
     public:
+    //BPLC Firmware setup
     BPLC_APP();
     void begin();
-    void defineHardwareSetup(const uint8_t DIN11_CARD_COUNT, const uint8_t AIN11_CARD_COUNT, const uint8_t DO11_CARD_COUNT, const uint8_t REL11_CARD_COUNT, const uint8_t MOT11_CARD_COUNT, const uint8_t FUSE11_CARD_COUNT, const uint8_t NANO11_CARD_COUNT);    
-    void mapObjectToCard(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD);    //Je nach Reihenfolge werden Ports vergeben
-    void mapObjectToCard(Output* P_OBJECT, const e_DO11_CARD_t CARD);
-    void mapObjectToCard(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD);
-    void mapObjectToCard(Output* P_OBJECT, const e_REL11_CARD_t CARD);
-    void mapObjectToCard(MOTOR* P_OBJECT, const e_MOT11_CARD_t CARD);
-    void mapObjectToCardAndPort(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_PORTS_t PORT);    //Je nach Reihenfolge werden Ports vergeben
-    void mapObjectToCardAndPort(Output* P_OBJECT,const e_DO11_CARD_t CARD, const e_DO11_PORTS_t);
-    void mapObjectToCardAndPort(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_PORTS_t PORT);
-    void mapObjectToCardAndPort(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t PORT);
 
+    //Hardware setup
+    void defineHardwareSetup    (const uint8_t DIN11_CARD__COUNT, const uint8_t AIN11_CARD__COUNT, const uint8_t DO11_CARD__COUNT, const uint8_t REL11_CARD__COUNT, const uint8_t MOT11_CARD__COUNT, const uint8_t FUSE11_CARD__COUNT, const uint8_t NANO11__CARD_COUNT);    
+    //Port wird der Reihe nach vergeben
+    void mapObjectToCard        (DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD);    
+    void mapObjectToCard        (Output* P_OBJECT, const e_DO11_CARD_t CARD);
+    void mapObjectToCard        (AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD);
+    void mapObjectToCard        (Output* P_OBJECT, const e_REL11_CARD_t CARD);
+    void mapObjectToCard        (MOTOR* P_OBJECT, const e_MOT11_CARD_t CARD);
+    //Port wird mithlife Übergabeparameter vergeben
+    void mapObjectToCardAndPort (DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_PORTS_t PORT);   
+    void mapObjectToCardAndPort (Output* P_OBJECT,const e_DO11_CARD_t CARD, const e_DO11_PORTS_t);
+    void mapObjectToCardAndPort (AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_PORTS_t PORT);
+    void mapObjectToCardAndPort (Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t PORT);
+
+    //Network setup
+    void mapObjectToComPort(BPLC_COM_Port* P_PORT, const uint8_t PORT_INDEX);
+
+
+    //Routineaufruf
     void tick();
     
+    //Firmware 
     e_APP_MODE_t    getDeviceMode();    
     void            setDeviceMode(const e_APP_MODE_t MODE);
 
@@ -105,16 +118,11 @@ class BPLC_APP
     void    setVDip(const e_V_DIP_t DIP_NUM, const uint8_t VALUE);
     int     getVDip(const e_V_DIP_t DIP_NUM);
 
-    //Externer aufruf, wenn HAL Objekt ein Error meldet
-    void setHardwareError(const e_BPLC_ERROR_t ERROR_CODE);
-    bool isThereAnyHardwareError();
-    
+       
     private:
-    HAL_MCU11   hal;
-    OLED_MCU11  oled;
-    s_BASE_LOG_t LOG;
-
+    //Statusmaschine
     e_APP_MODE_t    deviceMode;
+    
 
     //Variablen
     uint8_t         virtualDipSwitch[vDIP_COUNT];
@@ -129,9 +137,7 @@ class BPLC_APP
         e_APP_MODE_t deviceModeOld;
     }debug;
     
-    void debugOut();
-
-    //Display handling
+    //Display
     void handleDisplay();
     void beepOnEncoderInput();
     void editDeviceMode();
@@ -139,21 +145,15 @@ class BPLC_APP
     void displaySettings();
     void handle_vDip();
 
-    //Hardware Handling
-    void setupExtensionCards();
-    void ISR_CALLED();
-    void handleDIN11Cards();
-    void handleDO11Cards();
-    void handleAIN11Cards();
-    void handleMOT11Cards();
-    void handleREL11Cards();
+    //Hardware
+    HAL_MCU11   MCU11;
+    OLED_MCU11  OLED;
+    HAL_DIN11   DIN11[DIN11_CARD__MAX]; 
+    HAL_AIN11   AIN11[AIN11_CARD__MAX];
+    HAL_DO11    DO11 [DO11_CARD__MAX];
+    HAL_REL11   REL11[REL11_CARD__MAX];
+    HAL_MOT11   MOT11[MOT11_CARD__MAX];  
 
-    //Hal objecte zu allen möglichen Erweiterungskarten
-    HAL_DIN11 DIN11_CARD[DIN11_CARD__MAX]; 
-    HAL_AIN11 AIN11_CARD[AIN11_CARD__MAX];
-    HAL_DO11  DO11_CARD [DO11_CARD__MAX];
-    HAL_REL11 REL11_CARD[REL11_CARD__MAX];
-    HAL_MOT11 MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
     struct
     {
         uint8_t din11CardCount;
@@ -163,11 +163,23 @@ class BPLC_APP
         uint8_t mot11CardCount;
         uint8_t fuse11CardCount;
         uint8_t nano11CardCount;
-    }hardware;
+
+    }hardwareDefinition;
+
+    void setupExtensionCards();
+    void ISR_CALLED();
+    void handleDIN11Cards();
+    void handleDO11Cards();
+    void handleAIN11Cards();
+    void handleMOT11Cards();
+    void handleREL11Cards();
+  
     
     //Network
-    BPLC_SlaveNode SlaveNode;
-    s_usedPorts_t ports;
+    BPLC_SlaveNode  SlaveNode;
+    s_usedPorts_t   ports;
+    
+
     //Settings
     struct 
     {
@@ -175,12 +187,18 @@ class BPLC_APP
         bool f_useBuzzer;
     }deviceSettings;    
 
+
     //Safety
-    void tickSafety();
+    void tickSafety();    
+    void setHardwareError(const e_BPLC_ERROR_t ERROR_CODE);
+    bool isThereAnyHardwareError();
 
     Timeout to_runnntime;
     uint8_t runtimeExeeded;
 
-    ERROR_OUT errorOut;
+    ERROR_OUT errorOut; //Error Textausgabe
+
+    //Logging
+    s_BASE_LOG_t    LOG;
 };
 #endif
