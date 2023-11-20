@@ -99,7 +99,7 @@ class BPLC_APP
     void mapObjectToCardAndPort (Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t PORT);
 
     //Network setup
-    void mapObjectToComPort(BPLC_COM_Port* P_PORT, const uint8_t PORT_INDEX);
+    void mapObjectToComPort(BPLC_COM_Port* P_PORT);
 
 
     //Routineaufruf
@@ -175,7 +175,7 @@ class BPLC_APP
     
     //Network
     BPLC_SlaveNode  SlaveNode;
-    s_usedPorts_t   ports;
+    BPLC_COM_Port*  p_ComPorts[256];
     
 
     //Settings
