@@ -197,6 +197,6 @@ class BPLC_APP
     ERROR_OUT errorOut; //Error Textausgabe
 
     //Logging
-    s_BASE_LOG_t    LOG;
+    BPLC_log    LOG;
 };
 #endif
