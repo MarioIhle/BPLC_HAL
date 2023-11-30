@@ -96,7 +96,8 @@ class BPLC_APP
 
     //Buzzer aus Applikation heraus nutzen
     void    beep(const uint8_t BEEPS, const int BEEP_INTERVAL);
-
+    void    setLD3(const bool STATE);
+    
     //Dip Controll
     void    setVDip(const e_V_DIP_t DIP_NUM, const uint8_t VALUE);
     int     getVDip(const e_V_DIP_t DIP_NUM);
@@ -124,8 +125,6 @@ class BPLC_APP
     {
         e_APP_MODE_t deviceModeOld;
     }debug;
-    
-    void debugOut();
 
     //Display handling
     void handleDisplay();

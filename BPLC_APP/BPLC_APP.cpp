@@ -249,6 +249,11 @@ void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
    this->hal.BUZZER.blink(BEEPS, BEEP_INTERVAL);
 }
 
+void BPLC_APP::setLD3(const bool STATE)
+{
+   this->hal.LD3.setValue(STATE);
+}
+
 void BPLC_APP::handleDisplay()
 {  
    switch(this->oled.getActiveMenu())
