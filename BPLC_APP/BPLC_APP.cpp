@@ -39,7 +39,7 @@ void BPLC_APP::begin()
    this->temp_ParameterStorage = 0;
 
    //Runntime error
-   this->to_runnntime.setInterval(1000);
+   this->to_runnntime.setInterval(RUNNTIME);
    this->to_runnntime.reset();
 }
 
@@ -249,9 +249,9 @@ void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
    this->hal.BUZZER.blink(BEEPS, BEEP_INTERVAL);
 }
 
-void BPLC_APP::setLD3(const bool STATE)
+void BPLC_APP::setLD3(const uint8_t VALUE)
 {
-   this->hal.LD3.setValue(STATE);
+   this->hal.LD3.setValue(VALUE);
 }
 
 void BPLC_APP::handleDisplay()

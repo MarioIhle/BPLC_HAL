@@ -78,14 +78,14 @@ class HAL_MCU11
         const uint8_t encoder[3]= {39, 36, 34};
         const uint8_t led[3]    = {27, 26, 25};
         #ifdef DEBUGGING_MCU11_revA
-        const uint8_t OEN       = 25;
+        const uint8_t OEN       = 26;
         #endif
         #ifndef DEBUGGING_MCU11_revA
         const uint8_t OEN       = 13;
         #endif
         const uint8_t INT       = 35;
         #ifdef DEBUGGING_MCU11_revA
-        const uint8_t buzzer       = 25;
+        const uint8_t buzzer       = 26;
         #endif
         #ifndef DEBUGGING_MCU11_revA
         const uint8_t buzzer       = 15;

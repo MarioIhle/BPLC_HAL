@@ -72,6 +72,7 @@ typedef enum
 //-------------------------------------------------------------
 #define HARDWARE_ERROR_BUFFER_SIZE 10
 #define RUNTIME_ERRORS_MAX 3
+#define RUNNTIME 1000
 
 class BPLC_APP
 {
@@ -96,8 +97,8 @@ class BPLC_APP
 
     //Buzzer aus Applikation heraus nutzen
     void    beep(const uint8_t BEEPS, const int BEEP_INTERVAL);
-    void    setLD3(const bool STATE);
-    
+    void    setLD3(const uint8_t VALUE);
+
     //Dip Controll
     void    setVDip(const e_V_DIP_t DIP_NUM, const uint8_t VALUE);
     int     getVDip(const e_V_DIP_t DIP_NUM);
