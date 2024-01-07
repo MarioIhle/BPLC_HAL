@@ -19,11 +19,11 @@
 //-------------------------------------------------------------
 #include "Arduino.h"
 #include "SpecialFunctions.h"
-
+//BPLC
 #include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
-
+//HAL
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
 #include "HAL_DIN11.h"
@@ -32,6 +32,8 @@
 #include "HAL_FUSE11.h"
 #include "HAL_DO11.h"
 #include "HAL_MOT11.h"
+//Network
+#include "BertaNetNode.h"
 
 //-------------------------------------------------------------
 //HARDWARE DEBUGGING
@@ -77,9 +79,15 @@ typedef enum
 class BPLC_APP
 {
     public:
+    //Setup des BPLC Systems
     BPLC_APP();
     void begin();
     void defineHardwareSetup(const uint8_t DIN11_CARD_COUNT, const uint8_t AIN11_CARD_COUNT, const uint8_t DO11_CARD_COUNT, const uint8_t REL11_CARD_COUNT, const uint8_t MOT11_CARD_COUNT, const uint8_t FUSE11_CARD_COUNT, const uint8_t NANO11_CARD_COUNT);    
+    void setDeviceAddress(const uint8_t DEVICE_ADDRESS);
+    //Ports auf Node mappen
+    void mapPortToNetwork(BertaPort* P_PORT);
+   
+    //IO´s auf Extension Cards mappen
     void mapObjectToCard(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD);    //Je nach Reihenfolge werden Ports vergeben
     void mapObjectToCard(Output* P_OBJECT, const e_DO11_CARD_t CARD);
     void mapObjectToCard(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD);
@@ -90,14 +98,15 @@ class BPLC_APP
     void mapObjectToCardAndPort(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_PORTS_t PORT);
     void mapObjectToCardAndPort(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t PORT);
 
+    //Rountine aufruf
     void tick();
     
+    //Device Mode
     e_APP_MODE_t    getDeviceMode();    
     void            setDeviceMode(const e_APP_MODE_t MODE);
 
     //Buzzer aus Applikation heraus nutzen
-    void    beep(const uint8_t BEEPS, const int BEEP_INTERVAL);
-    void    setLD3(const uint8_t VALUE);
+    void    beep(const uint8_t BEEPS, const int BEEP_INTERVAL);    
 
     //Dip Controll
     void    setVDip(const e_V_DIP_t DIP_NUM, const uint8_t VALUE);
@@ -107,13 +116,16 @@ class BPLC_APP
     void setHardwareError(const e_BPLC_ERROR_t ERROR_CODE);
     bool isThereAnyHardwareError();
     
+
     private:
+
+    //BPLC APP
+    e_APP_MODE_t    deviceMode;
+
+    //BPLC HAL
     HAL_MCU11   hal;
     OLED_MCU11  oled;
     
-
-    e_APP_MODE_t    deviceMode;
-
     //Variablen
     uint8_t         virtualDipSwitch[vDIP_COUNT];
 
@@ -144,22 +156,35 @@ class BPLC_APP
     void handleMOT11Cards();
     void handleREL11Cards();
 
+    //Netzwerk handling
+    void setupNetwork();
+    void tickNetwork();
+
     //Hal objecte zu allen möglichen Erweiterungskarten
     HAL_DIN11 DIN11_CARD[DIN11_CARD__MAX]; 
     HAL_AIN11 AIN11_CARD[AIN11_CARD__MAX];
     HAL_DO11  DO11_CARD [DO11_CARD__MAX];
     HAL_REL11 REL11_CARD[REL11_CARD__MAX];
     HAL_MOT11 MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
+    
     struct
     {
-        uint8_t din11CardCount;
-        uint8_t ain11CardCount;
-        uint8_t do11CardCount;
-        uint8_t rel11CardCount;
-        uint8_t mot11CardCount;
-        uint8_t fuse11CardCount;
-        uint8_t nano11CardCount;
+        uint8_t din11CardCount  = 0;
+        uint8_t ain11CardCount  = 0;
+        uint8_t do11CardCount   = 0;
+        uint8_t rel11CardCount  = 0;
+        uint8_t mot11CardCount  = 0;
+        uint8_t fuse11CardCount = 0;
+        uint8_t nano11CardCount = 0;
     }hardware;
+    
+    //BPLC_COM Netzwerk(BertaNetPorts)
+    struct 
+    {        
+        MasterNode  Master;
+        SlaveNode   Slave;   
+        uint8_t     deviceAddress = 0;        
+    }APP_COM;
     
     //Settings
     struct 
