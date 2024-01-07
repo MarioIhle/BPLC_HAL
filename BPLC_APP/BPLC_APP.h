@@ -19,12 +19,11 @@
 //-------------------------------------------------------------
 #include "Arduino.h"
 #include "SpecialFunctions.h"
-
+//BPLC
 #include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
-#include "BPLC_Node.h"
-
+//HAL
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
 #include "HAL_DIN11.h"
@@ -33,6 +32,8 @@
 #include "HAL_FUSE11.h"
 #include "HAL_DO11.h"
 #include "HAL_MOT11.h"
+//Network
+#include "BertaNetNode.h"
 
 //-------------------------------------------------------------
 //HARDWARE DEBUGGING
@@ -125,9 +126,6 @@ class BPLC_APP
     HAL_MCU11   hal;
     OLED_MCU11  oled;
     
-     
-   
-
     //Variablen
     uint8_t         virtualDipSwitch[vDIP_COUNT];
 
