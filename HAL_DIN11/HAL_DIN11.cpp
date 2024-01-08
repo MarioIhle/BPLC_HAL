@@ -55,7 +55,7 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     }
 }
 
-e_BPLC_ERROR_t  HAL_DIN11::mapObjectToNextFreePort(DigitalInput* P_OBJECT)
+e_BPLC_ERROR_t HAL_DIN11::mapObjectToNextFreePort(DigitalInput* P_OBJECT)
 {  
     #ifdef DEBUG_HAL_DIN11
     Serial.println("##############################");  

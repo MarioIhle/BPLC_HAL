@@ -6,7 +6,8 @@
 typedef enum
 {    
     BPLC_ERROR__NO_ERROR,
-    //BPLC Errors
+    //MCU Errors
+    BPLC_ERROR__NO_MCU_DEFINED,
     BPLC_ERROR__OLED_COMMUNICATION_FAILED,
     BPLC_ERROR__RUNNTIME,
     BPLC_ERROR__COMMUNICATION_FAILED,
@@ -80,6 +81,7 @@ class ERROR_OUT
     {
         {"BPLC_ERROR__NO_ERROR"},
         //BPLC Errors
+        {"BPLC_ERROR__NO_MCU_DEFINED"},
         {"BPLC_ERROR__OLED_COMMUNICATION_FAILED"},
         {"BPLC_ERROR__RUNNTIME"},
         {"BPLC_ERROR__COMMUNICATION_FAILED"},
@@ -143,7 +145,7 @@ class ERROR_OUT
 
     String getErrorCodeText(const e_BPLC_ERROR_t ERROR_CODE)
     {      
-        if(BPLC_ERROR__COUNT != 53)
+        if(BPLC_ERROR__COUNT != 54)
         {
             return("BPLC_ERROR__ERROR_TEXTS_NEED_UPDATE!");
         }
