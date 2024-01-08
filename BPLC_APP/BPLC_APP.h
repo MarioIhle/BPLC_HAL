@@ -146,7 +146,7 @@ class BPLC_APP
     void            tickSafety();
     void            setSystemError(const e_BPLC_ERROR_t ERROR_CODE);
     bool            therIsAnSystemError();
-    e_BPLC_ERROR_t  getSystemError();
+    e_BPLC_ERROR_t  getSystemErrorCode();
 
     struct  
     {     

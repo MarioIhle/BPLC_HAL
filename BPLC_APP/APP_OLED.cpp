@@ -130,9 +130,7 @@ void BPLC_APP::hardwareErrorOut()
    else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
    {
       this->oled.showPrevioursTextOfThisMenu();
-   } 
-
-   this->oled.setParamValueToShow(this->hardwareErrorCode[0]);    
+   }    
 }
 
 void BPLC_APP::displaySettings()

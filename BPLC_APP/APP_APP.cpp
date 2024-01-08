@@ -7,8 +7,7 @@ void BPLC_APP::begin()
 {   
    //Applikation
    this->deviceMode = APP_MODE__START;
-   memset(&this->hardwareErrorCode[0], 0, sizeof(this->hardwareErrorCode));
-
+ 
    //Try to init all hardware
    this->oled.begin();
    this->setupHardware(); 
@@ -57,7 +56,7 @@ void BPLC_APP::tick()
 
       case APP_MODE__SAFE_STATE:
          this->APP_HAL.LD1_DEVICE_STATE.blinkWithBreak(1, 100, 100);     
-         this->APP_HAL.LD3_ERROR_OUT.blinkWithBreak((uint8_t)this->hardwareErrorCode[0], 500, 1500);    
+         this->APP_HAL.LD3_ERROR_OUT.blinkWithBreak((uint8_t)getSystemErrorCode(), 500, 1500);    
          this->APP_HAL.BUZZER.blinkWithBreak(3, 100, 30000);
          this->APP_HAL.OEN.reset();          
       break;
