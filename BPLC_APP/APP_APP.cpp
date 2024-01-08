@@ -96,27 +96,24 @@ void BPLC_APP::tick()
    switch(this->deviceMode)
    {
       case APP_MODE__STOP:
-         this->hal.LD1.blinkWithBreak(1, 500, 500);      
+         this->hal.LD_DEVICE_STATE.blinkWithBreak(1, 500, 500);      
          this->hal.OEN.reset();    
-         delay(1150);
       break;
 
       case APP_MODE__RUN_WITH_CONFIG_1:   
       case APP_MODE__RUN_WITH_CONFIG_2:
       case APP_MODE__RUN_WITH_CONFIG_3:               
-         this->hal.LD1.blinkWithBreak(1, 2500, 2500);           
+         this->hal.LD_DEVICE_STATE.blinkWithBreak(1, 2500, 2500);           
       break;
 
-      case APP_MODE__START:             
-         this->hal.LD1.set();  
-         this->hal.BUZZER.blink(1, 100); 
+      case APP_MODE__START:           
          this->hal.OEN.set(); 
          this->deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
       break;
 
       case APP_MODE__SAFE_STATE:
-         this->hal.LD1.blinkWithBreak(1, 100, 100);     
-         this->hal.LD2.blinkWithBreak((uint8_t)this->hardwareErrorCode[0], 500, 1500);    
+         this->hal.LD_DEVICE_STATE.blinkWithBreak(1, 100, 100);     
+         this->hal.LD_ERROR_OUT.blinkWithBreak((uint8_t)this->hardwareErrorCode[0], 500, 1500);    
          this->hal.BUZZER.blinkWithBreak(3, 100, 30000);
          this->hal.OEN.reset();          
       break;

@@ -183,7 +183,8 @@ class BPLC_APP
     {        
         MasterNode  Master;
         SlaveNode   Slave;   
-        uint8_t     deviceAddress = 0;        
+        uint8_t     deviceAddress = 0;       
+        Timeout     to_communicationError; 
     }APP_COM;
     
     //Settings

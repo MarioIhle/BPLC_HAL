@@ -10,13 +10,13 @@ void HAL_MCU11::begin(void (*INT_callBack)(void))
     pinMode(this->PIN.encoder[1], INPUT);
     pinMode(this->PIN.encoder[2], INPUT);
     ENCODER.begin(&Encoder_A, &Encoder_B, &Encoder_Z);
-    //LD1-3
+    //LD_DEVICE_STATE-3
     pinMode(this->PIN.led[0], OUTPUT);
-    this->LD1.begin(255);
+    this->LD_DEVICE_STATE.begin(255);
     pinMode(this->PIN.led[1], OUTPUT);
-    this->LD2.begin(255);
+    this->LD_COMMUNICATION_STATE.begin(255);
     pinMode(this->PIN.led[2], OUTPUT);    
-    this->LD3.begin(255);    
+    this->LD_ERROR_OUT.begin(255);    
     //BUZZER
     pinMode(this->PIN.buzzer, OUTPUT);
     this->BUZZER.begin(50);
@@ -50,17 +50,19 @@ void HAL_MCU11::tick()
     {
         analogWrite(this->PIN.buzzer, this->BUZZER.getValue().value);
     }
-    //LD1-3
-    if(this->LD1.isThereANewPortValue())
+    //LD_DEVICE_STATE
+    if(this->LD_DEVICE_STATE.isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[0], this->LD1.getValue().value);
+        analogWrite(this->PIN.led[0], this->LD_DEVICE_STATE.getValue().value);
     }
-    if(this->LD2.isThereANewPortValue())
+    //LD_COMMUNACTION_STATE
+    if(this->LD_COMMUNICATION_STATE.isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[1], this->LD2.getValue().value);
+        analogWrite(this->PIN.led[1], this->LD_COMMUNICATION_STATE.getValue().value);
     }
-    if(this->LD3.isThereANewPortValue())
+    //LD_ERROR_OUT
+    if(this->LD_ERROR_OUT.isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[2], this->LD3.getValue().value);  
+        analogWrite(this->PIN.led[2], this->LD_ERROR_OUT.getValue().value);  
     }      
 }

@@ -9,6 +9,7 @@ typedef enum
     //BPLC Errors
     BPLC_ERROR__OLED_COMMUNICATION_FAILED,
     BPLC_ERROR__RUNNTIME,
+    BPLC_ERROR__COMMUNICATION_FAILED,
     //DIN11 errors
     DIN11_ERROR__I2C_CONNECTION_FAILED, 
     DIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED,
@@ -81,6 +82,7 @@ class ERROR_OUT
         //BPLC Errors
         {"BPLC_ERROR__OLED_COMMUNICATION_FAILED"},
         {"BPLC_ERROR__RUNNTIME"},
+        {"BPLC_ERROR__COMMUNICATION_FAILED"},
         //DIN11 errors
         {"DIN11_ERROR__I2C_CONNECTION_FAILED"}, 
         {"DIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED"},
@@ -141,7 +143,7 @@ class ERROR_OUT
 
     String getErrorCodeText(const e_BPLC_ERROR_t ERROR_CODE)
     {      
-        if(BPLC_ERROR__COUNT != 52)
+        if(BPLC_ERROR__COUNT != 53)
         {
             return("BPLC_ERROR__ERROR_TEXTS_NEED_UPDATE!");
         }

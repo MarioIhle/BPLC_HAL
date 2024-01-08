@@ -21,7 +21,7 @@
 #include "SpecialFunctions.h"
 #include "BPLC_IOM.h"
 
-#define DEBUGGING_MCU11_revA    //OEN und Buzzer pin wird verwedet für debugging
+//#define DEBUGGING_MCU11_revA    //OEN und Buzzer pin wird verwedet für debugging
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
@@ -58,9 +58,9 @@ class HAL_MCU11
 
     RotaryEncoder   ENCODER; 
     Output          BUZZER;
-    Output          LD1;
-    Output          LD2;
-    Output          LD3;   
+    Output          LD_DEVICE_STATE;
+    Output          LD_COMMUNICATION_STATE;
+    Output          LD_ERROR_OUT;   
     Output          OEN;             
 
     private:

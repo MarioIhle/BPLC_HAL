@@ -19,6 +19,8 @@ void BPLC_APP::setupNetwork()
     {
         this->APP_COM.Slave.begin(this->APP_COM.deviceAddress, &Serial2, 4);
     }
+    //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
+    this->APP_COM.to_communicationError.setInterval(60000);
 }
 
 void BPLC_APP::mapPortToNetwork(BertaPort* P_PORT)
@@ -29,31 +31,38 @@ void BPLC_APP::mapPortToNetwork(BertaPort* P_PORT)
 void BPLC_APP::tickNetwork()
 {
     if(this->APP_COM.deviceAddress > 0)
-    {
+    {      
         const bool DEVICE_IS_MASTER_NODE = (bool)(this->APP_COM.deviceAddress == 1);
 
         //Network setup
         if(DEVICE_IS_MASTER_NODE)
         {
             this->APP_COM.Master.tick();
-            this->hal.LD3.blinkWithBreak(1, 2500, 2500);
+            this->hal.LD_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
         }
         else
         {
+            //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
+            if(this->APP_COM.to_communicationError.check())
+            {
+                this->setHardwareError(BPLC_ERROR__COMMUNICATION_FAILED);
+            }
+
             this->APP_COM.Slave.tick();
 
             switch (this->APP_COM.Slave.getNodeState())
             {
                 case SLAVE_NODE_STATE__NOT_AVAILABLE:
-                    this->hal.LD3.blinkWithBreak(1, 100, 100);
+                    this->hal.LD_COMMUNICATION_STATE.blinkWithBreak(1, 100, 100);
                 break;
 
                 case SLAVE_NODE_STATE__RESYNC_PORTS:
-                    this->hal.LD3.blinkWithBreak(1, 50, 50);
+                    this->hal.LD_COMMUNICATION_STATE.blinkWithBreak(1, 50, 50);
                 break;
                 
                 case SLAVE_NODE_STATE__AVAILABLE:
-                    this->hal.LD3.blinkWithBreak(1, 2500, 2500);
+                    this->hal.LD_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
+                    this->APP_COM.to_communicationError.reset();
                 break;
             }
         }        
