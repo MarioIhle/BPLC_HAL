@@ -7,7 +7,7 @@
  * @brief 
  * Einlsen von Encoder
  * Setzten von LD 1-3
- * Setzen von OEN
+ * Setzen von P_OEN
  * Lesen von INR???!
  * GPIOs
  * 
@@ -21,7 +21,7 @@
 #include "SpecialFunctions.h"
 #include "BPLC_IOM.h"
 
-//#define DEBUGGING_MCU11_revA    //OEN und Buzzer pin wird verwedet für debugging
+//#define DEBUGGING_MCU11_revA    //P_OEN und Buzzer pin wird verwedet für debugging
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
@@ -52,14 +52,24 @@ class HAL_MCU11_revA
     HAL_MCU11_revA();
     
     void begin(void (*INT_callBack)(void));
+    void mapEncoder     (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);
+    void mapBuzzer      (Output* P_BUZZER_OBJECT);
+    void mapLD1         (Output* P_LD1_OBJECT);
+    void mapLD2         (Output* P_LD2_OBJECT);
+    void mapLD3         (Output* P_LD3_OBJECT);
+    void mapOEN         (Output* P_OEN_OBJECT);
+
     void tick();
 
-    RotaryEncoder   ENCODER; 
-    Output          BUZZER;
-    Output          LD_DEVICE_STATE;
-    Output          LD_COMMUNICATION_STATE;
-    Output          LD_ERROR_OUT;   
-    Output          OEN;             
+    DigitalInput*    P_Encoder_A;
+    DigitalInput*    P_Encoder_B;
+    DigitalInput*    P_Encoder_Z;
+
+    Output*          P_BUZZER;
+    Output*          P_LD1;
+    Output*          P_LD2;
+    Output*          P_LD3;   
+    Output*          P_OEN;             
 
     private:
     //Serial Baudrate
@@ -76,10 +86,10 @@ class HAL_MCU11_revA
         const uint8_t encoder[3]= {39, 36, 34};
         const uint8_t led[3]    = {27, 26, 25};
         #ifdef DEBUGGING_MCU11_revA
-        const uint8_t OEN       = 26;
+        const uint8_t P_OEN       = 26;
         #endif
         #ifndef DEBUGGING_MCU11_revA
-        const uint8_t OEN       = 13;
+        const uint8_t P_OEN       = 13;
         #endif
         const uint8_t INT       = 35;
         #ifdef DEBUGGING_MCU11_revA
@@ -88,11 +98,7 @@ class HAL_MCU11_revA
         #ifndef DEBUGGING_MCU11_revA
         const uint8_t buzzer       = 15;
         #endif
-    }PIN;
-
-    DigitalInput    Encoder_A;
-    DigitalInput    Encoder_B;
-    DigitalInput    Encoder_Z;
+    }PIN;   
 };
 
 class HAL_MCU11_revB
@@ -101,16 +107,26 @@ class HAL_MCU11_revB
     HAL_MCU11_revB();
     
     void begin(void (*INT_callBack)(void));
+    void mapEncoder     (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);
+    void mapBuzzer      (Output* P_BUZZER_OBJECT);
+    void mapLD1         (Output* P_LD1_OBJECT);
+    void mapLD2         (Output* P_LD2_OBJECT);
+    void mapLD3         (Output* P_LD3_OBJECT);
+    void mapOEN         (Output* P_OEN_OBJECT);
+
     void tick();
-
-    RotaryEncoder   ENCODER; 
-    Output          BUZZER;
-    Output          LD_DEVICE_STATE;
-    Output          LD_COMMUNICATION_STATE;
-    Output          LD_ERROR_OUT;   
-    Output          OEN;             
-
+   
     private:
+
+    DigitalInput*    P_Encoder_A;
+    DigitalInput*    P_Encoder_B;
+    DigitalInput*    P_Encoder_Z;
+
+    Output*          P_BUZZER;
+    Output*          P_LD1;
+    Output*          P_LD2;
+    Output*          P_LD3;   
+    Output*          P_OEN;  
     //Serial Baudrate
     struct 
     {
@@ -124,13 +140,9 @@ class HAL_MCU11_revB
     {        
         const uint8_t encoder[3]= {39, 36, 34};
         const uint8_t led[3]    = {27, 26, 25};
-        const uint8_t OEN       = 2;   
+        const uint8_t P_OEN       = 2;   
         const uint8_t INT       = 35;
         const uint8_t buzzer    = 5;       
-    }PIN;
-
-    DigitalInput    Encoder_A;
-    DigitalInput    Encoder_B;
-    DigitalInput    Encoder_Z;
+    }PIN;    
 };
 #endif

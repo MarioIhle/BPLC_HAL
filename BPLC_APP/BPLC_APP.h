@@ -84,8 +84,8 @@ class BPLC_APP
     //Setup des BPLC Systems
     BPLC_APP();
     void begin();   
-    void setupMCU(const e_MCU_CARD_TYPE_t CARD_TYPE);
-    void setupExtensionCard(const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
+    void defineMCU(const e_MCU_CARD_TYPE_t CARD_TYPE);
+    void addExtensionCard(const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
     
     void setDeviceAddress(const uint8_t DEVICE_ADDRESS);
     //Ports auf Node mappen
@@ -160,33 +160,50 @@ class BPLC_APP
 
 
     //APP_HAL
-    void setupExtensionCards();
-    void ISR_CALLED();
+    void setupHardware();
+    void tickHardware();
+    void handleMCUCard();
     void handleDIN11Cards();
     void handleDO11Cards();
     void handleAIN11Cards();
     void handleMOT11Cards();
     void handleREL11Cards(); 
+    void ISR_CALLED();   
 
     struct 
     {
         //Hal objecte zu allen möglichen Erweiterungskarten
-        HAL_MCU11_revA   MCU_HAL;        
-        HAL_DIN11   DIN11_CARD[DIN11_CARD__MAX]; 
-        HAL_AIN11   AIN11_CARD[AIN11_CARD__MAX];
-        HAL_DO11    DO11_CARD [DO11_CARD__MAX];
-        HAL_REL11   REL11_CARD[REL11_CARD__MAX];
-        HAL_MOT11   MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
+        HAL_MCU11_revA      MCU11revA_HAL;    
+        HAL_MCU11_revB      MCU11revB_HAL;             
+        HAL_DIN11           DIN11_CARD[DIN11_CARD__MAX]; 
+        HAL_AIN11           AIN11_CARD[AIN11_CARD__MAX];
+        HAL_DO11            DO11_CARD [DO11_CARD__MAX];
+        HAL_REL11           REL11_CARD[REL11_CARD__MAX];
+        HAL_MOT11           MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
+
+        RotaryEncoder   ENCODER; 
+        Output          BUZZER;
+        Output          LD1_DEVICE_STATE;
+        Output          LD2_COMMUNICATION_STATE;
+        Output          LD3_ERROR_OUT;   
+        Output          OEN;   
+
+        DigitalInput    Encoder_A;
+        DigitalInput    Encoder_B;
+        DigitalInput    Encoder_Z;  
         
         struct
         {
-            uint8_t din11CardCount  = 0;
-            uint8_t ain11CardCount  = 0;
-            uint8_t do11CardCount   = 0;
-            uint8_t rel11CardCount  = 0;
-            uint8_t mot11CardCount  = 0;
-            uint8_t fuse11CardCount = 0;
-            uint8_t nano11CardCount = 0;
+            e_MCU_CARD_TYPE_t MCU_TYPE;
+
+            uint8_t din11RevACardCount  = 0;
+            uint8_t ain11RevACardCount  = 0;
+            uint8_t do11RevACardCount   = 0;
+            uint8_t rel11RevACardCount  = 0;
+            uint8_t mot11RevACardCount  = 0;
+            uint8_t fuse11RevACardCount = 0;
+            uint8_t fuse12RevACardCount = 0;
+            uint8_t nano11RevACardCount = 0;
         }hardwareConfig;
     }APP_HAL;
 

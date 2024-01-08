@@ -1,4 +1,4 @@
-#include "HAL_MCU11_revB.h"
+#include "HAL_MCU11.h"
 
 HAL_MCU11_revB::HAL_MCU11_revB()
 {}
@@ -9,20 +9,14 @@ void HAL_MCU11_revB::begin(void (*INT_callBack)(void))
     pinMode(this->PIN.encoder[0], INPUT);
     pinMode(this->PIN.encoder[1], INPUT);
     pinMode(this->PIN.encoder[2], INPUT);
-    ENCODER.begin(&Encoder_A, &Encoder_B, &Encoder_Z);
-    //LD_DEVICE_STATE-3
+    //P_LD1-3
     pinMode(this->PIN.led[0], OUTPUT);
-    this->LD_DEVICE_STATE.begin(255);
     pinMode(this->PIN.led[1], OUTPUT);
-    this->LD_COMMUNICATION_STATE.begin(255);
     pinMode(this->PIN.led[2], OUTPUT);    
-    this->LD_ERROR_OUT.begin(255);    
-    //BUZZER
+    //P_BUZZER
     pinMode(this->PIN.buzzer, OUTPUT);
-    this->BUZZER.begin(50);
-    //OEN
-    this->OEN.begin(true);    
-    pinMode(this->PIN.OEN, OUTPUT);
+    //P_OEN
+    pinMode(this->PIN.P_OEN, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT_PULLUP);
     attachInterrupt(this->PIN.INT, INT_callBack, CHANGE);   
@@ -34,35 +28,67 @@ void HAL_MCU11_revB::begin(void (*INT_callBack)(void))
     Wire.begin();
 }
 
+void HAL_MCU11_revB::mapEncoder(DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON)
+{
+    this->P_Encoder_A = P_PORT_A;
+    this->P_Encoder_B = P_PORT_B;
+    this->P_Encoder_Z = P_PORT_PUSHBUTTON;
+}
+
+void HAL_MCU11_revB::mapBuzzer(Output* P_BUZZER_OBJECT)
+{
+    this->P_BUZZER = P_BUZZER_OBJECT;
+}
+
+void HAL_MCU11_revB:: mapLD1(Output* P_LD1_OBJECT)
+{
+    this->P_LD1 = P_LD1_OBJECT;
+}
+
+void HAL_MCU11_revB::mapLD2(Output* P_LD2_OBJECT)
+{
+    this->P_LD2 = P_LD2_OBJECT;
+}
+
+void HAL_MCU11_revB::mapLD3(Output* P_LD3_OBJECT)
+{
+    this->P_LD3 = P_LD3_OBJECT;
+}
+
+void HAL_MCU11_revB::mapOEN(Output* P_OEN_OBJECT)
+{
+    this->P_OEN = P_OEN_OBJECT;
+}
+
 void HAL_MCU11_revB::tick()
 {  
     //Encoder lesen
-    Encoder_A.setPortState(digitalRead(this->PIN.encoder[0]));
-    Encoder_B.setPortState(digitalRead(this->PIN.encoder[1]));
-    Encoder_Z.setPortState(digitalRead(this->PIN.encoder[2]));
-    //OEN schreiben
-    if(this->OEN.isThereANewPortValue())
+    this->P_Encoder_A->setPortState(digitalRead(this->PIN.encoder[0]));
+    this->P_Encoder_B->setPortState(digitalRead(this->PIN.encoder[1]));
+    this->P_Encoder_Z->setPortState(digitalRead(this->PIN.encoder[2]));
+    //P_OEN schreiben
+    if(this->P_OEN->isThereANewPortValue())
     {
-        digitalWrite(this->PIN.OEN, this->OEN.getValue().value);
+        digitalWrite(this->PIN.P_OEN, this->P_OEN->getValue().value);
     }
     //buzzer
-    if(this->BUZZER.isThereANewPortValue())
+    if(this->P_BUZZER->isThereANewPortValue())
     {
-        analogWrite(this->PIN.buzzer, this->BUZZER.getValue().value);
+        analogWrite(this->PIN.buzzer, this->P_BUZZER->getValue().value);
     }
-    //LD_DEVICE_STATE
-    if(this->LD_DEVICE_STATE.isThereANewPortValue())
+    //P_LD1
+    if(this->P_LD1->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[0], this->LD_DEVICE_STATE.getValue().value);
+        analogWrite(this->PIN.led[0], this->P_LD1->getValue().value);
     }
     //LD_COMMUNACTION_STATE
-    if(this->LD_COMMUNICATION_STATE.isThereANewPortValue())
+    if(this->P_LD2->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[1], this->LD_COMMUNICATION_STATE.getValue().value);
+        analogWrite(this->PIN.led[1], this->P_LD2->getValue().value);
     }
-    //LD_ERROR_OUT
-    if(this->LD_ERROR_OUT.isThereANewPortValue())
+    //P_LD3
+    if(this->P_LD3->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[2], this->LD_ERROR_OUT.getValue().value);  
+        analogWrite(this->PIN.led[2], this->P_LD3->getValue().value);  
     }      
 }
