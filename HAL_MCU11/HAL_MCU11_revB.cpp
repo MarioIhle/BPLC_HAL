@@ -16,7 +16,7 @@ void HAL_MCU11_revB::begin(void (*INT_callBack)(void))
     //P_BUZZER
     pinMode(this->PIN.buzzer, OUTPUT);
     //P_OEN
-    pinMode(this->PIN.P_OEN, OUTPUT);
+    pinMode(this->PIN.OEN, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT_PULLUP);
     attachInterrupt(this->PIN.INT, INT_callBack, CHANGE);   
@@ -69,7 +69,7 @@ void HAL_MCU11_revB::tick()
     //P_OEN schreiben
     if(this->P_OEN->isThereANewPortValue())
     {
-        digitalWrite(this->PIN.P_OEN, this->P_OEN->getValue().value);
+        digitalWrite(this->PIN.OEN, this->P_OEN->getValue().value);
     }
     //buzzer
     if(this->P_BUZZER->isThereANewPortValue())

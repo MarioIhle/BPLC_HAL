@@ -140,7 +140,7 @@ class HAL_MCU11_revB
     {        
         const uint8_t encoder[3]= {39, 36, 34};
         const uint8_t led[3]    = {27, 26, 25};
-        const uint8_t P_OEN       = 2;   
+        const uint8_t OEN       = 2;   
         const uint8_t INT       = 35;
         const uint8_t buzzer    = 5;       
     }PIN;    

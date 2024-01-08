@@ -149,7 +149,6 @@ class BPLC_APP
 
     //APP_OLED
     void handleDisplay();
-    void beepOnEncoderInput();
     void editDeviceMode();
     void hardwareErrorOut();
     void displaySettings();
