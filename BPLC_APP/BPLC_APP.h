@@ -116,36 +116,20 @@ class BPLC_APP
     void    setVDip(const e_V_DIP_t DIP_NUM, const uint8_t VALUE);
     int     getVDip(const e_V_DIP_t DIP_NUM);
 
-    //Externer aufruf, wenn HAL Objekt ein Error meldet
-    void setHardwareError(const e_BPLC_ERROR_t ERROR_CODE);
-    bool isThereAnyHardwareError();
     
-
     private:
 
     //APP_APP
     e_APP_MODE_t    deviceMode;
-
-    uint8_t         virtualDipSwitch[vDIP_COUNT];    
-    e_BPLC_ERROR_t hardwareErrorCode[HARDWARE_ERROR_BUFFER_SIZE];   //Hardware Error, sofort Applikation anhalten. Es wird immer der letzte erkannte Fehler in der nächsten freien stelle gespeichert gespeichert
- 
-    struct 
-    {
-        e_APP_MODE_t deviceModeOld;
-    }debug;
-
+    uint8_t         virtualDipSwitch[vDIP_COUNT]; 
+    
     //Settings
     struct 
     {
         bool f_beepOnEncoderInput;
         bool f_useBuzzer;
     }deviceSettings;    
-
-    //Safety
-    Timeout to_runnntime;
-    uint8_t runtimeExeeded;
-
-    ERROR_OUT errorOut;
+    
 
     //APP_OLED
     void handleDisplay();
@@ -157,6 +141,21 @@ class BPLC_APP
     OLED_MCU11  oled;
     byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
 
+    //Externer aufruf, wenn HAL Objekt ein Error meldet
+    void            setupSafety();
+    void            tickSafety();
+    void            setSystemError(const e_BPLC_ERROR_t ERROR_CODE);
+    bool            therIsAnSystemError();
+    e_BPLC_ERROR_t  getSystemError();
+
+    struct  
+    {     
+        Timeout     to_runnntime;
+        uint8_t     runtimeExeeded;
+        fifoBuffer  errorCodes;    
+    
+        ERROR_OUT   errorOut;
+    }APP_SAFETY;
 
     //APP_HAL
     void setupHardware();

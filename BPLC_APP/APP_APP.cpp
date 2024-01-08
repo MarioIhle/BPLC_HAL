@@ -23,8 +23,7 @@ void BPLC_APP::begin()
    this->temp_ParameterStorage = 0;
 
    //Runntime error
-   this->to_runnntime.setInterval(RUNNTIME);
-   this->to_runnntime.reset();
+   this->setupSafety();   
 }
 
 void BPLC_APP::tick()
@@ -35,32 +34,9 @@ void BPLC_APP::tick()
    this->handleDisplay();
    this->tickHardware();   
    this->tickNetwork();  
-
-   //Runntime überwachung der Applikation   
-   if(this->to_runnntime.check())
-   {
-      this->runtimeExeeded++;
-   }
-
-   if(this->runtimeExeeded >= RUNTIME_ERRORS_MAX)
-   {
-      this->setHardwareError(BPLC_ERROR__RUNNTIME);
-      this->runtimeExeeded = RUNTIME_ERRORS_MAX;
-   }
-   this->to_runnntime.reset();
-
-   if(this->isThereAnyHardwareError())
-   {
-      this->deviceMode = APP_MODE__SAFE_STATE;
-   }
-
-   if(this->debug.deviceModeOld != this->deviceMode)
-   {
-      Serial.println("##############################");  
-      Serial.print("DEVICE MODE: "); Serial.println(this->deviceMode);
-      this->debug.deviceModeOld = this->deviceMode;
-   }
-   //Hauptapplikation BPLC
+   this->tickSafety();  
+  
+   //BPLC Statemachine
    switch(this->deviceMode)
    {
       case APP_MODE__STOP:
