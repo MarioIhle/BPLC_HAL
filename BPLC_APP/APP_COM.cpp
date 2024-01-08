@@ -38,7 +38,7 @@ void BPLC_APP::tickNetwork()
         if(DEVICE_IS_MASTER_NODE)
         {
             this->APP_COM.Master.tick();
-            this->hal.LD_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
+            this->MCU_HAL.LD_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
         }
         else
         {
@@ -53,15 +53,15 @@ void BPLC_APP::tickNetwork()
             switch (this->APP_COM.Slave.getNodeState())
             {
                 case SLAVE_NODE_STATE__NOT_AVAILABLE:
-                    this->hal.LD_COMMUNICATION_STATE.blinkWithBreak(1, 100, 100);
+                    this->MCU_HAL.LD_COMMUNICATION_STATE.blinkWithBreak(1, 100, 100);
                 break;
 
                 case SLAVE_NODE_STATE__RESYNC_PORTS:
-                    this->hal.LD_COMMUNICATION_STATE.blinkWithBreak(1, 50, 50);
+                    this->MCU_HAL.LD_COMMUNICATION_STATE.blinkWithBreak(1, 50, 50);
                 break;
                 
                 case SLAVE_NODE_STATE__AVAILABLE:
-                    this->hal.LD_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
+                    this->MCU_HAL.LD_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
                     this->APP_COM.to_communicationError.reset();
                 break;
             }

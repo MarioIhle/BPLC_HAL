@@ -20,6 +20,7 @@
 #include "Arduino.h"
 #include "SpecialFunctions.h"
 //BPLC
+#include "BPLC_CARDS.h"
 #include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
@@ -69,6 +70,7 @@ typedef enum
     APP_MODE__COUNT,
 }e_APP_MODE_t;
 
+
 //-------------------------------------------------------------
 //BPLC_APP KLASSE
 //-------------------------------------------------------------
@@ -81,8 +83,10 @@ class BPLC_APP
     public:
     //Setup des BPLC Systems
     BPLC_APP();
-    void begin();
-    void defineHardwareSetup(const uint8_t DIN11_CARD_COUNT, const uint8_t AIN11_CARD_COUNT, const uint8_t DO11_CARD_COUNT, const uint8_t REL11_CARD_COUNT, const uint8_t MOT11_CARD_COUNT, const uint8_t FUSE11_CARD_COUNT, const uint8_t NANO11_CARD_COUNT);    
+    void begin();   
+    void setupMCU(const e_MCU_CARD_TYPE_t CARD_TYPE);
+    void setupExtensionCard(const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
+    
     void setDeviceAddress(const uint8_t DEVICE_ADDRESS);
     //Ports auf Node mappen
     void mapPortToNetwork(BertaPort* P_PORT);
@@ -119,74 +123,17 @@ class BPLC_APP
 
     private:
 
-    //BPLC APP
+    //APP_APP
     e_APP_MODE_t    deviceMode;
 
-    //BPLC HAL
-    HAL_MCU11   hal;
-    OLED_MCU11  oled;
-    
-    //Variablen
-    uint8_t         virtualDipSwitch[vDIP_COUNT];
-
-    byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
-
+    uint8_t         virtualDipSwitch[vDIP_COUNT];    
     e_BPLC_ERROR_t hardwareErrorCode[HARDWARE_ERROR_BUFFER_SIZE];   //Hardware Error, sofort Applikation anhalten. Es wird immer der letzte erkannte Fehler in der nächsten freien stelle gespeichert gespeichert
-    
-    //Applikation
+ 
     struct 
     {
         e_APP_MODE_t deviceModeOld;
     }debug;
 
-    //Display handling
-    void handleDisplay();
-    void beepOnEncoderInput();
-    void editDeviceMode();
-    void hardwareErrorOut();
-    void displaySettings();
-    void handle_vDip();
-
-    //Hardware Handling
-    void setupExtensionCards();
-    void ISR_CALLED();
-    void handleDIN11Cards();
-    void handleDO11Cards();
-    void handleAIN11Cards();
-    void handleMOT11Cards();
-    void handleREL11Cards();
-
-    //Netzwerk handling
-    void setupNetwork();
-    void tickNetwork();
-
-    //Hal objecte zu allen möglichen Erweiterungskarten
-    HAL_DIN11 DIN11_CARD[DIN11_CARD__MAX]; 
-    HAL_AIN11 AIN11_CARD[AIN11_CARD__MAX];
-    HAL_DO11  DO11_CARD [DO11_CARD__MAX];
-    HAL_REL11 REL11_CARD[REL11_CARD__MAX];
-    HAL_MOT11 MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
-    
-    struct
-    {
-        uint8_t din11CardCount  = 0;
-        uint8_t ain11CardCount  = 0;
-        uint8_t do11CardCount   = 0;
-        uint8_t rel11CardCount  = 0;
-        uint8_t mot11CardCount  = 0;
-        uint8_t fuse11CardCount = 0;
-        uint8_t nano11CardCount = 0;
-    }hardware;
-    
-    //BPLC_COM Netzwerk(BertaNetPorts)
-    struct 
-    {        
-        MasterNode  Master;
-        SlaveNode   Slave;   
-        uint8_t     deviceAddress = 0;       
-        Timeout     to_communicationError; 
-    }APP_COM;
-    
     //Settings
     struct 
     {
@@ -199,5 +146,61 @@ class BPLC_APP
     uint8_t runtimeExeeded;
 
     ERROR_OUT errorOut;
+
+    //APP_OLED
+    void handleDisplay();
+    void beepOnEncoderInput();
+    void editDeviceMode();
+    void hardwareErrorOut();
+    void displaySettings();
+    void handle_vDip();
+
+    OLED_MCU11  oled;
+    byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
+
+
+    //APP_HAL
+    void setupExtensionCards();
+    void ISR_CALLED();
+    void handleDIN11Cards();
+    void handleDO11Cards();
+    void handleAIN11Cards();
+    void handleMOT11Cards();
+    void handleREL11Cards(); 
+
+    struct 
+    {
+        //Hal objecte zu allen möglichen Erweiterungskarten
+        HAL_MCU11_revA   MCU_HAL;        
+        HAL_DIN11   DIN11_CARD[DIN11_CARD__MAX]; 
+        HAL_AIN11   AIN11_CARD[AIN11_CARD__MAX];
+        HAL_DO11    DO11_CARD [DO11_CARD__MAX];
+        HAL_REL11   REL11_CARD[REL11_CARD__MAX];
+        HAL_MOT11   MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
+        
+        struct
+        {
+            uint8_t din11CardCount  = 0;
+            uint8_t ain11CardCount  = 0;
+            uint8_t do11CardCount   = 0;
+            uint8_t rel11CardCount  = 0;
+            uint8_t mot11CardCount  = 0;
+            uint8_t fuse11CardCount = 0;
+            uint8_t nano11CardCount = 0;
+        }hardwareConfig;
+    }APP_HAL;
+
+
+    //BPLC_COM Netzwerk(BertaNetPorts)
+    void setupNetwork();
+    void tickNetwork();
+
+    struct 
+    {        
+        MasterNode  Master;
+        SlaveNode   Slave;   
+        uint8_t     deviceAddress = 0;       
+        Timeout     to_communicationError; 
+    }APP_COM;  
 };
 #endif

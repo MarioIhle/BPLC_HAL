@@ -5,16 +5,16 @@ void BPLC_APP::handleDisplay()
    switch(this->oled.getActiveMenu())
    {      
       case menu_mainMenu:
-         if(this->hal.ENCODER.isButtonPressed())
+         if(this->MCU_HAL.ENCODER.isButtonPressed())
          {            
             this->oled.enterMenu();            
          }
 
-         if(this->hal.ENCODER.getTurningDirection() == movement_right)
+         if(this->MCU_HAL.ENCODER.getTurningDirection() == movement_right)
          {
             this->oled.showNextTextOfThisMenu();
          }
-         else if(this->hal.ENCODER.getTurningDirection() == movement_left)
+         else if(this->MCU_HAL.ENCODER.getTurningDirection() == movement_left)
          {
             this->oled.showPrevioursTextOfThisMenu();
          }           
@@ -38,7 +38,7 @@ void BPLC_APP::handleDisplay()
       break;
 
       case menu_screenSaver: 
-         if(this->hal.ENCODER.isButtonPressed() || this->hal.ENCODER.getTurningDirection() != movement_idle)
+         if(this->MCU_HAL.ENCODER.isButtonPressed() || this->MCU_HAL.ENCODER.getTurningDirection() != movement_idle)
          {
             this->oled.setMenu(menu_mainMenu);
          }
@@ -49,7 +49,7 @@ void BPLC_APP::handleDisplay()
 //Display handling
 void BPLC_APP::editDeviceMode()
 {
-   if(this->hal.ENCODER.isButtonPressed())
+   if(this->MCU_HAL.ENCODER.isButtonPressed())
    {                 
       //Enter Parameter
       if(this->oled.parameterEntered() == false)
@@ -69,7 +69,7 @@ void BPLC_APP::editDeviceMode()
       }      
    }
 
-   if(this->hal.ENCODER.getTurningDirection() == movement_right)
+   if(this->MCU_HAL.ENCODER.getTurningDirection() == movement_right)
    {
       if(this->oled.parameterEntered())
       {
@@ -80,7 +80,7 @@ void BPLC_APP::editDeviceMode()
          this->oled.showNextTextOfThisMenu();            
       }
    }
-   else if(this->hal.ENCODER.getTurningDirection() == movement_left)
+   else if(this->MCU_HAL.ENCODER.getTurningDirection() == movement_left)
    {    
       if(this->oled.parameterEntered())
       {
@@ -114,7 +114,7 @@ void BPLC_APP::editDeviceMode()
 
 void BPLC_APP::hardwareErrorOut()
 {
-   if(this->hal.ENCODER.isButtonPressed())
+   if(this->MCU_HAL.ENCODER.isButtonPressed())
    {            
       //Cursor on "exit"
       if(this->oled.readyToExitMenu())
@@ -123,11 +123,11 @@ void BPLC_APP::hardwareErrorOut()
       } 
    }
 
-   if(this->hal.ENCODER.getTurningDirection() == movement_right)
+   if(this->MCU_HAL.ENCODER.getTurningDirection() == movement_right)
    {
       this->oled.showNextTextOfThisMenu();
    }
-   else if(this->hal.ENCODER.getTurningDirection() == movement_left)
+   else if(this->MCU_HAL.ENCODER.getTurningDirection() == movement_left)
    {
       this->oled.showPrevioursTextOfThisMenu();
    } 
@@ -137,7 +137,7 @@ void BPLC_APP::hardwareErrorOut()
 
 void BPLC_APP::displaySettings()
 {
-   if(this->hal.ENCODER.isButtonPressed())
+   if(this->MCU_HAL.ENCODER.isButtonPressed())
    {            
       //Cursor on "exit"
       if(this->oled.readyToExitMenu())
@@ -150,11 +150,11 @@ void BPLC_APP::displaySettings()
       }
    }
 
-   if(this->hal.ENCODER.getTurningDirection() == movement_right)
+   if(this->MCU_HAL.ENCODER.getTurningDirection() == movement_right)
    {
       this->oled.showNextTextOfThisMenu();
    }
-   else if(this->hal.ENCODER.getTurningDirection() == movement_left)
+   else if(this->MCU_HAL.ENCODER.getTurningDirection() == movement_left)
    {
       this->oled.showPrevioursTextOfThisMenu();
    } 
@@ -162,8 +162,8 @@ void BPLC_APP::displaySettings()
 
 void BPLC_APP::handle_vDip()
 {  
-   const bool           IS_ENCODER_BUTTON_PRESSED  = this->hal.ENCODER.isButtonPressed();
-   const e_movement_t   TURNING_DIRECTION          = this->hal.ENCODER.getTurningDirection();
+   const bool           IS_ENCODER_BUTTON_PRESSED  = this->MCU_HAL.ENCODER.isButtonPressed();
+   const e_movement_t   TURNING_DIRECTION          = this->MCU_HAL.ENCODER.getTurningDirection();
    const bool           PARARMETER_IS_ENTERED      = this->oled.parameterEntered();
    const e_V_DIP_t      SELECTED_DIP               = (e_V_DIP_t)this->oled.getActiveMenuTextNum();
 
