@@ -2,7 +2,7 @@
 #define HAL_MCU11_h
 //---------------------------------------------------
 /**
- * @file HAL_MCU11.h
+ * @file HAL_MCU11_revA.h
  * @author MIE
  * @brief 
  * Einlsen von Encoder
@@ -26,8 +26,6 @@
 //Typdefinitionen
 //--------------------------------------------------------------------
 //Encoder
-
-
 typedef enum
 {
     ENCODER_PIN__A,
@@ -48,10 +46,10 @@ typedef struct
 //--------------------------------------------------------------------
 //HAL KLASSE
 //--------------------------------------------------------------------
-class HAL_MCU11
+class HAL_MCU11_revA
 {
     public:
-    HAL_MCU11();
+    HAL_MCU11_revA();
     
     void begin(void (*INT_callBack)(void));
     void tick();
@@ -90,6 +88,45 @@ class HAL_MCU11
         #ifndef DEBUGGING_MCU11_revA
         const uint8_t buzzer       = 15;
         #endif
+    }PIN;
+
+    DigitalInput    Encoder_A;
+    DigitalInput    Encoder_B;
+    DigitalInput    Encoder_Z;
+};
+
+class HAL_MCU11_revB
+{
+    public:
+    HAL_MCU11_revB();
+    
+    void begin(void (*INT_callBack)(void));
+    void tick();
+
+    RotaryEncoder   ENCODER; 
+    Output          BUZZER;
+    Output          LD_DEVICE_STATE;
+    Output          LD_COMMUNICATION_STATE;
+    Output          LD_ERROR_OUT;   
+    Output          OEN;             
+
+    private:
+    //Serial Baudrate
+    struct 
+    {
+        unsigned long USB   = 115200;
+        unsigned long RS232 = 38400;
+        unsigned long RS485 = 38400;
+    }baudrate;    
+    
+    //Pinsdefinition
+    struct 
+    {        
+        const uint8_t encoder[3]= {39, 36, 34};
+        const uint8_t led[3]    = {27, 26, 25};
+        const uint8_t OEN       = 2;   
+        const uint8_t INT       = 35;
+        const uint8_t buzzer    = 5;       
     }PIN;
 
     DigitalInput    Encoder_A;
