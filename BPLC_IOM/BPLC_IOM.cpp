@@ -76,6 +76,11 @@ void DigitalInput::setPortState(const bool STATE)
 AnalogInput::AnalogInput()
 {}
    
+void AnalogInput::setMaxVoltage(const float VOLTAGE)
+{
+	this->maxVoltage = VOLTAGE;
+}
+
 uint16_t AnalogInput::getValue()
 {
 	return this->inputValue.value;
@@ -83,7 +88,8 @@ uint16_t AnalogInput::getValue()
 
 float AnalogInput::getValueInVolt()
 {
-	return this->inputValueInVolt;
+	const float VALUE_IN_VOLT = mapf(this->inputValue.value, 0, 65535, 0, this->maxVoltage);
+	return VALUE_IN_VOLT;
 }
 
 void AnalogInput::setAlarm(const uint16_t ALARM_VALUE)
