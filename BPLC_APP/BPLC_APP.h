@@ -128,7 +128,7 @@ class BPLC_APP
 
     uint8_t         virtualDipSwitch[vDIP_COUNT];    
     e_BPLC_ERROR_t hardwareErrorCode[HARDWARE_ERROR_BUFFER_SIZE];   //Hardware Error, sofort Applikation anhalten. Es wird immer der letzte erkannte Fehler in der nächsten freien stelle gespeichert gespeichert
- 
+ //test
     struct 
     {
         e_APP_MODE_t deviceModeOld;
