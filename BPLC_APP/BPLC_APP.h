@@ -113,8 +113,8 @@ class BPLC_APP
     void    beep(const uint8_t BEEPS, const int BEEP_INTERVAL);    
 
     //Dip Controll
-    void    setVDip(const e_V_DIP_t DIP_NUM, const uint8_t VALUE);
-    int     getVDip(const e_V_DIP_t DIP_NUM);
+    void    setVDip(const e_V_DIP_t DIP_NUM, const int16_t VALUE);
+    int16_t getVDip(const e_V_DIP_t DIP_NUM);
 
     //Externer aufruf, wenn HAL Objekt ein Error meldet
     void setHardwareError(const e_BPLC_ERROR_t ERROR_CODE);
@@ -126,9 +126,10 @@ class BPLC_APP
     //APP_APP
     e_APP_MODE_t    deviceMode;
 
-    uint8_t         virtualDipSwitch[vDIP_COUNT];    
+    int16_t        virtualDipSwitch[vDIP_COUNT];    
     e_BPLC_ERROR_t hardwareErrorCode[HARDWARE_ERROR_BUFFER_SIZE];   //Hardware Error, sofort Applikation anhalten. Es wird immer der letzte erkannte Fehler in der nächsten freien stelle gespeichert gespeichert
- 
+ //test
+//Teständerung2
     struct 
     {
         e_APP_MODE_t deviceModeOld;

@@ -107,12 +107,12 @@ void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
    this->deviceMode = MODE;
 }
 
-void BPLC_APP::setVDip(const e_V_DIP_t DIP_NUM, const uint8_t VALUE)
+void BPLC_APP::setVDip(const e_V_DIP_t DIP_NUM, const int16_t VALUE)
 {
    this->virtualDipSwitch[DIP_NUM] = VALUE;
 }
 
-int BPLC_APP::getVDip(const e_V_DIP_t DIP_NUM)
+int16_t BPLC_APP::getVDip(const e_V_DIP_t DIP_NUM)
 {
    return this->virtualDipSwitch[DIP_NUM];
 }
