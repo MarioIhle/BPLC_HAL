@@ -63,26 +63,30 @@ class DigitalInput
 //--------------------------------------------------------------------
 //ANALOG INPUT KLASSE
 //--------------------------------------------------------------------
+#define SPANNUNGSTEILER (5900/1200)
+
 class AnalogInput
 {
     public:
     AnalogInput();
-   
+    void        setMaxVoltage(const float VOLTAGE);
+
     //Getter für Applikation
     uint16_t    getValue       ();
     float       getValueInVolt ();
 
     void        setAlarm            (const uint16_t ALARM_VALUE);
-    bool        isAlarmValueReached (); //true wenn VALUE > AlarmValue
+    bool        isAlarmValueReached (); //true wenn VALUE >= AlarmValue
 
     //Setter für HAL
-    void setPortValue   (const uint16_t VALUE);
-    void setValueInVolt (const float VALUE_IN_VOLT);
+    void setPortValue       (const uint16_t VALUE);
+    void setRawPortVoltage (const float PORT_VOLTAGE);
 
     private:
     s_portValue_t   inputValue;   
-    float           inputValueInVolt;
+    float           rawPortVoltage;
     uint16_t        alarmValue;
+    float           maxVoltage = 5.00;  //default
 };
 
 //--------------------------------------------------------------------
@@ -184,13 +188,23 @@ class RotaryEncoder
 //--------------------------------------------------------------------
 //PLATIN TEMPERTUR SENSOR KLASSE
 //--------------------------------------------------------------------
+typedef enum
+{
+    PT1000__HALF_BRIDGE,
+    PT1000__FULL_BRIDGE,
+
+}e_SENSOR_CONFIG_t;
+
+
 class PT10x
 {
     public:
-    PT10x(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
+    PT10x();
 
-    void  begin             (AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
-    float getTemperatur     ();
+    void begin(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
+    void begin(AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
+
+    int  getTemperatur   ();
 
     private:
     struct 
@@ -199,9 +213,12 @@ class PT10x
         float atOneHundred;
     }voltage;
     
+    e_SENSOR_CONFIG_t  sensorCofig;
     int16_t oldTemp; 
-    AnalogInput* p_PORT;
+    AnalogInput* p_PORT_1;
+    AnalogInput* p_PORT_2;
 };
+
 
 //--------------------------------------------------------------------
 //MOTOR KLASSE
