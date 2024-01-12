@@ -359,11 +359,11 @@ void PT10x::begin(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float
 	this->voltage.atOneHundred 	= VOLTAGE_AT_100_DEG;
 }
 
-int  PT10x::getTemperatur()
+float PT10x::getTemperatur()
 {
 	const float VOLTAGE_AT_PORT = this->p_PORT->getValueInVolt();
 
-	return  map(VOLTAGE_AT_PORT, this->voltage.atZero, this->voltage.atOneHundred, 0, 100);
+	return mapf(VOLTAGE_AT_PORT, this->voltage.atZero, this->voltage.atOneHundred, 0, 100);
 }
 
 //--------------------------------------------------------------------

@@ -188,8 +188,8 @@ class PT10x
     public:
     PT10x(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
 
-    void begin           (AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
-    int  getTemperatur   ();
+    void  begin             (AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
+    float getTemperatur     ();
 
     private:
     struct 
