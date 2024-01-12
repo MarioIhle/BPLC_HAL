@@ -63,6 +63,8 @@ class DigitalInput
 //--------------------------------------------------------------------
 //ANALOG INPUT KLASSE
 //--------------------------------------------------------------------
+#define SPANNUNGSTEILER (5900/1200)
+
 class AnalogInput
 {
     public:
@@ -77,11 +79,12 @@ class AnalogInput
     bool        isAlarmValueReached (); //true wenn VALUE >= AlarmValue
 
     //Setter für HAL
-    void setPortValue   (const uint16_t VALUE);
-    void setValueInVolt (const float VALUE_IN_VOLT);
+    void setPortValue       (const uint16_t VALUE);
+    void setRawPortVoltage (const float PORT_VOLTAGE);
 
     private:
     s_portValue_t   inputValue;   
+    float           rawPortVoltage;
     uint16_t        alarmValue;
     float           maxVoltage = 5.00;  //default
 };

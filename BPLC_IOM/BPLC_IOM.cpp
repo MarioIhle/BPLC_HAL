@@ -88,7 +88,14 @@ uint16_t AnalogInput::getValue()
 
 float AnalogInput::getValueInVolt()
 {
-	const float VALUE_IN_VOLT = mapf(this->inputValue.value, 0, 65535, 0, this->maxVoltage);
+	float VALUE_IN_VOLT = this->rawPortVoltage;
+	
+	//Spannungsteiler beachten
+	if(this->maxVoltage > 5.00)
+	{
+		VALUE_IN_VOLT = SPANNUNGSTEILER * VALUE_IN_VOLT;
+	}
+
 	return VALUE_IN_VOLT;
 }
 
@@ -108,9 +115,9 @@ void AnalogInput::setPortValue(const uint16_t VALUE)
 	this->inputValue.value 			= VALUE;
 }
 
-void AnalogInput::setValueInVolt(const float VALUE_IN_VOLT)
+void AnalogInput::setRawPortVoltage(const float PORT_VOLTAGE)
 {
-	this->inputValueInVolt = VALUE_IN_VOLT;
+	this->rawPortVoltage = PORT_VOLTAGE;
 }
 
 //--------------------------------------------------------------------
