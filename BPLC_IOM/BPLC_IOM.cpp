@@ -355,21 +355,42 @@ bool RotaryEncoder::isButtonPressed()
 
 //--------------------------------------------------------------------
 //PT10x 
-PT10x::PT10x(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
+PT10x::PT10x()
 {}
 
-void PT10x::begin(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
+void PT10x::begin(AnalogInput* P_PORT_1, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
 {
-	this->p_PORT 				= P_PORT;
+	this->p_PORT_1 				= P_PORT_1;
 	this->voltage.atZero 		= VOLATGE_AT_0_DEG;
 	this->voltage.atOneHundred 	= VOLTAGE_AT_100_DEG;
+	this->sensorCofig 			= PT1000__HALF_BRIDGE;
+}
+
+void PT10x::begin(AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
+{
+	this->p_PORT_1 				= P_PORT_1;
+	this->p_PORT_2 				= P_PORT_2;
+	this->voltage.atZero 		= VOLATGE_AT_0_DEG;
+	this->voltage.atOneHundred 	= VOLTAGE_AT_100_DEG;
+	this->sensorCofig 			= PT1000__FULL_BRIDGE;
 }
 
 int  PT10x::getTemperatur()
 {
-	const float VOLTAGE_AT_PORT = this->p_PORT->getValueInVolt();
+	uint32_t SENSOR_VOLATGE = 0;
 
-	return  map(VOLTAGE_AT_PORT, this->voltage.atZero, this->voltage.atOneHundred, 0, 100);
+	switch (this->sensorCofig)
+	{
+		case PT1000__HALF_BRIDGE:
+			SENSOR_VOLATGE = this->p_PORT_1->getValueInVolt();
+			break;
+
+		case PT1000__FULL_BRIDGE:
+			SENSOR_VOLATGE = (this->p_PORT_1->getValueInVolt() - this->p_PORT_2->getValueInVolt());			
+			break;
+	}	
+
+	return  map(SENSOR_VOLATGE, this->voltage.atZero, this->voltage.atOneHundred, 0, 100);
 }
 
 //--------------------------------------------------------------------
