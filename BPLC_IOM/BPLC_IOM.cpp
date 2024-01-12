@@ -195,6 +195,18 @@ void Output::reset()
 	this->mode = OUTPUTMODE__OFF;
 }
 
+void Output::setState(const bool STATE)
+{
+	if(STATE == true)
+	{
+		this->mode = OUTPUTMODE__ON;
+	}
+	else
+	{
+		this->mode = OUTPUTMODE__OFF;
+	}	
+}
+
 void Output::setValue(const uint8_t VALUE)
 {
 	this->actualValue.value = VALUE;
