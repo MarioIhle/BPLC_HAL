@@ -79,7 +79,7 @@ class AnalogInput
     bool        isAlarmValueReached (); //true wenn VALUE >= AlarmValue
 
     //Setter für HAL
-    void setPortValue       (const uint16_t VALUE);
+    void setPortValue      (const uint16_t VALUE);
     void setRawPortVoltage (const float PORT_VOLTAGE);
 
     private:
@@ -188,35 +188,19 @@ class RotaryEncoder
 //--------------------------------------------------------------------
 //PLATIN TEMPERTUR SENSOR KLASSE
 //--------------------------------------------------------------------
-typedef enum
-{
-    PT1000__HALF_BRIDGE,
-    PT1000__FULL_BRIDGE,
-
-}e_SENSOR_CONFIG_t;
-
-
 class PT10x
 {
     public:
     PT10x();
 
-    void begin(AnalogInput* P_PORT, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
-    void begin(AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG);
+    void begin(AnalogInput* P_PORT_1, AnalogInput* P_PORT_2,  AnalogInput* P_PORT_VCC);
 
-    int  getTemperatur   ();
+    float getTemperatur   ();
 
-    private:
-    struct 
-    {
-        float atZero;
-        float atOneHundred;
-    }voltage;
-    
-    e_SENSOR_CONFIG_t  sensorCofig;
-    int16_t oldTemp; 
+    private:   
     AnalogInput* p_PORT_1;
     AnalogInput* p_PORT_2;
+    AnalogInput* p_PORT_VCC;
 };
 
 

@@ -131,12 +131,12 @@ void HAL_AIN11::tick()
                     if(RAW_ADC_VALUE >= 0)
                     {
                         this->ports.p_object[PORT]->setPortValue(RAW_ADC_VALUE);
-                        this->ports.p_object[PORT]->setValueInVolt(VALUE_IN_VOLT); 
+                        this->ports.p_object[PORT]->setRawPortVoltage(VALUE_IN_VOLT); 
                     }     
                     else
                     {
                         this->ports.p_object[PORT]->setPortValue(0);
-                        this->ports.p_object[PORT]->setValueInVolt(0);
+                        this->ports.p_object[PORT]->setRawPortVoltage(0);
                     }               
 
                 }                
