@@ -377,39 +377,32 @@ bool RotaryEncoder::isButtonPressed()
 PT10x::PT10x()
 {}
 
-void PT10x::begin(AnalogInput* P_PORT_1, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
+void PT10x::begin(AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, AnalogInput* P_PORT_VCC)
 {
-	this->p_PORT_1 				= P_PORT_1;
-	this->voltage.atZero 		= VOLATGE_AT_0_DEG;
-	this->voltage.atOneHundred 	= VOLTAGE_AT_100_DEG;
-	this->sensorCofig 			= PT1000__HALF_BRIDGE;
+	this->p_PORT_1 	 = P_PORT_1;
+	this->p_PORT_2 	 = P_PORT_2;
+	this->p_PORT_VCC = P_PORT_VCC;
 }
-
-void PT10x::begin(AnalogInput* P_PORT_1, AnalogInput* P_PORT_2, const float VOLATGE_AT_0_DEG, const float VOLTAGE_AT_100_DEG)
-{
-	this->p_PORT_1 				= P_PORT_1;
-	this->p_PORT_2 				= P_PORT_2;
-	this->voltage.atZero 		= VOLATGE_AT_0_DEG;
-	this->voltage.atOneHundred 	= VOLTAGE_AT_100_DEG;
-	this->sensorCofig 			= PT1000__FULL_BRIDGE;
-}
+#define mvPerDegAtVCC1mV	0.00060		//mV
+#define mvPerBit			0.1875		//mV
 
 float PT10x::getTemperatur()
 {
-	uint32_t SENSOR_VOLATGE = 0;
+	const double VOLATGE_PORT_A_mV 	= (double)this->p_PORT_1->getValue() * mvPerBit;
+	const double VOLATGE_PORT_B_mV 	= (double)this->p_PORT_2->getValue() * mvPerBit;	
+	const double VOLTAGE_AB_mV 		= VOLATGE_PORT_A_mV	- VOLATGE_PORT_B_mV;
+	const double VOLTAGE_VCC_mV		= (double)this->p_PORT_VCC->getValue() * mvPerBit;
+	const double mVPerDeg			= mvPerDegAtVCC1mV * VOLTAGE_VCC_mV;
+	const float	 TEMPERATUR			= VOLTAGE_AB_mV / mVPerDeg;		
 
-	switch (this->sensorCofig)
-	{
-		case PT1000__HALF_BRIDGE:
-			SENSOR_VOLATGE = this->p_PORT_1->getValueInVolt();
-			break;
+	Serial.print("mVA: "); Serial.print(VOLATGE_PORT_A_mV);
+	Serial.print(", mVB: "); Serial.print(VOLATGE_PORT_B_mV);
+	Serial.print(", VOLTAGE_AB_mV: "); Serial.print(VOLTAGE_AB_mV);
+	Serial.print(", VOLTAGE_VCC_mV: "); Serial.print(VOLTAGE_VCC_mV);
+	Serial.print(", mVPerDeg: "); Serial.print(mVPerDeg);
+	Serial.print(", TEMPERTUR: "); Serial.println(TEMPERATUR);
 
-		case PT1000__FULL_BRIDGE:
-			SENSOR_VOLATGE = (this->p_PORT_1->getValueInVolt() - this->p_PORT_2->getValueInVolt());			
-			break;
-	}	
-
-	return  map(SENSOR_VOLATGE, this->voltage.atZero, this->voltage.atOneHundred, 0, 100);
+	return TEMPERATUR;
 }
 
 //--------------------------------------------------------------------
