@@ -2,23 +2,23 @@
 
 void BPLC_APP::handleDisplay()
 {  
-   switch(this->oled.getActiveMenu())
+   switch(this->APP_HMI.oled.getActiveMenu())
    {      
       case menu_mainMenu:
          if(this->APP_HAL.ENCODER.isButtonPressed())
          {            
-            this->oled.enterMenu();            
+            this->APP_HMI.oled.enterMenu();            
          }
 
          if(this->APP_HAL.ENCODER.getTurningDirection() == movement_right)
          {
-            this->oled.showNextTextOfThisMenu();
+            this->APP_HMI.oled.showNextTextOfThisMenu();
          }
          else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
          {
-            this->oled.showPrevioursTextOfThisMenu();
+            this->APP_HMI.oled.showPrevioursTextOfThisMenu();
          }           
-         this->oled.setParamValueToShow(this->deviceMode);
+         this->APP_HMI.oled.setParamValueToShow(this->APP_APP.deviceMode);
       break;
 
       case menu_deviceMode:
@@ -40,10 +40,15 @@ void BPLC_APP::handleDisplay()
       case menu_screenSaver: 
          if(this->APP_HAL.ENCODER.isButtonPressed() || this->APP_HAL.ENCODER.getTurningDirection() != movement_idle)
          {
-            this->oled.setMenu(menu_mainMenu);
+            this->APP_HMI.oled.setMenu(menu_mainMenu);
          }
       break;
    }
+}
+
+void BPLC_APP::setupHMI()
+{
+   this->APP_HMI.oled.begin();
 }
 
 //Display handling
@@ -52,63 +57,63 @@ void BPLC_APP::editDeviceMode()
    if(this->APP_HAL.ENCODER.isButtonPressed())
    {                 
       //Enter Parameter
-      if(this->oled.parameterEntered() == false)
+      if(this->APP_HMI.oled.parameterEntered() == false)
       {           
-         this->temp_ParameterStorage = this->deviceMode;
-         this->oled.enterParameter();                          
+         this->APP_HMI.temp_ParameterStorage = this->APP_APP.deviceMode;
+         this->APP_HMI.oled.enterParameter();                          
       }
       else
       {
-         this->deviceMode = (e_APP_MODE_t)this->temp_ParameterStorage;
-         this->oled.exitParameter();
+         this->APP_APP.deviceMode = (e_APP_MODE_t)this->APP_HMI.temp_ParameterStorage;
+         this->APP_HMI.oled.exitParameter();
       }
       //Cursor on "exit"
-      if(this->oled.readyToExitMenu())
+      if(this->APP_HMI.oled.readyToExitMenu())
       {
-         this->oled.setMenu(menu_mainMenu);
+         this->APP_HMI.oled.setMenu(menu_mainMenu);
       }      
    }
 
    if(this->APP_HAL.ENCODER.getTurningDirection() == movement_right)
    {
-      if(this->oled.parameterEntered())
+      if(this->APP_HMI.oled.parameterEntered())
       {
-         this->temp_ParameterStorage++;
+         this->APP_HMI.temp_ParameterStorage++;
       }
       else
       {
-         this->oled.showNextTextOfThisMenu();            
+         this->APP_HMI.oled.showNextTextOfThisMenu();            
       }
    }
    else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
    {    
-      if(this->oled.parameterEntered())
+      if(this->APP_HMI.oled.parameterEntered())
       {
-         this->temp_ParameterStorage--;         
+         this->APP_HMI.temp_ParameterStorage--;         
       }
       else
       {
-         this->oled.showPrevioursTextOfThisMenu();            
+         this->APP_HMI.oled.showPrevioursTextOfThisMenu();            
       }
    }  
 
    //Bereichberenzung
-   if(this->temp_ParameterStorage < APP_MODE__STOP)
+   if(this->APP_HMI.temp_ParameterStorage < APP_MODE__STOP)
    {
-      temp_ParameterStorage = APP_MODE__STOP;
+      APP_HMI.temp_ParameterStorage = APP_MODE__STOP;
    }
-   if(this->temp_ParameterStorage >= APP_MODE__COUNT)
+   if(this->APP_HMI.temp_ParameterStorage >= APP_MODE__COUNT)
    {
-      this->temp_ParameterStorage = APP_MODE__COUNT-1;
+      this->APP_HMI.temp_ParameterStorage = APP_MODE__COUNT-1;
    }
 
-   if(this->oled.parameterEntered())
+   if(this->APP_HMI.oled.parameterEntered())
    {
-      this->oled.setParamValueToShow(this->temp_ParameterStorage);
+      this->APP_HMI.oled.setParamValueToShow(this->APP_HMI.temp_ParameterStorage);
    }
    else
    {
-      this->oled.setParamValueToShow(this->deviceMode);
+      this->APP_HMI.oled.setParamValueToShow(this->APP_APP.deviceMode);
    }   
 }
 
@@ -117,22 +122,20 @@ void BPLC_APP::hardwareErrorOut()
    if(this->APP_HAL.ENCODER.isButtonPressed())
    {            
       //Cursor on "exit"
-      if(this->oled.readyToExitMenu())
+      if(this->APP_HMI.oled.readyToExitMenu())
       {
-         this->oled.setMenu(menu_mainMenu);         
+         this->APP_HMI.oled.setMenu(menu_mainMenu);         
       } 
    }
 
    if(this->APP_HAL.ENCODER.getTurningDirection() == movement_right)
    {
-      this->oled.showNextTextOfThisMenu();
+      this->APP_HMI.oled.showNextTextOfThisMenu();
    }
    else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
    {
-      this->oled.showPrevioursTextOfThisMenu();
-   } 
-
-   this->oled.setParamValueToShow(this->hardwareErrorCode[0]);    
+      this->APP_HMI.oled.showPrevioursTextOfThisMenu();
+   }    
 }
 
 void BPLC_APP::displaySettings()
@@ -140,9 +143,9 @@ void BPLC_APP::displaySettings()
    if(this->APP_HAL.ENCODER.isButtonPressed())
    {            
       //Cursor on "exit"
-      if(this->oled.readyToExitMenu())
+      if(this->APP_HMI.oled.readyToExitMenu())
       {
-         this->oled.setMenu(menu_mainMenu);         
+         this->APP_HMI.oled.setMenu(menu_mainMenu);         
       } 
       else
       {
@@ -152,11 +155,11 @@ void BPLC_APP::displaySettings()
 
    if(this->APP_HAL.ENCODER.getTurningDirection() == movement_right)
    {
-      this->oled.showNextTextOfThisMenu();
+      this->APP_HMI.oled.showNextTextOfThisMenu();
    }
    else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
    {
-      this->oled.showPrevioursTextOfThisMenu();
+      this->APP_HMI.oled.showPrevioursTextOfThisMenu();
    } 
 }
 
@@ -164,26 +167,26 @@ void BPLC_APP::handle_vDip()
 {  
    const bool           IS_ENCODER_BUTTON_PRESSED  = this->APP_HAL.ENCODER.isButtonPressed();
    const e_movement_t   TURNING_DIRECTION          = this->APP_HAL.ENCODER.getTurningDirection();
-   const bool           PARARMETER_IS_ENTERED      = this->oled.parameterEntered();
-   const e_V_DIP_t      SELECTED_DIP               = (e_V_DIP_t)this->oled.getActiveMenuTextNum();
+   const bool           PARARMETER_IS_ENTERED      = this->APP_HMI.oled.parameterEntered();
+   const e_V_DIP_t      SELECTED_DIP               = (e_V_DIP_t)this->APP_HMI.oled.getActiveMenuTextNum();
 
    if(IS_ENCODER_BUTTON_PRESSED)
    {            
       //Enter Parameter
       if(PARARMETER_IS_ENTERED == false)
       {           
-         this->oled.enterParameter();  
-         this->temp_ParameterStorage = this->getVDip(SELECTED_DIP);               
+         this->APP_HMI.oled.enterParameter();  
+         this->APP_HMI.temp_ParameterStorage = this->getVDip(SELECTED_DIP);               
       }
       else
       {         
-         this->setVDip(SELECTED_DIP, this->temp_ParameterStorage);  //Aktiver Text == gewählter Dip
-         this->oled.exitParameter();               
+         this->setVDip(SELECTED_DIP, this->APP_HMI.temp_ParameterStorage);  //Aktiver Text == gewählter Dip
+         this->APP_HMI.oled.exitParameter();               
       }
       //Cursor on "exit"
-      if(this->oled.readyToExitMenu())
+      if(this->APP_HMI.oled.readyToExitMenu())
       {
-         this->oled.setMenu(menu_mainMenu);
+         this->APP_HMI.oled.setMenu(menu_mainMenu);
       }  
    }
 
@@ -191,35 +194,35 @@ void BPLC_APP::handle_vDip()
    {
       if(PARARMETER_IS_ENTERED)
       {
-         this->temp_ParameterStorage++;
+         this->APP_HMI.temp_ParameterStorage++;
       }
       else
       {
-         this->oled.showNextTextOfThisMenu();   
+         this->APP_HMI.oled.showNextTextOfThisMenu();   
       }
    }
    else if(TURNING_DIRECTION == movement_left)
    {    
       if(PARARMETER_IS_ENTERED)
       {
-         this->temp_ParameterStorage--;
+         this->APP_HMI.temp_ParameterStorage--;
       }
       else
       {
-         this->oled.showPrevioursTextOfThisMenu();         
+         this->APP_HMI.oled.showPrevioursTextOfThisMenu();         
       }
    }
 
    if(PARARMETER_IS_ENTERED)
    {
-      this->oled.setParamValueToShow(this->temp_ParameterStorage);
+      this->APP_HMI.oled.setParamValueToShow(this->APP_HMI.temp_ParameterStorage);
    }
    else
    {
-      this->oled.setParamValueToShow(this->getVDip(SELECTED_DIP));
+      this->APP_HMI.oled.setParamValueToShow(this->getVDip(SELECTED_DIP));
    }
 
-#ifdef DEBUG_APP_MCU11_OLED_HANDLING
+#ifdef DEBUG_APP_MCU11_APP_HMI
 for(int i = 0; i< vDIP_COUNT; i++)
 {
    Serial.print(", DIP "); Serial.print(i+1); Serial.print(": "); Serial.print(this->virtualDipSwitch[i]);

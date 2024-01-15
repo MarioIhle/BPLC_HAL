@@ -45,7 +45,7 @@ void BPLC_APP::tickNetwork()
             //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
             if(this->APP_COM.to_communicationError.check())
             {
-                this->setHardwareError(BPLC_ERROR__COMMUNICATION_FAILED);
+                this->setSystemError(BPLC_ERROR__COMMUNICATION_FAILED);
             }
 
             this->APP_COM.Slave.tick();

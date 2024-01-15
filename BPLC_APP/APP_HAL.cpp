@@ -105,7 +105,7 @@ void BPLC_APP::setupHardware()
 
       default:
       case MCU_CARD__NO_MCU_DEFINED:
-         this->setHardwareError(BPLC_ERROR__NO_MCU_DEFINED);
+         this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED);
       break;  
    }   
     
@@ -128,11 +128,11 @@ void BPLC_APP::setupHardware()
       //Karte antwortet, ist aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setHardwareError(DIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
+         this->setSystemError(DIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
-         this->setHardwareError(ERROR);
+         this->setSystemError(ERROR);
       }
    }
 
@@ -150,11 +150,11 @@ void BPLC_APP::setupHardware()
       //Karte antwortrt, aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setHardwareError(AIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
+         this->setSystemError(AIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
-         this->setHardwareError(ERROR);
+         this->setSystemError(ERROR);
       }
    }
 
@@ -172,11 +172,11 @@ void BPLC_APP::setupHardware()
       //Karte antwortrt, aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setHardwareError(DO11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
+         this->setSystemError(DO11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
-         this->setHardwareError(ERROR);
+         this->setSystemError(ERROR);
       }
    }
 
@@ -194,11 +194,11 @@ void BPLC_APP::setupHardware()
       //Karte antwortrt, aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setHardwareError(REL11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
+         this->setSystemError(REL11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
-         this->setHardwareError(ERROR);
+         this->setSystemError(ERROR);
       }
    }
 
@@ -216,11 +216,11 @@ void BPLC_APP::setupHardware()
       //Karte antwortrt, aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setHardwareError(MOT11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
+         this->setSystemError(MOT11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
-         this->setHardwareError(ERROR);
+         this->setSystemError(ERROR);
       }
    }
 }
@@ -255,7 +255,7 @@ void BPLC_APP::handleMCUCard()
 
       default:
       case MCU_CARD__NO_MCU_DEFINED:
-         this->setHardwareError(BPLC_ERROR__NO_MCU_DEFINED);
+         this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED);
          break;  
    }
 }
@@ -277,7 +277,7 @@ void BPLC_APP::mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
    {
       ERROR = DIN11_ERROR__CARD_NOT_DEFINED;
    }  
-   this->setHardwareError(ERROR); 
+   this->setSystemError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD)
@@ -295,7 +295,7 @@ void BPLC_APP::mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD)
    {
       ERROR = AIN11_ERROR__CARD_NOT_DEFINED;
    }      
-   this->setHardwareError(ERROR); 
+   this->setSystemError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD)
@@ -313,7 +313,7 @@ void BPLC_APP::mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD)
    {
       ERROR = DO11_ERROR__CARD_NOT_DEFINED;
    }   
-   this->setHardwareError(ERROR); 
+   this->setSystemError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCard(Output* P_OBJECT, e_REL11_CARD_t CARD)
@@ -331,7 +331,7 @@ void BPLC_APP::mapObjectToCard(Output* P_OBJECT, e_REL11_CARD_t CARD)
    {
       ERROR = REL11_ERROR__CARD_NOT_DEFINED;
    }   
-   this->setHardwareError(ERROR); 
+   this->setSystemError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCard(MOTOR* P_OBJECT, e_MOT11_CARD_t CARD)
@@ -349,7 +349,7 @@ void BPLC_APP::mapObjectToCard(MOTOR* P_OBJECT, e_MOT11_CARD_t CARD)
    {
       ERROR = MOT11_ERROR__CARD_NOT_DEFINED;
    }   
-   this->setHardwareError(ERROR); 
+   this->setSystemError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCardAndPort(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_PORTS_t PORT)
@@ -367,7 +367,7 @@ void BPLC_APP::mapObjectToCardAndPort(DigitalInput* P_OBJECT, const e_DIN11_CARD
    {
       ERROR = DIN11_ERROR__CARD_NOT_DEFINED;
    }   
-   this->setHardwareError(ERROR); 
+   this->setSystemError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCardAndPort(Output* P_OBJECT,const e_DO11_CARD_t CARD, const e_DO11_PORTS_t PORT)
@@ -385,7 +385,7 @@ void BPLC_APP::mapObjectToCardAndPort(Output* P_OBJECT,const e_DO11_CARD_t CARD,
    {
       ERROR = DO11_ERROR__CARD_NOT_DEFINED;
    }   
-   this->setHardwareError(ERROR); 
+   this->setSystemError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCardAndPort(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_PORTS_t PORT)
@@ -403,7 +403,7 @@ void BPLC_APP::mapObjectToCardAndPort(AnalogInput* P_OBJECT, const e_AIN11_CARD_
    {
       ERROR = AIN11_ERROR__CARD_NOT_DEFINED;
    }   
-   this->setHardwareError(ERROR); 
+   this->setSystemError(ERROR); 
 }
 
 void BPLC_APP::mapObjectToCardAndPort(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t PORT)
@@ -421,7 +421,7 @@ void BPLC_APP::mapObjectToCardAndPort(Output* P_OBJECT, const e_REL11_CARD_t CAR
    {
       ERROR = REL11_ERROR__CARD_NOT_DEFINED;
    }   
-   this->setHardwareError(ERROR); 
+   this->setSystemError(ERROR); 
 }
 
 void BPLC_APP::handleDIN11Cards()
@@ -437,7 +437,7 @@ void BPLC_APP::handleDIN11Cards()
       }  
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
-         this->setHardwareError(ERROR);
+         this->setSystemError(ERROR);
       }
    }
 }
@@ -455,7 +455,7 @@ void BPLC_APP::handleAIN11Cards()
       }
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
-         this->setHardwareError(ERROR);
+         this->setSystemError(ERROR);
       }
    }
 }
@@ -473,7 +473,7 @@ void BPLC_APP::handleDO11Cards()
       }
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
-         this->setHardwareError(ERROR);
+         this->setSystemError(ERROR);
       }
    }
 }
@@ -491,7 +491,7 @@ void BPLC_APP::handleREL11Cards()
       }
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
-         this->setHardwareError(ERROR);
+         this->setSystemError(ERROR);
       }
    }
 }
@@ -513,7 +513,7 @@ void BPLC_APP::handleMOT11Cards()
       }
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
-         this->setHardwareError(ERROR);
+         this->setSystemError(ERROR);
       }
    }
 }

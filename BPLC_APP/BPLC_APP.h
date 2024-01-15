@@ -116,48 +116,55 @@ class BPLC_APP
     void    setVDip(const e_V_DIP_t DIP_NUM, const int16_t VALUE);
     int16_t getVDip(const e_V_DIP_t DIP_NUM);
 
-    //Externer aufruf, wenn HAL Objekt ein Error meldet
-    void setHardwareError(const e_BPLC_ERROR_t ERROR_CODE);
-    bool isThereAnyHardwareError();
     
-
     private:
-
     //APP_APP
-    e_APP_MODE_t    deviceMode;
+    void setupApplication();
 
-    int16_t        virtualDipSwitch[vDIP_COUNT];    
-    e_BPLC_ERROR_t hardwareErrorCode[HARDWARE_ERROR_BUFFER_SIZE];   //Hardware Error, sofort Applikation anhalten. Es wird immer der letzte erkannte Fehler in der nächsten freien stelle gespeichert gespeichert
- //test
-//Teständerung2
-    struct 
+    struct
     {
-        e_APP_MODE_t deviceModeOld;
-    }debug;
+        e_APP_MODE_t    deviceMode;
+        int16_t        virtualDipSwitch[vDIP_COUNT]; 
 
-    //Settings
-    struct 
-    {
-        bool f_beepOnEncoderInput;
-        bool f_useBuzzer;
-    }deviceSettings;    
-
-    //Safety
-    Timeout to_runnntime;
-    uint8_t runtimeExeeded;
-
-    ERROR_OUT errorOut;
-
-    //APP_OLED
+        struct 
+        {
+            bool f_beepOnEncoderInput;
+            bool f_useBuzzer;
+        }deviceSettings; 
+    }APP_APP;       
+    
+    //APP_HMI
+    void setupHMI();
     void handleDisplay();
     void editDeviceMode();
     void hardwareErrorOut();
     void displaySettings();
     void handle_vDip();
 
-    OLED_MCU11  oled;
-    byte temp_ParameterStorage;         //Temporärer Speicher für Parameter der gerade über das Oled bearbeitet wird
+    struct
+    {
+        OLED_MCU11  oled;
+        int16_t     temp_ParameterStorage;         
+    }APP_HMI;    
+  
+    //Externer aufruf, wenn HAL Objekt ein Error meldet
+    void            setupSafety();
+    void            tickSafety();
+    void            setSystemError(const e_BPLC_ERROR_t ERROR_CODE);
+    bool            thereIsAnSystemError();
+    e_BPLC_ERROR_t  getFirstSystemErrorCode();
 
+    struct  
+    {   
+        struct 
+        {
+            Timeout         to_runnntime;
+            uint8_t         runtimeExeeded;
+        }runntimeControl;  
+        
+        e_BPLC_ERROR_t  errorCode[HARDWARE_ERROR_BUFFER_SIZE];       
+        ERROR_OUT       errorOut;   //Textausgabe der ErrorCodes
+    }APP_SAFETY;
 
     //APP_HAL
     void setupHardware();
