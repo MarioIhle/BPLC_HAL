@@ -563,11 +563,19 @@ void rpmSensor::begin(DigitalInput* P_PORT)
 {
 	this->p_PORT 				= P_PORT;
 	this->pulsesPerRevolution 	= 1;
+	this->startTime 			= millis();
+	this->samples				= 0;
+	this->to_rpmCalculation.setInterval(500);
 }
 
 void rpmSensor::setPulsesPerRevolution(const uint16_t PULSES_PER_REV)
 {
 	this->pulsesPerRevolution = PULSES_PER_REV;
+}
+
+void rpmSensor::setCalculationTime(const uint16_t TIME)
+{
+	this->to_rpmCalculation.setInterval(TIME);
 }
 
 uint16_t rpmSensor::getRPM()
@@ -577,12 +585,20 @@ uint16_t rpmSensor::getRPM()
 		this->samples++;
 	}
 	
-	if(this->samples >= SAMPLES_UNTIL_CALCULATION)
+	if(this->samples >= MAX_SAMPLES_UNTIL_CALCULATION || to_rpmCalculation.checkAndReset())
 	{
-		const uint32_t 	TIME_DELTA 		= millis()-this->startTime;
-		const uint8_t 	SAMPLES 		= this->samples / this->pulsesPerRevolution;
-						this->rpm 		= (SAMPLES/TIME_DELTA) * 60000;
-						this->startTime = millis();
+		const double 	TIME_DELTA 		= millis()-this->startTime;
+		const double 	REVOLUTIONS		= this->samples / this->pulsesPerRevolution;
+		const double	RPM 	 		= (REVOLUTIONS/TIME_DELTA) * 60000.00;
+		//Alle Werte zurück setzten, neue Messung starten
+		this->startTime = millis();
+		this->samples	= 0;
+		this->rpm 		= (uint16_t)RPM;
 	}
 	return this->rpm;
+}
+
+void rpmSensor::isrPulse()
+{
+	this->samples++;
 }

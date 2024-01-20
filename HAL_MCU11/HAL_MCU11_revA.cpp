@@ -19,7 +19,7 @@ void HAL_MCU11_revA::begin(void (*INT_callBack)(void))
     pinMode(this->PIN.P_OEN, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT_PULLUP);
-    attachInterrupt(this->PIN.INT, INT_callBack, CHANGE);   
+    attachInterrupt(this->PIN.INT, INT_callBack, FALLING);   
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
     Serial1.begin(this->baudrate.RS232);    //RS232

@@ -115,7 +115,7 @@ class BPLC_APP
     //Dip Controll
     void    setVDip(const e_V_DIP_t DIP_NUM, const int16_t VALUE);
     int16_t getVDip(const e_V_DIP_t DIP_NUM);
-
+    void    ISR_CALLED(); 
     
     private:
     //APP_APP
@@ -175,7 +175,7 @@ class BPLC_APP
     void handleAIN11Cards();
     void handleMOT11Cards();
     void handleREL11Cards(); 
-    void ISR_CALLED();   
+      
 
     struct 
     {
