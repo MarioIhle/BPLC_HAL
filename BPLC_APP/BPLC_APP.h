@@ -201,16 +201,15 @@ class BPLC_APP
         
         struct
         {
-            e_MCU_CARD_TYPE_t MCU_TYPE;
-
-            uint8_t din11RevACardCount  = 0;
-            uint8_t ain11RevACardCount  = 0;
-            uint8_t do11RevACardCount   = 0;
-            uint8_t rel11RevACardCount  = 0;
-            uint8_t mot11RevACardCount  = 0;
-            uint8_t fuse11RevACardCount = 0;
-            uint8_t fuse12RevACardCount = 0;
-            uint8_t nano11RevACardCount = 0;
+            e_MCU_CARD_TYPE_t   MCU_TYPE            = MCU_CARD__NO_MCU_DEFINED;
+            uint8_t             din11RevACardCount  = 0;
+            uint8_t             ain11RevACardCount  = 0;
+            uint8_t             do11RevACardCount   = 0;
+            uint8_t             rel11RevACardCount  = 0;
+            uint8_t             mot11RevACardCount  = 0;
+            uint8_t             fuse11RevACardCount = 0;
+            uint8_t             fuse12RevACardCount = 0;
+            uint8_t             nano11RevACardCount = 0;
         }hardwareConfig;
     }APP_HAL;
 

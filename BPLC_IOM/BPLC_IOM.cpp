@@ -553,3 +553,36 @@ void Software_H_Bridge::setSpeed(const uint8_t SPEED)
 	this->p_R_PWM->setValue(SPEED);
 	this->p_L_PWM->setValue(SPEED);
 }
+
+//--------------------------------------------------------------------
+//RPM Sensor
+rpmSensor::rpmSensor()
+{}
+
+void rpmSensor::begin(DigitalInput* P_PORT)
+{
+	this->p_PORT 				= P_PORT;
+	this->pulsesPerRevolution 	= 1;
+}
+
+void rpmSensor::setPulsesPerRevolution(const uint16_t PULSES_PER_REV)
+{
+	this->pulsesPerRevolution = PULSES_PER_REV;
+}
+
+uint16_t rpmSensor::getRPM()
+{
+	if(this->p_PORT->posEdge())
+	{
+		this->samples++;
+	}
+	
+	if(this->samples >= SAMPLES_UNTIL_CALCULATION)
+	{
+		const uint32_t 	TIME_DELTA 		= millis()-this->startTime;
+		const uint8_t 	SAMPLES 		= this->samples / this->pulsesPerRevolution;
+						this->rpm 		= (SAMPLES/TIME_DELTA) * 60000;
+						this->startTime = millis();
+	}
+	return this->rpm;
+}

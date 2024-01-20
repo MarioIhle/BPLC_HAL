@@ -23,7 +23,7 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
 #include "BPLC_ERRORS.h"
-
+#include "I2C_check.h"
 
 //#define DEBUG_OLED_DISPLAY
 
@@ -125,7 +125,10 @@ class OLED_MCU11
     ERROR_OUT errorOut;
 
     s_screenSaverParameter_t    screenSaverParameter;
-    s_deviceSettingsParameter_t deviceSettings;        
+    s_deviceSettingsParameter_t deviceSettings;      
+
+    e_BPLC_ERROR_t  errorCode; 
+    I2C_check       selfCheck;
 };
 
 #endif

@@ -109,16 +109,11 @@ void BPLC_APP::setupHardware()
       break;  
    }   
     
-
    //DIN11revA setup
-   Serial.println("##############################");  
-   Serial.println("setup DIN11 CARDS"); 
    this->APP_HAL.DIN11_CARD[DIN11_CARD__1].begin(DIN11_CARD_1_ADDRESS);
    this->APP_HAL.DIN11_CARD[DIN11_CARD__2].begin(DIN11_CARD_2_ADDRESS);
    this->APP_HAL.DIN11_CARD[DIN11_CARD__3].begin(DIN11_CARD_3_ADDRESS);
    this->APP_HAL.DIN11_CARD[DIN11_CARD__4].begin(DIN11_CARD_4_ADDRESS);
-   Serial.println("##############################");  
-   Serial.println("check DIN11 CARDS for errors ");
    //Auf errors prüfen
    for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
    {
