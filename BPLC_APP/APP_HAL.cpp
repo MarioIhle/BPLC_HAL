@@ -1,5 +1,4 @@
-#include"BPLC_APP.h"
-#include "BPLC_CARDS.h"
+#include "BPLC_APP.h"
 
 //Callback für Hardware Interrupt 
 BPLC_APP* p_THIS;

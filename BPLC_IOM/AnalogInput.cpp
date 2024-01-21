@@ -1,8 +1,5 @@
 #include "BPLC_IOM.h"
 
-
-//--------------------------------------------------------------------
-//ANALOGINPUT
 AnalogInput::AnalogInput()
 {}
    
