@@ -1,7 +1,5 @@
 #include "BPLC_IOM.h"
 
-
-
 //--------------------------------------------------------------------
 //DIGITALINPUT
 DigitalInput::DigitalInput    ()

@@ -156,20 +156,15 @@ void Software_H_Bridge::setSpeed(const uint8_t SPEED)
 servoMotor::servoMotor()
 {}
 
-void servoMotor::begin(BPLC_APP* P_SYSTEM, const e_DO11_CARD_t USDED_DO11_CARD, const e_DO11_PORTS_t USED_PORT)
-{
-    //Verlinkung zur HAL herstellen
-    P_SYSTEM.mapObjectToCardAndPort(this->PORT, USDED_DO11_CARD, USED_PORT);
-    P_SYSTEM.
-}
-
 void servoMotor::setMinMaxAngle(const uint16_t MIN, const uint16_t MAX)
 {
+    this->minAngle = MIN;
+    this->maxAngle = MAX;
     pwmValueCalculator.PCA9685_ServoEval(MIN, MAX);
-    setPWMFreqServo();
 }
 
 void servoMotor::setServoPosition(const uint16_t POSITION)
 {
-
+    uint16_t SERVO_PWM = this->pwmValueCalculator.pwmForAngle(POSITION);
+    this->PORT.setValue(SERVO_PWM);
 }

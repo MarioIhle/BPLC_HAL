@@ -243,98 +243,6 @@ void BPLC_APP::handleMCUCard()
    }
 }
 
-
-//BPLC extension Cards handling
-void BPLC_APP::mapObjectToCard(DigitalInput* P_OBJECT, e_DIN11_CARD_t CARD)
-{
-   Serial.println("##############################");  
-   Serial.print("map object to DIN11_CARD "); Serial.println((1 + (uint8_t)CARD));
-
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-
-   if(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount)
-   {
-      ERROR = this->APP_HAL.DIN11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
-   }
-   else
-   {
-      ERROR = DIN11_ERROR__CARD_NOT_DEFINED;
-   }  
-   this->setSystemError(ERROR); 
-}
-
-void BPLC_APP::mapObjectToCard(AnalogInput* P_OBJECT, e_AIN11_CARD_t CARD)
-{
-   Serial.println("##############################");  
-   Serial.print("map object to AIN11_CARD "); Serial.println((1 + (uint8_t)CARD));
-
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-
-   if(CARD < this->APP_HAL.hardwareConfig.ain11RevACardCount)
-   {
-      ERROR = this->APP_HAL.AIN11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
-   }
-   else
-   {
-      ERROR = AIN11_ERROR__CARD_NOT_DEFINED;
-   }      
-   this->setSystemError(ERROR); 
-}
-
-void BPLC_APP::mapObjectToCard(Output* P_OBJECT, e_DO11_CARD_t CARD)
-{   
-   Serial.println("##############################");  
-   Serial.print("map object to DO11_CARD "); Serial.println((1 + (uint8_t)CARD)); 
-
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-
-   if(CARD < this->APP_HAL.hardwareConfig.do11RevACardCount)
-   {
-      ERROR = this->APP_HAL.DO11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
-   }
-   else
-   {
-      ERROR = DO11_ERROR__CARD_NOT_DEFINED;
-   }   
-   this->setSystemError(ERROR); 
-}
-
-void BPLC_APP::mapObjectToCard(Output* P_OBJECT, e_REL11_CARD_t CARD)
-{
-   Serial.println("##############################");  
-   Serial.print("map object to REL11_CARD "); Serial.println((1 + (uint8_t)CARD));
-
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-   
-   if(CARD < this->APP_HAL.hardwareConfig.rel11RevACardCount)
-   {
-      ERROR = this->APP_HAL.REL11_CARD[CARD].mapObjectToNextFreePort(P_OBJECT);
-   }
-   else
-   {
-      ERROR = REL11_ERROR__CARD_NOT_DEFINED;
-   }   
-   this->setSystemError(ERROR); 
-}
-
-void BPLC_APP::mapObjectToCard(MOTOR* P_OBJECT, e_MOT11_CARD_t CARD)
-{
-   Serial.println("##############################");  
-   Serial.print("map object to MOT11_CARD "); Serial.println((1 + (uint8_t)CARD));
-
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-
-   if(CARD < this->APP_HAL.hardwareConfig.mot11RevACardCount)
-   {
-      ERROR = this->APP_HAL.MOT11_CARD[CARD].mapObjectToPort(P_OBJECT);
-   }
-   else
-   {
-      ERROR = MOT11_ERROR__CARD_NOT_DEFINED;
-   }   
-   this->setSystemError(ERROR); 
-}
-
 void BPLC_APP::mapObjectToCardAndPort(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_PORTS_t PORT)
 {   
    Serial.println("##############################");  
@@ -381,7 +289,6 @@ void BPLC_APP::mapObjectToCardAndPort(servoMotor* P_OBJECT, const e_DO11_CARD_t 
    if(CARD < this->APP_HAL.hardwareConfig.do11RevACardCount)
    {
       ERROR = this->APP_HAL.DO11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
-      this->APP_HAL.DO11_CARD[CARD].setPWMFreqency(50);
    }
    else
    {

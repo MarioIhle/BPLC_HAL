@@ -49,9 +49,14 @@ void HAL_DO11::begin(const e_DO11_ADDRESS_t I2C_ADDRESS)
     {        
         PCA.setI2CAddress(this->deviceAddress);
         PCA.init();
-        PCA.setPWMFrequency();
+        PCA.setPWMFrequency(200);   //Falls Servos verwendet werden, wird automatisch PWM freuenz auf 50Hz gesenkt!
         PCA.setAllChannelsPWM(0);
     }
+}
+
+void HAL_DO11::setPWMFreqency(const uint8_t FREQUENCY)
+{
+    this->PCA.setPWMFreqency(FREQUENCY);
 }
 
 e_BPLC_ERROR_t HAL_DO11::mapObjectToNextFreePort(Output* P_OBJECT)
@@ -72,17 +77,27 @@ e_BPLC_ERROR_t HAL_DO11::mapObjectToNextFreePort(Output* P_OBJECT)
     return this->errorCode;
 }
 
-void HAL_DO11::setPWMFreqency(const uint8_t FREQUENCY)
-{
-    this->PCA.setPWMFreqency(FREQUENCY);
-}
-
 e_BPLC_ERROR_t HAL_DO11::mapObjectToSpecificPort(Output* P_OBJECT, const e_DO11_PORTS_t PORT)
 {
     if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
     {
         this->ports.p_object[PORT] = P_OBJECT;
         this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
+    }
+    else 
+    {
+        this->errorCode = DO11_ERROR__PORT_ALREADY_DEFINED;
+    }
+    return this->errorCode;
+}
+
+e_BPLC_ERROR_t HAL_DO11::mapObjectToSpecificPort(servoMotor* P_OBJECT, const e_DO11_PORTS_t PORT)
+{
+    if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
+    {
+        this->ports.p_object[PORT] = &P_OBJECT.PORT;
+        this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
+        this->PCA.setPWMFreqServo();
     }
     else 
     {

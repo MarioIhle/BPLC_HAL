@@ -56,9 +56,10 @@ class HAL_DO11 {
     HAL_DO11();
     void begin(const e_DO11_ADDRESS_t I2C_ADDRESS);
 
-    void            setPWMFreqency          (const uint8_t FREQUENCY)
+    void            setPWMFreqency          (const uint8_t FREQUENCY);
     e_BPLC_ERROR_t  mapObjectToNextFreePort (Output* P_OBJECT);
-    e_BPLC_ERROR_t  mapObjectToSpecificPort (Output* P_OBJECT, const e_DO11_PORTS_t PORT);
+    e_BPLC_ERROR_t  mapObjectToSpecificPort (Output* P_OBJECT,      const e_DO11_PORTS_t PORT);
+    e_BPLC_ERROR_t  mapObjectToSpecificPort (servoMotor* P_OBJECT,  const e_DO11_PORTS_t PORT);
 
     void tick();
 

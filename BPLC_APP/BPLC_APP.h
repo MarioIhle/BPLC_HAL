@@ -91,16 +91,12 @@ class BPLC_APP
     //Ports auf Node mappen
     void mapPortToNetwork(BertaPort* P_PORT);
    
-    //IO´s auf Extension Cards mappen
-    void mapObjectToCard(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD);    //Je nach Reihenfolge werden Ports vergeben
-    void mapObjectToCard(Output* P_OBJECT, const e_DO11_CARD_t CARD);
-    void mapObjectToCard(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD);
-    void mapObjectToCard(Output* P_OBJECT, const e_REL11_CARD_t CARD);
-    void mapObjectToCard(MOTOR* P_OBJECT, const e_MOT11_CARD_t CARD);
-    void mapObjectToCardAndPort(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_PORTS_t PORT);    //Je nach Reihenfolge werden Ports vergeben
-    void mapObjectToCardAndPort(Output* P_OBJECT,const e_DO11_CARD_t CARD, const e_DO11_PORTS_t);
-    void mapObjectToCardAndPort(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_PORTS_t PORT);
-    void mapObjectToCardAndPort(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t PORT);
+    //IO´s auf Extension Cards und Ports mappen    
+    void mapObjectToCardAndPort (DigitalInput*  P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_PORTS_t PORT);    
+    void mapObjectToCardAndPort (Output*        P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_PORTS_t  PORT);
+    void mapObjectToCardAndPort (servoMotor*    P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_PORTS_t  PORT);
+    void mapObjectToCardAndPort (AnalogInput*   P_OBJECT, const e_AIN11_CARD_t  CARD, const e_AIN11_PORTS_t PORT);
+    void mapObjectToCardAndPort (Output*        P_OBJECT, const e_REL11_CARD_t  CARD, const e_REL11_PORTS_t PORT);
 
     //Rountine aufruf
     void tick();
