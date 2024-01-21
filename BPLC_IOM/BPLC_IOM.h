@@ -3,8 +3,24 @@
 
 #include "Arduino.h"
 #include "SpecialFunctions.h"
+//BPLC
+#include "BPLC_CARDS.h"
+#include "BPLC_IOM.h"
+#include "BPLC_TYPES.h"
+#include "BPLC_ERRORS.h"
+//HAL
+#include "HAL_MCU11.h"
+#include "OLED_DISPLAY.h" 
+#include "HAL_DIN11.h"
+#include "HAL_AIN11.h"
+#include "HAL_REL11.h"
+#include "HAL_FUSE11.h"
+#include "HAL_DO11.h"
+#include "HAL_MOT11.h"
+//Network
+#include "BertaNetNode.h"
 
-//####################################################################
+//#############################################
 //DEBUG INFO PRINT
 //####################################################################
 
@@ -302,5 +318,25 @@ class rpmSensor
     uint16_t        pulsesPerRevolution;
 
     Timeout         to_rpmCalculation;
+};
+
+
+//--------------------------------------------------------------------
+//Servo
+//-------------------------------------------------------------------- 
+
+class servoMotor
+{
+    public:
+                servoMotor          ();
+    void        begin               (BPLC_APP* P_SYSTEM, const e_DO11_CARD_t USDED_DO11_CARD, const e_DO11_PORTS_t USED_PORT);
+    void        setMinMaxAngle      (const uint16_t MIN, const uint16_t MAX);
+    void        setServoPosition    (const uint16_t POSITION);
+
+    private:
+
+    Output PORT;
+
+    PCA9685_ServoEval pwmValueCalculator;
 };
 #endif

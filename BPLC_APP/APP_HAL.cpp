@@ -371,6 +371,25 @@ void BPLC_APP::mapObjectToCardAndPort(Output* P_OBJECT,const e_DO11_CARD_t CARD,
    this->setSystemError(ERROR); 
 }
 
+void BPLC_APP::mapObjectToCardAndPort(servoMotor* P_OBJECT, const e_DO11_CARD_t CARD, const e_DO11_PORTS_t PORT)
+{   
+   Serial.println("##############################");  
+   Serial.print("map object to DO11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" PORT: "); Serial.println((1 + (uint8_t)PORT));
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+
+   if(CARD < this->APP_HAL.hardwareConfig.do11RevACardCount)
+   {
+      ERROR = this->APP_HAL.DO11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
+      this->APP_HAL.DO11_CARD[CARD].setPWMFreqency(50);
+   }
+   else
+   {
+      ERROR = DO11_ERROR__CARD_NOT_DEFINED;
+   }   
+   this->setSystemError(ERROR); 
+}
+
 void BPLC_APP::mapObjectToCardAndPort(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_PORTS_t PORT)
 {   
    Serial.println("##############################");  
