@@ -10,17 +10,6 @@
 
 typedef enum
 {
-    DO11_CARD__1,
-    DO11_CARD__2,
-    DO11_CARD__3,
-    DO11_CARD__4,
-    
-    DO11_CARD__MAX = 4,
-
-}e_DO11_CARD_t;
-
-typedef enum
-{
     DO11_CARD_1_ADDRESS = 0x43,
     DO11_CARD_2_ADDRESS = 0x42,
     DO11_CARD_3_ADDRESS = 0x41,
@@ -30,8 +19,16 @@ typedef enum
 
 }e_DO11_ADDRESS_t;
 
-#define LS_MOSFET 0
-#define HS_MOSFET 1
+typedef enum
+{
+    DO11_CARD__1,
+    DO11_CARD__2,
+    DO11_CARD__3,
+    DO11_CARD__4,
+    
+    DO11_CARD__MAX = 4,
+
+}e_DO11_CARD_t;
 
 typedef enum
 {
@@ -48,16 +45,20 @@ typedef enum
 
 }e_DO11_PORTS_t;
 
-#define DEAD_TIME   100 //besser geht nicht, ohne kurzeitigen Kurzschluss bei PWM änderung
+
+#define DEAD_TIME 100 //besser geht nicht, ohne kurzeitigen Kurzschluss bei PWM änderung
+#define LS_MOSFET 0
+#define HS_MOSFET 1
 
 class HAL_DO11 {
 
     public:
     HAL_DO11();
     void begin(const e_DO11_ADDRESS_t I2C_ADDRESS);
-    
-    e_BPLC_ERROR_t mapObjectToNextFreePort(Output* P_OBJECT);
-    e_BPLC_ERROR_t mapObjectToSpecificPort(Output* P_OBJECT, const e_DO11_PORTS_t PORT);
+
+    void            setPWMFreqency          (const uint8_t FREQUENCY)
+    e_BPLC_ERROR_t  mapObjectToNextFreePort (Output* P_OBJECT);
+    e_BPLC_ERROR_t  mapObjectToSpecificPort (Output* P_OBJECT, const e_DO11_PORTS_t PORT);
 
     void tick();
 

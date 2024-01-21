@@ -72,6 +72,11 @@ e_BPLC_ERROR_t HAL_DO11::mapObjectToNextFreePort(Output* P_OBJECT)
     return this->errorCode;
 }
 
+void HAL_DO11::setPWMFreqency(const uint8_t FREQUENCY)
+{
+    this->PCA.setPWMFreqency(FREQUENCY);
+}
+
 e_BPLC_ERROR_t HAL_DO11::mapObjectToSpecificPort(Output* P_OBJECT, const e_DO11_PORTS_t PORT)
 {
     if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
