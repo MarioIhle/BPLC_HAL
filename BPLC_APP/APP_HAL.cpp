@@ -2,31 +2,23 @@
 #include "BPLC_CARDS.h"
 
 //Callback für Hardware Interrupt 
-bool f_ISR_called;
-
-void INT_ISR()
+BPLC_APP* p_THIS;
+static void INT_ISR()
 {
-   f_ISR_called = true;
+   p_THIS->ISR_CALLED();
 }
 
 void BPLC_APP::ISR_CALLED()
-{
+{   
    for(uint8_t CARD=0; CARD < DIN11_CARD__MAX; CARD++)
    {
       this->APP_HAL.DIN11_CARD[CARD].somePinOfsomeDinCardChanged();
-   }
-
-   /*
-   for(uint8_t CARD=0; CARD < FUSE11_CARD__MAX; CARD++)
-   {
-      this->APP_HAL.FUSE11_CARD[CARD].somePinOfsomeRELCardChanged();
-   }
-   */
+   } 
 }
 
 void BPLC_APP::defineMCU(const e_MCU_CARD_TYPE_t CARD_TYPE)
 {  
-   this->APP_HAL.hardwareConfig.MCU_TYPE = CARD_TYPE;   
+   this->APP_HAL.hardwareConfig.MCU_TYPE = CARD_TYPE;      
 }
 
 void BPLC_APP::addExtensionCard(const e_EXTENSION_CARD_TYPE_t CARDTYPE, const uint8_t CARD_COUNT)
@@ -80,6 +72,8 @@ void BPLC_APP::setupHardware()
    this->APP_HAL.BUZZER.begin(50);
    //P_OEN
    this->APP_HAL.OEN.begin(true);  
+   //externer Pointer auf Instanz für externe ISR
+   p_THIS = this;
 
    switch (this->APP_HAL.hardwareConfig.MCU_TYPE)
    {
@@ -109,16 +103,11 @@ void BPLC_APP::setupHardware()
       break;  
    }   
     
-
    //DIN11revA setup
-   Serial.println("##############################");  
-   Serial.println("setup DIN11 CARDS"); 
    this->APP_HAL.DIN11_CARD[DIN11_CARD__1].begin(DIN11_CARD_1_ADDRESS);
    this->APP_HAL.DIN11_CARD[DIN11_CARD__2].begin(DIN11_CARD_2_ADDRESS);
    this->APP_HAL.DIN11_CARD[DIN11_CARD__3].begin(DIN11_CARD_3_ADDRESS);
    this->APP_HAL.DIN11_CARD[DIN11_CARD__4].begin(DIN11_CARD_4_ADDRESS);
-   Serial.println("##############################");  
-   Serial.println("check DIN11 CARDS for errors ");
    //Auf errors prüfen
    for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
    {
@@ -227,12 +216,6 @@ void BPLC_APP::setupHardware()
 
 void BPLC_APP::tickHardware()
 {
-   if(f_ISR_called)
-   {
-      this->ISR_CALLED();
-      f_ISR_called = false;
-   }  
-
    this->handleMCUCard();
    this->handleDIN11Cards();
    this->handleAIN11Cards();

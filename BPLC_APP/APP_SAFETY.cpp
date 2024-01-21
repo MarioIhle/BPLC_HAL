@@ -58,9 +58,12 @@ void BPLC_APP::setSystemError(const e_BPLC_ERROR_t ERROR_CODE)
          break;
       }//freier slot
       else if(this->APP_SAFETY.errorCode[ERROR_CODE_BUFFER_SLOT] == BPLC_ERROR__NO_ERROR)
-      {
-         Serial.print("ERROR CODE: "); Serial.print(ERROR_CODE); Serial.print(", "); Serial.println(this->APP_SAFETY.errorOut.getErrorCodeText(ERROR_CODE));
+      {     
          this->APP_SAFETY.errorCode[ERROR_CODE_BUFFER_SLOT] = ERROR_CODE;
+         //Ausgabe des Errors auf USB Schnittstelle
+         Serial.println("##############################");  
+         Serial.println("SYSTEM ERROR OCCOURED");
+         Serial.print("ERROR CODE: "); Serial.print(ERROR_CODE); Serial.print(", "); Serial.println(this->APP_SAFETY.errorOut.getErrorCodeText(ERROR_CODE));
          break;
       }
       else

@@ -4,7 +4,7 @@
 
 HAL_DIN11::HAL_DIN11()
 {
-    memset(&this->ports, 0, sizeof(this->ports));
+    memset(&this->ports, 0, sizeof(this->ports)); 
 }
 
 void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
@@ -146,7 +146,6 @@ void HAL_DIN11::tick()
             {      
                 if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)   
                 {
-                    //Serial.print("DI11 PORT: "); Serial.print(PORT); Serial.print(" State: "); Serial.println(!PCF.read(this->ports.PIN[PORT]));
                     const bool STATE = !PCF.read(this->PIN[PORT]);     
                     this->ports.p_object[PORT]->setPortState(STATE);   
                 }                   
@@ -154,6 +153,12 @@ void HAL_DIN11::tick()
             this->f_somePinOfsomeDinCardChanged--;
         }    
     }
+}
+
+void HAL_DIN11::isrFastRead()
+{      
+    const bool STATE = !PCF.read(this->PIN[0]);     
+                       
 }
 
 void HAL_DIN11::somePinOfsomeDinCardChanged()

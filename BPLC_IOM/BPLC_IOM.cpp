@@ -553,3 +553,52 @@ void Software_H_Bridge::setSpeed(const uint8_t SPEED)
 	this->p_R_PWM->setValue(SPEED);
 	this->p_L_PWM->setValue(SPEED);
 }
+
+//--------------------------------------------------------------------
+//RPM Sensor
+rpmSensor::rpmSensor()
+{}
+
+void rpmSensor::begin(DigitalInput* P_PORT)
+{
+	this->p_PORT 				= P_PORT;
+	this->pulsesPerRevolution 	= 1;
+	this->startTime 			= millis();
+	this->samples				= 0;
+	this->to_rpmCalculation.setInterval(500);
+}
+
+void rpmSensor::setPulsesPerRevolution(const uint16_t PULSES_PER_REV)
+{
+	this->pulsesPerRevolution = PULSES_PER_REV;
+}
+
+void rpmSensor::setCalculationTime(const uint16_t TIME)
+{
+	this->to_rpmCalculation.setInterval(TIME);
+}
+
+uint16_t rpmSensor::getRPM()
+{
+	if(this->p_PORT->posEdge())
+	{
+		this->samples++;
+	}
+	
+	if(this->samples >= MAX_SAMPLES_UNTIL_CALCULATION || to_rpmCalculation.checkAndReset())
+	{
+		const double 	TIME_DELTA 		= millis()-this->startTime;
+		const double 	REVOLUTIONS		= this->samples / this->pulsesPerRevolution;
+		const double	RPM 	 		= (REVOLUTIONS/TIME_DELTA) * 60000.00;
+		//Alle Werte zurück setzten, neue Messung starten
+		this->startTime = millis();
+		this->samples	= 0;
+		this->rpm 		= (uint16_t)RPM;
+	}
+	return this->rpm;
+}
+
+void rpmSensor::isrPulse()
+{
+	this->samples++;
+}

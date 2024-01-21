@@ -71,7 +71,7 @@ class HAL_DIN11
     void            somePinOfsomeDinCardChanged();
     e_BPLC_ERROR_t  getError();    
     
-
+    void isrFastRead();
     private: 
     //Applikation  
     uint8_t f_somePinOfsomeDinCardChanged;

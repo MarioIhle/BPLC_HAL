@@ -278,4 +278,29 @@ class Software_H_Bridge{
     e_movement_t   driveDirection;
     uint8_t        driveSpeed;
 };
+
+//--------------------------------------------------------------------
+//RPM Sensor
+//-------------------------------------------------------------------- 
+#define MAX_SAMPLES_UNTIL_CALCULATION   500
+
+class rpmSensor
+{
+    public:
+                rpmSensor               ();
+    void        begin                   (DigitalInput* P_PORT);
+    void        setPulsesPerRevolution  (const uint16_t PULSES_PER_REV);
+    void        setCalculationTime      (const uint16_t TIME);
+    uint16_t    getRPM                  ();
+    void        isrPulse                ();
+    private:
+
+    DigitalInput*   p_PORT;
+    unsigned long   startTime;
+    uint32_t        samples;
+    uint16_t        rpm;
+    uint16_t        pulsesPerRevolution;
+
+    Timeout         to_rpmCalculation;
+};
 #endif

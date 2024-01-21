@@ -1,7 +1,10 @@
 #include "BPLC_APP.h"
 
 BPLC_APP::BPLC_APP()
-{}
+{
+   //Zwecks Errorout
+   //this->APP_HAL.hardwareConfig.MCU_TYPE = MCU_CARD__NO_MCU_DEFINED;
+}
 
 void BPLC_APP::begin()
 {   
@@ -15,14 +18,16 @@ void BPLC_APP::begin()
 
 void BPLC_APP::setupApplication()
 {
-   this->APP_APP.deviceSettings.f_beepOnEncoderInput = false;   
-   this->APP_APP.deviceMode = APP_MODE__START;
+   //Schnittstellen hier schon initialisieren, damit überhaupt eine Fehlerausgabe möglich ist
+   Serial.begin(115200);
+   Wire.begin();
+   this->APP_APP.deviceSettings.f_beepOnEncoderInput  = false;   
+   this->APP_APP.deviceMode                           = APP_MODE__START;
 }
 
 void BPLC_APP::tick()
 {
    //BPLC Hardware handling
-   //BPLC 
    this->APP_HMI.oled.tick();
    this->handleDisplay();
    this->tickHardware();   
