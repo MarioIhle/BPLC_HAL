@@ -12,11 +12,6 @@
 #include "I2C_check.h"
 
 //-------------------------------------------------------------
-//HARDWARE DEBUGGING
-//-------------------------------------------------------------
-//#define DEBUG_HAL_DIN11
-
-//-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES
 //-------------------------------------------------------------
 typedef enum
@@ -43,39 +38,47 @@ typedef enum
 
 typedef enum
 {
-    DIN11_PORT__1,
-    DIN11_PORT__2,
-    DIN11_PORT__3,
-    DIN11_PORT__4,
-    DIN11_PORT__5,
-    DIN11_PORT__6,
-    DIN11_PORT__7,
-    DIN11_PORT__8,
+    DIN11_CHANNEL__1,
+    DIN11_CHANNEL__2,
+    DIN11_CHANNEL__3,
+    DIN11_CHANNEL__4,
+    DIN11_CHANNEL__5,
+    DIN11_CHANNEL__6,
+    DIN11_CHANNEL__7,
+    DIN11_CHANNEL__8,
 
-    DIN11_PORT__COUNT,
+    DIN11_CHANNEL__COUNT,
 
-}e_DIN11_PORTS_t;
+}e_DIN11_CHANNEL_t;
+
+typedef enum
+{
+    CHANNEL_OBJECT_TYPE__NOT_USED,
+    CHANNEL_OBJECT_TYPE__DIGITAL,
+    CHANNEL_OBJECT_TYPE__COUNTER,
+
+    CHANNEL_OBJECT_TYPE__COUNT,
+}e_CHANNEL_OBJECT_STATE_t;
+
 
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
+#define READ_TWO_TIMES 2
+
 class HAL_DIN11 
 {
     public:
     HAL_DIN11 ();
-    void begin(const e_DIN11_ADDRESS_t I2C_ADDRESS);
-    e_BPLC_ERROR_t mapObjectToNextFreePort(DigitalInput* P_OBJECT);
-    e_BPLC_ERROR_t mapObjectToSpecificPort(DigitalInput* P_OBJECT, const e_DIN11_PORTS_t PORT);
+    void            begin               (const e_DIN11_ADDRESS_t I2C_ADDRESS);
+    e_BPLC_ERROR_t  mapObjectToChannel  (DigitalInput*  P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL);
+    e_BPLC_ERROR_t  mapObjectToChannel  (rpmSensor*     P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL);
     
-    void            tick ();    
-    void            somePinOfsomeDinCardChanged();
+    void            tick ();        
     e_BPLC_ERROR_t  getError();    
     
-    void isrFastRead();
-    private: 
-    //Applikation  
-    uint8_t f_somePinOfsomeDinCardChanged;
     
+    private:    
     //Safety
     I2C_check       selfCheck;
     e_BPLC_ERROR_t  errorCode;
@@ -87,10 +90,10 @@ class HAL_DIN11
     //Object handling
     struct
     {
-        e_PORT_USEAGE_t used    [DIN11_PORT__COUNT];
-        DigitalInput*   p_object[DIN11_PORT__COUNT];         
-    }ports;    
-    
-    const uint8_t   PIN     [DIN11_PORT__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};
+        e_CHANNEL_OBJECT_STATE_t    channelState[DIN11_CHANNEL__COUNT];
+        DigitalInput*               p_digital   [DIN11_CHANNEL__COUNT];   
+        rpmSensor*                  p_counter   [DIN11_CHANNEL__COUNT];   
+        const uint8_t               PIN         [DIN11_CHANNEL__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      
+    }channels;       
  };
 #endif

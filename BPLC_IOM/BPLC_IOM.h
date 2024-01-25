@@ -3,8 +3,10 @@
 
 #include "Arduino.h"
 #include "SpecialFunctions.h"
+#include <Adafruit_ADS1X15.h>
+#include "PCA9685.h"
 
-//####################################################################
+//#############################################
 //DEBUG INFO PRINT
 //####################################################################
 
@@ -49,11 +51,11 @@ class DigitalInput
     //Getter für Applikation
     bool 	ishigh ();
     bool	islow  ();
-	bool 	posEdge();	
-	bool 	negEdge();	
+	bool 	risingEdge();	
+	bool 	fallingEdge();	
 
     //Setter für HAL
-    void setPortState(const bool STATE);
+    void halCallback(const bool STATE);
 
     private:
     s_portValue_t   inputState;   
@@ -67,8 +69,7 @@ class DigitalInput
 class AnalogInput
 {
     public:
-    AnalogInput();
-    void        setMaxVoltage(const float VOLTAGE);
+    AnalogInput(const float MAX_VOLTAGE = 5.00);   
 
     //Getter für Applikation
     uint16_t    getValue       ();
@@ -78,14 +79,14 @@ class AnalogInput
     bool        isAlarmValueReached (); //true wenn VALUE >= AlarmValue
 
     //Setter für HAL
-    void setPortValue      (const uint16_t VALUE);
-    void setRawPortVoltage (const float PORT_VOLTAGE);
+    void halCallback    (const uint16_t     VALUE);
+    void setADCGain     (const adsGain_t    ADC_GAIN);
 
     private:
     s_portValue_t   inputValue;   
-    float           rawPortVoltage;
     uint16_t        alarmValue;
-    float           maxVoltage = 5.00;  //default
+    float           maxVoltage;
+    adsGain_t       adcGain;            //Verstärker einstellung des ADC(Auflösung für Spannugsberechnung)
 };
 
 //--------------------------------------------------------------------
@@ -135,7 +136,7 @@ class Output {
     void setOnValue     (const uint8_t VALUE);
 
     //Für HAL
-    s_portValue_t   getValue            ();   
+    s_portValue_t   halCallback         ();   
     e_outputType_t  getOutputType       ();
     bool            isThereANewPortValue();
 
@@ -171,17 +172,17 @@ class Output {
 class RotaryEncoder 
 {
 	public:
-                        RotaryEncoder   ();
-                        RotaryEncoder   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);   
-    void                begin           (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);
-
+                        RotaryEncoder       ();
     e_movement_t        getTurningDirection ();
     bool                isButtonPressed     ();
+    void                halCallback         (const bool STATE_A, const bool STATE_B, const bool STATE_Z);
     
-  	private:
-    DigitalInput*   p_A;
-    DigitalInput*   p_B; 
-    DigitalInput*   p_pushButton; 
+
+    private: 
+
+    DigitalInput A;
+    DigitalInput B; 
+    DigitalInput Z;   	   
 };
 
 //--------------------------------------------------------------------
@@ -271,7 +272,9 @@ class Software_H_Bridge{
     void setSpeed    (const uint8_t HB_SPEED);
     void setDirection(const e_movement_t DIRECTION);
 
+
     private:
+
     Output* p_L_PWM;
     Output* p_R_PWM;
 
@@ -287,20 +290,44 @@ class Software_H_Bridge{
 class rpmSensor
 {
     public:
-                rpmSensor               ();
-    void        begin                   (DigitalInput* P_PORT);
-    void        setPulsesPerRevolution  (const uint16_t PULSES_PER_REV);
-    void        setCalculationTime      (const uint16_t TIME);
-    uint16_t    getRPM                  ();
-    void        isrPulse                ();
-    private:
+                rpmSensor   ();
+    void        begin       (const uint16_t PULSES_PER_REV = 1, const uint16_t SAMPLE_TIME = 500);
+    uint16_t    getRPM      ();
+    void        tick        ();
 
-    DigitalInput*   p_PORT;
+    
+    void halCallback(const bool STATE);
+
+    private:      
+    DigitalInput    dataObject;
     unsigned long   startTime;
     uint32_t        samples;
     uint16_t        rpm;
     uint16_t        pulsesPerRevolution;
 
     Timeout         to_rpmCalculation;
+};
+
+
+//--------------------------------------------------------------------
+//Servo
+//-------------------------------------------------------------------- 
+
+class servoMotor
+{
+    public:
+                servoMotor          ();
+    void        setMinMaxAngle      (const uint16_t MIN = 0, const uint16_t MAX = 180);
+    void        setServoPosition    (const uint16_t POSITION);
+
+
+    Output CHANNEL;
+
+
+    private:    
+    PCA9685_ServoEval pwmValueCalculator;
+    
+    uint16_t    minAngle;
+    uint16_t    maxAngle;
 };
 #endif

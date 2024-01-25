@@ -1,10 +1,7 @@
 #include "BPLC_APP.h"
 
 BPLC_APP::BPLC_APP()
-{
-   //Zwecks Errorout
-   //this->APP_HAL.hardwareConfig.MCU_TYPE = MCU_CARD__NO_MCU_DEFINED;
-}
+{}
 
 void BPLC_APP::begin()
 {   

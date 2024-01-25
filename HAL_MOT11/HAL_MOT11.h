@@ -10,10 +10,6 @@
 #include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
-//-------------------------------------------------------------
-//HARDWARE DEBUGGING
-//-------------------------------------------------------------
-//#define DEBUG_HAL_MOT11 
 
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES
@@ -38,12 +34,6 @@ typedef enum
   MOT11_CARD_ADDRESS_COUNT = 4,
 }e_MOT11_ADDRESS_t;
 
-typedef enum
-{
-  MOT11_PORT__1,
-
-  MOT11_PORT__COUNT,
-}e_MOT11_PORTS_t;
 
 //-------------------------------------------------------------
 //APPLIKATION
@@ -99,10 +89,8 @@ class HAL_MOT11
     public:
     //Init
     HAL_MOT11   ();
-    HAL_MOT11   (const e_MOT11_ADDRESS_t ADDRESS);
-    void begin  ();
-    void begin  (const e_MOT11_ADDRESS_t ADDRESS);
-    e_BPLC_ERROR_t mapObjectToPort(MOTOR* P_OBJECT);
+    void            begin    (const e_MOT11_ADDRESS_t ADDRESS);
+    e_BPLC_ERROR_t  mapObject(MOTOR* P_OBJECT);
     
     //Applikation
     void tick();
@@ -143,8 +131,8 @@ class HAL_MOT11
     //Object handling
     struct 
     {
-      e_PORT_USEAGE_t used;
-      MOTOR*          p_object;   
-    }ports;
+      e_CHANNEL_STATE_t used;
+      MOTOR*            p_object;   
+    }channels;
 };
 #endif

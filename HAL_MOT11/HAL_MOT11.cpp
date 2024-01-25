@@ -62,16 +62,16 @@ void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
     }
 }
 
-e_BPLC_ERROR_t HAL_MOT11::mapObjectToPort(MOTOR* P_OBJECT)
+e_BPLC_ERROR_t HAL_MOT11::mapObject(MOTOR* P_OBJECT)
 {
-    if(this->ports.used == PORT_USEAGE__NOT_IN_USE)
+    if(this->channels.used == CHANNEL_STATE__NOT_IN_USE)
     {
-        this->ports.p_object = P_OBJECT;
-        this->ports.used     = PORT_USEAGE__MAPPED_TO_OBJECT;
+        this->channels.p_object = P_OBJECT;
+        this->channels.used     = CHANNEL_STATE__MAPPED_TO_OBJECT;
     }
     else 
     {
-        this->error.code = MOT11_ERROR__PORT_ALREADY_DEFINED;
+        this->error.code = MOT11_ERROR__CHANNEL_ALREADY_IN_USE;
     }
     return this->error.code;
 }
@@ -96,7 +96,7 @@ void HAL_MOT11::tick()
 
     if(this->error.code != MOT11_ERROR__I2C_CONNECTION_FAILED)
     {
-        if(this->ports.used == PORT_USEAGE__MAPPED_TO_OBJECT)
+        if(this->channels.used == CHANNEL_STATE__MAPPED_TO_OBJECT)
         {
             switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
             {
@@ -112,9 +112,9 @@ void HAL_MOT11::tick()
                 break;
 
                 case deviceState_running:   //Normalbetreb
-                    if(this->ports.p_object->newDriveParameterAvailable())
+                    if(this->channels.p_object->newDriveParameterAvailable())
                     {
-                        this->sendDriveCommand(this->ports.p_object->getDirection(), this->ports.p_object->getSpeed());
+                        this->sendDriveCommand(this->channels.p_object->getDirection(), this->channels.p_object->getSpeed());
                     }
                     //Über Request wird zyklisch alle live Parameter abgefragt
                     if(this->to_parameterPoll.check())
@@ -136,7 +136,7 @@ void HAL_MOT11::tick()
         }
         else
         {
-            this->error.code = MOT11_ERROR__NO_PORT_IN_USE;
+            this->error.code = MOT11_ERROR__NO_CHANNEL_IN_USE;
         }
     }
 }
@@ -291,7 +291,7 @@ bool HAL_MOT11::waitForDriveParameter()
     if(RECEIVED_ERROR_CODE_PLAUSIBLE && inCommand.extract.key == mot11_i2c_key__getDriveState)
     {
         this->deviceState = (e_deviceState_t)inCommand.extract.deviceState;
-        this->ports.p_object->setCurrent(inCommand.extract.current);
+        this->channels.p_object->setCurrent(inCommand.extract.current);
         this->error.code = (e_BPLC_ERROR_t)inCommand.extract.error;
     }
     else

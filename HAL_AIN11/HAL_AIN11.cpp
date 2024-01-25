@@ -2,7 +2,7 @@
 
 HAL_AIN11::HAL_AIN11()
 {
-    memset(&this->ports, 0, sizeof(this->ports));
+    memset(&this->channels, 0, sizeof(this->channels));
 }
 
 void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL)
@@ -52,51 +52,35 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
         // functions, but be careful never to exceed VDD +0.3V max, or to
         // exceed the upper and lower limits if you adjust the input range!
         // Setting these values incorrectly may destroy your ADC!
-        //                                                                ADS1015  ADS1115
-        //                                                                -------  -------
-        this->ADC.setGain(GAIN_TWOTHIRDS);    // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
-        // ads.setGain(GAIN_ONE);             // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
-        // ads.setGain(GAIN_TWO);             // 2x gain   +/- 2.048V  1 bit = 1mV      0.0625mV
-        // ads.setGain(GAIN_FOUR);            // 4x gain   +/- 1.024V  1 bit = 0.5mV    0.03125mV
-        // ads.setGain(GAIN_EIGHT);           // 8x gain   +/- 0.512V  1 bit = 0.25mV   0.015625mV
-        // ads.setGain(GAIN_SIXTEEN);         // 16x gain  +/- 0.256V  1 bit = 0.125mV  0.0078125mV
-
+        //                                                                       ADS1015  ADS1115
+        //                                                                       -------  -------
+        this->adcGain = GAIN_TWOTHIRDS;         // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
+        //this->adcGain = GAIN_ONE;             // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
+        //this->adcGain = GAIN_TWO;             // 2x gain   +/- 2.048V  1 bit = 1mV      0.0625mV
+        //this->adcGain = GAIN_FOUR;            // 4x gain   +/- 1.024V  1 bit = 0.5mV    0.03125mV
+        //this->adcGain = GAIN_EIGHT;           // 8x gain   +/- 0.512V  1 bit = 0.25mV   0.015625mV
+        //this->adcGain = GAIN_SIXTEEN;         // 16x gain  +/- 0.256V  1 bit = 0.125mV  0.0078125mV
+        
+        this->ADC.setGain(this->adcGain);
         this->ADC.begin(this->deviceAddress); 
     }
 }
 
-e_BPLC_ERROR_t HAL_AIN11::mapObjectToNextFreePort(AnalogInput* P_OBJECT)
-{  
-    for(uint8_t PORT = 0; PORT < AIN11_PORT__COUNT; PORT++)
+e_BPLC_ERROR_t HAL_AIN11::mapObjectToChannel(AnalogInput* P_OBJECT, const e_AIN11_CHANNEL_t CHANNEL)
+{
+    if(this->channels.used[CHANNEL] == CHANNEL_STATE__NOT_IN_USE)
     {
-        if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
-        {
-            this->ports.p_object[PORT] = P_OBJECT;
-            this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
-            break;
-        }
-        else if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT && PORT == AIN11_PORT__4)
-        {
-            this->errorCode = AIN11_ERROR__PORT_OVERFLOW;
-        }
+        this->channels.p_object[CHANNEL] = P_OBJECT;
+        this->channels.used[CHANNEL]     = CHANNEL_STATE__MAPPED_TO_OBJECT;
+        P_OBJECT->setADCGain(this->adcGain);    //ADC gain für Spannungsberechnung übergeben
+    }
+    else 
+    {
+        this->errorCode = AIN11_ERROR__CHANNEL_ALREADY_IN_USE;
     }
     return this->errorCode;
 }
 
-e_BPLC_ERROR_t HAL_AIN11::mapObjectToSpecificPort(AnalogInput* P_OBJECT, const e_AIN11_PORTS_t PORT)
-{
-    if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
-    {
-        this->ports.p_object[PORT] = P_OBJECT;
-        this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
-    }
-    else 
-    {
-        this->errorCode = AIN11_ERROR__PORT_ALREADY_DEFINED;
-    }
-    return this->errorCode;
-}
-//Applikation
 void HAL_AIN11::tick()
 {   
     //I2C Verbindung zyklisch prüfen
@@ -105,15 +89,15 @@ void HAL_AIN11::tick()
         this->errorCode = AIN11_ERROR__I2C_CONNECTION_FAILED;
     }
     //Prüfen ob überhaupt ein Port in benutzung
-    for(uint8_t PORT = 0; PORT < AIN11_PORT__COUNT; PORT++)
+    for(uint8_t CHANNEL = 0; CHANNEL < AIN11_CHANNEL__COUNT; CHANNEL++)
     {            
-        if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)
+        if(this->channels.used[CHANNEL] == CHANNEL_STATE__MAPPED_TO_OBJECT)
         {
             break;
         }
-        else if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE && PORT == (AIN11_PORT__COUNT - 1))
+        else if(this->channels.used[CHANNEL] == CHANNEL_STATE__NOT_IN_USE && CHANNEL == (AIN11_CHANNEL__COUNT - 1))
         {//letzter Port und immernoch keiner in nutzung
-            this->errorCode = AIN11_ERROR__NO_PORT_IN_USE;
+            this->errorCode = AIN11_ERROR__NO_CHANNEL_IN_USE;
         }
     }
   
@@ -121,22 +105,20 @@ void HAL_AIN11::tick()
     {
         if(this->to_read.check())
         {
-            for(uint8_t PORT = 0; PORT < AIN11_PORT__COUNT; PORT++)
+            for(uint8_t CHANNEL = 0; CHANNEL < AIN11_CHANNEL__COUNT; CHANNEL++)
             {            
-                if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)
+                if(this->channels.used[CHANNEL] == CHANNEL_STATE__MAPPED_TO_OBJECT)
                 {
-                    const int16_t   RAW_ADC_VALUE = this->ADC.readADC_SingleEnded(this->PIN[PORT]);
+                    const int16_t   RAW_ADC_VALUE = this->ADC.readADC_SingleEnded(this->channels.PIN[CHANNEL]);
                     const float     VALUE_IN_VOLT = this->ADC.computeVolts(RAW_ADC_VALUE);
 
                     if(RAW_ADC_VALUE >= 0)
                     {
-                        this->ports.p_object[PORT]->setPortValue(RAW_ADC_VALUE);
-                        this->ports.p_object[PORT]->setRawPortVoltage(VALUE_IN_VOLT); 
+                        this->channels.p_object[CHANNEL]->halCallback(RAW_ADC_VALUE);                        
                     }     
                     else
                     {
-                        this->ports.p_object[PORT]->setPortValue(0);
-                        this->ports.p_object[PORT]->setRawPortVoltage(0);
+                        this->channels.p_object[CHANNEL]->halCallback(0);
                     }               
 
                 }                

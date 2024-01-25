@@ -12,11 +12,6 @@
 #include "I2C_check.h"
 
 //-------------------------------------------------------------
-//HARDWARE DEBUGGING
-//-------------------------------------------------------------
-//#define DEBUG_HAL_AIN11
-
-//-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES
 //-------------------------------------------------------------
 typedef enum
@@ -41,13 +36,13 @@ typedef enum
 
 typedef enum
 {   
-    AIN11_PORT__1,
-    AIN11_PORT__2,
-    AIN11_PORT__3,
-    AIN11_PORT__4,
+    AIN11_CHANNEL__1,
+    AIN11_CHANNEL__2,
+    AIN11_CHANNEL__3,
+    AIN11_CHANNEL__4,
 
-    AIN11_PORT__COUNT,
-}e_AIN11_PORTS_t;
+    AIN11_CHANNEL__COUNT,
+}e_AIN11_CHANNEL_t;
 
 //-------------------------------------------------------------
 //HAL_AIN11 KLASSE
@@ -56,9 +51,8 @@ class HAL_AIN11
 {
     public:
     HAL_AIN11();
-    void begin                  (const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL = 1000);
-    e_BPLC_ERROR_t mapObjectToNextFreePort(AnalogInput* P_OBJECT);
-    e_BPLC_ERROR_t mapObjectToSpecificPort(AnalogInput* P_OBJECT, const e_AIN11_PORTS_t PORT);
+    void            begin             (const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL = 1000);
+    e_BPLC_ERROR_t  mapObjectToChannel(AnalogInput* P_OBJECT, const e_AIN11_CHANNEL_t CHANNEL);
 
     void           tick    ();  
     e_BPLC_ERROR_t getError();  
@@ -73,17 +67,15 @@ class HAL_AIN11
     //Settings
     Adafruit_ADS1115    ADC;
     e_AIN11_ADDRESS_t   deviceAddress;
-
+    adsGain_t           adcGain;
     Timeout             to_read;
 
     //Object handling
     struct
     {
-        e_PORT_USEAGE_t used     [AIN11_PORT__COUNT];
-        AnalogInput*    p_object [AIN11_PORT__COUNT];      
-    }ports; 
-
-    const uint8_t   PIN      [AIN11_PORT__COUNT] = {2, 3, 1, 0};
+        e_CHANNEL_STATE_t   used     [AIN11_CHANNEL__COUNT];
+        AnalogInput*        p_object [AIN11_CHANNEL__COUNT];   
+        const uint8_t       PIN      [AIN11_CHANNEL__COUNT] = {2, 3, 1, 0};   
+    }channels;         
  };
-
 #endif
