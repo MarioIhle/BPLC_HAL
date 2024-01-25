@@ -12,11 +12,6 @@
 #include "I2C_check.h"
 
 //-------------------------------------------------------------
-//HARDWARE DEBUGGING
-//-------------------------------------------------------------
-//#define DEBUG_HAL_DIN11
-
-//-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES
 //-------------------------------------------------------------
 typedef enum
@@ -56,6 +51,16 @@ typedef enum
 
 }e_DIN11_CHANNEL_t;
 
+typedef enum
+{
+    CHANNEL_OBJECT_TYPE__NOT_USED,
+    CHANNEL_OBJECT_TYPE__DIGITAL,
+    CHANNEL_OBJECT_TYPE__COUNTER,
+
+    CHANNEL_OBJECT_TYPE__COUNT,
+}e_CHANNEL_OBJECT_STATE_t;
+
+
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
@@ -91,10 +96,10 @@ class HAL_DIN11
     //Object handling
     struct
     {
-        e_CHANNEL_STATE_t   used    [DIN11_CHANNEL__COUNT];
-        DigitalInput*       p_object[DIN11_CHANNEL__COUNT];   
-        rpmSensor*          p_rpmSensInstance[DIN11_CHANNEL__COUNT];   
-        const uint8_t       PIN     [DIN11_CHANNEL__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      
+        e_CHANNEL_OBJECT_STATE_t    channelState[DIN11_CHANNEL__COUNT];
+        DigitalInput*               p_digital   [DIN11_CHANNEL__COUNT];   
+        rpmSensor*                  p_counter   [DIN11_CHANNEL__COUNT];   
+        const uint8_t               PIN         [DIN11_CHANNEL__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      
     }channels;       
  };
 #endif

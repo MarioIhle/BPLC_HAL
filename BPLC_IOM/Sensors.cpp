@@ -47,14 +47,6 @@ void rpmSensor::begin(const uint16_t PULSES_PER_REV, const uint16_t SAMPLE_TIME)
 	this->to_rpmCalculation.setInterval(SAMPLE_TIME);
 }
 
-void rpmSensor::tick()
-{
-	if(this->dataObject.risingEdge())
-	{
-		this->samples++;
-	}
-}
-
 uint16_t rpmSensor::getRPM()
 {
 	if(this->samples >= MAX_SAMPLES_UNTIL_CALCULATION || to_rpmCalculation.checkAndReset())
@@ -68,4 +60,14 @@ uint16_t rpmSensor::getRPM()
 		this->rpm 		= (uint16_t)RPM;
 	}
 	return this->rpm;
+}
+
+void rpmSensor::halCallback(const bool STATE)
+{
+	this->dataObject.halCallback(STATE);
+
+	if(this->dataObject.risingEdge())
+	{
+		this->samples++;
+	}
 }

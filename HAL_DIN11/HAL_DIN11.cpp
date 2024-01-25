@@ -4,7 +4,7 @@ HAL_DIN11::HAL_DIN11()
 {
     for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
     {             
-        this->channels.used[CH] = CHANNEL_STATE__NOT_IN_USE; 
+        this->channels.channelState[CH] = CHANNEL_OBJECT_TYPE__NOT_USED; 
     } 
 }
 
@@ -58,10 +58,11 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 
 e_BPLC_ERROR_t HAL_DIN11::mapObjectToChannel(DigitalInput* P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL)
 {
-    if(this->channels.used[CHANNEL] == CHANNEL_STATE__NOT_IN_USE)
+    if(this->channels.channelState[CHANNEL] == CHANNEL_OBJECT_TYPE__NOT_USED)
     {
-        this->channels.p_object[CHANNEL] = P_OBJECT;
-        this->channels.used[CHANNEL]     = CHANNEL_STATE__MAPPED_TO_OBJECT;
+        this->channels.p_digital[CHANNEL]       = P_OBJECT;
+        this->channels.channelState[CHANNEL]    = CHANNEL_OBJECT_TYPE__DIGITAL;
+        //Vielleicht irgendwas wegen dem ISR machen? 
     }
     else 
     {
@@ -72,25 +73,15 @@ e_BPLC_ERROR_t HAL_DIN11::mapObjectToChannel(DigitalInput* P_OBJECT, const e_DIN
 
 e_BPLC_ERROR_t HAL_DIN11::mapObjectToChannel(rpmSensor* P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL)
 {
-    if(this->channels.used[CHANNEL] == CHANNEL_STATE__NOT_IN_USE)
+    if(this->channels.channelState[CHANNEL] == CHANNEL_OBJECT_TYPE__NOT_USED)
     {
-        this->channels.p_object[CHANNEL] = &P_OBJECT->dataObject;
-        this->channels.used[CHANNEL]     = CHANNEL_STATE__MAPPED_TO_OBJECT;
-        //Vielleicht irgendwas wegen dem ISR machen? 
+        this->channels.p_counter[CHANNEL]       = P_OBJECT;
+        this->channels.channelState[CHANNEL]    = CHANNEL_OBJECT_TYPE__COUNTER;        
     }
     else 
     {
         this->errorCode = DIN11_ERROR__CHANNEL_ALREADY_IN_USE;
-    }
-    //Pointer auf rpmSensor Objekt, damit immer getickt werden kann, wenn neue Portdaten da
-    for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
-    {      
-        if(this->channels.p_rpmSensInstance[CH] == NULL)   
-        {
-            this->channels.p_rpmSensInstance[CH] = P_OBJECT;  
-            break;
-        }                   
-    }
+    }    
     return this->errorCode;
 }
 
@@ -105,11 +96,11 @@ void HAL_DIN11::tick()
     //Prüfen ob überhaupt ein Port in benutzung
     for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
     {            
-        if(this->channels.used[CH] == CHANNEL_STATE__MAPPED_TO_OBJECT)
+        if(this->channels.channelState[CH] == CHANNEL_OBJECT_TYPE__NOT_USED)
         {
             break;
         }
-        else if(this->channels.used[CH] == CHANNEL_STATE__NOT_IN_USE && CH == (DIN11_CHANNEL__COUNT - 1))
+        else if(this->channels.channelState[CH] == CHANNEL_OBJECT_TYPE__NOT_USED && CH == (DIN11_CHANNEL__COUNT - 1))
         {
             this->errorCode = DIN11_ERROR__NO_CHANNEL_IN_USE;
         }
@@ -122,21 +113,23 @@ void HAL_DIN11::tick()
         {
             for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
             {      
-                if(this->channels.used[CH] == CHANNEL_STATE__MAPPED_TO_OBJECT)   
+                switch (this->channels.channelState[CH])
                 {
-                    const bool CHANNEL_STATE = !PCF.read(this->channels.PIN[CH]);     
-                    this->channels.p_object[CH]->halCallback(CHANNEL_STATE);   
-                }                   
-            } 
-            this->readsRequested--;
+                    default:
+                    case CHANNEL_OBJECT_TYPE__NOT_USED:
+                    //do nothing
+                    break;
 
-            for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
-            {      
-                if(this->channels.p_rpmSensInstance[CH] != NULL)   
-                {
-                    this->channels.p_rpmSensInstance[CH]->tick();  
-                }                   
-            }
+                    case CHANNEL_OBJECT_TYPE__DIGITAL:                       
+                        this->channels.p_digital[CH]->halCallback(!PCF.read(this->channels.PIN[CH])); 
+                    break;
+
+                    case CHANNEL_OBJECT_TYPE__COUNTER:
+                        this->channels.p_counter[CH]->halCallback(!PCF.read(this->channels.PIN[CH]));
+                    break;               
+                }                                  
+            } 
+            this->readsRequested--;            
         }    
     }
 }

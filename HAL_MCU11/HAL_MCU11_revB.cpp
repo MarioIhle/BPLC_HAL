@@ -101,7 +101,5 @@ void HAL_MCU11_revB::tick()
 
 void HAL_MCU11_revB::readEncoder()
 {
-    this->p_encoder->A.halCallback(digitalRead(this->PIN.encoder[0]));
-    this->p_encoder->B.halCallback(digitalRead(this->PIN.encoder[1]));
-    this->p_encoder->pushButton.halCallback(digitalRead(this->PIN.encoder[2]));
+    this->p_encoder->halCallback(digitalRead(this->PIN.encoder[0]), digitalRead(this->PIN.encoder[1]), digitalRead(this->PIN.encoder[2]));
 }

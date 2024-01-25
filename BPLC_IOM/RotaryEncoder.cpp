@@ -23,5 +23,12 @@ e_movement_t RotaryEncoder::getTurningDirection()
 
 bool RotaryEncoder::isButtonPressed()
 {
-    return this->pushButton.risingEdge();
+    return this->Z.risingEdge();
+}
+
+void RotaryEncoder::halCallback(const bool STATE_A, const bool STATE_B, const bool STATE_Z)
+{
+    this->A.halCallback(STATE_A);
+    this->B.halCallback(STATE_B);
+    this->Z.halCallback(STATE_Z);
 }

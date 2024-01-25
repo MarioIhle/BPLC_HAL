@@ -172,15 +172,17 @@ class Output {
 class RotaryEncoder 
 {
 	public:
-                        RotaryEncoder   ();
+                        RotaryEncoder       ();
     e_movement_t        getTurningDirection ();
     bool                isButtonPressed     ();
+    void                halCallback         (const bool STATE_A, const bool STATE_B, const bool STATE_Z);
     
-    DigitalInput   A;
-    DigitalInput   B; 
-    DigitalInput   pushButton; 
 
-  	private:    
+    private: 
+
+    DigitalInput A;
+    DigitalInput B; 
+    DigitalInput Z;   	   
 };
 
 //--------------------------------------------------------------------
@@ -293,11 +295,11 @@ class rpmSensor
     uint16_t    getRPM      ();
     void        tick        ();
 
-    DigitalInput dataObject;
+    
+    void halCallback(const bool STATE);
 
-
-    private:  
-
+    private:      
+    DigitalInput    dataObject;
     unsigned long   startTime;
     uint32_t        samples;
     uint16_t        rpm;
