@@ -5,7 +5,7 @@ uint8_t* p_INT_count_HAL_REV_B;
 
 static void INT_ISR()
 {
-   p_INT_count_HAL_REV_B++;
+   *p_INT_count_HAL_REV_B = 2;
 }
 
 HAL_MCU11_revB::HAL_MCU11_revB()
@@ -27,7 +27,7 @@ void HAL_MCU11_revB::begin()
     pinMode(this->PIN.OEN, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT_PULLUP);
-    attachInterrupt(this->PIN.INT, INT_ISR, CHANGE);   
+    attachInterrupt(this->PIN.INT, INT_ISR, FALLING);   
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
     Serial1.begin(this->baudrate.RS232);    //RS232

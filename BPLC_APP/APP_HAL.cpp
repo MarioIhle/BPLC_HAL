@@ -330,7 +330,7 @@ void BPLC_APP::handleMCUCard()
 void BPLC_APP::handleDIN11Cards()
 {
    if(this->APP_HAL.INT_count > 0)
-   {
+   {   
       for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
       {
          const e_BPLC_ERROR_t ERROR       = this->APP_HAL.DIN11_CARD[CARD].getError();
