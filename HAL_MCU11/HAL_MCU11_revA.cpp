@@ -2,6 +2,12 @@
 
 //Callback für Hardware Interrupt 
 HAL_MCU11_revA* p_THIS_HAL_REV_A;
+uint8_t*        p_INT_count_HAL_REV_A;
+
+static void INT_ISR()
+{
+   p_INT_count_HAL_REV_A++;
+}
 
 static void INT_ENCODER()
 {
@@ -11,8 +17,10 @@ static void INT_ENCODER()
 HAL_MCU11_revA::HAL_MCU11_revA()
 {}
     
-void HAL_MCU11_revA::begin(void (*INT_callBack)(void))
+void HAL_MCU11_revA::begin()
 {
+    //Globaler Pointer auf eigene Instanz, zwecks ISR
+    p_THIS_HAL_REV_A = this;
     //encoder
     pinMode(this->PIN.encoder[0], INPUT);
     pinMode(this->PIN.encoder[1], INPUT);
@@ -20,7 +28,6 @@ void HAL_MCU11_revA::begin(void (*INT_callBack)(void))
     attachInterrupt(this->PIN.encoder[0], INT_ENCODER, CHANGE); 
     attachInterrupt(this->PIN.encoder[1], INT_ENCODER, CHANGE);
     attachInterrupt(this->PIN.encoder[2], INT_ENCODER, CHANGE);
-    p_THIS_HAL_REV_A = this;
     //p_ld1-3
     pinMode(this->PIN.led[0], OUTPUT);
     pinMode(this->PIN.led[1], OUTPUT);
@@ -31,7 +38,7 @@ void HAL_MCU11_revA::begin(void (*INT_callBack)(void))
     pinMode(this->PIN.p_oen, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT_PULLUP);
-    attachInterrupt(this->PIN.INT, INT_callBack, FALLING);       
+    attachInterrupt(this->PIN.INT, INT_ISR, CHANGE);       
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
     Serial1.begin(this->baudrate.RS232);    //RS232
@@ -68,6 +75,11 @@ void HAL_MCU11_revA::mapLD3(Output* P_LD3_OBJECT)
 void HAL_MCU11_revA::mapOEN(Output* P_OEN_OBJECT)
 {
     this->p_oen = P_OEN_OBJECT;
+}
+
+void HAL_MCU11_revA::mapINT(uint8_t* P_INT_COUNT)
+{
+    p_INT_count_HAL_REV_A = P_INT_COUNT;
 }
 
 void HAL_MCU11_revA::tick()

@@ -1,20 +1,5 @@
 #include "BPLC_APP.h"
 
-//Callback für Hardware Interrupt 
-BPLC_APP* p_THIS;
-static void INT_ISR()
-{
-   p_THIS->ISR_CALLED();
-}
-
-void BPLC_APP::ISR_CALLED()
-{   
-   for(uint8_t CARD=0; CARD < DIN11_CARD__MAX; CARD++)
-   {
-      this->APP_HAL.DIN11_CARD[CARD].isrCalled();
-   } 
-}
-
 void BPLC_APP::defineMCU(const e_MCU_CARD_TYPE_t CARD_TYPE)
 {  
    this->APP_HAL.hardwareConfig.MCU_TYPE = CARD_TYPE;      
@@ -61,18 +46,9 @@ void BPLC_APP::addExtensionCard(const e_EXTENSION_CARD_TYPE_t CARDTYPE, const ui
 void BPLC_APP::setupHardware()
 {
    //MCU setup
-   //Encoder   
-   //LD1-3
-   this->APP_HAL.LD1_DEVICE_STATE.begin(255);
-   this->APP_HAL.LD2_COMMUNICATION_STATE.begin(255);     
-   this->APP_HAL.LD3_ERROR_OUT.begin(255);    
-   //BUZZER
+   //BUZZER lautstärke anpassen
    this->APP_HAL.BUZZER.begin(50);
-   //P_OEN
-   this->APP_HAL.OEN.begin(true);  
-   //externer Pointer auf Instanz für externe ISR
-   p_THIS = this;
-
+  
    switch (this->APP_HAL.hardwareConfig.MCU_TYPE)
    {
       case MCU_CARD__MCU11revA:         
@@ -82,7 +58,8 @@ void BPLC_APP::setupHardware()
          this->APP_HAL.MCU11revA_HAL.mapLD2(&this->APP_HAL.LD2_COMMUNICATION_STATE);
          this->APP_HAL.MCU11revA_HAL.mapLD3(&this->APP_HAL.LD3_ERROR_OUT);
          this->APP_HAL.MCU11revA_HAL.mapOEN(&this->APP_HAL.OEN);
-         this->APP_HAL.MCU11revA_HAL.begin(&INT_ISR);
+         this->APP_HAL.MCU11revA_HAL.mapINT(&this->APP_HAL.INT_count);
+         this->APP_HAL.MCU11revA_HAL.begin();
       break;
 
       case MCU_CARD__MCU11revB:         
@@ -92,7 +69,8 @@ void BPLC_APP::setupHardware()
          this->APP_HAL.MCU11revB_HAL.mapLD2(&this->APP_HAL.LD2_COMMUNICATION_STATE);
          this->APP_HAL.MCU11revB_HAL.mapLD3(&this->APP_HAL.LD3_ERROR_OUT);
          this->APP_HAL.MCU11revB_HAL.mapOEN(&this->APP_HAL.OEN);
-         this->APP_HAL.MCU11revB_HAL.begin(&INT_ISR);
+         this->APP_HAL.MCU11revB_HAL.mapINT(&this->APP_HAL.INT_count);
+         this->APP_HAL.MCU11revB_HAL.begin();
       break;
 
       default:
@@ -212,35 +190,6 @@ void BPLC_APP::setupHardware()
    }
 }
 
-void BPLC_APP::tickHardware()
-{
-   this->handleMCUCard();
-   this->handleDIN11Cards();
-   this->handleAIN11Cards();
-   this->handleDO11Cards();
-   this->handleREL11Cards();
-   this->handleMOT11Cards();   
-}
-
-void BPLC_APP::handleMCUCard()
-{  
-   switch (this->APP_HAL.hardwareConfig.MCU_TYPE)
-   {
-      case MCU_CARD__MCU11revA:
-         this->APP_HAL.MCU11revA_HAL.tick();
-         break;
-
-      case MCU_CARD__MCU11revB:
-         this->APP_HAL.MCU11revB_HAL.tick();       
-         break;
-
-      default:
-      case MCU_CARD__NO_MCU_DEFINED:
-         this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED);
-         break;  
-   }
-}
-
 void BPLC_APP::mapObjectToExtensionCard(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_CHANNEL_t CHANNEL)
 {   
    Serial.println("##############################");  
@@ -349,22 +298,55 @@ void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT, const e_REL11_CARD_t C
    this->setSystemError(ERROR); 
 }
 
+void BPLC_APP::tickHardware()
+{
+   this->handleMCUCard();
+   this->handleDIN11Cards();
+   this->handleAIN11Cards();
+   this->handleDO11Cards();
+   this->handleREL11Cards();
+   this->handleMOT11Cards();   
+}
+
+void BPLC_APP::handleMCUCard()
+{  
+   switch (this->APP_HAL.hardwareConfig.MCU_TYPE)
+   {
+      case MCU_CARD__MCU11revA:
+         this->APP_HAL.MCU11revA_HAL.tick();
+         break;
+
+      case MCU_CARD__MCU11revB:
+         this->APP_HAL.MCU11revB_HAL.tick();       
+         break;
+
+      default:
+      case MCU_CARD__NO_MCU_DEFINED:
+         this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED);
+         break;  
+   }
+}
+
 void BPLC_APP::handleDIN11Cards()
 {
-   for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
+   if(this->APP_HAL.INT_count > 0)
    {
-      const e_BPLC_ERROR_t ERROR       = this->APP_HAL.DIN11_CARD[CARD].getError();
-      const bool           CARD_IN_USE = (bool)(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount);
+      for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
+      {
+         const e_BPLC_ERROR_t ERROR       = this->APP_HAL.DIN11_CARD[CARD].getError();
+         const bool           CARD_IN_USE = (bool)(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount);
 
-      if(ERROR == BPLC_ERROR__NO_ERROR)
-      {
-         this->APP_HAL.DIN11_CARD[CARD].tick();
-      }  
-      else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
-      {
-         this->setSystemError(ERROR);
+         if(ERROR == BPLC_ERROR__NO_ERROR)
+         {
+            this->APP_HAL.DIN11_CARD[CARD].tick();
+         }  
+         else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
+         {
+            this->setSystemError(ERROR);
+         }
       }
-   }
+      this->APP_HAL.INT_count--;
+   }   
 }
 
 void BPLC_APP::handleAIN11Cards()

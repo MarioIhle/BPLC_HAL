@@ -83,21 +83,19 @@ class BPLC_APP
     public:
     //Setup des BPLC Systems
     BPLC_APP();
-    void begin();   
-    void defineMCU(const e_MCU_CARD_TYPE_t CARD_TYPE);
+    void begin           ();   
+    void defineMCU       (const e_MCU_CARD_TYPE_t CARD_TYPE);
     void addExtensionCard(const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
-    
-    void setDeviceAddress(const uint8_t DEVICE_ADDRESS);
-    //Ports auf Node mappen
+    //Network
+    void setDeviceAddress(const uint8_t DEVICE_ADDRESS);    
     void mapPortToNetwork(BertaPort* P_PORT);
-   
-    //IO´s auf Extension Cards und Ports mappen        
-    void mapObjectToExtensionCard (DigitalInput*  P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);   
-    void mapObjectToExtensionCard (rpmSensor*     P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);  
-    void mapObjectToExtensionCard (AnalogInput*   P_OBJECT, const e_AIN11_CARD_t  CARD, const e_AIN11_CHANNEL_t CHANNEL);
-    void mapObjectToExtensionCard (Output*        P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_CHANNEL_t  CHANNEL);
-    void mapObjectToExtensionCard (servoMotor*    P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_CHANNEL_t  CHANNEL);    
-    void mapObjectToExtensionCard (Output*        P_OBJECT, const e_REL11_CARD_t  CARD, const e_REL11_PORTS_t   CHANNEL);
+    //IO´s auf Extension Cards mappen        
+    void mapObjectToExtensionCard(DigitalInput*  P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);   
+    void mapObjectToExtensionCard(rpmSensor*     P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);  
+    void mapObjectToExtensionCard(AnalogInput*   P_OBJECT, const e_AIN11_CARD_t  CARD, const e_AIN11_CHANNEL_t CHANNEL);
+    void mapObjectToExtensionCard(Output*        P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_CHANNEL_t  CHANNEL);
+    void mapObjectToExtensionCard(servoMotor*    P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_CHANNEL_t  CHANNEL);    
+    void mapObjectToExtensionCard(Output*        P_OBJECT, const e_REL11_CARD_t  CARD, const e_REL11_PORTS_t   CHANNEL);
 
     //Rountine aufruf
     void tick();
@@ -177,13 +175,13 @@ class BPLC_APP
     struct 
     {
         //Hal objecte zu allen möglichen Erweiterungskarten
-        HAL_MCU11_revA      MCU11revA_HAL;    
-        HAL_MCU11_revB      MCU11revB_HAL;             
-        HAL_DIN11           DIN11_CARD[DIN11_CARD__MAX]; 
-        HAL_AIN11           AIN11_CARD[AIN11_CARD__MAX];
-        HAL_DO11            DO11_CARD [DO11_CARD__MAX];
-        HAL_REL11           REL11_CARD[REL11_CARD__MAX];
-        HAL_MOT11           MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
+        HAL_MCU11_revA  MCU11revA_HAL;    
+        HAL_MCU11_revB  MCU11revB_HAL;             
+        HAL_DIN11       DIN11_CARD[DIN11_CARD__MAX]; 
+        HAL_AIN11       AIN11_CARD[AIN11_CARD__MAX];
+        HAL_DO11        DO11_CARD [DO11_CARD__MAX];
+        HAL_REL11       REL11_CARD[REL11_CARD__MAX];
+        HAL_MOT11       MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
 
         RotaryEncoder   ENCODER; 
         Output          BUZZER;
@@ -191,6 +189,7 @@ class BPLC_APP
         Output          LD2_COMMUNICATION_STATE;
         Output          LD3_ERROR_OUT;   
         Output          OEN;   
+        uint8_t         INT_count;
 
         DigitalInput    Encoder_A;
         DigitalInput    Encoder_B;

@@ -51,17 +51,20 @@ class HAL_MCU11_revA
     public:
     HAL_MCU11_revA();
     
-    void begin(void (*INT_callBack)(void));
+    void begin          ();
     void mapEncoder     (RotaryEncoder* P_ENCODER);
-    void mapBuzzer      (Output* P_BUZZER_OBJECT);
-    void mapLD1         (Output* P_LD1_OBJECT);
-    void mapLD2         (Output* P_LD2_OBJECT);
-    void mapLD3         (Output* P_LD3_OBJECT);
-    void mapOEN         (Output* P_OEN_OBJECT);
+    void mapBuzzer      (Output*        P_BUZZER_OBJECT);
+    void mapLD1         (Output*        P_LD1_OBJECT);
+    void mapLD2         (Output*        P_LD2_OBJECT);
+    void mapLD3         (Output*        P_LD3_OBJECT);
+    void mapOEN         (Output*        P_OEN_OBJECT);
+    void mapINT         (uint8_t*       P_INT_COUNT);
 
     void tick();
     void readEncoder();
 
+
+    private:   
     RotaryEncoder*   p_encoder;
     Output*          p_buzzer;
     Output*          p_ld1;
@@ -69,7 +72,6 @@ class HAL_MCU11_revA
     Output*          p_ld3;   
     Output*          p_oen;             
 
-    private:
     //Serial Baudrate
     struct 
     {
@@ -104,19 +106,20 @@ class HAL_MCU11_revB
     public:
     HAL_MCU11_revB();
     
-    void begin(void (*INT_callBack)(void));
+    void begin          ();
     void mapEncoder     (RotaryEncoder* P_ENCODER);
-    void mapBuzzer      (Output* P_BUZZER_OBJECT);
-    void mapLD1         (Output* P_LD1_OBJECT);
-    void mapLD2         (Output* P_LD2_OBJECT);
-    void mapLD3         (Output* P_LD3_OBJECT);
-    void mapOEN         (Output* P_OEN_OBJECT);
+    void mapBuzzer      (Output*        P_BUZZER_OBJECT);
+    void mapLD1         (Output*        P_LD1_OBJECT);
+    void mapLD2         (Output*        P_LD2_OBJECT);
+    void mapLD3         (Output*        P_LD3_OBJECT);
+    void mapOEN         (Output*        P_OEN_OBJECT);
+    void mapINT         (uint8_t*       P_INT_COUNT);
 
     void tick();
     void readEncoder();
-   
-    private:
 
+
+    private:
     RotaryEncoder*   p_encoder;
     Output*          p_buzzer;
     Output*          p_ld1;

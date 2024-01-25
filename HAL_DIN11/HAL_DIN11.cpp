@@ -12,7 +12,6 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 {  
     this->deviceAddress                 = I2C_ADDRESS;
     this->errorCode                     = BPLC_ERROR__NO_ERROR;
-    this->readsRequested = READ_TWO_TIMES;
 
     //Debug Error ausgabe
     Serial.println("##############################");  
@@ -109,40 +108,25 @@ void HAL_DIN11::tick()
     //Alle genutzen Channels einlesen
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {           
-        if(this->readsRequested > 0)
-        {
-            for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
-            {      
-                switch (this->channels.channelState[CH])
-                {
-                    default:
-                    case CHANNEL_OBJECT_TYPE__NOT_USED:
-                    //do nothing
-                    break;
+        for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
+        {      
+            switch (this->channels.channelState[CH])
+            {
+                default:
+                case CHANNEL_OBJECT_TYPE__NOT_USED:
+                //do nothing
+                break;
 
-                    case CHANNEL_OBJECT_TYPE__DIGITAL:                       
-                        this->channels.p_digital[CH]->halCallback(!PCF.read(this->channels.PIN[CH])); 
-                    break;
+                case CHANNEL_OBJECT_TYPE__DIGITAL:                       
+                    this->channels.p_digital[CH]->halCallback(!PCF.read(this->channels.PIN[CH])); 
+                break;
 
-                    case CHANNEL_OBJECT_TYPE__COUNTER:
-                        this->channels.p_counter[CH]->halCallback(!PCF.read(this->channels.PIN[CH]));
-                    break;               
-                }                                  
-            } 
-            this->readsRequested--;            
-        }    
+                case CHANNEL_OBJECT_TYPE__COUNTER:
+                    this->channels.p_counter[CH]->halCallback(!PCF.read(this->channels.PIN[CH]));
+                break;               
+            }                                  
+        }       
     }
-}
-
-void HAL_DIN11::isrFastRead()
-{      
-    const bool CHANNEL_STATE = !PCF.read(this->channels.PIN[0]);     
-                       
-}
-
-void HAL_DIN11::isrCalled()
-{
-    this->readsRequested = this->readsRequested + READ_TWO_TIMES;
 }
 
 e_BPLC_ERROR_t HAL_DIN11::getError()

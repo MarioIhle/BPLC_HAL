@@ -77,14 +77,8 @@ class HAL_DIN11
     void            tick ();        
     e_BPLC_ERROR_t  getError();    
     
-    //Interrupt handling
-    void isrCalled();
-    void isrFastRead();
-
-    private: 
-    //Applikation  
-    uint8_t readsRequested;
     
+    private:    
     //Safety
     I2C_check       selfCheck;
     e_BPLC_ERROR_t  errorCode;
