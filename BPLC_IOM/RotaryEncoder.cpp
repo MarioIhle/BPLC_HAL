@@ -23,11 +23,11 @@ e_movement_t RotaryEncoder::getTurningDirection()
 {
     e_movement_t direction = movement_idle;    
 
-    if(this->p_A->negEdge() && this->p_B->ishigh())
+    if(this->p_A->fallingEdge() && this->p_B->ishigh())
     {
         direction = movement_right;
     }
-    else if(this->p_B->negEdge() && this->p_A->ishigh())
+    else if(this->p_B->fallingEdge() && this->p_A->ishigh())
     {
         direction = movement_left;
     }
@@ -37,5 +37,5 @@ e_movement_t RotaryEncoder::getTurningDirection()
 
 bool RotaryEncoder::isButtonPressed()
 {
-    return this->p_pushButton->posEdge();
+    return this->p_pushButton->risingEdge();
 }

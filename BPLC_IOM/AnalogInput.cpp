@@ -1,13 +1,10 @@
 #include "BPLC_IOM.h"
 
-AnalogInput::AnalogInput()
-{}
-   
-void AnalogInput::setMaxVoltage(const float VOLTAGE)
+AnalogInput::AnalogInput(const float MAX_VOLTAGE)
 {
-	this->maxVoltage = VOLTAGE;
+	this->maxVoltage = MAX_VOLTAGE;
 }
-
+   
 uint16_t AnalogInput::getValue()
 {
 	return this->inputValue.value;
@@ -15,15 +12,47 @@ uint16_t AnalogInput::getValue()
 
 float AnalogInput::getValueInVolt()
 {
-	float VALUE_IN_VOLT = this->rawPortVoltage;
-	
-	//Spannungsteiler beachten
-	if(this->maxVoltage > 5.00)
+	// see data sheet Table 3
+	float fsRange;
+	switch(this->adcGain) 
 	{
-		VALUE_IN_VOLT = SPANNUNGSTEILER * VALUE_IN_VOLT;
+		case GAIN_TWOTHIRDS:
+			fsRange = 6.144f;
+			break;
+
+		case GAIN_ONE:
+			fsRange = 4.096f;
+			break;
+
+		case GAIN_TWO:
+			fsRange = 2.048f;
+			break;
+
+		case GAIN_FOUR:
+			fsRange = 1.024f;
+			break;
+
+		case GAIN_EIGHT:
+			fsRange = 0.512f;
+			break;
+
+		case GAIN_SIXTEEN:
+			fsRange = 0.256f;
+			break;
+
+		default:
+			fsRange = 0.0f;
 	}
 
-	return VALUE_IN_VOLT;
+  	float valueInVolt = this->inputValue.value * (fsRange / (32768 >> 0));
+	
+	//Spannungsteiler beachten, falls in verwendung
+	if(this->maxVoltage > 5.00)
+	{
+		valueInVolt = SPANNUNGSTEILER * valueInVolt;
+	}
+
+	return valueInVolt;
 }
 
 void AnalogInput::setAlarm(const uint16_t ALARM_VALUE)
@@ -36,13 +65,15 @@ bool AnalogInput::isAlarmValueReached()
 	return (bool)(this->inputValue.value >= this->alarmValue);
 }
 
-void AnalogInput::setPortValue(const uint16_t VALUE)
+//--------------------------------------------------------------------
+//HAL Setter funktionen
+void AnalogInput::halCallback(const uint16_t VALUE)
 {
 	this->inputValue.previousValue 	= this->inputValue.value;
 	this->inputValue.value 			= VALUE;
 }
 
-void AnalogInput::setRawPortVoltage(const float PORT_VOLTAGE)
+void AnalogInput::setADCGain(const adsGain_t ADC_GAIN)
 {
-	this->rawPortVoltage = PORT_VOLTAGE;
+	this->adcGain = ADC_GAIN;
 }

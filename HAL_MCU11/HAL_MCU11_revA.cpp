@@ -63,32 +63,32 @@ void HAL_MCU11_revA::mapOEN(Output* P_OEN_OBJECT)
 void HAL_MCU11_revA::tick()
 {  
     //Encoder lesen
-    this->P_Encoder_A->setPortState(digitalRead(this->PIN.encoder[0]));
-    this->P_Encoder_B->setPortState(digitalRead(this->PIN.encoder[1]));
-    this->P_Encoder_Z->setPortState(digitalRead(this->PIN.encoder[2]));
+    this->P_Encoder_A->halCallback(digitalRead(this->PIN.encoder[0]));
+    this->P_Encoder_B->halCallback(digitalRead(this->PIN.encoder[1]));
+    this->P_Encoder_Z->halCallback(digitalRead(this->PIN.encoder[2]));
     //P_OEN schreiben
     if(this->P_OEN->isThereANewPortValue())
     {
-        digitalWrite(this->PIN.P_OEN, this->P_OEN->getValue().value);
+        digitalWrite(this->PIN.P_OEN, this->P_OEN->halCallback().value);
     }
     //buzzer
     if(this->P_BUZZER->isThereANewPortValue())
     {
-        analogWrite(this->PIN.buzzer, this->P_BUZZER->getValue().value);
+        analogWrite(this->PIN.buzzer, this->P_BUZZER->halCallback().value);
     }
     //P_LD1
     if(this->P_LD1->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[0], this->P_LD1->getValue().value);
+        analogWrite(this->PIN.led[0], this->P_LD1->halCallback().value);
     }
     //LD_COMMUNACTION_STATE
     if(this->P_LD2->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[1], this->P_LD2->getValue().value);
+        analogWrite(this->PIN.led[1], this->P_LD2->halCallback().value);
     }
     //P_LD3
     if(this->P_LD3->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[2], this->P_LD3->getValue().value);  
+        analogWrite(this->PIN.led[2], this->P_LD3->halCallback().value);  
     }    
 }

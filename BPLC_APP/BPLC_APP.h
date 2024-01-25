@@ -91,12 +91,13 @@ class BPLC_APP
     //Ports auf Node mappen
     void mapPortToNetwork(BertaPort* P_PORT);
    
-    //IO´s auf Extension Cards und Ports mappen    
-    void mapObjectToCardAndPort (DigitalInput*  P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_PORTS_t PORT);    
-    void mapObjectToCardAndPort (Output*        P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_PORTS_t  PORT);
-    void mapObjectToCardAndPort (servoMotor*    P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_PORTS_t  PORT);
-    void mapObjectToCardAndPort (AnalogInput*   P_OBJECT, const e_AIN11_CARD_t  CARD, const e_AIN11_PORTS_t PORT);
-    void mapObjectToCardAndPort (Output*        P_OBJECT, const e_REL11_CARD_t  CARD, const e_REL11_PORTS_t PORT);
+    //IO´s auf Extension Cards und Ports mappen        
+    void mapObjectToExtensionCard (DigitalInput*  P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);   
+    void mapObjectToExtensionCard (rpmSensor*     P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);  
+    void mapObjectToExtensionCard (AnalogInput*   P_OBJECT, const e_AIN11_CARD_t  CARD, const e_AIN11_CHANNEL_t CHANNEL);
+    void mapObjectToExtensionCard (Output*        P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_CHANNEL_t  CHANNEL);
+    void mapObjectToExtensionCard (servoMotor*    P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_CHANNEL_t  CHANNEL);    
+    void mapObjectToExtensionCard (Output*        P_OBJECT, const e_REL11_CARD_t  CARD, const e_REL11_PORTS_t   CHANNEL);
 
     //Rountine aufruf
     void tick();

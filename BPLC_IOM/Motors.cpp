@@ -160,11 +160,11 @@ void servoMotor::setMinMaxAngle(const uint16_t MIN, const uint16_t MAX)
 {
     this->minAngle = MIN;
     this->maxAngle = MAX;
-    pwmValueCalculator.PCA9685_ServoEval(MIN, MAX);
+    //pwmValueCalculator.PCA9685_ServoEval(MIN, MAX);
 }
 
 void servoMotor::setServoPosition(const uint16_t POSITION)
 {
     uint16_t SERVO_PWM = this->pwmValueCalculator.pwmForAngle(POSITION);
-    this->PORT.setValue(SERVO_PWM);
+    this->CHANNEL.setValue(SERVO_PWM);
 }

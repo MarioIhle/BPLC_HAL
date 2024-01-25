@@ -32,18 +32,18 @@ typedef enum
 
 typedef enum
 {
-    DO11_PORT__1,
-    DO11_PORT__2,
-    DO11_PORT__3,   
-    DO11_PORT__4,
-    DO11_PORT__5,
-    DO11_PORT__6,
-    DO11_PORT__7,
-    DO11_PORT__8,
+    DO11_CHANNEL__1,
+    DO11_CHANNEL__2,
+    DO11_CHANNEL__3,   
+    DO11_CHANNEL__4,
+    DO11_CHANNEL__5,
+    DO11_CHANNEL__6,
+    DO11_CHANNEL__7,
+    DO11_CHANNEL__8,
 
-    DO11_PORT__COUNT,
+    DO11_CHANNEL__COUNT,
 
-}e_DO11_PORTS_t;
+}e_DO11_CHANNEL_t;
 
 
 #define DEAD_TIME 100 //besser geht nicht, ohne kurzeitigen Kurzschluss bei PWM änderung
@@ -56,10 +56,9 @@ class HAL_DO11 {
     HAL_DO11();
     void begin(const e_DO11_ADDRESS_t I2C_ADDRESS);
 
-    void            setPWMFreqency          (const uint8_t FREQUENCY);
-    e_BPLC_ERROR_t  mapObjectToNextFreePort (Output* P_OBJECT);
-    e_BPLC_ERROR_t  mapObjectToSpecificPort (Output* P_OBJECT,      const e_DO11_PORTS_t PORT);
-    e_BPLC_ERROR_t  mapObjectToSpecificPort (servoMotor* P_OBJECT,  const e_DO11_PORTS_t PORT);
+    void            setPWMFrequency    (const uint8_t FREQUENCY);
+    e_BPLC_ERROR_t  mapObjectToChannel (Output*     P_OBJECT,  const e_DO11_CHANNEL_t CHANNEL);
+    e_BPLC_ERROR_t  mapObjectToChannel (servoMotor* P_OBJECT,  const e_DO11_CHANNEL_t CHANNEL);
 
     void tick();
 
@@ -78,9 +77,9 @@ class HAL_DO11 {
     
     struct
     {
-        e_PORT_USEAGE_t used    [DO11_PORT__COUNT];
-        Output*         p_object[DO11_PORT__COUNT];        
-    }ports; 
-    const uint8_t   PIN     [DO11_PORT__COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}     
+        e_CHANNEL_STATE_t   used    [DO11_CHANNEL__COUNT];
+        Output*             p_object[DO11_CHANNEL__COUNT];        
+        const uint8_t       PIN     [DO11_CHANNEL__COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}
+    }channels; 
 };
 #endif

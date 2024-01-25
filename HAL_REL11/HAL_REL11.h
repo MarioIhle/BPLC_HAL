@@ -60,7 +60,7 @@ class HAL_REL11 {
 
     void begin(const e_REL11_ADDRESS_t I2C_ADDRESS);
     e_BPLC_ERROR_t mapObjectToNextFreePort(Output* P_OBJECT);
-    e_BPLC_ERROR_t mapObjectToSpecificPort(Output* P_OBJECT, const uint8_t PORT);
+    e_BPLC_ERROR_t mapObjectToChannel(Output* P_OBJECT, const uint8_t PORT);
 
     void tick();
     
@@ -79,9 +79,9 @@ class HAL_REL11 {
 
     struct
     {
-        e_PORT_USEAGE_t used    [REL11_PORT__COUNT];
+        e_CHANNEL_STATE_t used    [REL11_PORT__COUNT];
         Output*         p_object[REL11_PORT__COUNT];        
-    }ports; 
+    }channels; 
     const uint8_t   PIN     [REL11_PORT__COUNT] = {0, 1, 2}; 
 };
 

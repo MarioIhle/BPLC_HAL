@@ -11,7 +11,7 @@ void BPLC_APP::ISR_CALLED()
 {   
    for(uint8_t CARD=0; CARD < DIN11_CARD__MAX; CARD++)
    {
-      this->APP_HAL.DIN11_CARD[CARD].somePinOfsomeDinCardChanged();
+      this->APP_HAL.DIN11_CARD[CARD].isrCalled();
    } 
 }
 
@@ -242,16 +242,16 @@ void BPLC_APP::handleMCUCard()
    }
 }
 
-void BPLC_APP::mapObjectToCardAndPort(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_PORTS_t PORT)
+void BPLC_APP::mapObjectToExtensionCard(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_CHANNEL_t CHANNEL)
 {   
    Serial.println("##############################");  
-   Serial.print("map object to DIN11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" PORT: "); Serial.println((1 + (uint8_t)PORT));
+   Serial.print("map DigitalInput to DIN11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" CHANNEL: "); Serial.println((1 + (uint8_t)CHANNEL));
 
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
    if(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount)
    {
-      ERROR = this->APP_HAL.DIN11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
+      ERROR = this->APP_HAL.DIN11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
    }
    else
    {
@@ -260,16 +260,34 @@ void BPLC_APP::mapObjectToCardAndPort(DigitalInput* P_OBJECT, const e_DIN11_CARD
    this->setSystemError(ERROR); 
 }
 
-void BPLC_APP::mapObjectToCardAndPort(Output* P_OBJECT,const e_DO11_CARD_t CARD, const e_DO11_PORTS_t PORT)
+void BPLC_APP::mapObjectToExtensionCard(rpmSensor* P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL)  
 {   
    Serial.println("##############################");  
-   Serial.print("map object to DO11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" PORT: "); Serial.println((1 + (uint8_t)PORT));
+   Serial.print("map rpmSensor to DIN11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" CHANNEL: "); Serial.println((1 + (uint8_t)CHANNEL));
+
+   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
+
+   if(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount)
+   {
+      ERROR = this->APP_HAL.DIN11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
+   }
+   else
+   {
+      ERROR = DIN11_ERROR__CARD_NOT_DEFINED;
+   }   
+   this->setSystemError(ERROR); 
+}
+
+void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT,const e_DO11_CARD_t CARD, const e_DO11_CHANNEL_t CHANNEL)
+{   
+   Serial.println("##############################");  
+   Serial.print("map Output to DO11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" CHANNEL: "); Serial.println((1 + (uint8_t)CHANNEL));
 
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
    if(CARD < this->APP_HAL.hardwareConfig.do11RevACardCount)
    {
-      ERROR = this->APP_HAL.DO11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
+      ERROR = this->APP_HAL.DO11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
    }
    else
    {
@@ -278,16 +296,16 @@ void BPLC_APP::mapObjectToCardAndPort(Output* P_OBJECT,const e_DO11_CARD_t CARD,
    this->setSystemError(ERROR); 
 }
 
-void BPLC_APP::mapObjectToCardAndPort(servoMotor* P_OBJECT, const e_DO11_CARD_t CARD, const e_DO11_PORTS_t PORT)
+void BPLC_APP::mapObjectToExtensionCard(servoMotor* P_OBJECT, const e_DO11_CARD_t CARD, const e_DO11_CHANNEL_t CHANNEL)
 {   
    Serial.println("##############################");  
-   Serial.print("map object to DO11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" PORT: "); Serial.println((1 + (uint8_t)PORT));
+   Serial.print("map servoMotor to DO11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" CHANNEL: "); Serial.println((1 + (uint8_t)CHANNEL));
 
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
    if(CARD < this->APP_HAL.hardwareConfig.do11RevACardCount)
    {
-      ERROR = this->APP_HAL.DO11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
+      ERROR = this->APP_HAL.DO11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
    }
    else
    {
@@ -296,16 +314,16 @@ void BPLC_APP::mapObjectToCardAndPort(servoMotor* P_OBJECT, const e_DO11_CARD_t 
    this->setSystemError(ERROR); 
 }
 
-void BPLC_APP::mapObjectToCardAndPort(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_PORTS_t PORT)
+void BPLC_APP::mapObjectToExtensionCard(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_CHANNEL_t CHANNEL)
 {   
    Serial.println("##############################");  
-   Serial.print("map object to AIN11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" PORT: "); Serial.println((1 + (uint8_t)PORT));
+   Serial.print("map AnalogInput to AIN11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" CHANNEL: "); Serial.println((1 + (uint8_t)CHANNEL));
 
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
    if(CARD < this->APP_HAL.hardwareConfig.ain11RevACardCount)
    {
-      ERROR = this->APP_HAL.AIN11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
+      ERROR = this->APP_HAL.AIN11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
    }
    else
    {
@@ -314,16 +332,16 @@ void BPLC_APP::mapObjectToCardAndPort(AnalogInput* P_OBJECT, const e_AIN11_CARD_
    this->setSystemError(ERROR); 
 }
 
-void BPLC_APP::mapObjectToCardAndPort(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t PORT)
+void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t CHANNEL)
 {
    Serial.println("##############################");  
-   Serial.print("map object to REL11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" PORT: "); Serial.println((1 + (uint8_t)PORT));
+   Serial.print("map Output to REL11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" CHANNEL: "); Serial.println((1 + (uint8_t)CHANNEL));
 
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
    if(CARD < this->APP_HAL.hardwareConfig.rel11RevACardCount)
    {
-      ERROR = this->APP_HAL.REL11_CARD[CARD].mapObjectToSpecificPort(P_OBJECT, PORT);
+      ERROR = this->APP_HAL.REL11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
    }
    else
    {
@@ -415,7 +433,7 @@ void BPLC_APP::handleMOT11Cards()
       {
          this->APP_HAL.MOT11_CARD[CARD].tick();
       }
-      else if(ERROR == MOT11_ERROR__OEN_DISABLED && this->APP_HAL.OEN.getValue().value == false)
+      else if(ERROR == MOT11_ERROR__OEN_DISABLED && this->APP_HAL.OEN.halCallback().value == false)
       {//Kein Fehler, wenn von MCU gesteuert abgeschaltet wird
          this->APP_HAL.MOT11_CARD[CARD].tick();
       }

@@ -66,7 +66,8 @@ class HAL_DIN11
     public:
     HAL_DIN11 ();
     void            begin               (const e_DIN11_ADDRESS_t I2C_ADDRESS);
-    e_BPLC_ERROR_t  mapObjectToChannel  (DigitalInput* P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL);
+    e_BPLC_ERROR_t  mapObjectToChannel  (DigitalInput*  P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL);
+    e_BPLC_ERROR_t  mapObjectToChannel  (rpmSensor*     P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL);
     
     void            tick ();        
     e_BPLC_ERROR_t  getError();    

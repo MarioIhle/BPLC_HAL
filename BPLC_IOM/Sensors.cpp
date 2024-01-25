@@ -39,28 +39,17 @@ float PT10x::getTemperatur()
 rpmSensor::rpmSensor()
 {}
 
-void rpmSensor::begin(DigitalInput* P_PORT)
+void rpmSensor::begin(const uint16_t PULSES_PER_REV, const uint16_t SAMPLE_TIME)
 {
-	this->p_PORT 				= P_PORT;
 	this->pulsesPerRevolution 	= 1;
 	this->startTime 			= millis();
 	this->samples				= 0;
-	this->to_rpmCalculation.setInterval(500);
-}
-
-void rpmSensor::setPulsesPerRevolution(const uint16_t PULSES_PER_REV)
-{
-	this->pulsesPerRevolution = PULSES_PER_REV;
-}
-
-void rpmSensor::setCalculationTime(const uint16_t TIME)
-{
-	this->to_rpmCalculation.setInterval(TIME);
+	this->to_rpmCalculation.setInterval(SAMPLE_TIME);
 }
 
 uint16_t rpmSensor::getRPM()
 {
-	if(this->p_PORT->posEdge())
+	if(this->CHANNEL.risingEdge())
 	{
 		this->samples++;
 	}
@@ -76,9 +65,4 @@ uint16_t rpmSensor::getRPM()
 		this->rpm 		= (uint16_t)RPM;
 	}
 	return this->rpm;
-}
-
-void rpmSensor::isrPulse()
-{
-	this->samples++;
 }

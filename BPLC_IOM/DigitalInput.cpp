@@ -31,7 +31,7 @@ if(PIN_IS_LOW)
     return PIN_IS_LOW;
 }
 
-bool DigitalInput::posEdge()
+bool DigitalInput::risingEdge()
 {
     const bool POSITIVE_FLANK_OCCURED = (bool)(this->inputState.value == true && this->inputState.previousValue == false);
 
@@ -45,7 +45,7 @@ if(POSITIVE_FLANK_OCCURED)
     return POSITIVE_FLANK_OCCURED;
 }
 
-bool DigitalInput::negEdge()
+bool DigitalInput::fallingEdge()
 {
     const bool NEGATIVE_FLANK_OCCURED = (bool)(this->inputState.value == false && this->inputState.previousValue == true);
 
@@ -59,7 +59,10 @@ if(NEGATIVE_FLANK_OCCURED)
     return NEGATIVE_FLANK_OCCURED;
 }
 
-void DigitalInput::setPortState(const bool STATE)
+
+//--------------------------------------------------------------------
+//HAL setter Funktion
+void DigitalInput::halCallback(const bool STATE)
 {
 	this->inputState.previousValue 	= this->inputState.value;
 	this->inputState.value 			= STATE;

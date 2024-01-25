@@ -2,7 +2,7 @@
 
 HAL_REL11::HAL_REL11()
 {
-    memset(&this->ports, 0, sizeof(this->ports));
+    memset(&this->channels, 0, sizeof(this->channels));
 }
 
 void HAL_REL11::begin(const e_REL11_ADDRESS_t I2C_ADDRESS)
@@ -57,30 +57,30 @@ e_BPLC_ERROR_t HAL_REL11::mapObjectToNextFreePort(Output* P_OBJECT)
 {  
     for(uint8_t PORT = 0; PORT < REL11_PORT__COUNT; PORT++)
     {
-        if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
+        if(this->channels.used[PORT] == CHANNEL_STATE__NOT_IN_USE)
         {
-            this->ports.p_object[PORT] = P_OBJECT;
-            this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
+            this->channels.p_object[PORT] = P_OBJECT;
+            this->channels.used[PORT]     = CHANNEL_STATE__MAPPED_TO_OBJECT;
             break;
         }
-        else if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT && PORT == REL11_PORT__3)
+        else if(this->channels.used[PORT] == CHANNEL_STATE__MAPPED_TO_OBJECT && PORT == REL11_PORT__3)
         {
-            this->errorCode = REL11_ERROR__PORT_OVERFLOW;
+            this->errorCode = REL11_ERROR__ALL_CHANNELS_ALREADY_IN_USE;
         }
     }
     return this->errorCode;
 }
 
-e_BPLC_ERROR_t HAL_REL11::mapObjectToSpecificPort(Output* P_OBJECT, const uint8_t PORT)
+e_BPLC_ERROR_t HAL_REL11::mapObjectToChannel(Output* P_OBJECT, const uint8_t PORT)
 {
-    if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE)
+    if(this->channels.used[PORT] == CHANNEL_STATE__NOT_IN_USE)
     {
-        this->ports.p_object[PORT] = P_OBJECT;
-        this->ports.used[PORT]     = PORT_USEAGE__MAPPED_TO_OBJECT;
+        this->channels.p_object[PORT] = P_OBJECT;
+        this->channels.used[PORT]     = CHANNEL_STATE__MAPPED_TO_OBJECT;
     }
     else 
     {
-        this->errorCode = REL11_ERROR__PORT_ALREADY_DEFINED;
+        this->errorCode = REL11_ERROR__CHANNEL_ALREADY_IN_USE;
     }
     return this->errorCode;
 }
@@ -95,13 +95,13 @@ void HAL_REL11::tick()
     //Prüfen ob überhaupt ein Port in benutzung
     for(uint8_t PORT = 0; PORT < REL11_PORT__COUNT; PORT++)
     {            
-        if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)
+        if(this->channels.used[PORT] == CHANNEL_STATE__MAPPED_TO_OBJECT)
         {
             break;
         }
-        else if(this->ports.used[PORT] == PORT_USEAGE__NOT_IN_USE && PORT == (REL11_PORT__COUNT - 1))
+        else if(this->channels.used[PORT] == CHANNEL_STATE__NOT_IN_USE && PORT == (REL11_PORT__COUNT - 1))
         {//letzter Port und immernoch keiner in nutzung
-            this->errorCode = REL11_ERROR__NO_PORT_IN_USE;
+            this->errorCode = REL11_ERROR__NO_CHANNEL_IN_USE;
         }
     }
 
@@ -109,15 +109,15 @@ void HAL_REL11::tick()
     {         
         for(int PORT = 0; PORT < REL11_PORT__COUNT; PORT++)
         {
-            if(this->ports.used[PORT] == PORT_USEAGE__MAPPED_TO_OBJECT)
+            if(this->channels.used[PORT] == CHANNEL_STATE__MAPPED_TO_OBJECT)
             {
-                if(this->ports.p_object[PORT]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
+                if(this->channels.p_object[PORT]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
                 {
-                    if(this->ports.p_object[PORT]->getValue().value >= 1)
+                    if(this->channels.p_object[PORT]->halCallback().value >= 1)
                     {
                         this->PCF.write(this->PIN[PORT], true);
                     }
-                    else if(this->ports.p_object[PORT]->getValue().value == false)
+                    else if(this->channels.p_object[PORT]->halCallback().value == false)
                     {
                         this->PCF.write(this->PIN[PORT], false);
                     }
