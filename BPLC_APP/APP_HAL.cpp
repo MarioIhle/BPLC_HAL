@@ -61,8 +61,7 @@ void BPLC_APP::addExtensionCard(const e_EXTENSION_CARD_TYPE_t CARDTYPE, const ui
 void BPLC_APP::setupHardware()
 {
    //MCU setup
-   //Encoder
-   this->APP_HAL.ENCODER.begin(&this->APP_HAL.Encoder_A, &this->APP_HAL.Encoder_B, &this->APP_HAL.Encoder_Z);
+   //Encoder   
    //LD1-3
    this->APP_HAL.LD1_DEVICE_STATE.begin(255);
    this->APP_HAL.LD2_COMMUNICATION_STATE.begin(255);     
@@ -77,7 +76,7 @@ void BPLC_APP::setupHardware()
    switch (this->APP_HAL.hardwareConfig.MCU_TYPE)
    {
       case MCU_CARD__MCU11revA:         
-         this->APP_HAL.MCU11revA_HAL.mapEncoder(&this->APP_HAL.Encoder_A, &this->APP_HAL.Encoder_B, &this->APP_HAL.Encoder_Z);
+         this->APP_HAL.MCU11revA_HAL.mapEncoder(&this->APP_HAL.ENCODER);
          this->APP_HAL.MCU11revA_HAL.mapBuzzer(&this->APP_HAL.BUZZER);
          this->APP_HAL.MCU11revA_HAL.mapLD1(&this->APP_HAL.LD1_DEVICE_STATE);
          this->APP_HAL.MCU11revA_HAL.mapLD2(&this->APP_HAL.LD2_COMMUNICATION_STATE);
@@ -87,7 +86,7 @@ void BPLC_APP::setupHardware()
       break;
 
       case MCU_CARD__MCU11revB:         
-         this->APP_HAL.MCU11revB_HAL.mapEncoder(&this->APP_HAL.Encoder_A, &this->APP_HAL.Encoder_B, &this->APP_HAL.Encoder_Z);
+         this->APP_HAL.MCU11revB_HAL.mapEncoder(&this->APP_HAL.ENCODER);
          this->APP_HAL.MCU11revB_HAL.mapBuzzer(&this->APP_HAL.BUZZER);
          this->APP_HAL.MCU11revB_HAL.mapLD1(&this->APP_HAL.LD1_DEVICE_STATE);
          this->APP_HAL.MCU11revB_HAL.mapLD2(&this->APP_HAL.LD2_COMMUNICATION_STATE);

@@ -49,7 +49,7 @@ void rpmSensor::begin(const uint16_t PULSES_PER_REV, const uint16_t SAMPLE_TIME)
 
 void rpmSensor::tick()
 {
-	if(this->CHANNEL.risingEdge())
+	if(this->dataObject.risingEdge())
 	{
 		this->samples++;
 	}

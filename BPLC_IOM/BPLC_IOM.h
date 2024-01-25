@@ -173,16 +173,14 @@ class RotaryEncoder
 {
 	public:
                         RotaryEncoder   ();
-                        RotaryEncoder   (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);   
-    void                begin           (DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON);
-
     e_movement_t        getTurningDirection ();
     bool                isButtonPressed     ();
     
-  	private:
-    DigitalInput*   p_A;
-    DigitalInput*   p_B; 
-    DigitalInput*   p_pushButton; 
+    DigitalInput   A;
+    DigitalInput   B; 
+    DigitalInput   pushButton; 
+
+  	private:    
 };
 
 //--------------------------------------------------------------------
@@ -295,8 +293,7 @@ class rpmSensor
     uint16_t    getRPM      ();
     void        tick        ();
 
-  
-    DigitalInput    CHANNEL;
+    DigitalInput dataObject;
 
 
     private:  

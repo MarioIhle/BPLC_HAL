@@ -74,7 +74,7 @@ e_BPLC_ERROR_t HAL_DIN11::mapObjectToChannel(rpmSensor* P_OBJECT, const e_DIN11_
 {
     if(this->channels.used[CHANNEL] == CHANNEL_STATE__NOT_IN_USE)
     {
-        this->channels.p_object[CHANNEL] = &P_OBJECT->CHANNEL;
+        this->channels.p_object[CHANNEL] = &P_OBJECT->dataObject;
         this->channels.used[CHANNEL]     = CHANNEL_STATE__MAPPED_TO_OBJECT;
         //Vielleicht irgendwas wegen dem ISR machen? 
     }

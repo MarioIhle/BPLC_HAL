@@ -1,5 +1,13 @@
 #include "HAL_MCU11.h"
 
+//Callback für Hardware Interrupt 
+HAL_MCU11_revA* p_THIS_HAL_REV_A;
+
+static void INT_ENCODER()
+{
+   p_THIS_HAL_REV_A->readEncoder();
+}
+
 HAL_MCU11_revA::HAL_MCU11_revA()
 {}
     
@@ -9,17 +17,21 @@ void HAL_MCU11_revA::begin(void (*INT_callBack)(void))
     pinMode(this->PIN.encoder[0], INPUT);
     pinMode(this->PIN.encoder[1], INPUT);
     pinMode(this->PIN.encoder[2], INPUT);
-    //P_LD1-3
+    attachInterrupt(this->PIN.encoder[0], INT_ENCODER, CHANGE); 
+    attachInterrupt(this->PIN.encoder[1], INT_ENCODER, CHANGE);
+    attachInterrupt(this->PIN.encoder[2], INT_ENCODER, CHANGE);
+    p_THIS_HAL_REV_A = this;
+    //p_ld1-3
     pinMode(this->PIN.led[0], OUTPUT);
     pinMode(this->PIN.led[1], OUTPUT);
     pinMode(this->PIN.led[2], OUTPUT);    
     //P_BUZZER
     pinMode(this->PIN.buzzer, OUTPUT);
-    //P_OEN
-    pinMode(this->PIN.P_OEN, OUTPUT);
+    //p_oen
+    pinMode(this->PIN.p_oen, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT_PULLUP);
-    attachInterrupt(this->PIN.INT, INT_callBack, FALLING);   
+    attachInterrupt(this->PIN.INT, INT_callBack, FALLING);       
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
     Serial1.begin(this->baudrate.RS232);    //RS232
@@ -28,67 +40,68 @@ void HAL_MCU11_revA::begin(void (*INT_callBack)(void))
     Wire.begin();
 }
 
-void HAL_MCU11_revA::mapEncoder(DigitalInput* P_PORT_A, DigitalInput* P_PORT_B, DigitalInput* P_PORT_PUSHBUTTON)
+void HAL_MCU11_revA::mapEncoder(RotaryEncoder* P_ENCODER)
 {
-    this->P_Encoder_A = P_PORT_A;
-    this->P_Encoder_B = P_PORT_B;
-    this->P_Encoder_Z = P_PORT_PUSHBUTTON;
+    this->p_encoder = P_ENCODER;
 }
 
 void HAL_MCU11_revA::mapBuzzer(Output* P_BUZZER_OBJECT)
 {
-    this->P_BUZZER = P_BUZZER_OBJECT;
+    this->p_buzzer = P_BUZZER_OBJECT;
 }
 
 void HAL_MCU11_revA:: mapLD1(Output* P_LD1_OBJECT)
 {
-    this->P_LD1 = P_LD1_OBJECT;
+    this->p_ld1 = P_LD1_OBJECT;
 }
 
 void HAL_MCU11_revA::mapLD2(Output* P_LD2_OBJECT)
 {
-    this->P_LD2 = P_LD2_OBJECT;
+    this->p_ld2 = P_LD2_OBJECT;
 }
 
 void HAL_MCU11_revA::mapLD3(Output* P_LD3_OBJECT)
 {
-    this->P_LD3 = P_LD3_OBJECT;
+    this->p_ld3 = P_LD3_OBJECT;
 }
 
 void HAL_MCU11_revA::mapOEN(Output* P_OEN_OBJECT)
 {
-    this->P_OEN = P_OEN_OBJECT;
+    this->p_oen = P_OEN_OBJECT;
 }
 
 void HAL_MCU11_revA::tick()
 {  
-    //Encoder lesen
-    this->P_Encoder_A->halCallback(digitalRead(this->PIN.encoder[0]));
-    this->P_Encoder_B->halCallback(digitalRead(this->PIN.encoder[1]));
-    this->P_Encoder_Z->halCallback(digitalRead(this->PIN.encoder[2]));
-    //P_OEN schreiben
-    if(this->P_OEN->isThereANewPortValue())
+    //p_oen schreiben
+    if(this->p_oen->isThereANewPortValue())
     {
-        digitalWrite(this->PIN.P_OEN, this->P_OEN->halCallback().value);
+        digitalWrite(this->PIN.p_oen, this->p_oen->halCallback().value);
     }
     //buzzer
-    if(this->P_BUZZER->isThereANewPortValue())
+    if(this->p_buzzer->isThereANewPortValue())
     {
-        analogWrite(this->PIN.buzzer, this->P_BUZZER->halCallback().value);
+        analogWrite(this->PIN.buzzer, this->p_buzzer->halCallback().value);
     }
-    //P_LD1
-    if(this->P_LD1->isThereANewPortValue())
+    //p_ld1
+    if(this->p_ld1->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[0], this->P_LD1->halCallback().value);
+        analogWrite(this->PIN.led[0], this->p_ld1->halCallback().value);
     }
     //LD_COMMUNACTION_STATE
-    if(this->P_LD2->isThereANewPortValue())
+    if(this->p_ld2->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[1], this->P_LD2->halCallback().value);
+        analogWrite(this->PIN.led[1], this->p_ld2->halCallback().value);
     }
-    //P_LD3
-    if(this->P_LD3->isThereANewPortValue())
+    //p_ld3
+    if(this->p_ld3->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[2], this->P_LD3->halCallback().value);  
+        analogWrite(this->PIN.led[2], this->p_ld3->halCallback().value);  
     }    
+}
+
+void HAL_MCU11_revA::readEncoder()
+{
+    this->p_encoder->A.halCallback(digitalRead(this->PIN.encoder[0]));
+    this->p_encoder->B.halCallback(digitalRead(this->PIN.encoder[1]));
+    this->p_encoder->pushButton.halCallback(digitalRead(this->PIN.encoder[2]));
 }
