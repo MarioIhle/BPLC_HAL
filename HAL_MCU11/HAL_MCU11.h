@@ -61,7 +61,6 @@ class HAL_MCU11_revA
     void mapINT         (uint8_t*       P_INT_COUNT);
 
     void tick();
-    void readEncoder();
 
 
     private:   
@@ -83,8 +82,12 @@ class HAL_MCU11_revA
     //Pinsdefinition
     struct 
     {        
-        const uint8_t encoder[3]= {39, 36, 34};
-        const uint8_t led[3]    = {27, 26, 25};
+        const uint8_t encoder_A = 39;
+        const uint8_t encoder_B = 36;
+        const uint8_t encoder_Z = 34;  
+        const uint8_t ld1       = 27;
+        const uint8_t ld2       = 26;
+        const uint8_t ld3       = 25;
         #ifdef DEBUGGING_MCU11_revA
         const uint8_t p_oen       = 26;
         #endif
@@ -116,7 +119,6 @@ class HAL_MCU11_revB
     void mapINT         (uint8_t*       P_INT_COUNT);
 
     void tick();
-    void readEncoder();
 
 
     private:
@@ -137,8 +139,12 @@ class HAL_MCU11_revB
     //Pinsdefinition
     struct 
     {        
-        const uint8_t encoder[3]= {39, 36, 34};
-        const uint8_t led[3]    = {27, 26, 25};
+        const uint8_t encoder_A = 39;
+        const uint8_t encoder_B = 36;
+        const uint8_t encoder_Z = 34;  
+        const uint8_t ld1       = 27;
+        const uint8_t ld2       = 26;
+        const uint8_t ld3       = 25;
         const uint8_t OEN       = 2;   
         const uint8_t INT       = 35;
         const uint8_t buzzer    = 5;       

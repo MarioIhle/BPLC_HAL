@@ -1,17 +1,11 @@
 #include "HAL_MCU11.h"
 
 //Callback für Hardware Interrupt 
-HAL_MCU11_revA* p_THIS_HAL_REV_A;
-uint8_t*        p_INT_count_HAL_REV_A;
+uint8_t* p_INT_count_HAL_REV_A;
 
 static void INT_ISR()
 {
    p_INT_count_HAL_REV_A++;
-}
-
-static void INT_ENCODER()
-{
-   p_THIS_HAL_REV_A->readEncoder();
 }
 
 HAL_MCU11_revA::HAL_MCU11_revA()
@@ -19,19 +13,14 @@ HAL_MCU11_revA::HAL_MCU11_revA()
     
 void HAL_MCU11_revA::begin()
 {
-    //Globaler Pointer auf eigene Instanz, zwecks ISR
-    p_THIS_HAL_REV_A = this;
     //encoder
-    pinMode(this->PIN.encoder[0], INPUT);
-    pinMode(this->PIN.encoder[1], INPUT);
-    pinMode(this->PIN.encoder[2], INPUT);
-    attachInterrupt(this->PIN.encoder[0], INT_ENCODER, CHANGE); 
-    attachInterrupt(this->PIN.encoder[1], INT_ENCODER, CHANGE);
-    attachInterrupt(this->PIN.encoder[2], INT_ENCODER, CHANGE);
+    pinMode(this->PIN.encoder_A, INPUT);
+    pinMode(this->PIN.encoder_B, INPUT);
+    pinMode(this->PIN.encoder_Z, INPUT);
     //p_ld1-3
-    pinMode(this->PIN.led[0], OUTPUT);
-    pinMode(this->PIN.led[1], OUTPUT);
-    pinMode(this->PIN.led[2], OUTPUT);    
+    pinMode(this->PIN.ld1, OUTPUT);
+    pinMode(this->PIN.ld2, OUTPUT);
+    pinMode(this->PIN.ld3, OUTPUT);    
     //P_BUZZER
     pinMode(this->PIN.buzzer, OUTPUT);
     //p_oen
@@ -84,6 +73,8 @@ void HAL_MCU11_revA::mapINT(uint8_t* P_INT_COUNT)
 
 void HAL_MCU11_revA::tick()
 {  
+    //encoder
+    this->p_encoder->halCallback(digitalRead(this->PIN.encoder_A), digitalRead(this->PIN.encoder_B), digitalRead(this->PIN.encoder_Z));
     //p_oen schreiben
     if(this->p_oen->isThereANewPortValue())
     {
@@ -97,21 +88,16 @@ void HAL_MCU11_revA::tick()
     //p_ld1
     if(this->p_ld1->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[0], this->p_ld1->halCallback().value);
+        analogWrite(this->PIN.ld1, this->p_ld1->halCallback().value);
     }
     //LD_COMMUNACTION_STATE
     if(this->p_ld2->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[1], this->p_ld2->halCallback().value);
+        analogWrite(this->PIN.ld2, this->p_ld2->halCallback().value);
     }
     //p_ld3
     if(this->p_ld3->isThereANewPortValue())
     {
-        analogWrite(this->PIN.led[2], this->p_ld3->halCallback().value);  
+        analogWrite(this->PIN.ld3, this->p_ld3->halCallback().value);  
     }    
-}
-
-void HAL_MCU11_revA::readEncoder()
-{
-    this->p_encoder->halCallback(digitalRead(this->PIN.encoder[0]), digitalRead(this->PIN.encoder[1]), digitalRead(this->PIN.encoder[2]));
 }
