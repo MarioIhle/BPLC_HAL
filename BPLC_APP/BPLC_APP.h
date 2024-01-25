@@ -3,14 +3,8 @@
 //------------------------------------------------------------
 /**
  * @file BPLC_APP.h
- * @author MIE
- * @brief 
- * Steuerbar mithilfe des Encoders und Oled Display
- * Fehlerausgabe
- * Onboard IOs setztbar/lesbar
- * 
+ * @author MIE * 
  * @version 1.0
- * @date 2022-12-19 * 
  */
 //-------------------------------------------------------------
 
