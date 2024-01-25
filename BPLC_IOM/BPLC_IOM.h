@@ -290,9 +290,10 @@ class Software_H_Bridge{
 class rpmSensor
 {
     public:
-                rpmSensor               ();
-    void        begin                   (const uint16_t PULSES_PER_REV = 1, const uint16_t SAMPLE_TIME = 500);
-    uint16_t    getRPM                  ();
+                rpmSensor   ();
+    void        begin       (const uint16_t PULSES_PER_REV = 1, const uint16_t SAMPLE_TIME = 500);
+    uint16_t    getRPM      ();
+    void        tick        ();
 
   
     DigitalInput    CHANNEL;

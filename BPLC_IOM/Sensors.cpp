@@ -47,13 +47,16 @@ void rpmSensor::begin(const uint16_t PULSES_PER_REV, const uint16_t SAMPLE_TIME)
 	this->to_rpmCalculation.setInterval(SAMPLE_TIME);
 }
 
-uint16_t rpmSensor::getRPM()
+void rpmSensor::tick()
 {
 	if(this->CHANNEL.risingEdge())
 	{
 		this->samples++;
 	}
-	
+}
+
+uint16_t rpmSensor::getRPM()
+{
 	if(this->samples >= MAX_SAMPLES_UNTIL_CALCULATION || to_rpmCalculation.checkAndReset())
 	{
 		const double 	TIME_DELTA 		= millis()-this->startTime;

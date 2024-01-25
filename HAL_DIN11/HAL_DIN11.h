@@ -93,6 +93,7 @@ class HAL_DIN11
     {
         e_CHANNEL_STATE_t   used    [DIN11_CHANNEL__COUNT];
         DigitalInput*       p_object[DIN11_CHANNEL__COUNT];   
+        rpmSensor*          p_rpmSensInstance[DIN11_CHANNEL__COUNT];   
         const uint8_t       PIN     [DIN11_CHANNEL__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      
     }channels;       
  };

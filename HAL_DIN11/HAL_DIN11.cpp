@@ -82,6 +82,15 @@ e_BPLC_ERROR_t HAL_DIN11::mapObjectToChannel(rpmSensor* P_OBJECT, const e_DIN11_
     {
         this->errorCode = DIN11_ERROR__CHANNEL_ALREADY_IN_USE;
     }
+    //Pointer auf rpmSensor Objekt, damit immer getickt werden kann, wenn neue Portdaten da
+    for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
+    {      
+        if(this->channels.p_rpmSensInstance[CH] == NULL)   
+        {
+            this->channels.p_rpmSensInstance[CH] = P_OBJECT;  
+            break;
+        }                   
+    }
     return this->errorCode;
 }
 
@@ -120,6 +129,14 @@ void HAL_DIN11::tick()
                 }                   
             } 
             this->readsRequested--;
+
+            for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
+            {      
+                if(this->channels.p_rpmSensInstance[CH] != NULL)   
+                {
+                    this->channels.p_rpmSensInstance[CH]->tick();  
+                }                   
+            }
         }    
     }
 }
