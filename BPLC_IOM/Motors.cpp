@@ -1,11 +1,11 @@
 #include "BPLC_IOM.h"
 
 //--------------------------------------------------------------------
-//MOTOR
-MOTOR::MOTOR()
+//dcDrive
+dcDrive::dcDrive()
 {}
 
-void MOTOR::stop()
+void dcDrive::stop()
 {
 	//Bei Stopp letzte Parameter merken 
     this->motParams.old.direction = this->motParams.direction; 
@@ -15,7 +15,7 @@ void MOTOR::stop()
 	f_thereAreNewDriveParametersAvailable = true;
 }
 
-void MOTOR::stopAndBreak()
+void dcDrive::stopAndBreak()
 {
 	//Bei Stopp letzte Parameter merken 
     this->motParams.old.direction = this->motParams.direction; 
@@ -25,7 +25,7 @@ void MOTOR::stopAndBreak()
 	f_thereAreNewDriveParametersAvailable = true;
 }
 
-void MOTOR::start()
+void dcDrive::start()
 {
 	//Bei Start letzte gemerkte Parameter laden 
     this->motParams.direction     = this->motParams.old.direction; 
@@ -33,51 +33,51 @@ void MOTOR::start()
 	f_thereAreNewDriveParametersAvailable = true;
 }
 
-void MOTOR::setSpeed(const uint8_t SPEED)
+void dcDrive::setSpeed(const uint8_t SPEED)
 {   
     this->motParams.speed     	  = SPEED;   
 	f_thereAreNewDriveParametersAvailable = true;
 }
 
-void MOTOR::setDirection(const e_movement_t DIRECTION)
+void dcDrive::setDirection(const e_movement_t DIRECTION)
 {
     this->motParams.direction     = DIRECTION; 
 	f_thereAreNewDriveParametersAvailable = true;    
 }
 
-void MOTOR::setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t SPEED)
+void dcDrive::setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t SPEED)
 {
     this->motParams.direction     = DIRECTION; 
     this->motParams.speed     	  = SPEED;   
 	f_thereAreNewDriveParametersAvailable = true;
 }
 
-float MOTOR::getCurrent()
+float dcDrive::getCurrent()
 {
     return this->motParams.current;
 }
 
-e_movement_t MOTOR::getDirection()
+e_movement_t dcDrive::getDirection()
 {
     return this->motParams.direction;
 }
 
-uint8_t MOTOR::getSpeed()
+uint8_t dcDrive::getSpeed()
 {
     return this->motParams.speed;
 }
 
-e_DRIVE_STATE_t MOTOR::getDriveState()
+e_DRIVE_STATE_t dcDrive::getDriveState()
 {
 	return this->driveState;
 }
 
-void MOTOR::setCurrent(const float CURRENT)
+void dcDrive::setCurrent(const float CURRENT)
 {
 	this->motParams.current = CURRENT;
 }
 
-bool MOTOR::newDriveParameterAvailable()
+bool dcDrive::newDriveParameterAvailable()
 {
 	const bool newDriveParameterAvailable 		= this->f_thereAreNewDriveParametersAvailable;
 	this->f_thereAreNewDriveParametersAvailable = false;

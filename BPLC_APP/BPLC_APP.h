@@ -178,7 +178,7 @@ class BPLC_APP
         HAL_REL11       REL11_CARD[REL11_CARD__MAX];
         HAL_MOT11       MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
 
-        RotaryEncoder   ENCODER; 
+        rotaryEncoder   ENCODER; 
         Output          BUZZER;
         Output          LD1_DEVICE_STATE;
         Output          LD2_COMMUNICATION_STATE;

@@ -34,7 +34,13 @@ typedef enum
   MOT11_CARD_ADDRESS_COUNT = 4,
 }e_MOT11_ADDRESS_t;
 
+typedef enum
+{
+  MOT_CHANNEL_STATE__NOT_USED,
+  MOT_CHANNEL_STATE__DC_DRIVE,
 
+  MOT_CHANNEL_STATE__COUNT,
+}e_MOT_CHANNEL_STATE_t;
 //-------------------------------------------------------------
 //APPLIKATION
 //-------------------------------------------------------------
@@ -90,7 +96,7 @@ class HAL_MOT11
     //Init
     HAL_MOT11   ();
     void            begin    (const e_MOT11_ADDRESS_t ADDRESS);
-    e_BPLC_ERROR_t  mapObject(MOTOR* P_OBJECT);
+    e_BPLC_ERROR_t  mapObject(dcDrive* P_OBJECT);
     
     //Applikation
     void tick();
@@ -131,8 +137,8 @@ class HAL_MOT11
     //Object handling
     struct 
     {
-      e_CHANNEL_STATE_t used;
-      MOTOR*            p_object;   
+      e_MOT_CHANNEL_STATE_t state;
+      dcDrive*                p_object;   
     }channels;
 };
 #endif

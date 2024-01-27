@@ -50,6 +50,14 @@ typedef enum
 
 }e_REL11_CHANNEL_t;
 
+typedef enum
+{
+  REL_CHANNEL_STATE__NOT_USED,
+  REL_CHANNEL_STATE__DIGITAL,
+
+  REL_CHANNEL_STATE__COUNT,
+}e_REL_CHANNEL_STATE_t;
+
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
@@ -78,9 +86,9 @@ class HAL_REL11 {
 
     struct
     {
-        e_CHANNEL_STATE_t   used    [REL11_CHANNEL__COUNT];
-        Output*             p_object[REL11_CHANNEL__COUNT];
-        const uint8_t       PIN     [REL11_CHANNEL__COUNT] = {0, 1, 2};         
+        e_REL_CHANNEL_STATE_t   state       [REL11_CHANNEL__COUNT];
+        Output*                 p_object    [REL11_CHANNEL__COUNT];
+        const uint8_t           PIN         [REL11_CHANNEL__COUNT] = {0, 1, 2};         
     }channels; 
     
 };

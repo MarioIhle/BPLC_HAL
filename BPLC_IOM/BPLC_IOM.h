@@ -6,13 +6,6 @@
 #include <Adafruit_ADS1X15.h>
 #include "PCA9685.h"
 
-//#############################################
-//DEBUG INFO PRINT
-//####################################################################
-
-//#define DEBUG_IOM   //Nur mit je 1 Objekt pro Klasse sinnvoll Debugbar, sonst zu viel Spam
-
-
 //####################################################################
 //ALLGEMEINE TYPEN
 //####################################################################
@@ -169,10 +162,10 @@ class Output {
 //--------------------------------------------------------------------
 //ROTARY ENCODER KLASSE
 //--------------------------------------------------------------------
-class RotaryEncoder 
+class rotaryEncoder 
 {
 	public:
-                        RotaryEncoder       ();
+                        rotaryEncoder       ();
     e_movement_t        getTurningDirection ();
     bool                isButtonPressed     ();
     void                halCallback         (const bool STATE_A, const bool STATE_B, const bool STATE_Z);
@@ -205,7 +198,7 @@ class PT10x
 
 
 //--------------------------------------------------------------------
-//MOTOR KLASSE
+//dcDrive KLASSE
 //-------------------------------------------------------------------- 
 typedef enum
 {
@@ -218,10 +211,10 @@ typedef enum
     DRIVE_STATE__COUNT,
 }e_DRIVE_STATE_t;
 
-class MOTOR
+class dcDrive
 {
     public: 
-    MOTOR();
+    dcDrive();
 
     //Drive Commands
     void stop                 ();

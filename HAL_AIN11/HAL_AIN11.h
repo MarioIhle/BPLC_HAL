@@ -44,6 +44,16 @@ typedef enum
     AIN11_CHANNEL__COUNT,
 }e_AIN11_CHANNEL_t;
 
+//IO Channelstate
+typedef enum
+{
+    AIN_CHANNEL__NOT_USED,
+    AIN_CHANNEL__ANALOG,   
+
+    AIN_CHANNEL__COUNT,
+}e_AIN_CHANNEL_STATE_t;
+
+
 //-------------------------------------------------------------
 //HAL_AIN11 KLASSE
 //-------------------------------------------------------------
@@ -73,9 +83,9 @@ class HAL_AIN11
     //Object handling
     struct
     {
-        e_CHANNEL_STATE_t   used     [AIN11_CHANNEL__COUNT];
-        AnalogInput*        p_object [AIN11_CHANNEL__COUNT];   
-        const uint8_t       PIN      [AIN11_CHANNEL__COUNT] = {2, 3, 1, 0};   
+        e_AIN_CHANNEL_STATE_t   state                   [AIN11_CHANNEL__COUNT];
+        AnalogInput*            p_analogInputInstance   [AIN11_CHANNEL__COUNT];   
+        const uint8_t           PIN                     [AIN11_CHANNEL__COUNT] = {2, 3, 1, 0};   
     }channels;         
  };
 #endif

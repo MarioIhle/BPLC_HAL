@@ -2,10 +2,10 @@
 
 //--------------------------------------------------------------------
 //ROTARY ENCODER
-RotaryEncoder::RotaryEncoder()
+rotaryEncoder::rotaryEncoder()
 {}
 
-e_movement_t RotaryEncoder::getTurningDirection()
+e_movement_t rotaryEncoder::getTurningDirection()
 {
     e_movement_t direction = movement_idle;    
 
@@ -21,12 +21,12 @@ e_movement_t RotaryEncoder::getTurningDirection()
     return direction;
 }
 
-bool RotaryEncoder::isButtonPressed()
+bool rotaryEncoder::isButtonPressed()
 {
     return this->Z.risingEdge();
 }
 
-void RotaryEncoder::halCallback(const bool STATE_A, const bool STATE_B, const bool STATE_Z)
+void rotaryEncoder::halCallback(const bool STATE_A, const bool STATE_B, const bool STATE_Z)
 {
     this->A.halCallback(STATE_A);
     this->B.halCallback(STATE_B);

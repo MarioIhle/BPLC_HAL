@@ -52,7 +52,7 @@ class HAL_MCU11_revA
     HAL_MCU11_revA();
     
     void begin          ();
-    void mapEncoder     (RotaryEncoder* P_ENCODER);
+    void mapEncoder     (rotaryEncoder* P_ENCODER);
     void mapBuzzer      (Output*        P_BUZZER_OBJECT);
     void mapLD1         (Output*        P_LD1_OBJECT);
     void mapLD2         (Output*        P_LD2_OBJECT);
@@ -64,7 +64,7 @@ class HAL_MCU11_revA
 
 
     private:   
-    RotaryEncoder*   p_encoder;
+    rotaryEncoder*   p_encoder;
     Output*          p_buzzer;
     Output*          p_ld1;
     Output*          p_ld2;
@@ -110,7 +110,7 @@ class HAL_MCU11_revB
     HAL_MCU11_revB();
     
     void begin          ();
-    void mapEncoder     (RotaryEncoder* P_ENCODER);
+    void mapEncoder     (rotaryEncoder* P_ENCODER);
     void mapBuzzer      (Output*        P_BUZZER_OBJECT);
     void mapLD1         (Output*        P_LD1_OBJECT);
     void mapLD2         (Output*        P_LD2_OBJECT);
@@ -122,7 +122,7 @@ class HAL_MCU11_revB
 
 
     private:
-    RotaryEncoder*   p_encoder;
+    rotaryEncoder*   p_encoder;
     Output*          p_buzzer;
     Output*          p_ld1;
     Output*          p_ld2;

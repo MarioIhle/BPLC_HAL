@@ -36,7 +36,7 @@ void HAL_MCU11_revB::begin()
     Wire.begin();
 }
 
-void HAL_MCU11_revB::mapEncoder(RotaryEncoder* P_ENCODER)
+void HAL_MCU11_revB::mapEncoder(rotaryEncoder* P_ENCODER)
 {
     this->p_encoder = P_ENCODER;
 }

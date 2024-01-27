@@ -47,6 +47,19 @@ void HAL_REL11::begin(const e_REL11_ADDRESS_t I2C_ADDRESS)
         this->errorCode = REL11_ERROR__I2C_CONNECTION_FAILED;        
     }
 
+    //Übergebene Instanzen prüfen
+    for(uint8_t CH = 0; CH < REL11_CHANNEL__COUNT; CH++)
+    {            
+        if(this->channels.used[CH] == REL_CHANNEL_STATE__DIGITAL)
+        {
+            //Irgenwelche Hardware Anpassung?
+        }
+        else if(this->channels.used[CH] == REL_CHANNEL_STATE__NOT_USED && CH == (REL11_CHANNEL__COUNT - 1))
+        {//letzter Port und immernoch keiner in nutzung
+            this->errorCode = REL11_ERROR__NO_CHANNEL_IN_USE;
+        }
+    }
+
     //Applikationsparameter initialisieren
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {   
@@ -76,25 +89,13 @@ void HAL_REL11::tick()
     if(!this->selfCheck.requestHeartbeat())
     {
         this->errorCode = REL11_ERROR__I2C_CONNECTION_FAILED;
-    }
-    //Prüfen ob überhaupt ein Port in benutzung
-    for(uint8_t CH = 0; CH < REL11_CHANNEL__COUNT; CH++)
-    {            
-        if(this->channels.used[CH] == CHANNEL_STATE__MAPPED_TO_OBJECT)
-        {
-            break;
-        }
-        else if(this->channels.used[CH] == CHANNEL_STATE__NOT_IN_USE && CH == (REL11_CHANNEL__COUNT - 1))
-        {//letzter Port und immernoch keiner in nutzung
-            this->errorCode = REL11_ERROR__NO_CHANNEL_IN_USE;
-        }
-    }
+    }    
 
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {         
         for(int CH = 0; CH < REL11_CHANNEL__COUNT; CH++)
         {
-            if(this->channels.used[CH] == CHANNEL_STATE__MAPPED_TO_OBJECT)
+            if(this->channels.used[CH] == REL_CHANNEL_STATE__DIGITAL)
             {
                 if(this->channels.p_object[CH]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
                 {

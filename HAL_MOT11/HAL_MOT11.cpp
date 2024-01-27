@@ -51,6 +51,12 @@ void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
         this->error.code = MOT11_ERROR__I2C_CONNECTION_FAILED;        
     }
 
+    //Instance überprüfen
+    if(this->channels.state == MOT_CHANNEL_STATE__NOT_USED)
+    {  
+        this->error.code = MOT11_ERROR__NO_CHANNEL_IN_USE;
+    }
+
     //Applikationsparameter initialisieren
     if(this->error.code == BPLC_ERROR__NO_ERROR)
     {         
@@ -59,15 +65,15 @@ void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
     else
     {
         this->deviceState = deviceState_safeState;
-    }
+    }    
 }
 
-e_BPLC_ERROR_t HAL_MOT11::mapObject(MOTOR* P_OBJECT)
+e_BPLC_ERROR_t HAL_MOT11::mapObject(dcDrive* P_OBJECT)
 {
-    if(this->channels.used == CHANNEL_STATE__NOT_IN_USE)
+    if(this->channels.state == MOT_CHANNEL_STATE__NOT_USED)
     {
-        this->channels.p_object = P_OBJECT;
-        this->channels.used     = CHANNEL_STATE__MAPPED_TO_OBJECT;
+        this->channels.p_object     = P_OBJECT;
+        this->channels.state        = MOT_CHANNEL_STATE__DC_DRIVE;
     }
     else 
     {
@@ -95,49 +101,42 @@ void HAL_MOT11::tick()
     }
 
     if(this->error.code != MOT11_ERROR__I2C_CONNECTION_FAILED)
-    {
-        if(this->channels.used == CHANNEL_STATE__MAPPED_TO_OBJECT)
+    {        
+        switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
         {
-            switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
-            {
-                default:
-                case deviceState_init:    
-                case deviceState_safeState:    
-                    //Über Request wird zyklisch alle live Parameter abgefragt
-                    if(this->to_parameterPoll.check())
-                    {
-                        this->requestDriveParameter(); 
-                        this->to_parameterPoll.reset();
-                    } 
-                break;
+            default:
+            case deviceState_init:    
+            case deviceState_safeState:    
+                //Über Request wird zyklisch alle live Parameter abgefragt
+                if(this->to_parameterPoll.check())
+                {
+                    this->requestDriveParameter(); 
+                    this->to_parameterPoll.reset();
+                } 
+            break;
 
-                case deviceState_running:   //Normalbetreb
-                    if(this->channels.p_object->newDriveParameterAvailable())
-                    {
-                        this->sendDriveCommand(this->channels.p_object->getDirection(), this->channels.p_object->getSpeed());
-                    }
-                    //Über Request wird zyklisch alle live Parameter abgefragt
-                    if(this->to_parameterPoll.check())
-                    {
-                        this->requestDriveParameter(); 
-                        this->to_parameterPoll.reset();
-                    }  
-                break;
+            case deviceState_running:   //Normalbetreb
+                if(this->channels.p_object->newDriveParameterAvailable())
+                {
+                    this->sendDriveCommand(this->channels.p_object->getDirection(), this->channels.p_object->getSpeed());
+                }
+                //Über Request wird zyklisch alle live Parameter abgefragt
+                if(this->to_parameterPoll.check())
+                {
+                    this->requestDriveParameter(); 
+                    this->to_parameterPoll.reset();
+                }  
+            break;
 
-                case deviceState_autotuning:
-                    //Status abfragen, solange Autotuning aktiv nix tun
-                    if(this->to_parameterPoll.check())
-                    {
-                        this->requestDriveParameter(); 
-                        this->to_parameterPoll.reset();
-                    }              
-                break;
-            }        
-        }
-        else
-        {
-            this->error.code = MOT11_ERROR__NO_CHANNEL_IN_USE;
-        }
+            case deviceState_autotuning:
+                //Status abfragen, solange Autotuning aktiv nix tun
+                if(this->to_parameterPoll.check())
+                {
+                    this->requestDriveParameter(); 
+                    this->to_parameterPoll.reset();
+                }              
+            break;                  
+        }        
     }
 }
 

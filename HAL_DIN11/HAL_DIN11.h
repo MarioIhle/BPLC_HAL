@@ -53,12 +53,12 @@ typedef enum
 
 typedef enum
 {
-    CHANNEL_OBJECT_TYPE__NOT_USED,
-    CHANNEL_OBJECT_TYPE__DIGITAL,
-    CHANNEL_OBJECT_TYPE__COUNTER,
+    DIN_CHANNEL_STATE__NOT_USED,
+    DIN_CHANNEL_STATE__DIGITAL,
+    DIN_CHANNEL_STATE__COUNTER,
 
-    CHANNEL_OBJECT_TYPE__COUNT,
-}e_CHANNEL_OBJECT_STATE_t;
+    DIN_CHANNEL_STATE__COUNT,
+}e_DIN_CHANNEL_STATE_t;
 
 
 //-------------------------------------------------------------
@@ -90,7 +90,7 @@ class HAL_DIN11
     //Object handling
     struct
     {
-        e_CHANNEL_OBJECT_STATE_t    channelState[DIN11_CHANNEL__COUNT];
+        e_DIN_CHANNEL_STATE_t    channelState[DIN11_CHANNEL__COUNT];
         DigitalInput*               p_digital   [DIN11_CHANNEL__COUNT];   
         rpmSensor*                  p_counter   [DIN11_CHANNEL__COUNT];   
         const uint8_t               PIN         [DIN11_CHANNEL__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      

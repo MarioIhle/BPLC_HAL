@@ -4,7 +4,7 @@ HAL_AIN11::HAL_AIN11()
 {
     for(uint8_t CH; CH < AIN11_CHANNEL__COUNT; CH++)
     {  
-        this->channels.used[CH] = CHANNEL_STATE__NOT_IN_USE;
+        this->channels.state[CH] = AIN_CHANNEL__NOT_USED;
     }   
 }
 
@@ -48,6 +48,19 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
         this->errorCode = AIN11_ERROR__I2C_CONNECTION_FAILED;        
     }
 
+    //Instanzen Prüfen
+        for(uint8_t CHANNEL = 0; CHANNEL < AIN11_CHANNEL__COUNT; CHANNEL++)
+        {            
+            if(this->channels.state[CHANNEL] == AIN_CHANNEL__ANALOG)
+            {
+                //individuelle Anpassung?
+            }
+            else if(this->channels.state[CHANNEL] == AIN_CHANNEL__NOT_USED && CHANNEL == (AIN11_CHANNEL__COUNT - 1))
+            {//letzter Port und immernoch keiner in nutzung
+                this->errorCode = AIN11_ERROR__NO_CHANNEL_IN_USE;
+            }
+        }
+
     //Applikationsparameter initialisieren         
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {   
@@ -65,16 +78,16 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
         //this->adcGain = GAIN_SIXTEEN;         // 16x gain  +/- 0.256V  1 bit = 0.125mV  0.0078125mV
         
         this->ADC.setGain(this->adcGain);
-        this->ADC.begin(this->deviceAddress); 
+        this->ADC.begin(this->deviceAddress);         
     }
 }
 
 e_BPLC_ERROR_t HAL_AIN11::mapObjectToChannel(AnalogInput* P_OBJECT, const e_AIN11_CHANNEL_t CHANNEL)
 {
-    if(this->channels.used[CHANNEL] == CHANNEL_STATE__NOT_IN_USE)
+    if(this->channels.state[CHANNEL] == AIN_CHANNEL__NOT_USED)
     {
-        this->channels.p_object[CHANNEL] = P_OBJECT;
-        this->channels.used[CHANNEL]     = CHANNEL_STATE__MAPPED_TO_OBJECT;
+        this->channels.p_analogInputInstance[CHANNEL] = P_OBJECT;
+        this->channels.state[CHANNEL]    = AIN_CHANNEL__ANALOG;
         P_OBJECT->setADCGain(this->adcGain);    //ADC gain für Spannungsberechnung übergeben
     }
     else 
@@ -91,18 +104,7 @@ void HAL_AIN11::tick()
     {
         this->errorCode = AIN11_ERROR__I2C_CONNECTION_FAILED;
     }
-    //Prüfen ob überhaupt ein Port in benutzung
-    for(uint8_t CHANNEL = 0; CHANNEL < AIN11_CHANNEL__COUNT; CHANNEL++)
-    {            
-        if(this->channels.used[CHANNEL] == CHANNEL_STATE__MAPPED_TO_OBJECT)
-        {
-            break;
-        }
-        else if(this->channels.used[CHANNEL] == CHANNEL_STATE__NOT_IN_USE && CHANNEL == (AIN11_CHANNEL__COUNT - 1))
-        {//letzter Port und immernoch keiner in nutzung
-            this->errorCode = AIN11_ERROR__NO_CHANNEL_IN_USE;
-        }
-    }
+   
   
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {
@@ -110,18 +112,18 @@ void HAL_AIN11::tick()
         {
             for(uint8_t CHANNEL = 0; CHANNEL < AIN11_CHANNEL__COUNT; CHANNEL++)
             {            
-                if(this->channels.used[CHANNEL] == CHANNEL_STATE__MAPPED_TO_OBJECT)
+                if(this->channels.state[CHANNEL] == AIN_CHANNEL__ANALOG)
                 {
                     const int16_t   RAW_ADC_VALUE = this->ADC.readADC_SingleEnded(this->channels.PIN[CHANNEL]);
                     const float     VALUE_IN_VOLT = this->ADC.computeVolts(RAW_ADC_VALUE);
 
                     if(RAW_ADC_VALUE >= 0)
                     {
-                        this->channels.p_object[CHANNEL]->halCallback(RAW_ADC_VALUE);                        
+                        this->channels.p_analogInputInstance[CHANNEL]->halCallback(RAW_ADC_VALUE);                        
                     }     
                     else
                     {
-                        this->channels.p_object[CHANNEL]->halCallback(0);
+                        this->channels.p_analogInputInstance[CHANNEL]->halCallback(0);
                     }               
 
                 }                

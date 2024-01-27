@@ -47,15 +47,6 @@ void HAL_DO11::begin(const e_DO11_ADDRESS_t I2C_ADDRESS)
         this->errorCode = DO11_ERROR__I2C_CONNECTION_FAILED;     
     }
 
-    //Applikationsparameter initialisieren
-    if(this->errorCode == BPLC_ERROR__NO_ERROR)
-    {        
-        PCA.setI2CAddress(this->deviceAddress);
-        PCA.init();
-        PCA.setPWMFrequency(200);   //Falls Servos verwendet werden, wird automatisch PWM freuenz auf 50Hz gesenkt!
-        PCA.setAllChannelsPWM(0);
-    }
-
     //Übergebene Instanzen prüfen
     for(uint8_t CH = 0; CH < DO11_CHANNEL__COUNT; CH++)
     {            
@@ -68,6 +59,15 @@ void HAL_DO11::begin(const e_DO11_ADDRESS_t I2C_ADDRESS)
             this->errorCode = DO11_ERROR__NO_CHANNEL_IN_USE;
         }
     }
+    
+    //Applikationsparameter initialisieren
+    if(this->errorCode == BPLC_ERROR__NO_ERROR)
+    {        
+        PCA.setI2CAddress(this->deviceAddress);
+        PCA.init();
+        PCA.setPWMFrequency(200);   //Falls Servos verwendet werden, wird automatisch PWM freuenz auf 50Hz gesenkt!
+        PCA.setAllChannelsPWM(0);
+    }    
 }
 
 e_BPLC_ERROR_t HAL_DO11::mapObjectToChannel(Output* P_OBJECT, const e_DO11_CHANNEL_t CHANNEL)
