@@ -2,7 +2,10 @@
 
 HAL_DO11::HAL_DO11()
 {
-    memset(&this->channels, 0, sizeof(this->channels));
+    for(uint8_t CH; CH < DO11_CHANNEL__COUNT; CH++)
+    {  
+        this->channels.state[CH] = DO_CHANNEL__NOT_USED;
+    }
 }
 
 void HAL_DO11::begin(const e_DO11_ADDRESS_t I2C_ADDRESS)
@@ -52,19 +55,27 @@ void HAL_DO11::begin(const e_DO11_ADDRESS_t I2C_ADDRESS)
         PCA.setPWMFrequency(200);   //Falls Servos verwendet werden, wird automatisch PWM freuenz auf 50Hz gesenkt!
         PCA.setAllChannelsPWM(0);
     }
-}
 
-void HAL_DO11::setPWMFrequency(const uint8_t FREQUENCY)
-{
-    this->PCA.setPWMFrequency(FREQUENCY);
+    //Übergebene Instanzen prüfen
+    for(uint8_t CH = 0; CH < DO11_CHANNEL__COUNT; CH++)
+    {            
+        if(this->channels.state[CH] == DO_CHANNEL__SERVO)
+        {
+            this->PCA.setPWMFrequency(25);
+        }
+        else if(this->channels.state[CH] == DO_CHANNEL__NOT_USED && CH == (DO11_CHANNEL__COUNT - 1))
+        {//letzter Port und immernoch keiner in nutzung
+            this->errorCode = DO11_ERROR__NO_CHANNEL_IN_USE;
+        }
+    }
 }
 
 e_BPLC_ERROR_t HAL_DO11::mapObjectToChannel(Output* P_OBJECT, const e_DO11_CHANNEL_t CHANNEL)
 {
-    if(this->channels.used[CHANNEL] == CHANNEL_STATE__NOT_IN_USE)
+    if(this->channels.state[CHANNEL] == DO_CHANNEL__NOT_USED)
     {
-        this->channels.p_object[CHANNEL] = P_OBJECT;
-        this->channels.used[CHANNEL]     = CHANNEL_STATE__MAPPED_TO_OBJECT;
+        this->channels.p_outputInstance[CHANNEL] = P_OBJECT;
+        this->channels.state[CHANNEL]     = DO_CHANNEL__ANALOG;
     }
     else 
     {
@@ -75,11 +86,10 @@ e_BPLC_ERROR_t HAL_DO11::mapObjectToChannel(Output* P_OBJECT, const e_DO11_CHANN
 
 e_BPLC_ERROR_t HAL_DO11::mapObjectToChannel(servoMotor* P_OBJECT, const e_DO11_CHANNEL_t CHANNEL)
 {
-    if(this->channels.used[CHANNEL] == CHANNEL_STATE__NOT_IN_USE)
+    if(this->channels.state[CHANNEL] == DO_CHANNEL__NOT_USED)
     {
-        this->channels.p_object[CHANNEL] = &P_OBJECT->CHANNEL;
-        this->channels.used[CHANNEL]     = CHANNEL_STATE__MAPPED_TO_OBJECT;
-        this->PCA.setPWMFreqServo();
+        this->channels.p_servoInstance[CHANNEL]     = P_OBJECT;
+        this->channels.state[CHANNEL]               = DO_CHANNEL__SERVO;
     }
     else 
     {
@@ -94,32 +104,20 @@ void HAL_DO11::tick()
     if(!this->selfCheck.requestHeartbeat())
     {
         this->errorCode = DO11_ERROR__I2C_CONNECTION_FAILED;
-    }
-    //Prüfen ob überhaupt ein Port in benutzung
-    for(uint8_t CH = 0; CH < DO11_CHANNEL__COUNT; CH++)
-    {            
-        if(this->channels.used[CH] == CHANNEL_STATE__MAPPED_TO_OBJECT)
-        {
-            break;
-        }
-        else if(this->channels.used[CH] == CHANNEL_STATE__NOT_IN_USE && CH == (DO11_CHANNEL__COUNT - 1))
-        {//letzter Port und immernoch keiner in nutzung
-            this->errorCode = DO11_ERROR__NO_CHANNEL_IN_USE;
-        }
-    }
+    }    
 
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {
         for(uint8_t CH; CH < DO11_CHANNEL__COUNT; CH++)
         {       
-            if(this->channels.used[CH] == CHANNEL_STATE__MAPPED_TO_OBJECT)
+            if(this->channels.state[CH] == DO_CHANNEL__ANALOG)
             {                      
-                if(this->channels.p_object[CH]->isThereANewPortValue())    //Nur Wert abrufen und schreiben, falls dier sich geändert hat
+                if(this->channels.p_outputInstance[CH]->isThereANewPortValue())    //Nur Wert abrufen und schreiben, falls dier sich geändert hat
                 {     
                     //PWM von 0-255 laden und umrechnen
-                    const uint16_t TARGET_PWM_VALUE = map(this->channels.p_object[CH]->halCallback().value, 0, 255, 0, 4095);
-
-                    switch(this->channels.p_object[CH]->getOutputType())
+                    const uint16_t TARGET_PWM_VALUE = map(this->channels.p_outputInstance[CH]->halCallback().value, 0, 255, 0, 4095);
+                    
+                    switch(this->channels.p_outputInstance[CH]->getOutputType())
                     {
                         case OUTPUTTYPE__PULL:
                             PCA.setChannelPWM(this->channels.PIN[CH][LS_MOSFET], 0, TARGET_PWM_VALUE);        //lowSide
@@ -183,7 +181,37 @@ void HAL_DO11::tick()
                         break;
                     }
                 }  
-            }        
+            } 
+            else if(this->channels.state[CH] == DO_CHANNEL__SERVO)
+            {
+                if(this->channels.p_servoInstance[CH]->isThereANewPortValue())
+                {                    
+                    uint16_t TARGET_PWM_VALUE = this->channels.p_servoInstance[CH]->halCallback().value;
+                    //Um überschneidung bei umschalten der PWM zu vermeiden, sonst FETS = rauch :C
+                    PCA.setChannelOff(this->channels.PIN[CH][HS_MOSFET]); //Spannungsführend zuerst aus
+                    PCA.setChannelOff(this->channels.PIN[CH][LS_MOSFET]);                                       
+                    delay(1);       
+                                            
+                    //FULL ON
+                    if(TARGET_PWM_VALUE < DEAD_TIME)
+                    {
+                        PCA.setChannelOn(this->channels.PIN[CH][LS_MOSFET]);
+                        //PCA.setChannelOff(this->PIN[PORT][HS_MOSFET]);    
+                    }
+                    //FULL OFF
+                    else if(TARGET_PWM_VALUE > 4096 - DEAD_TIME)
+                    {
+                        //PCA.setChannelOff(this->channels.PIN[PORT][LS_MOSFET]);
+                        PCA.setChannelOn(this->channels.PIN[CH][HS_MOSFET]);    
+                    }
+                    //PWM
+                    else
+                    {                        
+                        PCA.setChannelPWM(this->channels.PIN[CH][LS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
+                        PCA.setChannelPWM(this->channels.PIN[CH][HS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
+                    }
+                }                
+            }  
         }   
     }
 }

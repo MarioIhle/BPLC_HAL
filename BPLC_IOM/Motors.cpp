@@ -156,15 +156,25 @@ void Software_H_Bridge::setSpeed(const uint8_t SPEED)
 servoMotor::servoMotor()
 {}
 
-void servoMotor::setMinMaxAngle(const uint16_t MIN, const uint16_t MAX)
+void servoMotor::begin(const uint16_t MIN, const uint16_t MAX)
 {
     this->minAngle = MIN;
     this->maxAngle = MAX;
-    //pwmValueCalculator.PCA9685_ServoEval(MIN, MAX);
 }
 
 void servoMotor::setServoPosition(const uint16_t POSITION)
+{		
+    this->pwmValue.value = map(POSITION, 180, 0, 136, 363);
+}
+
+s_portValue_t servoMotor::halCallback()
+{//Sobald daten abgeholt, wird previous überschrieben
+	this->pwmValue.previousValue = this->pwmValue.value;
+	return this->pwmValue;
+}
+
+bool servoMotor::isThereANewPortValue()
 {
-    uint16_t SERVO_PWM = this->pwmValueCalculator.pwmForAngle(POSITION);
-    this->CHANNEL.setValue(SERVO_PWM);
+	const bool THERE_IS_A_NEW_PORT_VALUE_TO_WRITE = (bool)(this->pwmValue.value != this->pwmValue.previousValue);
+	return THERE_IS_A_NEW_PORT_VALUE_TO_WRITE;
 }

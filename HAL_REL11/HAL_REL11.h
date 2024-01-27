@@ -42,13 +42,13 @@ typedef enum
 
 typedef enum
 {
-    REL11_PORT__1,
-    REL11_PORT__2,
-    REL11_PORT__3,   
+    REL11_CHANNEL__1,
+    REL11_CHANNEL__2,
+    REL11_CHANNEL__3,   
 
-    REL11_PORT__COUNT,
+    REL11_CHANNEL__COUNT,
 
-}e_REL11_PORTS_t;
+}e_REL11_CHANNEL_t;
 
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
@@ -59,8 +59,7 @@ class HAL_REL11 {
     HAL_REL11();
 
     void begin(const e_REL11_ADDRESS_t I2C_ADDRESS);
-    e_BPLC_ERROR_t mapObjectToNextFreePort(Output* P_OBJECT);
-    e_BPLC_ERROR_t mapObjectToChannel(Output* P_OBJECT, const uint8_t PORT);
+    e_BPLC_ERROR_t mapObjectToChannel(Output* P_OBJECT, const uint8_t CHANNEL);
 
     void tick();
     
@@ -79,10 +78,11 @@ class HAL_REL11 {
 
     struct
     {
-        e_CHANNEL_STATE_t used    [REL11_PORT__COUNT];
-        Output*         p_object[REL11_PORT__COUNT];        
+        e_CHANNEL_STATE_t   used    [REL11_CHANNEL__COUNT];
+        Output*             p_object[REL11_CHANNEL__COUNT];
+        const uint8_t       PIN     [REL11_CHANNEL__COUNT] = {0, 1, 2};         
     }channels; 
-    const uint8_t   PIN     [REL11_PORT__COUNT] = {0, 1, 2}; 
+    
 };
 
 #endif

@@ -280,7 +280,7 @@ void BPLC_APP::mapObjectToExtensionCard(AnalogInput* P_OBJECT, const e_AIN11_CAR
    this->setSystemError(ERROR); 
 }
 
-void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_PORTS_t CHANNEL)
+void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_CHANNEL_t CHANNEL)
 {
    Serial.println("##############################");  
    Serial.print("map Output to REL11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" CHANNEL: "); Serial.println((1 + (uint8_t)CHANNEL));

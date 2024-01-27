@@ -124,7 +124,7 @@ class Output {
     Output (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
     
     void begin (const uint8_t ON_VALUE);
-	void begin (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
+	void begin (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE = 255);
     
     //Setter
 	void blink		    (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL);		                            //Blinkt für angeforderte Anzahl und Interval
@@ -316,18 +316,16 @@ class rpmSensor
 class servoMotor
 {
     public:
-                servoMotor          ();
-    void        setMinMaxAngle      (const uint16_t MIN = 0, const uint16_t MAX = 180);
-    void        setServoPosition    (const uint16_t POSITION);
-
-
-    Output CHANNEL;
-
+                    servoMotor          ();
+    void            begin               (const uint16_t MIN = 0, const uint16_t MAX = 180);
+    void            setServoPosition    (const uint16_t POSITION);
+    s_portValue_t   halCallback         ();
+    bool            isThereANewPortValue();
 
     private:    
-    PCA9685_ServoEval pwmValueCalculator;
-    
-    uint16_t    minAngle;
-    uint16_t    maxAngle;
+    Timeout         to_ServoPwm;
+    uint16_t        minAngle;
+    uint16_t        maxAngle;
+    s_portValue_t   pwmValue;
 };
 #endif

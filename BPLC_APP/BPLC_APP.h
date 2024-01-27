@@ -89,7 +89,7 @@ class BPLC_APP
     void mapObjectToExtensionCard(AnalogInput*   P_OBJECT, const e_AIN11_CARD_t  CARD, const e_AIN11_CHANNEL_t CHANNEL);
     void mapObjectToExtensionCard(Output*        P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_CHANNEL_t  CHANNEL);
     void mapObjectToExtensionCard(servoMotor*    P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_CHANNEL_t  CHANNEL);    
-    void mapObjectToExtensionCard(Output*        P_OBJECT, const e_REL11_CARD_t  CARD, const e_REL11_PORTS_t   CHANNEL);
+    void mapObjectToExtensionCard(Output*        P_OBJECT, const e_REL11_CARD_t  CARD, const e_REL11_CHANNEL_t   CHANNEL);
 
     //Rountine aufruf
     void tick();

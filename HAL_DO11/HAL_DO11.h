@@ -8,6 +8,17 @@
 #include "BPLC_ERRORS.h"
 #include "I2C_check.h"
 
+//IO Channelstate
+typedef enum
+{
+    DO_CHANNEL__NOT_USED,
+    DO_CHANNEL__DIGITAL,
+    DO_CHANNEL__ANALOG,
+    DO_CHANNEL__SERVO,
+
+    DO_CHANNEL__COUNT,
+}e_DO_CHANNEL_STATE_t;
+
 typedef enum
 {
     DO11_CARD_1_ADDRESS = 0x43,
@@ -56,7 +67,6 @@ class HAL_DO11 {
     HAL_DO11();
     void begin(const e_DO11_ADDRESS_t I2C_ADDRESS);
 
-    void            setPWMFrequency    (const uint8_t FREQUENCY);
     e_BPLC_ERROR_t  mapObjectToChannel (Output*     P_OBJECT,  const e_DO11_CHANNEL_t CHANNEL);
     e_BPLC_ERROR_t  mapObjectToChannel (servoMotor* P_OBJECT,  const e_DO11_CHANNEL_t CHANNEL);
 
@@ -77,9 +87,10 @@ class HAL_DO11 {
     
     struct
     {
-        e_CHANNEL_STATE_t   used    [DO11_CHANNEL__COUNT];
-        Output*             p_object[DO11_CHANNEL__COUNT];        
-        const uint8_t       PIN     [DO11_CHANNEL__COUNT][2]= {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}
-    }channels; 
+        e_DO_CHANNEL_STATE_t    state           [DO11_CHANNEL__COUNT];
+        Output*                 p_outputInstance[DO11_CHANNEL__COUNT]; 
+        servoMotor*             p_servoInstance [DO11_CHANNEL__COUNT];       
+        const uint8_t           PIN             [DO11_CHANNEL__COUNT][2] = {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}
+    }channels;  
 };
 #endif

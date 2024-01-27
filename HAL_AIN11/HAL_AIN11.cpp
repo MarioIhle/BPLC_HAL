@@ -2,7 +2,10 @@
 
 HAL_AIN11::HAL_AIN11()
 {
-    memset(&this->channels, 0, sizeof(this->channels));
+    for(uint8_t CH; CH < AIN11_CHANNEL__COUNT; CH++)
+    {  
+        this->channels.used[CH] = CHANNEL_STATE__NOT_IN_USE;
+    }   
 }
 
 void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL)
