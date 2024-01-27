@@ -119,6 +119,7 @@ class BPLC_APP
         {
             bool f_beepOnEncoderInput;
             bool f_useBuzzer;
+            bool f_initDone;
         }deviceSettings; 
     }APP_APP;       
     

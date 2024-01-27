@@ -1,7 +1,9 @@
 #include "BPLC_APP.h"
 
 BPLC_APP::BPLC_APP()
-{}
+{
+   this->APP_APP.deviceSettings.f_initDone = false;
+}
 
 void BPLC_APP::begin()
 {   
@@ -11,6 +13,9 @@ void BPLC_APP::begin()
    this->setupNetwork();   
    this->setupHMI();   
    this->setupSafety();   
+   this->APP_APP.deviceSettings.f_initDone = true;
+   Serial.println("##############################");
+   Serial.println("BPLC SYSTEM INIT SUCCESSFUL");
 }
 
 void BPLC_APP::setupApplication()
@@ -24,6 +29,10 @@ void BPLC_APP::setupApplication()
 
 void BPLC_APP::tick()
 {
+   if(this->APP_APP.deviceSettings.f_initDone == false)
+   {
+      this->setSystemError(BPLC_ERROR__BPLC_BEGIN_CALL_MISSING);
+   }
    //BPLC Hardware handling
    this->APP_HMI.oled.tick();
    this->handleDisplay();
