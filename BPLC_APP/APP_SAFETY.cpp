@@ -8,6 +8,11 @@ void BPLC_APP::setupSafety()
 
 void BPLC_APP::tickSafety()
 {
+   //Init überwachung
+   if(this->APP_APP.deviceSettings.f_initDone == false)
+   {
+      this->setSystemError(BPLC_ERROR__BPLC_BEGIN_CALL_MISSING);
+   }
    //Runntime überwachung der Applikation   
    if(this->APP_SAFETY.runntimeControl.to_runnntime.check())
    {

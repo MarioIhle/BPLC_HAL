@@ -90,6 +90,11 @@ void OLED_MCU11::tick()
     this->TEXT_OUTPUT[1] = " ";
   }
 
+  //Nur im Mainmenü Bildschirmschoner zulassen
+  if(this->menu.activeMenu != menu_mainMenu)
+  {
+    this->screenSaverParameter.to_sleep.reset();
+  }
   // Bildschirmschoner nach Timeout aktivieren
   if (this->screenSaverParameter.to_sleep.check() && this->deviceSettings.screenSaverIsEnbaled)
   {
@@ -132,13 +137,11 @@ void OLED_MCU11::tick()
 void OLED_MCU11::showNextTextOfThisMenu()
 {
   this->menu.activeText++;
-  this->screenSaverParameter.to_sleep.reset();
 }
 
 void OLED_MCU11::showPrevioursTextOfThisMenu()
 {
   this->menu.activeText--;
-  this->screenSaverParameter.to_sleep.reset();
 }
 
 void OLED_MCU11::enterMenu()

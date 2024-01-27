@@ -115,7 +115,7 @@ class OLED_MCU11
     s_menu_t    menu;
     bool        f_refresh;
 
-    uint8_t         paramValue;
+    int16_t         paramValue;
     bool            f_parmParameter;
     Timeout         to_parmeter;
     bool            f_parameterBlink;

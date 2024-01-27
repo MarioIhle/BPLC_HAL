@@ -28,18 +28,14 @@ void BPLC_APP::setupApplication()
 }
 
 void BPLC_APP::tick()
-{
-   if(this->APP_APP.deviceSettings.f_initDone == false)
-   {
-      this->setSystemError(BPLC_ERROR__BPLC_BEGIN_CALL_MISSING);
-   }
+{   
    //BPLC Hardware handling
+   this->tickSafety();  
    this->APP_HMI.oled.tick();
    this->handleDisplay();
    this->tickHardware();   
    this->tickNetwork();  
-   this->tickSafety();  
-  
+     
    //BPLC Statemachine
    switch(this->APP_APP.deviceMode)
    {
