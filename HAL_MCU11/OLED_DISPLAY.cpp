@@ -31,6 +31,7 @@ void OLED_MCU11::begin()
   if(this->selfCheck.checkI2CConnection())
   {
     Serial.println("I2C connection ok!");
+    this->errorCode = BPLC_ERROR__NO_ERROR;
   }
   else
   {
@@ -357,4 +358,9 @@ void OLED_MCU11::exitParameter()
 bool OLED_MCU11::parameterEntered()
 {
   return this->f_parmParameter;
+}
+
+e_BPLC_ERROR_t  OLED_MCU11::getError()
+{
+  return this->errorCode;
 }

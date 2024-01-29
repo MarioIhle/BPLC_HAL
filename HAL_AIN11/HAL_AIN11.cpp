@@ -54,6 +54,7 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
             if(this->channels.state[CHANNEL] == AIN_CHANNEL__ANALOG)
             {
                 //individuelle Anpassung?
+                break;
             }
             else if(this->channels.state[CHANNEL] == AIN_CHANNEL__NOT_USED && CHANNEL == (AIN11_CHANNEL__COUNT - 1))
             {//letzter Port und immernoch keiner in nutzung

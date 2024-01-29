@@ -147,7 +147,7 @@ class ERROR_OUT
 
     String getErrorCodeText(const e_BPLC_ERROR_t ERROR_CODE)
     {      
-        if(BPLC_ERROR__COUNT != 54)
+        if(BPLC_ERROR__COUNT != 55)
         {
             return("BPLC_ERROR__ERROR_TEXTS_NEED_UPDATE!");
         }

@@ -96,6 +96,7 @@ class OLED_MCU11
     void            exitParameter               ();
     bool            parameterEntered            ();
     void            setParamValueToShow         (const uint8_t VALUE);    
+    e_BPLC_ERROR_t  getError                    ();
 
     private:
     Adafruit_SSD1306 oled;

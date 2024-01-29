@@ -2,48 +2,53 @@
 
 void BPLC_APP::handleDisplay()
 {  
-   switch(this->APP_HMI.oled.getActiveMenu())
-   {      
-      case menu_mainMenu:
-         if(this->APP_HAL.ENCODER.isButtonPressed())
-         {            
-            this->APP_HMI.oled.enterMenu();            
-         }
+   if(this->APP_HMI.oled.getError() == BPLC_ERROR__NO_ERROR)
+   {
+      this->APP_HMI.oled.tick();
 
-         if(this->APP_HAL.ENCODER.getTurningDirection() == movement_right)
-         {
-            this->APP_HMI.oled.showNextTextOfThisMenu();
-         }
-         else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
-         {
-            this->APP_HMI.oled.showPrevioursTextOfThisMenu();
-         }           
-         this->APP_HMI.oled.setParamValueToShow(this->APP_APP.deviceMode);
-      break;
+      switch(this->APP_HMI.oled.getActiveMenu())
+      {      
+         case menu_mainMenu:
+            if(this->APP_HAL.ENCODER.isButtonPressed())
+            {            
+               this->APP_HMI.oled.enterMenu();            
+            }
 
-      case menu_deviceMode:
-         editDeviceMode();
-      break;
+            if(this->APP_HAL.ENCODER.getTurningDirection() == movement_right)
+            {
+               this->APP_HMI.oled.showNextTextOfThisMenu();
+            }
+            else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
+            {
+               this->APP_HMI.oled.showPrevioursTextOfThisMenu();
+            }           
+            this->APP_HMI.oled.setParamValueToShow(this->APP_APP.deviceMode);
+         break;
 
-      case menu_errorCodes:
-         hardwareErrorOut();
-      break;
+         case menu_deviceMode:
+            editDeviceMode();
+         break;
 
-      case menu_settings:
-         displaySettings();        
-      break;
+         case menu_errorCodes:
+            hardwareErrorOut();
+         break;
 
-      case menu_dipSwitch:
-         handle_vDip();
-      break;
+         case menu_settings:
+            displaySettings();        
+         break;
 
-      case menu_screenSaver: 
-         if(this->APP_HAL.ENCODER.isButtonPressed() || this->APP_HAL.ENCODER.getTurningDirection() != movement_idle)
-         {
-            this->APP_HMI.oled.setMenu(menu_mainMenu);
-         }
-      break;
-   }
+         case menu_dipSwitch:
+            handle_vDip();
+         break;
+
+         case menu_screenSaver: 
+            if(this->APP_HAL.ENCODER.isButtonPressed() || this->APP_HAL.ENCODER.getTurningDirection() != movement_idle)
+            {
+               this->APP_HMI.oled.setMenu(menu_mainMenu);
+            }
+         break;
+      }
+   }   
 }
 
 void BPLC_APP::setupHMI()

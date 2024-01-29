@@ -53,6 +53,7 @@ void HAL_REL11::begin(const e_REL11_ADDRESS_t I2C_ADDRESS)
         if(this->channels.state[CH] == REL_CHANNEL_STATE__DIGITAL)
         {
             //Irgenwelche Hardware Anpassung?
+            break;
         }
         else if(this->channels.state[CH] == REL_CHANNEL_STATE__NOT_USED && CH == (REL11_CHANNEL__COUNT - 1))
         {//letzter Port und immernoch keiner in nutzung

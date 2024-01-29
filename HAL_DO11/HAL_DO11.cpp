@@ -53,6 +53,7 @@ void HAL_DO11::begin(const e_DO11_ADDRESS_t I2C_ADDRESS)
         if(this->channels.state[CH] == DO_CHANNEL__SERVO)
         {
             this->PCA.setPWMFrequency(25);
+            break;
         }
         else if(this->channels.state[CH] == DO_CHANNEL__NOT_USED && CH == (DO11_CHANNEL__COUNT - 1))
         {//letzter Port und immernoch keiner in nutzung
