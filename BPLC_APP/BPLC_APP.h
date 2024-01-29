@@ -104,7 +104,7 @@ class BPLC_APP
     //Dip Controll
     void    setVDip(const e_V_DIP_t DIP_NUM, const int16_t VALUE);
     int16_t getVDip(const e_V_DIP_t DIP_NUM);
-    void    ISR_CALLED(); 
+
     
     private:
     //APP_APP
