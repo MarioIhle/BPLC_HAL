@@ -12,59 +12,30 @@ void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
  
     this->to_parameterPoll.setInterval(1000);
     this->to_I2C.setInterval(50);                 
-#ifdef DEBUG_HAL_MOT11
-    //Debug Error ausgabe
-    Serial.println("##############################");  
-    Serial.println("setup MOT11 ");
-
-    Serial.print("CARD: ");
-    switch(this->deviceAddress)
-    {
-        case MOT11_CARD_1_ADDRESS:
-            Serial.println("1");
-        break;
-        case MOT11_CARD_2_ADDRESS:
-            Serial.println("2");
-        break;
-        case MOT11_CARD_3_ADDRESS:
-            Serial.println("3");
-        break;
-        case MOT11_CARD_4_ADDRESS:
-            Serial.println("4");
-        break;
-    }
-    //Tatsächliche I2C Addresse ausgeben
-    Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
-#endif
-    this->selfCheck.begin(this->deviceAddress);
-    if(this->selfCheck.checkI2CConnection())
-    {
-        #ifdef DEBUG_HAL_MOT11
-        Serial.println("I2C connection ok!");
-        #endif
-    }
-    else
-    {
-        #ifdef DEBUG_HAL_MOT11
-        Serial.println("I2C connection failed!");
-        #endif
-        this->error.code = MOT11_ERROR__I2C_CONNECTION_FAILED;        
-    }
 
     //Instance überprüfen
     if(this->channels.state == MOT_CHANNEL_STATE__NOT_USED)
     {  
         this->error.code = MOT11_ERROR__NO_CHANNEL_IN_USE;
     }
+    
+    if(!this->selfCheck.begin(this->deviceAddress))
+    {
+        this->error.code = MOT11_ERROR__I2C_CONNECTION_FAILED;        
+    }
 
     //Applikationsparameter initialisieren
     if(this->error.code == BPLC_ERROR__NO_ERROR)
     {         
-        this->deviceState = deviceState_running;      
+        this->deviceState = deviceState_running;  
+        BPLC_LOG logPrint;
+        logPrint.printLog("MOT11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");       
     }
     else
     {
         this->deviceState = deviceState_safeState;
+        BPLC_LOG logPrint;
+        logPrint.printLog("MOT11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");    
     }    
 }
 

@@ -11,7 +11,7 @@ class I2C_check
 {
   public:
   I2C_check();
-  void begin(const uint8_t ADDRESS);
+  bool begin(const uint8_t ADDRESS);
 
   bool requestHeartbeat();
   bool checkI2CConnection();

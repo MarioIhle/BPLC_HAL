@@ -13,41 +13,8 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
     this->deviceAddress = I2C_ADDRESS;
     this->errorCode     = BPLC_ERROR__NO_ERROR;
     this->to_read.setInterval(READ_INTERVAL);
-
-    //Debug Error ausgabe
-    Serial.println("##############################");  
-    Serial.println("setup AIN11 ");
-
-    Serial.print("CARD: ");
-    switch(this->deviceAddress)
-    {
-        case AIN11_CARD_1_ADDRESS:
-            Serial.println("1");
-        break;
-        case AIN11_CARD_2_ADDRESS:
-            Serial.println("2");
-        break;
-        case AIN11_CARD_3_ADDRESS:
-            Serial.println("3");
-        break;
-        case AIN11_CARD_4_ADDRESS:
-            Serial.println("4");
-        break;
-    }
-    //Tatsächliche I2C Addresse ausgeben
-    Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
-
-    this->selfCheck.begin(this->deviceAddress);
-    if(this->selfCheck.checkI2CConnection())
-    {
-        Serial.println("I2C connection ok!");
-    }
-    else
-    {
-        Serial.println("I2C connection failed!");
-        this->errorCode = AIN11_ERROR__I2C_CONNECTION_FAILED;        
-    }
-
+    
+    
     //Instanzen Prüfen
         for(uint8_t CHANNEL = 0; CHANNEL < AIN11_CHANNEL__COUNT; CHANNEL++)
         {            
@@ -62,6 +29,11 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
             }
         }
 
+    //I2C Verbindung prüfen
+    if(!this->selfCheck.begin(this->deviceAddress))
+    {
+        this->errorCode = AIN11_ERROR__I2C_CONNECTION_FAILED;        
+    }
     //Applikationsparameter initialisieren         
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {   
@@ -79,7 +51,14 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
         //this->adcGain = GAIN_SIXTEEN;         // 16x gain  +/- 0.256V  1 bit = 0.125mV  0.0078125mV
         
         this->ADC.setGain(this->adcGain);
-        this->ADC.begin(this->deviceAddress);         
+        this->ADC.begin(this->deviceAddress);
+        BPLC_LOG logPrint;
+        logPrint.printLog("AIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");      
+    }    
+    else
+    {
+        BPLC_LOG logPrint;
+        logPrint.printLog("AIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");    
     }
 }
 

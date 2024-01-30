@@ -98,7 +98,7 @@ void BPLC_APP::setupHardware()
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
          this->setSystemError(ERROR);
-      }
+      }         
    }
 
    //AIN11revA

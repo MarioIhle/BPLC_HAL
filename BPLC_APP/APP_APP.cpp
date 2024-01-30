@@ -15,16 +15,15 @@ void BPLC_APP::begin()
    //Fehlerprüfung bevor System startet
    if(this->getFirstSystemErrorCode() == BPLC_ERROR__NO_ERROR)
    {
+      BPLC_LOG logPrint;
       this->APP_APP.deviceSettings.f_initDone = true;
-      Serial.println("##############################");
-      Serial.println("BPLC SYSTEM INIT SUCCESSFUL");
+      logPrint.printLog("BPLC SYSTEM INIT SUCCESSFUL");
    }
    else
    {
       this->APP_APP.deviceSettings.f_initDone = false;
-      Serial.println("##############################");
-      Serial.println("BPLC SYSTEM INIT FAILED");
-      Serial.print("ERROR CODE: "); Serial.print(this->APP_SAFETY.errorCode[0]); Serial.print(", "); Serial.println(this->APP_SAFETY.errorOut.getErrorCodeText(this->APP_SAFETY.errorCode[0]));
+      BPLC_LOG logPrint;
+      logPrint.printLog("BPLC SYSTEM INIT FAILED");
    }   
 }
 
@@ -89,7 +88,33 @@ e_APP_MODE_t BPLC_APP::getDeviceMode()
 
 void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
 {
-   this->APP_APP.deviceMode = MODE;
+   if(this->APP_APP.deviceMode != MODE)
+   {
+      this->APP_APP.deviceMode = MODE;
+      //Log Print
+      BPLC_LOG logPrint;
+      switch(MODE)
+      {
+         case APP_MODE__STOP:
+            logPrint.printLog("DEVICEMODE: STOP");
+         break; 
+         case APP_MODE__START:
+            logPrint.printLog("DEVICEMODE: START");
+         break;
+         case APP_MODE__SAFE_STATE:
+            logPrint.printLog("DEVICEMODE: SAFE STATE");
+         break;
+         case APP_MODE__RUN_WITH_CONFIG_1:
+            logPrint.printLog("DEVICEMODE: RUN CONFIG 1");
+         break;
+         case APP_MODE__RUN_WITH_CONFIG_2:
+            logPrint.printLog("DEVICEMODE: RUN CONFIG 2");
+         break;
+         case APP_MODE__RUN_WITH_CONFIG_3:
+            logPrint.printLog("DEVICEMODE: RUN CONFIG 3");
+         break;
+      }      
+   }   
 }
 
 void BPLC_APP::setVDip(const e_V_DIP_t DIP_NUM, const int16_t VALUE)

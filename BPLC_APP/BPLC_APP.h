@@ -18,6 +18,7 @@
 #include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
+#include "BPLC_LOG.h"
 //HAL
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
@@ -92,11 +93,7 @@ class BPLC_APP
     void mapObjectToExtensionCard(Output*        P_OBJECT, const e_REL11_CARD_t  CARD, const e_REL11_CHANNEL_t   CHANNEL);
 
     //Rountine aufruf
-    void tick();
-    
-    //Device Mode
-    e_APP_MODE_t    getDeviceMode();    
-    void            setDeviceMode(const e_APP_MODE_t MODE);
+    void tick();    
 
     //Buzzer aus Applikation heraus nutzen
     void    beep(const uint8_t BEEPS, const int BEEP_INTERVAL);    
@@ -109,6 +106,9 @@ class BPLC_APP
     private:
     //APP_APP
     void setupApplication();
+    //Device Mode
+    e_APP_MODE_t    getDeviceMode();    
+    void            setDeviceMode(const e_APP_MODE_t MODE);
 
     struct
     {

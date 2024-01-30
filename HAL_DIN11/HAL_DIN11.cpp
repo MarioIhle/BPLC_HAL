@@ -11,42 +11,8 @@ HAL_DIN11::HAL_DIN11()
 void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 {  
     this->deviceAddress                 = I2C_ADDRESS;
-    this->errorCode                     = BPLC_ERROR__NO_ERROR;
-
-    //Debug Error ausgabe
-    Serial.println("##############################");  
-    Serial.println("setup DIN11 ");
-
-    Serial.print("CARD: ");
-    switch(this->deviceAddress)
-    {
-        case DIN11_CARD_1_ADDRESS:
-            Serial.println("1");
-        break;
-        case DIN11_CARD_2_ADDRESS:
-            Serial.println("2");
-        break;
-        case DIN11_CARD_3_ADDRESS:
-            Serial.println("3");
-        break;
-        case DIN11_CARD_4_ADDRESS:
-            Serial.println("4");
-        break;
-    }
-    //Tatsächliche I2C Addresse ausgeben
-    Serial.print("address: 0x"); Serial.println(this->deviceAddress, HEX);
+    this->errorCode                     = BPLC_ERROR__NO_ERROR;   
     
-    this->selfCheck.begin(this->deviceAddress);
-    if(this->selfCheck.checkI2CConnection())
-    {
-        Serial.println("I2C connection ok!");
-    }
-    else
-    {
-        Serial.println("I2C connection failed!");
-        this->errorCode = DIN11_ERROR__I2C_CONNECTION_FAILED;        
-    }
-
     //Prüfen ob überhaupt ein Port in benutzung
     for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
     {            
@@ -60,12 +26,25 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
         }
     }
 
+    //I2C Verbindung prüfen
+    if(!this->selfCheck.begin(this->deviceAddress))
+    {
+        this->errorCode = DIN11_ERROR__I2C_CONNECTION_FAILED;        
+    }
+
     //Applikationsparameter initialisieren
     if(this->errorCode == BPLC_ERROR__NO_ERROR)
     {   
         PCF.setAddress(this->deviceAddress);   
-        PCF.begin();            
+        PCF.begin();      
+        BPLC_LOG logPrint;
+        logPrint.printLog("DIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");      
     }    
+    else
+    {
+        BPLC_LOG logPrint;
+        logPrint.printLog("DIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");
+    }
 }
 
 e_BPLC_ERROR_t HAL_DIN11::mapObjectToChannel(DigitalInput* P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL)
