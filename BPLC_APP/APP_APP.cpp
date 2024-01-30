@@ -1,21 +1,31 @@
 #include "BPLC_APP.h"
 
 BPLC_APP::BPLC_APP()
-{
-   this->APP_APP.deviceSettings.f_initDone = false;
-}
+{}
 
 void BPLC_APP::begin()
 {   
    //Setting
-   this->setupApplication();
-   this->setupHardware(); 
-   this->setupNetwork();   
+   this->setupApplication();      
    this->setupHMI();   
+   this->setupHardware(); 
+   this->setupNetwork();
    this->setupSafety();   
-   this->APP_APP.deviceSettings.f_initDone = true;
-   Serial.println("##############################");
-   Serial.println("BPLC SYSTEM INIT SUCCESSFUL");
+   
+   //Fehlerprüfung bevor System startet
+   if(this->getFirstSystemErrorCode() == BPLC_ERROR__NO_ERROR)
+   {
+      this->APP_APP.deviceSettings.f_initDone = true;
+      Serial.println("##############################");
+      Serial.println("BPLC SYSTEM INIT SUCCESSFUL");
+   }
+   else
+   {
+      this->APP_APP.deviceSettings.f_initDone = false;
+      Serial.println("##############################");
+      Serial.println("BPLC SYSTEM INIT FAILED");
+      Serial.print("ERROR CODE: "); Serial.print(this->APP_SAFETY.errorCode[0]); Serial.print(", "); Serial.println(this->APP_SAFETY.errorOut.getErrorCodeText(this->APP_SAFETY.errorCode[0]));
+   }   
 }
 
 void BPLC_APP::setupApplication()
@@ -58,7 +68,7 @@ void BPLC_APP::tick()
          this->APP_HAL.LD1_DEVICE_STATE.blinkWithBreak(1, 100, 100);     
          this->APP_HAL.LD3_ERROR_OUT.blinkWithBreak((uint8_t)getFirstSystemErrorCode(), 500, 1500);    
          this->APP_HAL.BUZZER.blinkWithBreak(3, 100, 30000);
-         this->APP_HAL.OEN.reset();          
+         this->APP_HAL.OEN.reset();    
       break;
 
       default:

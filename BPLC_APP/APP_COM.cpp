@@ -36,9 +36,23 @@ void BPLC_APP::tickNetwork()
 
         //Network setup
         if(DEVICE_IS_MASTER_NODE)
-        {
-            this->APP_COM.Master.tick();
-            this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
+        {                       
+            switch(this->APP_COM.Master.getError())
+            {
+                case MASTER_NODE_ERROR__NO_ERROR:
+                    this->APP_COM.Master.tick();
+                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
+                break;
+
+                case MASTER_NODE_ERROR__NO_SLAVE_AVAILABLE:
+                    this->APP_COM.Master.tick();
+                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 100, 100);
+                break;
+
+                default:
+                case MASTER_NODE_ERROR__COUNT:
+                break;
+            }                    
         }
         else
         {
