@@ -10,6 +10,7 @@
 #include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
+#include "BPLC_LOG.h"
 
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES

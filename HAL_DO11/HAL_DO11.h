@@ -6,6 +6,7 @@
 #include "BPLC_IOM.h"
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
+#include "BPLC_LOG.h"
 #include "I2C_check.h"
 
 //IO Channelstate

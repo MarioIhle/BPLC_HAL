@@ -57,12 +57,12 @@ void OLED_MCU11::begin()
     this->menu.activeMenu = menu_mainMenu;
     
     BPLC_LOG logPrint;
-    logPrint.printLog("MCU OLED DISPLAY (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");       
+    logPrint.printLog("MCU OLED DISPLAY (" + String(0x3C) + ") INIT SUCCESSFUL");       
   }
   else
   {
     BPLC_LOG logPrint;
-    logPrint.printLog("MCU OLED DISPLAY (" + String(I2C_ADDRESS) + ") INIT FAILED");    
+    logPrint.printLog("MCU OLED DISPLAY (" + String(0x3C) + ") INIT FAILED");    
   }    
 }
 

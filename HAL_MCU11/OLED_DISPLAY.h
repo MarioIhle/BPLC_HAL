@@ -18,6 +18,7 @@
 
 //Lib includes
 #include "BPLC_IOM.h"
+#include "BPLC_LOG.h"
 #include "SpecialFunctions.h"
 #include <Wire.h>
 #include "Adafruit_GFX.h"
