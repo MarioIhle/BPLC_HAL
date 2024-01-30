@@ -1,7 +1,9 @@
 #include "BPLC_APP.h"
 
 BPLC_APP::BPLC_APP()
-{}
+{
+   this->APP_APP.deviceSettings.f_initDone = false;
+}
 
 void BPLC_APP::begin()
 {   
@@ -16,15 +18,14 @@ void BPLC_APP::begin()
    if(this->getFirstSystemErrorCode() == BPLC_ERROR__NO_ERROR)
    {
       BPLC_LOG logPrint;
-      this->APP_APP.deviceSettings.f_initDone = true;
       logPrint.printLog("BPLC SYSTEM INIT SUCCESSFUL");
    }
    else
    {
-      this->APP_APP.deviceSettings.f_initDone = false;
       BPLC_LOG logPrint;
       logPrint.printLog("BPLC SYSTEM INIT FAILED");
    }   
+   this->APP_APP.deviceSettings.f_initDone = true;
 }
 
 void BPLC_APP::setupApplication()

@@ -34,6 +34,9 @@ void HAL_MCU11_revB::begin()
     Serial2.begin(this->baudrate.RS485);    //RS485
     //I2C
     Wire.begin();
+
+    BPLC_LOG logPrint;
+    logPrint.printLog("MCU11revB SYSTEM INIT SUCCESSFUL");  
 }
 
 void HAL_MCU11_revB::mapEncoder(rotaryEncoder* P_ENCODER)
