@@ -20,48 +20,50 @@ OLED_MCU11::OLED_MCU11() {}
 // INIT
 void OLED_MCU11::begin()
 {
-  // Hardwarecheck
-  Serial.println("##############################");
-  Serial.println("setup HMI OLED");
-
-  // Tatsächliche I2C Addresse ausgeben
-  Serial.println("address: 0x3C");
-
   this->selfCheck.begin(0x3C);
-  if(this->selfCheck.checkI2CConnection())
+  if(!this->selfCheck.begin(0x3C))
   {
-    Serial.println("I2C connection ok!");
     this->errorCode = BPLC_ERROR__NO_ERROR;
   }
   else
   {
-    Serial.println("I2C connection failed!");
     this->errorCode = BPLC_ERROR__OLED_COMMUNICATION_FAILED;
-    return;
   }
-  // Library inititalisieren
-  this->oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  this->oled.setTextSize(2);
-  this->oled.setTextColor(SSD1306_WHITE);
-  this->oled.display();
-  this->oled.clearDisplay();
-  this->oled.print("booting...");
-  this->oled.display();
-  this->oled.clearDisplay();
 
-  memset(&this->display, 0, sizeof(s_display_t));
-  memset(&this->menu, 0, sizeof(s_menu_t));
-  memset(&this->screenSaverParameter, 0, sizeof(s_screenSaverParameter_t));
-  memset(&this->deviceSettings, 0, sizeof(s_deviceSettingsParameter_t));
+  if(this->errorCode == BPLC_ERROR__NO_ERROR)
+  {
+    // Library inititalisieren
+    this->oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+    this->oled.setTextSize(2);
+    this->oled.setTextColor(SSD1306_WHITE);
+    this->oled.display();
+    this->oled.clearDisplay();
+    this->oled.print("booting...");
+    this->oled.display();
+    this->oled.clearDisplay();
 
-  this->deviceSettings.screenSaverIsEnbaled = true;
-  this->deviceSettings.sleepTime = 60000;
-  this->screenSaverParameter.to_sleep.setInterval(this->deviceSettings.sleepTime);
-  this->screenSaverParameter.to_sleep.reset();
+    memset(&this->display, 0, sizeof(s_display_t));
+    memset(&this->menu, 0, sizeof(s_menu_t));
+    memset(&this->screenSaverParameter, 0, sizeof(s_screenSaverParameter_t));
+    memset(&this->deviceSettings, 0, sizeof(s_deviceSettingsParameter_t));
 
-  this->to_parmeter.setInterval(500);
+    this->deviceSettings.screenSaverIsEnbaled = true;
+    this->deviceSettings.sleepTime = 60000;
+    this->screenSaverParameter.to_sleep.setInterval(this->deviceSettings.sleepTime);
+    this->screenSaverParameter.to_sleep.reset();
 
-  this->menu.activeMenu = menu_mainMenu;
+    this->to_parmeter.setInterval(500);
+
+    this->menu.activeMenu = menu_mainMenu;
+    
+    BPLC_LOG logPrint;
+    logPrint.printLog("MCU OLED DISPLAY (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");       
+  }
+  else
+  {
+    BPLC_LOG logPrint;
+    logPrint.printLog("MCU OLED DISPLAY (" + String(I2C_ADDRESS) + ") INIT FAILED");    
+  }    
 }
 
 //---------------------------------------------------
