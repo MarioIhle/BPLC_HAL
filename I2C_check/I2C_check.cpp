@@ -19,7 +19,7 @@ bool I2C_check::checkI2CConnection()
 
 bool I2C_check::requestHeartbeat()
 {
-    bool heartBeatReceived = false;
+    bool heartBeatReceived = true;
 
     if(this->to_heartbeat.checkAndReset())
     {
