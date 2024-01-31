@@ -78,7 +78,7 @@ void BPLC_APP::setupHardware()
          this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED);
       break;  
    }   
-    
+       
    //DIN11revA setup
    this->APP_HAL.DIN11_CARD[DIN11_CARD__1].begin(DIN11_CARD_1_ADDRESS);
    this->APP_HAL.DIN11_CARD[DIN11_CARD__2].begin(DIN11_CARD_2_ADDRESS);
@@ -210,6 +210,7 @@ void BPLC_APP::mapObjectToExtensionCard(DigitalInput* P_OBJECT, const e_DIN11_CA
 
 void BPLC_APP::mapObjectToExtensionCard(rpmSensor* P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL)  
 {   
+   this->P_TEST_OBJEKT->tick();
    Serial.println("##############################");  
    Serial.print("map rpmSensor to DIN11_CARD "); Serial.print((1 + (uint8_t)CARD)); Serial.print(" CHANNEL: "); Serial.println((1 + (uint8_t)CHANNEL));
 

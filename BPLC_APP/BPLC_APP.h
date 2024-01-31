@@ -73,7 +73,7 @@ typedef enum
 #define RUNTIME_ERRORS_MAX 3
 #define RUNNTIME 1000
 
-class BPLC_APP
+class BPLC_APP:BPLC_LOG, ERROR_OUT
 {
     public:
     //Setup des BPLC Systems
@@ -104,6 +104,8 @@ class BPLC_APP
 
     
     private:
+
+    HAL_AIN11* P_TEST_OBJEKT;
     //APP_APP
     void setupApplication();
     //Device Mode
