@@ -62,7 +62,8 @@ typedef enum
 #define LS_MOSFET 0
 #define HS_MOSFET 1
 
-class HAL_DO11 {
+class HAL_DO11:BPLC_LOG, I2C_check
+{
 
     public:
     HAL_DO11();
@@ -79,7 +80,6 @@ class HAL_DO11 {
     //Applikation
 
     //Safety
-    I2C_check       selfCheck;
     e_BPLC_ERROR_t  errorCode;  
 
     //Settings

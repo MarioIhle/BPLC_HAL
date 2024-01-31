@@ -67,7 +67,7 @@ typedef enum
 //-------------------------------------------------------------
 #define READ_TWO_TIMES 2
 
-class HAL_DIN11 
+class HAL_DIN11:BPLC_LOG, I2C_check
 {
     public:
     HAL_DIN11 ();
@@ -81,7 +81,6 @@ class HAL_DIN11
     
     private:    
     //Safety
-    I2C_check       selfCheck;
     e_BPLC_ERROR_t  errorCode;
 
     //Settings

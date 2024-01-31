@@ -106,6 +106,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     private:
 
     HAL_AIN11* P_TEST_OBJEKT;
+
     //APP_APP
     void setupApplication();
     //Device Mode
@@ -134,8 +135,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     void handle_vDip();
 
     struct
-    {
-        OLED_MCU11  oled;
+    {        
         int16_t     temp_ParameterStorage;         
     }APP_HMI;    
   
@@ -173,7 +173,8 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     {
         //Hal objecte zu allen möglichen Erweiterungskarten
         HAL_MCU11_revA  MCU11revA_HAL;    
-        HAL_MCU11_revB  MCU11revB_HAL;             
+        HAL_MCU11_revB  MCU11revB_HAL;        
+        OLED_MCU11      oled;     
         HAL_DIN11       DIN11_CARD[DIN11_CARD__MAX]; 
         HAL_AIN11       AIN11_CARD[AIN11_CARD__MAX];
         HAL_DO11        DO11_CARD [DO11_CARD__MAX];

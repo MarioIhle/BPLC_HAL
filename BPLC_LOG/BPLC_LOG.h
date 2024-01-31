@@ -9,9 +9,8 @@ class BPLC_LOG
 {
     public:
     BPLC_LOG();
-    ~BPLC_LOG();
     void printLog(String TEXT);
-
+    void printError(String TEXT);
 
     private:
 

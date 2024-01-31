@@ -20,12 +20,9 @@ OLED_MCU11::OLED_MCU11() {}
 // INIT
 void OLED_MCU11::begin()
 {
-  this->selfCheck.begin(0x3C);
-  if(!this->selfCheck.begin(0x3C))
-  {
-    this->errorCode = BPLC_ERROR__NO_ERROR;
-  }
-  else
+  this->errorCode = BPLC_ERROR__NO_ERROR;
+
+  if(!I2C_check::begin(0x3C))
   {
     this->errorCode = BPLC_ERROR__OLED_COMMUNICATION_FAILED;
   }
@@ -56,13 +53,11 @@ void OLED_MCU11::begin()
 
     this->menu.activeMenu = menu_mainMenu;
     
-    BPLC_LOG logPrint;
-    logPrint.printLog("MCU OLED DISPLAY (" + String(0x3C) + ") INIT SUCCESSFUL");       
+    this->printLog("MCU OLED DISPLAY (" + String(0x3C) + ") INIT SUCCESSFUL");       
   }
   else
   {
-    BPLC_LOG logPrint;
-    logPrint.printLog("MCU OLED DISPLAY (" + String(0x3C) + ") INIT FAILED");    
+    this->printLog("MCU OLED DISPLAY (" + String(0x3C) + ") INIT FAILED");    
   }    
 }
 

@@ -78,6 +78,8 @@ void BPLC_APP::setupHardware()
          this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED);
       break;  
    }   
+   //MCU Onboard OLED DISPLAY
+   this->APP_HAL.oled.begin();
        
    //DIN11revA setup
    this->APP_HAL.DIN11_CARD[DIN11_CARD__1].begin(DIN11_CARD_1_ADDRESS);

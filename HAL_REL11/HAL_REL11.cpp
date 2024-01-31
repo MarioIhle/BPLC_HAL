@@ -29,7 +29,7 @@ void HAL_REL11::begin(const e_REL11_ADDRESS_t I2C_ADDRESS)
     }
 
     //I2C Verbindung Prüfen
-    if(!this->selfCheck.begin(this->deviceAddress))
+    if(!I2C_check::begin(this->deviceAddress))
     {
         this->errorCode = REL11_ERROR__I2C_CONNECTION_FAILED;        
     }
@@ -67,7 +67,7 @@ e_BPLC_ERROR_t HAL_REL11::mapObjectToChannel(Output* P_OBJECT, const uint8_t CHA
 void HAL_REL11::tick()
 {
     //I2C Verbindung zyklisch prüfen
-    if(!this->selfCheck.requestHeartbeat())
+    if(!I2C_check::requestHeartbeat())
     {
         this->errorCode = REL11_ERROR__I2C_CONNECTION_FAILED;
     }    

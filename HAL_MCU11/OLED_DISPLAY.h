@@ -77,7 +77,7 @@ typedef struct{
 //---------------------------------------------------
 //MCU11 KLASSE
 //---------------------------------------------------
-class OLED_MCU11
+class OLED_MCU11:BPLC_LOG, I2C_check
 {
     public:
             OLED_MCU11  ();
@@ -130,7 +130,6 @@ class OLED_MCU11
     s_deviceSettingsParameter_t deviceSettings;      
 
     e_BPLC_ERROR_t  errorCode; 
-    I2C_check       selfCheck;
 };
 
 #endif

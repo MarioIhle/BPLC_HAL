@@ -19,7 +19,7 @@ void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
         this->error.code = MOT11_ERROR__NO_CHANNEL_IN_USE;
     }
     
-    if(!this->selfCheck.begin(this->deviceAddress))
+    if(!I2C_check::begin(this->deviceAddress))
     {
         this->error.code = MOT11_ERROR__I2C_CONNECTION_FAILED;        
     }

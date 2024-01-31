@@ -58,7 +58,7 @@ typedef enum
 //-------------------------------------------------------------
 //HAL_AIN11 KLASSE
 //-------------------------------------------------------------
-class HAL_AIN11 
+class HAL_AIN11:BPLC_LOG, I2C_check
 {
     public:
     HAL_AIN11();
@@ -72,7 +72,6 @@ class HAL_AIN11
     //Applikation
 
     //Safety
-    I2C_check       selfCheck;
     e_BPLC_ERROR_t  errorCode;          
  
     //Settings

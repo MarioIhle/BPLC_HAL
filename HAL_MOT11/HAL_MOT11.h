@@ -91,7 +91,7 @@ typedef union
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
-class HAL_MOT11
+class HAL_MOT11:BPLC_LOG, I2C_check
 {
     public:
     //Init
@@ -120,7 +120,6 @@ class HAL_MOT11
     Timeout to_I2C;           //max Wartezeit auf Antwort
    
     //Safety
-    I2C_check   selfCheck;
     struct 
     {
       struct 

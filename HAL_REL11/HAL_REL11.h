@@ -62,7 +62,8 @@ typedef enum
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
-class HAL_REL11 {
+class HAL_REL11:BPLC_LOG, I2C_check
+{
 
     public:
     HAL_REL11();
@@ -78,7 +79,6 @@ class HAL_REL11 {
     //Applikation
 
     //Safety
-    I2C_check       selfCheck;
     e_BPLC_ERROR_t  errorCode; 
 
     //Settings

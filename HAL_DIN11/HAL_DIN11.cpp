@@ -10,8 +10,8 @@ HAL_DIN11::HAL_DIN11()
 
 void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 {  
-    this->deviceAddress                 = I2C_ADDRESS;
-    this->errorCode                     = BPLC_ERROR__NO_ERROR;   
+    this->deviceAddress = I2C_ADDRESS;
+    this->errorCode     = BPLC_ERROR__NO_ERROR;   
     
     //Prüfen ob überhaupt ein Port in benutzung
     for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
@@ -27,7 +27,7 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     }
 
     //I2C Verbindung prüfen
-    if(!this->selfCheck.begin(this->deviceAddress))
+    if(!I2C_check::begin(I2C_ADDRESS))
     {
         this->errorCode = DIN11_ERROR__I2C_CONNECTION_FAILED;        
     }
@@ -37,13 +37,11 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     {   
         PCF.setAddress(this->deviceAddress);   
         PCF.begin();      
-        BPLC_LOG logPrint;
-        logPrint.printLog("DIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");      
+        this->printLog("DIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");      
     }    
     else
     {
-        BPLC_LOG logPrint;
-        logPrint.printLog("DIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");
+        this->printLog("DIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");
     }
 }
 
@@ -79,7 +77,7 @@ e_BPLC_ERROR_t HAL_DIN11::mapObjectToChannel(rpmSensor* P_OBJECT, const e_DIN11_
 void HAL_DIN11::tick()
 {      
     //I2C Verbindung zyklisch prüfen
-    if(!this->selfCheck.requestHeartbeat())
+    if(!I2C_check::requestHeartbeat())
     {
         this->errorCode = DIN11_ERROR__I2C_CONNECTION_FAILED;
     }

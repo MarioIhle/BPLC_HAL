@@ -28,7 +28,7 @@ void HAL_DO11::begin(const e_DO11_ADDRESS_t I2C_ADDRESS)
     }
     
     //I2C verbindung prüfen
-    if(!this->selfCheck.begin(this->deviceAddress))
+    if(!I2C_check::begin(this->deviceAddress))
     {
         this->errorCode = DO11_ERROR__I2C_CONNECTION_FAILED;     
     }
@@ -81,7 +81,7 @@ e_BPLC_ERROR_t HAL_DO11::mapObjectToChannel(servoMotor* P_OBJECT, const e_DO11_C
 void HAL_DO11::tick()
 {
     //I2C Verbindung zyklisch prüfen
-    if(!this->selfCheck.requestHeartbeat())
+    if(!I2C_check::requestHeartbeat())
     {
         this->errorCode = DO11_ERROR__I2C_CONNECTION_FAILED;
     }    
