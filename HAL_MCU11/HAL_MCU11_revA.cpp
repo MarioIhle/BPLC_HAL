@@ -36,7 +36,7 @@ void HAL_MCU11_revA::begin()
     Wire.begin();
 
     BPLC_LOG logPrint;
-    logPrint.printLog("MCU11revA SYSTEM INIT SUCCESSFUL");  
+    logPrint.printLog("MCU11revA INIT SUCCESSFUL");  
 }
 
 void HAL_MCU11_revA::mapEncoder(rotaryEncoder* P_ENCODER)
