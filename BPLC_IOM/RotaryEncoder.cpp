@@ -3,7 +3,14 @@
 //--------------------------------------------------------------------
 //ROTARY ENCODER
 rotaryEncoder::rotaryEncoder()
-{}
+{
+    this->f_invertedDirection = false;
+}
+
+void rotaryEncoder::invertTurningDirection()
+{
+    this->f_invertedDirection = true;
+}   
 
 e_movement_t rotaryEncoder::getTurningDirection()
 {
@@ -11,11 +18,25 @@ e_movement_t rotaryEncoder::getTurningDirection()
 
     if(this->A.islow() && this->B.fallingEdge())
     {
-        direction = movement_right;
+        if(this->f_invertedDirection == false)
+        {
+            direction = movement_right;
+        }
+        else
+        {
+            direction = movement_left;
+        }        
     }
     else if(this->B.islow() && this->A.fallingEdge())
     {
-        direction = movement_left;
+        if(this->f_invertedDirection == false)
+        {
+            direction = movement_left;
+        }
+        else
+        {
+            direction = movement_right;
+        }   
     }
 
     return direction;

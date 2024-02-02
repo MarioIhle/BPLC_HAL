@@ -165,17 +165,19 @@ class Output {
 class rotaryEncoder 
 {
 	public:
-                        rotaryEncoder       ();
-    e_movement_t        getTurningDirection ();
-    bool                isButtonPressed     ();
-    void                halCallback         (const bool STATE_A, const bool STATE_B, const bool STATE_Z);
+                        rotaryEncoder           ();
+    void                invertTurningDirection  ();
+    e_movement_t        getTurningDirection     ();
+    bool                isButtonPressed         ();
+    void                halCallback             (const bool STATE_A, const bool STATE_B, const bool STATE_Z);
     
 
     private: 
 
-    DigitalInput A;
-    DigitalInput B; 
-    DigitalInput Z;   	   
+    bool            f_invertedDirection;
+    DigitalInput    A;
+    DigitalInput    B; 
+    DigitalInput    Z;   	   
 };
 
 //--------------------------------------------------------------------

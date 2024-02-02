@@ -5,6 +5,11 @@ void BPLC_APP::defineMCU(const e_MCU_CARD_TYPE_t CARD_TYPE)
    this->APP_HAL.hardwareConfig.MCU_TYPE = CARD_TYPE;      
 }
 
+void BPLC_APP::invertEncoder()
+{
+   this->APP_HAL.ENCODER.invertTurningDirection();
+}
+
 void BPLC_APP::addExtensionCard(const e_EXTENSION_CARD_TYPE_t CARDTYPE, const uint8_t CARD_COUNT)
 {
    switch(CARDTYPE)
@@ -95,12 +100,16 @@ void BPLC_APP::setupHardware()
       //Karte antwortet, ist aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setSystemError(DIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
+         this->setSystemError(DIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);         
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
          this->setSystemError(ERROR);
-      }         
+      }  
+      else if(ERROR == BPLC_ERROR__NO_ERROR)
+      {
+         this->APP_HAL.INT_count = 2;
+      }       
    }
 
    //AIN11revA

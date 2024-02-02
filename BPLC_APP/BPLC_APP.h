@@ -80,6 +80,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     BPLC_APP();
     void begin           ();   
     void defineMCU       (const e_MCU_CARD_TYPE_t CARD_TYPE);
+    void invertEncoder   ();
     void addExtensionCard(const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
     //Network
     void setDeviceAddress(const uint8_t DEVICE_ADDRESS);    
@@ -188,10 +189,6 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         Output          LD3_ERROR_OUT;   
         Output          OEN;   
         uint8_t         INT_count;
-
-        DigitalInput    Encoder_A;
-        DigitalInput    Encoder_B;
-        DigitalInput    Encoder_Z;  
         
         struct
         {
