@@ -18,11 +18,13 @@ bool I2C_check::checkI2CConnection()
 }
 
 bool I2C_check::requestHeartbeat()
-{
+{    
+    Serial.print("check HB");
     bool heartBeatReceived = true;
 
     if(this->to_heartbeat.checkAndReset())
     {
+        Serial.println("check HB");
         heartBeatReceived = checkI2CConnection();
     }
     return heartBeatReceived;

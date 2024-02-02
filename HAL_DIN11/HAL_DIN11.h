@@ -77,6 +77,7 @@ class HAL_DIN11:BPLC_LOG, I2C_check
     
     void            tick ();        
     e_BPLC_ERROR_t  getError();    
+    void            ISR_callback();
     
     
     private:    

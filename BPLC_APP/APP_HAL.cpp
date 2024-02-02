@@ -332,25 +332,21 @@ void BPLC_APP::handleMCUCard()
 }
 
 void BPLC_APP::handleDIN11Cards()
-{
-   if(this->APP_HAL.INT_count > 0)
-   {   
-      for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
-      {
-         const e_BPLC_ERROR_t ERROR       = this->APP_HAL.DIN11_CARD[CARD].getError();
-         const bool           CARD_IN_USE = (bool)(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount);
+{   
+   for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
+   {
+      const e_BPLC_ERROR_t ERROR       = this->APP_HAL.DIN11_CARD[CARD].getError();
+      const bool           CARD_IN_USE = (bool)(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount);
 
-         if(ERROR == BPLC_ERROR__NO_ERROR)
-         {
-            this->APP_HAL.DIN11_CARD[CARD].tick();
-         }  
-         else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
-         {
-            this->setSystemError(ERROR);
-         }
+      if(ERROR == BPLC_ERROR__NO_ERROR)
+      {
+         this->APP_HAL.DIN11_CARD[CARD].tick();
+      }  
+      else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
+      {
+         this->setSystemError(ERROR);
       }
-      this->APP_HAL.INT_count--;
-   }   
+   }     
 }
 
 void BPLC_APP::handleAIN11Cards()

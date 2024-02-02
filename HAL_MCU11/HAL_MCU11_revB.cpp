@@ -71,7 +71,7 @@ void HAL_MCU11_revB::mapOEN(Output* P_OEN_OBJECT)
 
 void HAL_MCU11_revB::mapINT(uint8_t* P_INT_COUNT)
 {
-    p_INT_count_HAL_REV_B = P_INT_COUNT;
+    this->p_INT_count_HAL_REV_B = P_INT_COUNT;
 }
 
 void HAL_MCU11_revB::tick()

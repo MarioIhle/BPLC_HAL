@@ -59,8 +59,8 @@ class HAL_MCU11_revA
     void mapLD2         (Output*        P_LD2_OBJECT);
     void mapLD3         (Output*        P_LD3_OBJECT);
     void mapOEN         (Output*        P_OEN_OBJECT);
-    void mapINT         (uint8_t*       P_INT_COUNT);
-
+    void mapINT         ((void)         (*));
+p_INT_ISR_CALLBACK
     void tick();
 
 

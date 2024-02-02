@@ -110,3 +110,8 @@ e_BPLC_ERROR_t HAL_DIN11::getError()
 {
     return this->errorCode;
 }
+
+void DIN11::ISR_callback()
+{
+    this->inputReadRequests = this->inputReadRequests+READ_TWO_TIMES;
+}

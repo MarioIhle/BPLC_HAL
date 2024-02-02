@@ -168,6 +168,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     void handleAIN11Cards();
     void handleMOT11Cards();
     void handleREL11Cards(); 
+    void intIsrCallback();
       
 
     struct 
@@ -188,7 +189,6 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         Output          LD2_COMMUNICATION_STATE;
         Output          LD3_ERROR_OUT;   
         Output          OEN;   
-        uint8_t         INT_count;
         
         struct
         {
