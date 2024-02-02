@@ -69,7 +69,7 @@ void HAL_MCU11_revA::mapOEN(Output* P_OEN_OBJECT)
     this->p_oen = P_OEN_OBJECT;
 }
 
-void HAL_MCU11_revA::mapINT((void)         (*p_INT_ISR_CALLBACK))
+void HAL_MCU11_revA::mapINT(uint8_t* P_INT_COUNT)
 {
     p_INT_count_HAL_REV_A = P_INT_COUNT;
 }
