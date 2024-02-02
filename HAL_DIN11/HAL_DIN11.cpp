@@ -27,7 +27,7 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     }
 
     //I2C Verbindung prüfen
-    if(!I2C_check::begin(I2C_ADDRESS))
+    if(I2C_check::begin(I2C_ADDRESS) == false)
     {
         this->errorCode = DIN11_ERROR__I2C_CONNECTION_FAILED;        
     }
@@ -77,7 +77,7 @@ e_BPLC_ERROR_t HAL_DIN11::mapObjectToChannel(rpmSensor* P_OBJECT, const e_DIN11_
 void HAL_DIN11::tick()
 {      
     //I2C Verbindung zyklisch prüfen
-    if(!I2C_check::requestHeartbeat())
+    if(!this->requestHeartbeat())
     {
         this->errorCode = DIN11_ERROR__I2C_CONNECTION_FAILED;
     }
