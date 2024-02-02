@@ -306,6 +306,15 @@ void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT, const e_REL11_CARD_t C
 
 void BPLC_APP::tickHardware()
 {
+   while (this->APP_HAL.INT_count > 0)
+   {
+      for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
+      {
+         this->APP_HAL.DIN11_CARD[CARD].ISR_callback();
+      }
+      this->APP_HAL.INT_count--;
+   }
+   
    this->handleMCUCard();
    this->handleDIN11Cards();
    this->handleAIN11Cards();
