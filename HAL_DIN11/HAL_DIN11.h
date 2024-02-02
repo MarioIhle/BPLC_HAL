@@ -88,6 +88,8 @@ class HAL_DIN11:BPLC_LOG, I2C_check
     PCF8574           PCF;
     e_DIN11_ADDRESS_t deviceAddress;
 
+    uint8_t inputReadRequests;
+
     //Object handling
     struct
     {

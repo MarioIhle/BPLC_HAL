@@ -5,7 +5,7 @@ uint8_t* p_INT_count_HAL_REV_A;
 
 static void INT_ISR()
 {
-   *p_INT_count_HAL_REV_A = 2;
+   *p_INT_count_HAL_REV_A = 1;
 }
 
 HAL_MCU11_revA::HAL_MCU11_revA()

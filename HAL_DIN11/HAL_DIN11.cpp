@@ -82,27 +82,31 @@ void HAL_DIN11::tick()
         this->errorCode = DIN11_ERROR__I2C_CONNECTION_FAILED;
     }
 
-    //Alle genutzen Channels einlesen
-    if(this->errorCode == BPLC_ERROR__NO_ERROR)
-    {           
-        for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
-        {      
-            switch (this->channels.channelState[CH])
-            {
-                default:
-                case DIN_CHANNEL_STATE__NOT_USED:
-                //do nothing
-                break;
+    if(this->inputReadRequests > 0)
+    {
+        //Alle genutzen Channels einlesen
+        if(this->errorCode == BPLC_ERROR__NO_ERROR)
+        {           
+            for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
+            {      
+                switch (this->channels.channelState[CH])
+                {
+                    default:
+                    case DIN_CHANNEL_STATE__NOT_USED:
+                    //do nothing
+                    break;
 
-                case DIN_CHANNEL_STATE__DIGITAL:                       
-                    this->channels.p_digital[CH]->halCallback(!PCF.read(this->channels.PIN[CH])); 
-                break;
+                    case DIN_CHANNEL_STATE__DIGITAL:                       
+                        this->channels.p_digital[CH]->halCallback(!PCF.read(this->channels.PIN[CH])); 
+                    break;
 
-                case DIN_CHANNEL_STATE__COUNTER:
-                    this->channels.p_counter[CH]->halCallback(!PCF.read(this->channels.PIN[CH]));
-                break;               
-            }                                  
-        }       
+                    case DIN_CHANNEL_STATE__COUNTER:
+                        this->channels.p_counter[CH]->halCallback(!PCF.read(this->channels.PIN[CH]));
+                    break;               
+                }                                  
+            }       
+        }
+        this->inputReadRequests--;
     }
 }
 
@@ -111,7 +115,7 @@ e_BPLC_ERROR_t HAL_DIN11::getError()
     return this->errorCode;
 }
 
-void DIN11::ISR_callback()
+void HAL_DIN11::ISR_callback()
 {
-    this->inputReadRequests = this->inputReadRequests+READ_TWO_TIMES;
+    this->inputReadRequests += READ_TWO_TIMES;
 }

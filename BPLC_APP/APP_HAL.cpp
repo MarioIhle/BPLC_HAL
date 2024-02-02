@@ -209,6 +209,7 @@ void BPLC_APP::mapObjectToExtensionCard(DigitalInput* P_OBJECT, const e_DIN11_CA
    if(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount)
    {
       ERROR = this->APP_HAL.DIN11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
+      this->APP_HAL.INT_count++;
    }
    else
    {
@@ -226,6 +227,7 @@ void BPLC_APP::mapObjectToExtensionCard(rpmSensor* P_OBJECT, const e_DIN11_CARD_
    if(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount)
    {
       ERROR = this->APP_HAL.DIN11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
+      this->APP_HAL.INT_count++;
    }
    else
    {
