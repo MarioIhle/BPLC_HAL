@@ -1,13 +1,19 @@
 #include "BPLC_APP.h"
 
 BPLC_APP::BPLC_APP()
-{
+{   
    this->APP_APP.deviceSettings.f_initDone = false;
 }
 
-void BPLC_APP::begin()
+void BPLC_APP::begin(const e_MCU_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS)
 {   
-   //Setting
+   Serial.begin(115200);
+   this->printLog("SETUP BPLC SYSTEM");
+   //Schlüsselparameter übernehemen
+   this->APP_HAL.hardwareConfig.MCU_TYPE  = MCU_TYPE;  
+   this->APP_COM.deviceAddress            = DEVICE_ADDRESS;
+
+   //Setup submodule
    this->setupApplication();      
    this->setupHMI();   
    this->setupHardware(); 
@@ -17,21 +23,17 @@ void BPLC_APP::begin()
    //Fehlerprüfung bevor System startet
    if(this->getFirstSystemErrorCode() == BPLC_ERROR__NO_ERROR)
    {
-      BPLC_LOG logPrint;
-      logPrint.printLog("BPLC SYSTEM INIT SUCCESSFUL");
+      this->printLog("BPLC SYSTEM INIT SUCCESSFUL");
    }
    else
    {
-      BPLC_LOG logPrint;
-      logPrint.printLog("BPLC SYSTEM INIT FAILED");
+      this->printLog("BPLC SYSTEM INIT FAILED");
    }   
    this->APP_APP.deviceSettings.f_initDone = true;
 }
 
 void BPLC_APP::setupApplication()
-{
-   //Schnittstellen hier schon initialisieren, damit überhaupt eine Fehlerausgabe möglich ist
-   Serial.begin(115200);
+{   
    Wire.begin();
    this->APP_APP.deviceSettings.f_beepOnEncoderInput  = false;   
    this->APP_APP.deviceMode                           = APP_MODE__START;

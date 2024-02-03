@@ -79,12 +79,10 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     public:
     //Setup des BPLC Systems
     BPLC_APP();
-    void begin           ();   
-    void defineMCU       (const e_MCU_CARD_TYPE_t CARD_TYPE);
-    void invertEncoder   ();
-    void addExtensionCard(const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
+    void begin              (const e_MCU_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS);      
+    void invertEncoder      ();
+    void addExtensionCard   (const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
     //Network
-    void setDeviceAddress(const uint8_t DEVICE_ADDRESS);    
     void mapPortToNetwork(BertaPort* P_PORT);
     //IO´s auf Extension Cards mappen        
     void mapObjectToExtensionCard(DigitalInput*  P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);   
@@ -110,6 +108,8 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     HAL_AIN11* P_TEST_OBJEKT;
 
     //APP_APP
+
+    
     void setupApplication();
     //Device Mode
     e_APP_MODE_t    getDeviceMode();    

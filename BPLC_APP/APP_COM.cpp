@@ -1,9 +1,5 @@
 #include"BPLC_APP.h"
 
-void BPLC_APP::setDeviceAddress(const uint8_t DEVICE_ADDRESS)
-{
-    this->APP_COM.deviceAddress = DEVICE_ADDRESS;
-}
 
 void BPLC_APP::setupNetwork()
 {
@@ -13,10 +9,12 @@ void BPLC_APP::setupNetwork()
     }
     else if(this->APP_COM.deviceAddress == 1)
     {
+        this->printLog("Network setup as Master");
         this->APP_COM.Master.begin(&Serial2, 4);
     }
     else
     {
+        this->printLog("Network setup as Slave with address: " + String(this->APP_COM.deviceAddress));
         this->APP_COM.Slave.begin(this->APP_COM.deviceAddress, &Serial2, 4);
     }
     //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
@@ -25,6 +23,7 @@ void BPLC_APP::setupNetwork()
 
 void BPLC_APP::mapPortToNetwork(BertaPort* P_PORT)
 {    
+    this->printLog("PORT with Index: " + String(P_PORT->getIndex()) + " mapped to Network");
     //Network setup
     if(this->APP_COM.deviceAddress < 0)
     {                       
