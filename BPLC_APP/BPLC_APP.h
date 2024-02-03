@@ -79,7 +79,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     public:
     //Setup des BPLC Systems
     BPLC_APP();
-    void begin              (const e_MCU_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS);      
+    void begin              (const e_MCU_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS = 0);      
     void invertEncoder      ();
     void addExtensionCard   (const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
     //Network

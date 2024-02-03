@@ -1,6 +1,5 @@
 #include"BPLC_APP.h"
 
-
 void BPLC_APP::setupNetwork()
 {
     if(this->APP_COM.deviceAddress == 0)

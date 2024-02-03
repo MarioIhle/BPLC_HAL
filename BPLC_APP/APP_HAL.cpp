@@ -88,7 +88,7 @@ void BPLC_APP::setupHardware()
    this->APP_HAL.DIN11_CARD[DIN11_CARD__3].begin(DIN11_CARD_3_ADDRESS);
    this->APP_HAL.DIN11_CARD[DIN11_CARD__4].begin(DIN11_CARD_4_ADDRESS);
    //Auf errors prüfen
-   for(uint8_t CARD = 0; CARD < DIN11_CARD__COUNT_MAX; CARD++)
+   for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
    {
       const e_BPLC_ERROR_t ERROR       = this->APP_HAL.DIN11_CARD[CARD].getError();
       const bool           CARD_IN_USE = (bool)(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount);
@@ -202,17 +202,6 @@ void BPLC_APP::mapObjectToExtensionCard(DigitalInput* P_OBJECT, const e_DIN11_CA
    this->printLog("map DigitalInput to DIN11_CARD " + String(1 + (uint8_t)CARD) + "CHANNEL: " + String(1 + (uint8_t)CHANNEL));
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
-   //Neue Karte hinzufügen
-   if(CARD > this->APP_HAL.hardwareConfig.din11RevACardCount)
-   {
-      this->APP_HAL.hardwareConfig.din11RevACardCount = CARD;
-   }
-
-   switch()
-   {
-      case DIN11_CARD__NO_CARD:
-      break;
-   }
    if(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount)
    {
       ERROR = this->APP_HAL.DIN11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
@@ -315,7 +304,7 @@ void BPLC_APP::tickHardware()
 {
    while (this->APP_HAL.INT_count > 0)
    {
-      for(uint8_t CARD = 0; CARD < DIN11_CARD__COUNT_MAX; CARD++)
+      for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
       {
          this->APP_HAL.DIN11_CARD[CARD].ISR_callback();
       }
@@ -351,7 +340,7 @@ void BPLC_APP::handleMCUCard()
 
 void BPLC_APP::handleDIN11Cards()
 {   
-   for(uint8_t CARD = 0; CARD < DIN11_CARD__COUNT_MAX; CARD++)
+   for(uint8_t CARD = 0; CARD < DIN11_CARD__MAX; CARD++)
    {
       const e_BPLC_ERROR_t ERROR       = this->APP_HAL.DIN11_CARD[CARD].getError();
       const bool           CARD_IN_USE = (bool)(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount);
