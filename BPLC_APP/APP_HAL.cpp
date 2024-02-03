@@ -96,7 +96,7 @@ void BPLC_APP::setupHardware()
       //Karte antwortet, ist aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setSystemError(DIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);         
+         //this->setSystemError(DIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);         
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
@@ -122,7 +122,7 @@ void BPLC_APP::setupHardware()
       //Karte antwortrt, aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setSystemError(AIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
+         //this->setSystemError(AIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
@@ -144,7 +144,7 @@ void BPLC_APP::setupHardware()
       //Karte antwortrt, aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setSystemError(DO11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
+         //this->setSystemError(DO11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
@@ -166,7 +166,7 @@ void BPLC_APP::setupHardware()
       //Karte antwortrt, aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setSystemError(REL11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
+         //this->setSystemError(REL11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
@@ -188,7 +188,7 @@ void BPLC_APP::setupHardware()
       //Karte antwortrt, aber nicht definiert
       if(ERROR == BPLC_ERROR__NO_ERROR && CARD_IN_USE == false)
       {         
-         this->setSystemError(MOT11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
+         //this->setSystemError(MOT11_ERROR__CARD_FOUND_BUT_NOT_DEFINED);
       }//Karte ist definiert, hat aber fehler      
       else if(ERROR != BPLC_ERROR__NO_ERROR && CARD_IN_USE)
       {
