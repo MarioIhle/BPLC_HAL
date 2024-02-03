@@ -15,7 +15,12 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
     this->to_read.setInterval(READ_INTERVAL);
     
     
+   /*
     //Instanzen Prüfen
+
+        ---->>>> Sollte mit neuen Konzept überhaupt nicht mehr möglich sein, eine Karte wird nur definiert, wenn ein Objekt darauf gemapped wird. 
+            Es kann nur noch der Fehler aufterten, dass die Karte nicht verfügbar ist
+
         for(uint8_t CHANNEL = 0; CHANNEL < AIN11_CHANNEL__COUNT; CHANNEL++)
         {            
             if(this->channels.state[CHANNEL] == AIN_CHANNEL__ANALOG)
@@ -27,7 +32,7 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
             {//letzter Port und immernoch keiner in nutzung
                 this->errorCode = AIN11_ERROR__NO_CHANNEL_IN_USE;
             }
-        }
+        }*/
 
     //I2C Verbindung prüfen
     if(!I2C_check::begin(this->deviceAddress))

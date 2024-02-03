@@ -12,13 +12,7 @@ void HAL_MOT11::begin(const e_MOT11_ADDRESS_t I2C_ADDRESS)
  
     this->to_parameterPoll.setInterval(1000);
     this->to_I2C.setInterval(50);                 
-
-    //Instance überprüfen
-    if(this->channels.state == MOT_CHANNEL_STATE__NOT_USED)
-    {  
-        this->error.code = MOT11_ERROR__NO_CHANNEL_IN_USE;
-    }
-    
+  
     if(!I2C_check::begin(this->deviceAddress))
     {
         this->error.code = MOT11_ERROR__I2C_CONNECTION_FAILED;        

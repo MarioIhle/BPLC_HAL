@@ -199,7 +199,7 @@ void BPLC_APP::setupHardware()
 
 void BPLC_APP::mapObjectToExtensionCard(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_CHANNEL_t CHANNEL)
 {   
-   this->printLog("map DigitalInput to DIN11_CARD " + String(1 + (uint8_t)CARD) + "CHANNEL: " + String(1 + (uint8_t)CHANNEL));
+   this->printLog("map DigitalInput to DIN11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
    if(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount)
@@ -216,7 +216,7 @@ void BPLC_APP::mapObjectToExtensionCard(DigitalInput* P_OBJECT, const e_DIN11_CA
 
 void BPLC_APP::mapObjectToExtensionCard(rpmSensor* P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL)  
 {   
-   this->printLog("map rpmSensor to DIN11_CARD " + String(1 + (uint8_t)CARD) + "CHANNEL: " + String(1 + (uint8_t)CHANNEL));
+   this->printLog("map rpmSensor to DIN11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
 
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
@@ -234,7 +234,7 @@ void BPLC_APP::mapObjectToExtensionCard(rpmSensor* P_OBJECT, const e_DIN11_CARD_
 
 void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT,const e_DO11_CARD_t CARD, const e_DO11_CHANNEL_t CHANNEL)
 {   
-   this->printLog("map Output to DO11_CARD " + String(1 + (uint8_t)CARD) + "CHANNEL: " + String(1 + (uint8_t)CHANNEL));
+   this->printLog("map Output to DO11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
    
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
@@ -251,7 +251,7 @@ void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT,const e_DO11_CARD_t CAR
 
 void BPLC_APP::mapObjectToExtensionCard(servoMotor* P_OBJECT, const e_DO11_CARD_t CARD, const e_DO11_CHANNEL_t CHANNEL)
 {   
-   this->printLog("map servoMotor to DO11_CARD " + String(1 + (uint8_t)CARD) + "CHANNEL: " + String(1 + (uint8_t)CHANNEL));
+   this->printLog("map servoMotor to DO11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
   
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
@@ -268,7 +268,7 @@ void BPLC_APP::mapObjectToExtensionCard(servoMotor* P_OBJECT, const e_DO11_CARD_
 
 void BPLC_APP::mapObjectToExtensionCard(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_CHANNEL_t CHANNEL)
 {   
-   this->printLog("map AnalogInput to AIN11_CARD " + String(1 + (uint8_t)CARD) + "CHANNEL: " + String(1 + (uint8_t)CHANNEL));
+   this->printLog("map AnalogInput to AIN11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
 
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 
@@ -285,7 +285,7 @@ void BPLC_APP::mapObjectToExtensionCard(AnalogInput* P_OBJECT, const e_AIN11_CAR
 
 void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_CHANNEL_t CHANNEL)
 {
-   this->printLog("map Output to REL11_CARD " + String(1 + (uint8_t)CARD) + "CHANNEL: " + String(1 + (uint8_t)CHANNEL));
+   this->printLog("map Output to REL11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
 
    e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
 

@@ -13,6 +13,13 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
     this->deviceAddress = I2C_ADDRESS;
     this->errorCode     = BPLC_ERROR__NO_ERROR;   
     
+    /*
+
+
+        ---->>>> Sollte mit neuen Konzept überhaupt nicht mehr möglich sein, eine Karte wird nur definiert, wenn ein Objekt darauf gemapped wird. 
+            Es kann nur noch der Fehler aufterten, dass die Karte nicht verfügbar ist
+
+
     //Prüfen ob überhaupt ein Port in benutzung
     for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
     {            
@@ -25,6 +32,7 @@ void HAL_DIN11::begin(const e_DIN11_ADDRESS_t I2C_ADDRESS)
             this->errorCode = DIN11_ERROR__NO_CHANNEL_IN_USE;
         }
     }
+*/
 
     //I2C Verbindung prüfen
     if(I2C_check::begin(I2C_ADDRESS) == false)

@@ -13,19 +13,24 @@ void HAL_DO11::begin(const e_DO11_ADDRESS_t I2C_ADDRESS)
     this->deviceAddress = I2C_ADDRESS;
     this->errorCode     = BPLC_ERROR__NO_ERROR;
 
+    /*
+
+    ---->>>> Sollte mit neuen Konzept überhaupt nicht mehr möglich sein, eine Karte wird nur definiert, wenn ein Objekt darauf gemapped wird. 
+            Es kann nur noch der Fehler aufterten, dass die Karte nicht verfügbar ist
+
     //Übergebene Instanzen prüfen
     for(uint8_t CH = 0; CH < DO11_CHANNEL__COUNT; CH++)
     {            
         if(this->channels.state[CH] == DO_CHANNEL__SERVO)
         {
-            this->PCA.setPWMFrequency(25);
+            
             break;
         }
         else if(this->channels.state[CH] == DO_CHANNEL__NOT_USED && CH == (DO11_CHANNEL__COUNT - 1))
         {//letzter Port und immernoch keiner in nutzung
             this->errorCode = DO11_ERROR__NO_CHANNEL_IN_USE;
         }
-    }
+    }*/
     
     //I2C verbindung prüfen
     if(!I2C_check::begin(this->deviceAddress))
@@ -54,8 +59,8 @@ e_BPLC_ERROR_t HAL_DO11::mapObjectToChannel(Output* P_OBJECT, const e_DO11_CHANN
 {
     if(this->channels.state[CHANNEL] == DO_CHANNEL__NOT_USED)
     {
-        this->channels.p_outputInstance[CHANNEL] = P_OBJECT;
-        this->channels.state[CHANNEL]     = DO_CHANNEL__ANALOG;
+        this->channels.p_outputInstance[CHANNEL]    = P_OBJECT;
+        this->channels.state[CHANNEL]               = DO_CHANNEL__ANALOG;
     }
     else 
     {
@@ -70,6 +75,7 @@ e_BPLC_ERROR_t HAL_DO11::mapObjectToChannel(servoMotor* P_OBJECT, const e_DO11_C
     {
         this->channels.p_servoInstance[CHANNEL]     = P_OBJECT;
         this->channels.state[CHANNEL]               = DO_CHANNEL__SERVO;
+        this->PCA.setPWMFrequency(25);  //reduzieren wegen Servo auflösung
     }
     else 
     {
