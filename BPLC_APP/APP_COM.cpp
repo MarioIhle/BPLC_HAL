@@ -24,8 +24,20 @@ void BPLC_APP::setupNetwork()
 }
 
 void BPLC_APP::mapPortToNetwork(BertaPort* P_PORT)
-{
-    this->APP_COM.Slave.mapPortToNetwork(P_PORT);
+{    
+    //Network setup
+    if(this->APP_COM.deviceAddress < 0)
+    {                       
+        this->setSystemError(BPLC_ERROR__ADDRESS_NOT_DEFINED);
+    }
+    else if(this->APP_COM.deviceAddress == 1)
+    {
+        this->APP_COM.Master.mapPortToNetwork(P_PORT);
+    }
+    else
+    {
+        this->APP_COM.Slave.mapPortToNetwork(P_PORT);
+    }
 }
 
 void BPLC_APP::tickNetwork()

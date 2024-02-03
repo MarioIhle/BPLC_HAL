@@ -30,7 +30,8 @@
 #include "HAL_MOT11.h"
 //Network
 #include "BertaNetNode.h"
-
+#include "BertaPorts.h"
+#include "BertaNetwork.h"
 //-------------------------------------------------------------
 //HARDWARE DEBUGGING
 //-------------------------------------------------------------

@@ -22,7 +22,7 @@
 #include "BPLC_IOM.h"
 #include "BPLC_LOG.h"
 
-//#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
+#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------
@@ -90,14 +90,14 @@ class HAL_MCU11_revA
         const uint8_t ld2       = 26;
         const uint8_t ld3       = 25;
         #ifdef DEBUGGING_MCU11_revA
-        const uint8_t p_oen       = 26;
+        const uint8_t p_oen       = 25;
         #endif
         #ifndef DEBUGGING_MCU11_revA
         const uint8_t p_oen       = 13;
         #endif
         const uint8_t INT       = 35;
         #ifdef DEBUGGING_MCU11_revA
-        const uint8_t buzzer       = 26;
+        const uint8_t buzzer       = 25;
         #endif
         #ifndef DEBUGGING_MCU11_revA
         const uint8_t buzzer       = 15;
