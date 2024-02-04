@@ -42,9 +42,15 @@ void BPLC_APP::tickNetwork()
 {
     if(this->APP_COM.deviceAddress > 0)
     {      
+        //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
+        if(this->APP_COM.to_communicationError.check())
+        {
+            this->setSystemError(BPLC_ERROR__COMMUNICATION_FAILED);
+        }
+
+
         const bool DEVICE_IS_MASTER_NODE = (bool)(this->APP_COM.deviceAddress == 1);
 
-        //Network setup
         if(DEVICE_IS_MASTER_NODE)
         {                       
             switch(this->APP_COM.Master.getError())
@@ -52,6 +58,7 @@ void BPLC_APP::tickNetwork()
                 case MASTER_NODE_ERROR__NO_ERROR:
                     this->APP_COM.Master.tick();
                     this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
+                    this->APP_COM.to_communicationError.reset();
                 break;
 
                 case MASTER_NODE_ERROR__NO_SLAVE_AVAILABLE:
@@ -65,16 +72,10 @@ void BPLC_APP::tickNetwork()
             }                    
         }
         else
-        {
-            //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
-            if(this->APP_COM.to_communicationError.check())
-            {
-                this->setSystemError(BPLC_ERROR__COMMUNICATION_FAILED);
-            }
-
+        {            
             this->APP_COM.Slave.tick();
 
-            switch (this->APP_COM.Slave.getNodeState())
+            switch(this->APP_COM.Slave.getNodeState())
             {
                 case SLAVE_NODE_STATE__NOT_AVAILABLE:
                     this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 100, 100);
