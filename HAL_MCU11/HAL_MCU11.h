@@ -22,7 +22,7 @@
 #include "BPLC_IOM.h"
 #include "BPLC_LOG.h"
 
-#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
+//#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
 //--------------------------------------------------------------------
 //Typdefinitionen
 //--------------------------------------------------------------------

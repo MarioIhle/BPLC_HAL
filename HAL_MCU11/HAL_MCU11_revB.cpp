@@ -91,7 +91,7 @@ void HAL_MCU11_revB::tick()
     //p_ld1
     if(this->p_ld1->isThereANewPortValue())
     {
-        analogWrite(this->PIN.ld2, this->p_ld1->halCallback().value);
+        analogWrite(this->PIN.ld1, this->p_ld1->halCallback().value);
     }
     //LD_COMMUNACTION_STATE
     if(this->p_ld2->isThereANewPortValue())
