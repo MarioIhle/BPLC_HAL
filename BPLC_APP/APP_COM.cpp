@@ -20,9 +20,9 @@ void BPLC_APP::setupNetwork()
     this->APP_COM.to_communicationError.setInterval(60000);
 }
 
-void BPLC_APP::mapPortToNetwork(BertaPort* P_PORT)
+void BPLC_APP::mapPortToNetwork(applicationPort* P_PORT)
 {    
-    this->printLog("PORT with Index: " + String(P_PORT->getIndex()) + " mapped to Network");
+    this->printLog("PORT with Index: " + String(P_PORT->getDataBase()->getPortIndex()) + " mapped to Network");
     //Network setup
     if(this->APP_COM.deviceAddress < 0)
     {                       

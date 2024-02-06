@@ -11,6 +11,7 @@ class BPLC_LOG
     BPLC_LOG();
     void printLog(String TEXT);
     void printError(String TEXT);
+    void printResetReason(String MODUL, String FUNKTION, String REASON);
 
     private:
 

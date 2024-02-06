@@ -83,7 +83,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     void invertEncoder      ();
     void addExtensionCard   (const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
     //Network
-    void mapPortToNetwork(BertaPort* P_PORT);
+    void mapPortToNetwork(applicationPort* P_PORT);
     //IO´s auf Extension Cards mappen        
     void mapObjectToExtensionCard(DigitalInput*  P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);   
     void mapObjectToExtensionCard(rpmSensor*     P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);  
