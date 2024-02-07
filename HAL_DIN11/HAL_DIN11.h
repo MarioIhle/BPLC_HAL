@@ -12,20 +12,11 @@
 #include "BPLC_LOG.h"
 #include "I2C_check.h"
 
+
+#include "HAL_HANDLER.h"
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES
 //-------------------------------------------------------------
-typedef enum
-{
-    DIN11_CARD__1,
-    DIN11_CARD__2,
-    DIN11_CARD__3,
-    DIN11_CARD__4,
-    
-    DIN11_CARD__MAX = 4,
-
-}e_DIN11_CARD_t;
-
 typedef enum
 {
     DIN11_CARD_1_ADDRESS = 0x20,
@@ -67,7 +58,7 @@ typedef enum
 //-------------------------------------------------------------
 #define READ_TWO_TIMES 2
 
-class HAL_DIN11:BPLC_LOG, I2C_check
+class HAL_DIN11:BPLC_LOG, I2C_check, public halInterface
 {
     public:
     HAL_DIN11 ();
@@ -93,7 +84,7 @@ class HAL_DIN11:BPLC_LOG, I2C_check
     //Object handling
     struct
     {
-        e_DIN_CHANNEL_STATE_t    channelState[DIN11_CHANNEL__COUNT];
+        e_DIN_CHANNEL_STATE_t       channelState[DIN11_CHANNEL__COUNT];
         DigitalInput*               p_digital   [DIN11_CHANNEL__COUNT];   
         rpmSensor*                  p_counter   [DIN11_CHANNEL__COUNT];   
         const uint8_t               PIN         [DIN11_CHANNEL__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      

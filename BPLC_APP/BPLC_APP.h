@@ -169,7 +169,6 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     void handleAIN11Cards();
     void handleMOT11Cards();
     void handleREL11Cards(); 
-    void intIsrCallback();
       
 
     struct 
