@@ -3,13 +3,11 @@
 AnalogInput::AnalogInput(const float MAX_VOLTAGE)
 {
 	this->maxVoltage = MAX_VOLTAGE;
-}
-   
+}   
 uint16_t AnalogInput::getValue()
 {
-	return this->inputValue.value;
+	return this->value;
 }
-
 float AnalogInput::getValueInVolt()
 {
 	// see data sheet Table 3
@@ -44,7 +42,7 @@ float AnalogInput::getValueInVolt()
 			fsRange = 0.0f;
 	}
 
-  	float valueInVolt = this->inputValue.value * (fsRange / (32768 >> 0));
+  	float valueInVolt = this->value * (fsRange / (32768 >> 0));
 	
 	//Spannungsteiler beachten, falls in verwendung
 	if(this->maxVoltage > 5.00)
@@ -54,26 +52,11 @@ float AnalogInput::getValueInVolt()
 
 	return valueInVolt;
 }
-
 void AnalogInput::setAlarm(const uint16_t ALARM_VALUE)
 {
 	this->alarmValue = ALARM_VALUE;
 }
-
 bool AnalogInput::isAlarmValueReached()
 {
-	return (bool)(this->inputValue.value >= this->alarmValue);
-}
-
-//--------------------------------------------------------------------
-//HAL Setter funktionen
-void AnalogInput::halCallback(const uint16_t VALUE)
-{
-	this->inputValue.previousValue 	= this->inputValue.value;
-	this->inputValue.value 			= VALUE;
-}
-
-void AnalogInput::setADCGain(const adsGain_t ADC_GAIN)
-{
-	this->adcGain = ADC_GAIN;
+	return (bool)(this->value >= this->alarmValue);
 }

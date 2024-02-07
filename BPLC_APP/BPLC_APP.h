@@ -19,24 +19,14 @@
 #include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
 #include "BPLC_LOG.h"
-//HAL
+//Hardware
+#include "BPLC_EXTENSION_CARD_HANDLER.h"
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
-#include "HAL_DIN11.h"
-#include "HAL_AIN11.h"
-#include "HAL_REL11.h"
-#include "HAL_FUSE11.h"
-#include "HAL_DO11.h"
-#include "HAL_MOT11.h"
 //Network
 #include "BertaNetNode.h"
 #include "BertaPorts.h"
 #include "BertaNetwork.h"
-//-------------------------------------------------------------
-//HARDWARE DEBUGGING
-//-------------------------------------------------------------
-//#define DEBUG_APP_MCU11_OLED_HANDLING
-
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES
 //-------------------------------------------------------------
@@ -84,13 +74,8 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     void addExtensionCard   (const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
     //Network
     void mapPortToNetwork(portInterface_APP* P_PORT);
-    //IO´s auf Extension Cards mappen        
-    void mapObjectToExtensionCard(DigitalInput*  P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);   
-    void mapObjectToExtensionCard(rpmSensor*     P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);  
-    void mapObjectToExtensionCard(AnalogInput*   P_OBJECT, const e_AIN11_CARD_t  CARD, const e_AIN11_CHANNEL_t CHANNEL);
-    void mapObjectToExtensionCard(Output*        P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_CHANNEL_t  CHANNEL);
-    void mapObjectToExtensionCard(servoMotor*    P_OBJECT, const e_DO11_CARD_t   CARD, const e_DO11_CHANNEL_t  CHANNEL);    
-    void mapObjectToExtensionCard(Output*        P_OBJECT, const e_REL11_CARD_t  CARD, const e_REL11_CHANNEL_t   CHANNEL);
+
+    void mapExtensionCardChannel(digitalInput* P_OBJECT, const e_EXTENSION_CARD_TYPE_t, uint8_t CHANNEL);
 
     //Rountine aufruf
     void tick();    
@@ -104,12 +89,10 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
 
     
     private:
+   
+    BPLC_extensionCardHandler extensionCardHandler;  
 
-    HAL_AIN11* P_TEST_OBJEKT;
-
-    //APP_APP
-
-    
+    //APP_APP 
     void setupApplication();
     //Device Mode
     e_APP_MODE_t    getDeviceMode();    

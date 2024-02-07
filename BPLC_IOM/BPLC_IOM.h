@@ -22,36 +22,77 @@ typedef enum
 }e_movement_t;
 
 //Portinformation
-typedef struct
+typedef union
 {        
-    uint16_t value;
-    uint16_t previousValue;
-}s_portValue_t;
+    struct         
+    {
+        bool state;
+    }digitalInputParameter;
+
+    struct         
+    {
+        uint32_t value;
+    }analogInputParameter;
+
+    struct         
+    {
+        uint8_t         speed;
+        e_movement_t    direction;
+        float           current;
+    }dcDriveParameter;    
+
+    struct         
+    {
+        float temperatur;
+    }tempSensParameter;    
+    
+}u_IO_DATA_BASE_t;
+
+
+typedef enum
+{
+    IO_TYPE__NOT_DEFINED,
+    IO_TYPE__DIGITAL_INPUT,
+    IO_TYPE__RPM_SENS,
+
+    IO_TYPE__COUNT,
+}e_IO_TYPE_t;
+
 
 
 //####################################################################
 //BASIS OBJEKTE
 //####################################################################
+class IO_Interface
+{
+    public:
+    virtual e_IO_TYPE_t          getIoType      () = 0; 
+    virtual u_IO_DATA_BASE_t     halCallback    (u_IO_DATA_BASE_t DATA) = 0;
+};
+
 
 //--------------------------------------------------------------------
 //DIGITAL INPUT KLASSE
 //--------------------------------------------------------------------
-class DigitalInput
+class digitalInput: public IO_Interface
 {
     public:
-    DigitalInput();
-
-    //Getter für Applikation
-    bool 	ishigh ();
-    bool	islow  ();
-	bool 	risingEdge();	
-	bool 	fallingEdge();	
-
-    //Setter für HAL
-    void halCallback(const bool STATE);
+    //setup
+                        digitalInput(){this->ioType = IO_TYPE__DIGITAL_INPUT; this->state = false; this->previousState = false;}
+    //Applikation
+    bool 	            ishigh      (){return (bool)(this->state == true && this->previousState == true);}
+    bool	            islow       (){return (bool)(this->state == false && this->previousState == false);}
+	bool 	            risingEdge  (){return (bool)(this->state == true && this->previousState == false);}	
+	bool 	            fallingEdge (){return (bool)(this->state == false && this->previousState == true);}	
+    //Hal handling
+    e_IO_TYPE_t         getIoType   (){return this->ioType;}
+    u_IO_DATA_BASE_t    halCallback (u_IO_DATA_BASE_t DATA){this->previousState = this->state; this->state = DATA.digitalInputParameter.state;}
+    
 
     private:
-    s_portValue_t   inputState;   
+    bool        state; 
+    bool        previousState;
+    e_IO_TYPE_t ioType;
 };
 
 //--------------------------------------------------------------------
@@ -59,27 +100,27 @@ class DigitalInput
 //--------------------------------------------------------------------
 #define SPANNUNGSTEILER (5900/1200)
 
-class AnalogInput
+class AnalogInput: public IO_Interface
 {
     public:
-    AnalogInput(const float MAX_VOLTAGE = 5.00);   
-
+                        AnalogInput(const float MAX_VOLTAGE = 5.00);   
     //Getter für Applikation
-    uint16_t    getValue       ();
-    float       getValueInVolt ();
+    uint16_t            getValue            ();
+    float               getValueInVolt      ();
 
-    void        setAlarm            (const uint16_t ALARM_VALUE);
-    bool        isAlarmValueReached (); //true wenn VALUE >= AlarmValue
+    void                setAlarm            (const uint16_t ALARM_VALUE);
+    bool                isAlarmValueReached (); //true wenn VALUE >= AlarmValue
 
-    //Setter für HAL
-    void halCallback    (const uint16_t     VALUE);
-    void setADCGain     (const adsGain_t    ADC_GAIN);
+    //Hal handling
+    e_IO_TYPE_t         getIoType           (){return this->ioType;}
+    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t DATA){this->value = DATA.analogInputParameter.value;}
+
 
     private:
-    s_portValue_t   inputValue;   
-    uint16_t        alarmValue;
-    float           maxVoltage;
-    adsGain_t       adcGain;            //Verstärker einstellung des ADC(Auflösung für Spannugsberechnung)
+    uint16_t    value;   
+    uint16_t    alarmValue;
+    float       maxVoltage;
+    adsGain_t   adcGain;            //Verstärker einstellung des ADC(Auflösung für Spannugsberechnung)
 };
 
 //--------------------------------------------------------------------
@@ -108,49 +149,47 @@ typedef enum
 }e_outputType_t;
 
 
-class Output {
-
+class Output: public IO_Interface
+ {
 	public:
-	Output (); 
-    Output (const e_outputType_t OUTPUT_TYPE);
-	Output (const uint8_t ON_VALUE);		
-    Output (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
+	                    Output          (); 
+                        Output          (const e_outputType_t OUTPUT_TYPE);
+	                    Output          (const uint8_t ON_VALUE);		
+                        Output          (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
     
-    void begin (const uint8_t ON_VALUE);
-	void begin (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE = 255);
-    
+    void                begin           (const uint8_t ON_VALUE);
+	void                begin           (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE = 255);    
     //Setter
-	void blink		    (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL);		                            //Blinkt für angeforderte Anzahl und Interval
-    void blinkWithBreak (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL, const unsigned long BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
-	void set			();		//Output ON
-	void reset		    ();		//Output OFF
-    void setState       (const bool STATE);     //Über Parameter ON/OFF
-    void setValue       (const uint8_t VALUE);  //Über Parameter 0-255
-    void setOnValue     (const uint8_t VALUE);
+	void                blink		    (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL);		                            //Blinkt für angeforderte Anzahl und Interval
+    void                blinkWithBreak  (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL, const unsigned long BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
+	void                set			    ();		//Output ON
+	void                reset		    ();		//Output OFF
+    void                setState        (const bool STATE);     //Über Parameter ON/OFF
+    void                setValue        (const uint8_t VALUE);  //Über Parameter 0-255
+    void                setOnValue      (const uint8_t VALUE);
 
-    //Für HAL
-    s_portValue_t   halCallback         ();   
-    e_outputType_t  getOutputType       ();
-    bool            isThereANewPortValue();
+    //Hal handling
+    e_IO_TYPE_t         getIoType       (){return this->ioType;}
+    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t DATA){this->value = DATA.analogInputParameter.value;}
 
 	private: 
     void tick  ();		//Wird von jeweiliger Hal getickt, bevor neue Portstate abgeholt wird
 
-    e_outputMode_t	mode;               //Aktueller Modus
-    s_portValue_t   actualValue;  	    //Aktueller Wert
+    e_outputMode_t	    mode;           //Aktueller Modus
+    uint8_t             value;  	    //Aktueller Wert
 
     struct //Hauptsächlich für verarbeitende HAL interessant
     {
         e_outputType_t  outputType;     //open drain, open source, push pull
-        uint8_t         onValue;			    //Welcher Wert wird geschieben bei object.set():
+        uint8_t         onValue;	    //Welcher Wert wird geschieben bei object.set():
     }setting;    
     
     struct 
     {
-        uint8_t blinks_requested;	//Angefragte Blinks
-	    uint8_t count;      		//Counter der blinks 	    
-        Timeout to_blink;			//Timeout für Blink Interval
-        Timeout to_break;           //Timeout für Pausen interval
+        uint8_t         blinks_requested;	//Angefragte Blinks
+	    uint8_t         count;      		//Counter der blinks 	    
+        Timeout         to_blink;			//Timeout für Blink Interval
+        Timeout         to_break;           //Timeout für Pausen interval
     }blinkParameter;	
 };
 
@@ -162,7 +201,7 @@ class Output {
 //--------------------------------------------------------------------
 //ROTARY ENCODER KLASSE
 //--------------------------------------------------------------------
-class rotaryEncoder 
+class rotaryEncoder  
 {
 	public:
                         rotaryEncoder           ();
@@ -175,15 +214,15 @@ class rotaryEncoder
     private: 
 
     bool            f_invertedDirection;
-    DigitalInput    A;
-    DigitalInput    B; 
-    DigitalInput    Z;   	   
+    digitalInput    A;
+    digitalInput    B; 
+    digitalInput    Z;   	   
 };
 
 //--------------------------------------------------------------------
 //PLATIN TEMPERTUR SENSOR KLASSE
 //--------------------------------------------------------------------
-class PT10x
+class PT10x: 
 {
     public:
     PT10x();
@@ -213,7 +252,7 @@ typedef enum
     DRIVE_STATE__COUNT,
 }e_DRIVE_STATE_t;
 
-class dcDrive
+class dcDrive: public IO_Interface
 {
     public: 
     dcDrive();
@@ -257,24 +296,10 @@ class dcDrive
 //--------------------------------------------------------------------
 //SOFTWARE H-BRÜCKE KLASSE
 //-------------------------------------------------------------------- 
-class Software_H_Bridge{
+class Software_H_Bridge: public IO_Interface
+{
     public:
     Software_H_Bridge();
-    Software_H_Bridge(Output* P_PWM_L, Output* P_PWM_R);
-
-    void begin       ();
-    void begin       (Output* P_PWM_L, Output* P_PWM_R);
-    void setSpeed    (const uint8_t HB_SPEED);
-    void setDirection(const e_movement_t DIRECTION);
-
-
-    private:
-
-    Output* p_L_PWM;
-    Output* p_R_PWM;
-
-    e_movement_t   driveDirection;
-    uint8_t        driveSpeed;
 };
 
 //--------------------------------------------------------------------
@@ -282,19 +307,20 @@ class Software_H_Bridge{
 //-------------------------------------------------------------------- 
 #define MAX_SAMPLES_UNTIL_CALCULATION   500
 
-class rpmSensor
+class rpmSensor: public IO_Interface
 {
     public:
                 rpmSensor   ();
     void        begin       (const uint16_t PULSES_PER_REV = 1, const uint16_t SAMPLE_TIME = 500);
     uint16_t    getRPM      ();
-    void        tick        ();
 
     
-    void halCallback(const bool STATE);
+    //Hal handling
+    e_IO_TYPE_t         getIoType   (){return this->ioType;}
+    u_IO_DATA_BASE_t    halCallback (u_IO_DATA_BASE_t DATA){this->previousState = this->state; this->state = DATA.digitalInputParameter.state;}
 
     private:      
-    DigitalInput    dataObject;
+    digitalInput    dataObject;
     unsigned long   startTime;
     uint32_t        samples;
     uint16_t        rpm;
@@ -308,19 +334,19 @@ class rpmSensor
 //Servo
 //-------------------------------------------------------------------- 
 
-class servoMotor
+class servoMotor: public IO_Interface
 {
     public:
                     servoMotor          ();
     void            begin               (const uint16_t MIN = 0, const uint16_t MAX = 180);
     void            setServoPosition    (const uint16_t POSITION);
-    s_portValue_t   halCallback         ();
+    u_IO_DATA_BASE_t   halCallback         ();
     bool            isThereANewPortValue();
 
     private:    
     Timeout         to_ServoPwm;
     uint16_t        minAngle;
     uint16_t        maxAngle;
-    s_portValue_t   pwmValue;
+    u_IO_DATA_BASE_t   pwmValue;
 };
 #endif

@@ -196,110 +196,10 @@ void BPLC_APP::setupHardware()
       }
    }
 }
-
-void BPLC_APP::mapObjectToExtensionCard(DigitalInput* P_OBJECT, const e_DIN11_CARD_t CARD, const e_DIN11_CHANNEL_t CHANNEL)
-{   
-   this->printLog("map DigitalInput to DIN11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-
-   if(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount)
-   {
-      ERROR = this->APP_HAL.DIN11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
-      this->APP_HAL.INT_count++;
-   }
-   else
-   {
-      ERROR = DIN11_ERROR__CARD_NOT_DEFINED;
-   }   
-   this->setSystemError(ERROR); 
-}
-
-void BPLC_APP::mapObjectToExtensionCard(rpmSensor* P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL)  
-{   
-   this->printLog("map rpmSensor to DIN11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
-
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-
-   if(CARD < this->APP_HAL.hardwareConfig.din11RevACardCount)
-   {
-      ERROR = this->APP_HAL.DIN11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
-      this->APP_HAL.INT_count++;
-   }
-   else
-   {
-      ERROR = DIN11_ERROR__CARD_NOT_DEFINED;
-   }   
-   this->setSystemError(ERROR); 
-}
-
-void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT,const e_DO11_CARD_t CARD, const e_DO11_CHANNEL_t CHANNEL)
-{   
-   this->printLog("map Output to DO11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
-   
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-
-   if(CARD < this->APP_HAL.hardwareConfig.do11RevACardCount)
-   {
-      ERROR = this->APP_HAL.DO11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
-   }
-   else
-   {
-      ERROR = DO11_ERROR__CARD_NOT_DEFINED;
-   }   
-   this->setSystemError(ERROR); 
-}
-
-void BPLC_APP::mapObjectToExtensionCard(servoMotor* P_OBJECT, const e_DO11_CARD_t CARD, const e_DO11_CHANNEL_t CHANNEL)
-{   
-   this->printLog("map servoMotor to DO11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
-  
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-
-   if(CARD < this->APP_HAL.hardwareConfig.do11RevACardCount)
-   {
-      ERROR = this->APP_HAL.DO11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
-   }
-   else
-   {
-      ERROR = DO11_ERROR__CARD_NOT_DEFINED;
-   }   
-   this->setSystemError(ERROR); 
-}
-
-void BPLC_APP::mapObjectToExtensionCard(AnalogInput* P_OBJECT, const e_AIN11_CARD_t CARD, const e_AIN11_CHANNEL_t CHANNEL)
-{   
-   this->printLog("map AnalogInput to AIN11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
-
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-
-   if(CARD < this->APP_HAL.hardwareConfig.ain11RevACardCount)
-   {
-      ERROR = this->APP_HAL.AIN11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
-   }
-   else
-   {
-      ERROR = AIN11_ERROR__CARD_NOT_DEFINED;
-   }   
-   this->setSystemError(ERROR); 
-}
-
-void BPLC_APP::mapObjectToExtensionCard(Output* P_OBJECT, const e_REL11_CARD_t CARD, const e_REL11_CHANNEL_t CHANNEL)
+void BPLC_APP::mapExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL)
 {
-   this->printLog("map Output to REL11_CARD " + String(1 + (uint8_t)CARD) + ", CHANNEL: " + String(1 + (uint8_t)CHANNEL));
-
-   e_BPLC_ERROR_t ERROR = BPLC_ERROR__NO_ERROR;
-
-   if(CARD < this->APP_HAL.hardwareConfig.rel11RevACardCount)
-   {
-      ERROR = this->APP_HAL.REL11_CARD[CARD].mapObjectToChannel(P_OBJECT, CHANNEL);
-   }
-   else
-   {
-      ERROR = REL11_ERROR__CARD_NOT_DEFINED;
-   }   
-   this->setSystemError(ERROR); 
+   this->extensionCardHandler.mapObjectToExtensionCard(P_IO_OBJECT, CARD, CHANNEL);
 }
-
 void BPLC_APP::tickHardware()
 {
    while (this->APP_HAL.INT_count > 0)
@@ -312,11 +212,8 @@ void BPLC_APP::tickHardware()
    }
    
    this->handleMCUCard();
-   this->handleDIN11Cards();
-   this->handleAIN11Cards();
-   this->handleDO11Cards();
-   this->handleREL11Cards();
-   this->handleMOT11Cards();   
+   this->extensionCardHandler.tickAllextensionCards();
+   this->setSystemError(this->extensionCardHandler.getError());
 }
 
 void BPLC_APP::handleMCUCard()

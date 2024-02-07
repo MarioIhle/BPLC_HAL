@@ -15,11 +15,11 @@ typedef enum
     BPLC_ERROR__ADDRESS_NOT_DEFINED,
     //DIN11 errors
     DIN11_ERROR__I2C_CONNECTION_FAILED, 
-    DIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED,
-    DIN11_ERROR__CARD_NOT_DEFINED,
     DIN11_ERROR__NO_CHANNEL_IN_USE,
     DIN11_ERROR__CHANNEL_ALREADY_IN_USE,
     DIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE,   
+    DIN11_ERROR__CHANNEL_OUT_OF_RANGE,
+    DIN11_ERROR__IO_OBJECT_NOT_SUITABLE,
     //AIN11 errors
     AIN11_ERROR__I2C_CONNECTION_FAILED, 
     AIN11_ERROR__CARD_FOUND_BUT_NOT_DEFINED,
@@ -73,6 +73,30 @@ typedef enum
     BPLC_ERROR__COUNT,
 }e_BPLC_ERROR_t;
 
+class BPLC_errorHandler
+{
+    public:
+    e_MASTER_NODE_ERROR_t   getError(){return this->errorCode;}
+    void                    setError(const e_BPLC_ERROR_t ERROR_CODE)
+    {
+        //Nur erster Error bleibt gespeichert
+        if(this->errorCode == BPLC_ERROR__NO_ERROR)
+        {
+            this->errorCode = ERROR_CODE;
+        }
+    }
+    void                    resetError(const e_BPLC_ERROR_t ERROR_CODE)
+    {
+        //Nur error zurück setzten, wenn auch dieser gesetzt war
+        if(ERROR_CODE == this->errorCode)
+        {
+            this->errorCode = BPLC_ERROR__NO_ERROR;
+        }
+    }
+
+    private:
+    e_BPLC_ERROR_t errorCode
+};
 
 class ERROR_OUT
 {

@@ -112,7 +112,7 @@ void Output::setOnValue(const uint8_t VALUE)
     this->setting.onValue = VALUE;
 }
 
-s_portValue_t Output::halCallback()
+u_IO_DATA_BASE_t Output::halCallback()
 {
 	//Portdaten wurden abgeholt und können jetzt abgeglichen werden
 	this->actualValue.previousValue = this->actualValue.value;

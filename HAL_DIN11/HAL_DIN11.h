@@ -28,29 +28,7 @@ typedef enum
 
 }e_DIN11_ADDRESS_t;
 
-typedef enum
-{
-    DIN11_CHANNEL__1,
-    DIN11_CHANNEL__2,
-    DIN11_CHANNEL__3,
-    DIN11_CHANNEL__4,
-    DIN11_CHANNEL__5,
-    DIN11_CHANNEL__6,
-    DIN11_CHANNEL__7,
-    DIN11_CHANNEL__8,
-
-    DIN11_CHANNEL__COUNT,
-
-}e_DIN11_CHANNEL_t;
-
-typedef enum
-{
-    DIN_CHANNEL_STATE__NOT_USED,
-    DIN_CHANNEL_STATE__DIGITAL,
-    DIN_CHANNEL_STATE__COUNTER,
-
-    DIN_CHANNEL_STATE__COUNT,
-}e_DIN_CHANNEL_STATE_t;
+#define DIN11_CHANNEL__COUNT 8
 
 
 //-------------------------------------------------------------
@@ -58,36 +36,26 @@ typedef enum
 //-------------------------------------------------------------
 #define READ_TWO_TIMES 2
 
-class HAL_DIN11:BPLC_LOG, I2C_check, public halInterface
+class HAL_DIN11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
-    HAL_DIN11 ();
-    void            begin               (const e_DIN11_ADDRESS_t I2C_ADDRESS);
-    e_BPLC_ERROR_t  mapObjectToChannel  (DigitalInput*  P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL);
-    e_BPLC_ERROR_t  mapObjectToChannel  (rpmSensor*     P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL);
-    
-    void            tick ();        
-    e_BPLC_ERROR_t  getError();    
-    void            ISR_callback();
-    
+    //Hal Interface
+                    HAL_DIN11           (const e_DIN11_ADDRESS_t I2C_ADDRESS);
+    void            setup               ();
+    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                ();        
+    e_BPLC_ERROR_t  getError            (); 
+        
     
     private:    
-    //Safety
-    e_BPLC_ERROR_t  errorCode;
-
     //Settings
     PCF8574           PCF;
     e_DIN11_ADDRESS_t deviceAddress;
-
-    uint8_t inputReadRequests;
-
-    //Object handling
+    //IO Object handling
     struct
     {
-        e_DIN_CHANNEL_STATE_t       channelState[DIN11_CHANNEL__COUNT];
-        DigitalInput*               p_digital   [DIN11_CHANNEL__COUNT];   
-        rpmSensor*                  p_counter   [DIN11_CHANNEL__COUNT];   
-        const uint8_t               PIN         [DIN11_CHANNEL__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      
+        IO_Interface* p_ioObject  [DIN11_CHANNEL__COUNT];   
+        const uint8_t PIN         [DIN11_CHANNEL__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      
     }channels;       
  };
 #endif

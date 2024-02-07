@@ -36,7 +36,7 @@ typedef enum
     ENCODER_PIN__COUNT,
 }e_ENCODER_PINS_t;
 
-//DigitalInput
+//digitalInput
 typedef struct
 {        
     bool state;

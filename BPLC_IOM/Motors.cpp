@@ -167,7 +167,7 @@ void servoMotor::setServoPosition(const uint16_t POSITION)
     this->pwmValue.value = map(POSITION, 180, 0, 136, 363);
 }
 
-s_portValue_t servoMotor::halCallback()
+u_IO_DATA_BASE_t servoMotor::halCallback()
 {//Sobald daten abgeholt, wird previous überschrieben
 	this->pwmValue.previousValue = this->pwmValue.value;
 	return this->pwmValue;
