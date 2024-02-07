@@ -6,21 +6,24 @@ void BPLC_APP::setupNetwork()
     {
         //Netzwerk nicht in Benutzung
     }
-    else if(this->APP_COM.deviceAddress == 1)
+    else if(this->APP_COM.deviceAddress == MASTER_NODE_ADDRESS)
     {
-        this->printLog("Network setup as Master");
-        this->APP_COM.Master.begin(&Serial2, 4);
+        this->printLog("Network setup as p_masterNode");
+        MasterNode* p_networkNode = new MasterNode;
+        p_networkNode->begin(&Serial2, 4);
+        this->APP_COM.p_masterNode = p_networkNode;
     }
     else
     {
-        this->printLog("Network setup as Slave with address: " + String(this->APP_COM.deviceAddress));
-        this->APP_COM.Slave.begin(this->APP_COM.deviceAddress, &Serial2, 4);
+        this->printLog("Network setup as P_slaveNode with address: " + String(this->APP_COM.deviceAddress));
+        SlaveNode* p_networkNode = new SlaveNode;
+        p_networkNode->begin(this->APP_COM.deviceAddress, &Serial2, 4);
+        this->APP_COM.P_slaveNode = p_networkNode;
     }
     //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
     this->APP_COM.to_communicationError.setInterval(60000);
 }
-
-void BPLC_APP::mapPortToNetwork(applicationPort* P_PORT)
+void BPLC_APP::mapPortToNetwork(portInterface_APP* P_PORT)
 {    
     this->printLog("PORT with Index: " + String(P_PORT->getDataBase()->getPortIndex()) + " mapped to Network");
     //Network setup
@@ -30,14 +33,13 @@ void BPLC_APP::mapPortToNetwork(applicationPort* P_PORT)
     }
     else if(this->APP_COM.deviceAddress == 1)
     {
-        this->APP_COM.Master.mapPortToNetwork(P_PORT);
+        this->APP_COM.p_masterNode->mapPortToNetwork(P_PORT);
     }
     else
     {
-        this->APP_COM.Slave.mapPortToNetwork(P_PORT);
+        this->APP_COM.P_slaveNode->mapPortToNetwork(P_PORT);
     }
 }
-
 void BPLC_APP::tickNetwork()
 {
     if(this->APP_COM.deviceAddress > 0)
@@ -49,20 +51,20 @@ void BPLC_APP::tickNetwork()
         }
 
 
-        const bool DEVICE_IS_MASTER_NODE = (bool)(this->APP_COM.deviceAddress == 1);
+        const bool DEVICE_IS_MASTER_NODE = (bool)(this->APP_COM.deviceAddress == MASTER_NODE_ADDRESS);
 
         if(DEVICE_IS_MASTER_NODE)
         {                       
-            switch(this->APP_COM.Master.getError())
+            switch(this->APP_COM.p_masterNode->getError())
             {
                 case MASTER_NODE_ERROR__NO_ERROR:
-                    this->APP_COM.Master.tick();
+                    this->APP_COM.p_masterNode->tick();
                     this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
                     this->APP_COM.to_communicationError.reset();
                 break;
 
                 case MASTER_NODE_ERROR__NO_SLAVE_AVAILABLE:
-                    this->APP_COM.Master.tick();
+                    this->APP_COM.p_masterNode->tick();
                     this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 100, 100);
                 break;
 
@@ -73,9 +75,9 @@ void BPLC_APP::tickNetwork()
         }
         else
         {            
-            this->APP_COM.Slave.tick();
+            this->APP_COM.P_slaveNode->tick();
 
-            switch(this->APP_COM.Slave.getNodeState())
+            switch(this->APP_COM.P_slaveNode->getNodeState())
             {
                 case SLAVE_NODE_STATE__NOT_AVAILABLE:
                     this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 100, 100);

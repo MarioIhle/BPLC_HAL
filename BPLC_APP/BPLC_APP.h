@@ -83,7 +83,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     void invertEncoder      ();
     void addExtensionCard   (const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
     //Network
-    void mapPortToNetwork(applicationPort* P_PORT);
+    void mapPortToNetwork(portInterface_APP* P_PORT);
     //IO´s auf Extension Cards mappen        
     void mapObjectToExtensionCard(DigitalInput*  P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);   
     void mapObjectToExtensionCard(rpmSensor*     P_OBJECT, const e_DIN11_CARD_t  CARD, const e_DIN11_CHANNEL_t CHANNEL);  
@@ -117,7 +117,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
 
     struct
     {
-        e_APP_MODE_t    deviceMode;
+        e_APP_MODE_t   deviceMode;
         int16_t        virtualDipSwitch[vDIP_COUNT]; 
 
         struct 
@@ -214,10 +214,10 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
 
     struct 
     {        
-        MasterNode  Master;
-        SlaveNode   Slave;   
-        uint8_t     deviceAddress = 0;       
-        Timeout     to_communicationError; 
+        MasterNode*     p_masterNode;
+        SlaveNode*      P_slaveNode;   
+        uint8_t         deviceAddress = 0;       
+        Timeout         to_communicationError; 
     }APP_COM;  
 };
 #endif
