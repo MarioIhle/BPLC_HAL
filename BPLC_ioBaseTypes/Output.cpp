@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------------
 //OUTPUT
-Output::Output(const e_outputType_t OUTPUT_TYPE = OUTPUTTYPE__PUSH, const uint8_t ON_VALUE = 255) 
+Output::Output(const e_IO_TYPE_t OUTPUT_TYPE = IO_TYPE__OUTPUT_PUSH, const uint8_t ON_VALUE = 255) 
 {
 	this->setting.outputType 	= OUTPUT_TYPE;
 	this->setting.onValue 		= ON_VALUE;

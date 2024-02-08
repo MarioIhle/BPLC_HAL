@@ -6,7 +6,6 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 }
 void HAL_DIN11::setup()
 {  
-    this->deviceAddress = I2C_ADDRESS;
     this->errorCode     = BPLC_ERROR__NO_ERROR;   
 
     //I2C Verbindung prüfen
@@ -31,11 +30,11 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 {
     //Wenn Channel 1 übergeben wird, ist p_ioObject[0] gemeint 
     CHANNEL--;
-    if(CHANNEL < 0 || CHANNEL > DIN11_CHANNEL__COUNT)
+    if(CHANNEL < 0 || CHANNEL > DIN11_CHANNEL_COUNT)
     {
         this->setError(DIN11_ERROR__CHANNEL_OUT_OF_RANGE);
     }
-    else if(this->channels.p_ioObject[CHANNEL] != nullptr && CHANNEL == DIN11_CHANNEL__COUNT)
+    else if(this->channels.p_ioObject[CHANNEL] != nullptr && CHANNEL == DIN11_CHANNEL_COUNT)
     {
         this->setError(DIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
     }
@@ -45,19 +44,16 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
     }
     else
     {
-        this->channels.p_ioObject[CHANNEL] = P_IO_OBJECT;
-    }
-}
-void HAL_DIN11::mapObjectToChannel(rpmSensor* P_OBJECT, const e_DIN11_CHANNEL_t CHANNEL)
-{
-    if(this->channels.channelState[CHANNEL] == DIN_CHANNEL_STATE__NOT_USED)
-    {
-        this->channels.p_digital[CHANNEL]       = P_OBJECT;
-        this->channels.channelState[CHANNEL]    = DIN_CHANNEL_STATE__DIGITAL;
-    }
-    else 
-    {
-        this->errorCode = DIN11_ERROR__CHANNEL_ALREADY_IN_USE;
+        if(P_IO_OBJECT->getIoType() == IO_TYPE__ROTARY_ENCODER)
+        {//3 pinPorts belegen mit gleichen objekt
+            this->channels.p_ioObject[CHANNEL]      = P_IO_OBJECT;
+            this->channels.p_ioObject[CHANNEL + 1]  = P_IO_OBJECT;
+            this->channels.p_ioObject[CHANNEL + 2]  = P_IO_OBJECT;
+        }
+        else
+        {
+            this->channels.p_ioObject[CHANNEL] = P_IO_OBJECT;
+        }
     }
 }
 void HAL_DIN11::tick()
@@ -67,21 +63,32 @@ void HAL_DIN11::tick()
         //PCF über I2C lesen
         this->PCF.read8();
         //Alle genutzen Channels abfragen
-        for(uint8_t CH = 0; CH < DIN11_CHANNEL__COUNT; CH++)
+        for(uint8_t CH = 0; CH < DIN11_CHANNEL_COUNT; CH++)
         {      
             if(this->channels.p_ioObject[CH] != nullptr)
             {
+                u_IO_DATA_BASE_t tempBuffer;                
+
                 switch (this->channels.p_ioObject[CH]->getIoType())
                 {                    
                     case IO_TYPE__DIGITAL_INPUT:
                     case IO_TYPE__RPM_SENS:
-                        this->channels.p_ioObject[CH]->halCallback(!PCF.read(this->channels.PIN[CH])); 
-                    break;
-                    
+                        tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);
+                        this->channels.p_ioObject[CH]->halCallback(tempBuffer); 
+                        break;
+
+                    case IO_TYPE__ROTARY_ENCODER:
+                        tempBuffer.rotaryEncoderData.stateA             = !PCF.read(this->channels.PIN[CH]);
+                        tempBuffer.rotaryEncoderData.stateB             = !PCF.read(this->channels.PIN[CH + 1]);
+                        tempBuffer.rotaryEncoderData.statePushButton    = !PCF.read(this->channels.PIN[CH + 2]);
+                        this->channels.p_ioObject[CH]->halCallback(tempBuffer);
+                        CH +=3;
+                        break;
+
                     default:
                     case IO_TYPE__NOT_DEFINED:
                         this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE);
-                    break;               
+                        break;               
                 }
             }                                              
         }              
@@ -94,5 +101,5 @@ e_BPLC_ERROR_t HAL_DIN11::getError()
     {
         this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED);
     }
-    return this->errorCode;
+    return this->getError();
 }

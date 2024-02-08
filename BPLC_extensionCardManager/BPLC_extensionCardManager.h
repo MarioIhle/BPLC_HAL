@@ -1,6 +1,16 @@
 #ifndef BPLC_extensionCardManager_h
 #define BPLC_extensionCardManager_h
 
+#include "Arduino.h"
+#include "BPLC_ioBaseTypes.h"
+#include "BPLC_ERRORS.h"
+//HAL´s
+#include "HAL_DIN11.h"
+#include "HAL_AIN11.h"
+#include "HAL_REL11.h"
+#include "HAL_DO11.h"
+#include "HAL_MOT11.h"
+
 typedef enum
 {
     MCU_CARD__NO_MCU_DEFINED,
@@ -56,18 +66,9 @@ typedef enum
     EXTENSION_CARD__TYPE_COUNT,
 
 }e_EXTENSION_CARD_TYPE_t;
-#endif
 
-#include "Arduino.h"
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_ERRORS.h"
-//HAL´s
-#include "HAL_DIN11.h"
-#include "HAL_AIN11.h"
-#include "HAL_REL11.h"
-#include "HAL_FUSE11.h"
-#include "HAL_DO11.h"
-#include "HAL_MOT11.h"
+
+
 
 //Datenelement
 class halInterface
@@ -96,17 +97,16 @@ class extensionCard
     e_EXTENSION_CARD_TYPE_t cardType; 
 };
 //Warteschlange
-class BPLC_extensionCardHandler:BPLC_errorHandler
+class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
 {
     public:
-                        BPLC_extensionCardHandler   ();
-    extensionCard*      addNewExtensionCard         (const e_EXTENSION_CARD_TYPE_t EXTENSION_CARD_TYPE);
-    void                tickAllextensionCards       ();
+                        BPLC_extensionCardHandler   ();    
+    void                tickAllextensionCards       ();    
+    void                mapObjectToExtensionCard    (IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL);
     e_BPLC_ERROR_t      getError                    (){return this->getError()};
-    void                mapExtensionCardChannel     (IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL);
-
 
     private:
+    extensionCard*  addNewExtensionCard     (const e_EXTENSION_CARD_TYPE_t EXTENSION_CARD_TYPE);
     void            addextensionCardToList  (extensionCard* CARD_TO_ADD);
     extensionCard*  searchExtensionCard     (const e_EXTENSION_CARD_TYPE_t  SEARCHED_EXTENSION_CARD);
     extensionCard*  p_firstExtensionCard;    

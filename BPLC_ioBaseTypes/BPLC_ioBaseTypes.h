@@ -59,12 +59,16 @@ typedef union
 typedef enum
 {
     IO_TYPE__NOT_DEFINED,
-    IO_TYPE__DIGITAL_INPUT,
+
+    IO_TYPE__DIGITAL_INPUT,    
     IO_TYPE__RPM_SENS,
+    IO_TYPE__ROTARY_ENCODER,
+    IO_TYPE__ANALOG_INPUT,
     IO_TYPE__OUTPUT_PULL,               //0= float, 1= GND
 	IO_TYPE__OUTPUT_PUSH,               //0= float, 1=VCC    
 	IO_TYPE__OUTPUT_PUSH_PULL,          //0= GND,   1=VCC  
     IO_TYPE__OUTPUT_PUSH_PULL_INVERT,   //0= VCC,   1=GND inverteriter Ausgang, benötigt für H-Brücke mit DO11
+    IO_TYPE__SERVO,
 
     IO_TYPE__COUNT,
 }e_IO_TYPE_t;
@@ -98,7 +102,7 @@ class digitalInput: public IO_Interface
 	bool 	            fallingEdge     (){return (bool)(this->state == false && this->previousState == true);}	
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
-    bool                newDataAvailable(){};
+    bool                newDataAvailable(){return false;}
     u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t DATA){this->previousState = this->state; this->state = DATA.digitalIoData.state;}
     
 
@@ -131,6 +135,7 @@ class AnalogInput: public IO_Interface
 
 
     private:
+    e_IO_TYPE_t ioType;
     uint16_t    value;   
     uint16_t    alarmValue;
     float       maxVoltage;
@@ -152,25 +157,15 @@ typedef enum
 	OUTPUTMODE__SIZE,
 }e_outputMode_t;
 
-typedef enum
-{
-	OUTPUTTYPE__PULL,               //0= float, 1= GND
-	OUTPUTTYPE__PUSH,               //0= float, 1=VCC    
-	OUTPUTTYPE__PUSH_PULL,          //0= GND,   1=VCC  
-    OUTPUTTYPE__PUSH_PULL_INVERT,   //0= VCC,   1=GND inverteriter Ausgang, benötigt für H-Brücke mit DO11
-
-	OUTPUTTYPE__SIZE,
-}e_outputType_t;
-
 
 class Output: public IO_Interface, blink
  {
 	public:
     //Setup
-                        Output          (const e_outputType_t OUTPUT_TYPE = OUTPUTTYPE__PUSH, const uint8_t ON_VALUE = 255);    
+                        Output          (const e_IO_TYPE_t OUTPUT_TYPE = IO_TYPE__OUTPUT_PUSH, const uint8_t ON_VALUE = 255);    
     void                setOnValue      (const uint8_t VALUE);
     //Applikation Handling
-	void                blinkOnce		 (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL);		                        //Blinkt für angeforderte Anzahl und Interval
+	void                blinkOnce		(const uint8_t BLINKS, const unsigned long BLINK_INTERVAL);		                        //Blinkt für angeforderte Anzahl und Interval
     void                blinkContinious (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL, const unsigned long BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
 	void                set			    ();		                //Output ON
 	void                reset		    ();		                //Output OFF
@@ -183,6 +178,7 @@ class Output: public IO_Interface, blink
 
 
 	private: 
+    e_IO_TYPE_t         ioType;
     e_outputMode_t	    mode;           //Aktueller Modus
     uint8_t             value;  	    //Aktueller Wert
     bool                f_newDataAvailable;
@@ -290,9 +286,9 @@ class rpmSensor: public IO_Interface
 
     
     //Hal handling
-    e_IO_TYPE_t         getIoType   (){return this->ioType;}
-    bool                newDataAvailable(){};
-    u_IO_DATA_BASE_t    halCallback (u_IO_DATA_BASE_t DATA){this->previousState = this->state; this->state = DATA.digitalIoData.state;}
+    e_IO_TYPE_t         getIoType           (){return this->ioType;}
+    bool                newDataAvailable    (){};
+    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t DATA);
 
     private:     
     e_IO_TYPE_t     ioType;

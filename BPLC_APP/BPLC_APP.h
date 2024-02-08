@@ -14,13 +14,10 @@
 #include "Arduino.h"
 #include "SpecialFunctions.h"
 //BPLC
-#include "BPLC_CARDS.h"
-#include "BPLC_IOM.h"
-#include "BPLC_TYPES.h"
 #include "BPLC_ERRORS.h"
 #include "BPLC_LOG.h"
 //Hardware
-#include "BPLC_EXTENSION_CARD_HANDLER.h"
+#include "BPLC_extensionCardManager.h"
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
 //Network
@@ -68,24 +65,24 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
 {
     public:
     //Setup des BPLC Systems
-    BPLC_APP();
-    void begin              (const e_MCU_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS = 0);      
-    void invertEncoder      ();
-    void addExtensionCard   (const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
+            BPLC_APP                ();
+    void    begin                   (const e_MCU_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS = 0);      
+    void    invertEncoder           ();
+    void    addExtensionCard        (const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
     //Network
-    void mapPortToNetwork(portInterface_APP* P_PORT);
+    void    mapPortToNetwork        (portInterface_APP* P_PORT);
 
-    void mapExtensionCardChannel(digitalInput* P_OBJECT, const e_EXTENSION_CARD_TYPE_t, uint8_t CHANNEL);
+    void    mapExtensionCardChannel (IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL);
 
     //Rountine aufruf
-    void tick();    
+    void    tick                    ();    
 
     //Buzzer aus Applikation heraus nutzen
-    void    beep(const uint8_t BEEPS, const int BEEP_INTERVAL);    
+    void    beep                    (const uint8_t BEEPS, const int BEEP_INTERVAL);    
 
     //Dip Controll
-    void    setVDip(const e_V_DIP_t DIP_NUM, const int16_t VALUE);
-    int16_t getVDip(const e_V_DIP_t DIP_NUM);
+    void    setVDip                 (const e_V_DIP_t DIP_NUM, const int16_t VALUE);
+    int16_t getVDip                 (const e_V_DIP_t DIP_NUM);
 
     
     private:
@@ -93,10 +90,10 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     BPLC_extensionCardHandler extensionCardHandler;  
 
     //APP_APP 
-    void setupApplication();
+    void            setupApplication();
     //Device Mode
-    e_APP_MODE_t    getDeviceMode();    
-    void            setDeviceMode(const e_APP_MODE_t MODE);
+    e_APP_MODE_t    getDeviceMode   ();    
+    void            setDeviceMode   (const e_APP_MODE_t MODE);
 
     struct
     {
@@ -160,12 +157,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         HAL_MCU11_revA  MCU11revA_HAL;    
         HAL_MCU11_revB  MCU11revB_HAL;        
         OLED_MCU11      oled;     
-        HAL_DIN11       DIN11_CARD[DIN11_CARD__MAX]; 
-        HAL_AIN11       AIN11_CARD[AIN11_CARD__MAX];
-        HAL_DO11        DO11_CARD [DO11_CARD__MAX];
-        HAL_REL11       REL11_CARD[REL11_CARD__MAX];
-        HAL_MOT11       MOT11_CARD[MOT11_CARD__MAX];  //eigentlich unendlich erweiterbar, da Atm328p und software addresse
-
+        
         rotaryEncoder   ENCODER; 
         Output          BUZZER;
         Output          LD1_DEVICE_STATE;
@@ -177,16 +169,8 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         
         struct
         {
-            e_MCU_CARD_TYPE_t   MCU_TYPE            = MCU_CARD__NO_MCU_DEFINED;
-            uint8_t             din11RevACardCount  = 0;
-            uint8_t             ain11RevACardCount  = 0;
-            uint8_t             do11RevACardCount   = 0;
-            uint8_t             rel11RevACardCount  = 0;
-            uint8_t             mot11RevACardCount  = 0;
-            uint8_t             fuse11RevACardCount = 0;
-            uint8_t             fuse12RevACardCount = 0;
-            uint8_t             nano11RevACardCount = 0;
-        }hardwareConfig;
+            e_MCU_CARD_TYPE_t   MCU_TYPE = MCU_CARD__NO_MCU_DEFINED;
+         }hardwareConfig;
     }APP_HAL;
 
 

@@ -1,108 +1,94 @@
 #include "HAL_REL11.h"
 
-HAL_REL11::HAL_REL11()
+HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t I2C_ADDRESS)
 {
-    for(uint8_t CH; CH < REL11_CHANNEL__COUNT; CH++)
-    {  
-        this->channels.state[CH] = REL_CHANNEL_STATE__NOT_USED;
-    }
-}
-
-void HAL_REL11::begin(const e_REL11_ADDRESS_t I2C_ADDRESS)
-{    
     this->deviceAddress = I2C_ADDRESS;
-    this->errorCode     = BPLC_ERROR__NO_ERROR;
-      
-
-/*
-
-     //Instanzen Prüfen
-
-        ---->>>> Sollte mit neuen Konzept überhaupt nicht mehr möglich sein, eine Karte wird nur definiert, wenn ein Objekt darauf gemapped wird. 
-            Es kann nur noch der Fehler aufterten, dass die Karte nicht verfügbar is
-
-    for(uint8_t CH = 0; CH < REL11_CHANNEL__COUNT; CH++)
-    {            
-        if(this->channels.state[CH] == REL_CHANNEL_STATE__DIGITAL)
-        {
-            //Irgenwelche Hardware Anpassung?
-            break;
-        }
-        else if(this->channels.state[CH] == REL_CHANNEL_STATE__NOT_USED && CH == (REL11_CHANNEL__COUNT - 1))
-        {//letzter Port und immernoch keiner in nutzung
-            this->errorCode = REL11_ERROR__NO_CHANNEL_IN_USE;
-        }
-    }
-*/
-
-
+}
+void HAL_REL11::setup()
+{    
+    this->setError(BPLC_ERROR__NO_ERROR); 
     //I2C Verbindung Prüfen
     if(!I2C_check::begin(this->deviceAddress))
     {
-        this->errorCode = REL11_ERROR__I2C_CONNECTION_FAILED;        
+        this->setError(REL11_ERROR__I2C_CONNECTION_FAILED);        
     }
-
     //Applikationsparameter initialisieren
-    if(this->errorCode == BPLC_ERROR__NO_ERROR)
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
     {   
-        this->PCF.setAddress(this->deviceAddress);       //Tatsächliche Adresse schreiben
-        this->PCF.begin();                              //Kommunikation hetstellen
-        this->PCF.write8(false);                        //Alle Ports LOW    
-        BPLC_LOG logPrint;
-        logPrint.printLog("REL11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");       
+        this->PCF.setAddress(this->deviceAddress);      
+        this->PCF.begin();                              
+        this->PCF.write8(false);                         
+        this->printLog("REL11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");       
     }
     else
     {
-        BPLC_LOG logPrint;
-        logPrint.printLog("REL11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");    
+        this->printLog("REL11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");    
     }  
 }   
-
-e_BPLC_ERROR_t HAL_REL11::mapObjectToChannel(Output* P_OBJECT, const uint8_t CHANNEL)
+void HAL_REL11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
 {
-    if(this->channels.state[CHANNEL] == REL_CHANNEL_STATE__NOT_USED)
+    //Wenn Channel 1 übergeben wird, ist p_ioObject[0] gemeint 
+    CHANNEL--;
+    if(CHANNEL < 0 || CHANNEL > REL11_CHANNEL_COUNT)
     {
-        this->channels.p_object[CHANNEL]    = P_OBJECT;
-        this->channels.state[CHANNEL]       = REL_CHANNEL_STATE__DIGITAL;
+        this->setError(REL11_ERROR__CHANNEL_OUT_OF_RANGE);
     }
-    else 
+    else if(this->channels.p_ioObject[CHANNEL] != nullptr && CHANNEL == REL11_CHANNEL_COUNT)
     {
-        this->errorCode = REL11_ERROR__CHANNEL_ALREADY_IN_USE;
+        this->setError(REL11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
     }
-    return this->errorCode;
+    else if(this->channels.p_ioObject[CHANNEL] != nullptr)
+    {
+        this->setError(REL11_ERROR__CHANNEL_ALREADY_IN_USE);       
+    }
+    else
+    {
+        this->channels.p_ioObject[CHANNEL] = P_IO_OBJECT;        
+    }
 }
-
 void HAL_REL11::tick()
 {
-    //I2C Verbindung zyklisch prüfen
-    if(!I2C_check::requestHeartbeat())
-    {
-        this->errorCode = REL11_ERROR__I2C_CONNECTION_FAILED;
-    }    
-
-    if(this->errorCode == BPLC_ERROR__NO_ERROR)
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
     {         
-        for(int CH = 0; CH < REL11_CHANNEL__COUNT; CH++)
+        for(int CH = 0; CH < REL11_CHANNEL_COUNT; CH++)
         {
-            if(this->channels.state[CH] == REL_CHANNEL_STATE__DIGITAL)
+            if(this->channels.p_ioObject[CH] != nullptr)
             {
-                if(this->channels.p_object[CH]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
+                if(this->channels.p_ioObject[CH]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
                 {
-                    if(this->channels.p_object[CH]->halCallback().value >= 1)
+                    u_IO_DATA_BASE_t tempBuffer;                
+
+                    switch (this->channels.p_ioObject[CH]->getIoType())
                     {
-                        this->PCF.write(this->channels.PIN[CH], true);
-                    }
-                    else if(this->channels.p_object[CH]->halCallback().value == false)
-                    {
-                        this->PCF.write(this->channels.PIN[CH], false);
-                    }
+                        case IO_TYPE__OUTPUT_PUSH:
+                            tempBuffer = this->channels.p_ioObject[CH]->halCallback();
+
+                            if(tempBuffer.digitalIoData.state >= 1)
+                            {
+                                this->PCF.write(this->channels.PIN[CH], true);
+                            }
+                            else if(tempBuffer.digitalIoData.state == false)
+                            {
+                                this->PCF.write(this->channels.PIN[CH], false);
+                            }
+                            break;
+
+                        default:
+                        case IO_TYPE__NOT_DEFINED:
+                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE);
+                            break;  
+                    }                    
                 }               
             }
         }   
     } 
 }
-
 e_BPLC_ERROR_t HAL_REL11::getError()
 {
-    return this->errorCode;
+    //I2C Verbindung zyklisch prüfen
+    if(!this->requestHeartbeat())
+    {
+        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED);
+    }
+    return this->getError();
 }

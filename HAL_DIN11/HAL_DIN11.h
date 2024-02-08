@@ -6,14 +6,12 @@
 //-------------------------------------------------------------
 #include "Arduino.h"
 #include "PCF8574.h"
-#include "BPLC_IOM.h"
-#include "BPLC_TYPES.h"
-#include "BPLC_ERRORS.h"
+
+#include "BPLC_ioBaseTypes.h"
 #include "BPLC_LOG.h"
 #include "I2C_check.h"
-
-
-#include "HAL_HANDLER.h"
+#include "BPLC_extensionCardManager.h"
+#include "BPLC_ERRORS.h"
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES
 //-------------------------------------------------------------
@@ -28,7 +26,7 @@ typedef enum
 
 }e_DIN11_ADDRESS_t;
 
-#define DIN11_CHANNEL__COUNT 8
+#define DIN11_CHANNEL_COUNT 8
 
 
 //-------------------------------------------------------------
@@ -51,11 +49,11 @@ class HAL_DIN11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
     //Settings
     PCF8574           PCF;
     e_DIN11_ADDRESS_t deviceAddress;
-    //IO Object handling
+
     struct
     {
-        IO_Interface* p_ioObject  [DIN11_CHANNEL__COUNT];   
-        const uint8_t PIN         [DIN11_CHANNEL__COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      
+        IO_Interface* p_ioObject  [DIN11_CHANNEL_COUNT];   
+        const uint8_t PIN         [DIN11_CHANNEL_COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      
     }channels;       
  };
 #endif

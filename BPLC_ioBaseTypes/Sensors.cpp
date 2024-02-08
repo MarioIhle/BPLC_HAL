@@ -3,7 +3,6 @@
 //RPM Sensor
 rpmSensor::rpmSensor()
 {}
-
 void rpmSensor::begin(const uint16_t PULSES_PER_REV, const uint16_t SAMPLE_TIME)
 {
 	this->pulsesPerRevolution 	= 1;
@@ -11,7 +10,6 @@ void rpmSensor::begin(const uint16_t PULSES_PER_REV, const uint16_t SAMPLE_TIME)
 	this->samples				= 0;
 	this->to_rpmCalculation.setInterval(SAMPLE_TIME);
 }
-
 uint16_t rpmSensor::getRPM()
 {
 	if(this->samples >= MAX_SAMPLES_UNTIL_CALCULATION || to_rpmCalculation.checkAndReset())
@@ -26,12 +24,10 @@ uint16_t rpmSensor::getRPM()
 	}
 	return this->rpm;
 }
-
-void rpmSensor::halCallback(const bool STATE)
+u_IO_DATA_BASE_t rpmSensor::halCallback(u_IO_DATA_BASE_t DATA)
 {
-	this->dataObject.halCallback(STATE);
-
-	if(this->dataObject.risingEdge())
+	this->dataObject.halCallback(DATA);
+	if(dataObject.risingEdge())
 	{
 		this->samples++;
 	}

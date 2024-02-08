@@ -1,46 +1,21 @@
 #include "HAL_AIN11.h"
 
-HAL_AIN11::HAL_AIN11()
+HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t I2C_ADDRESS)
 {
-    for(uint8_t CH; CH < AIN11_CHANNEL__COUNT; CH++)
-    {  
-        this->channels.state[CH] = AIN_CHANNEL__NOT_USED;
-    }   
-}
-
-void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_INTERVAL)
-{    
     this->deviceAddress = I2C_ADDRESS;
-    this->errorCode     = BPLC_ERROR__NO_ERROR;
-    this->to_read.setInterval(READ_INTERVAL);
+}
+void HAL_AIN11::setup()
+{    
+    this->setError(BPLC_ERROR__NO_ERROR);
+    this->to_read.setInterval(1000);
     
-    
-   /*
-    //Instanzen Prüfen
-
-        ---->>>> Sollte mit neuen Konzept überhaupt nicht mehr möglich sein, eine Karte wird nur definiert, wenn ein Objekt darauf gemapped wird. 
-            Es kann nur noch der Fehler aufterten, dass die Karte nicht verfügbar ist
-
-        for(uint8_t CHANNEL = 0; CHANNEL < AIN11_CHANNEL__COUNT; CHANNEL++)
-        {            
-            if(this->channels.state[CHANNEL] == AIN_CHANNEL__ANALOG)
-            {
-                //individuelle Anpassung?
-                break;
-            }
-            else if(this->channels.state[CHANNEL] == AIN_CHANNEL__NOT_USED && CHANNEL == (AIN11_CHANNEL__COUNT - 1))
-            {//letzter Port und immernoch keiner in nutzung
-                this->errorCode = AIN11_ERROR__NO_CHANNEL_IN_USE;
-            }
-        }*/
-
     //I2C Verbindung prüfen
     if(!I2C_check::begin(this->deviceAddress))
     {
-        this->errorCode = AIN11_ERROR__I2C_CONNECTION_FAILED;        
+       this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED);        
     }
     //Applikationsparameter initialisieren         
-    if(this->errorCode == BPLC_ERROR__NO_ERROR)
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
     {   
         // The ADC input range (or gain) can be changed via the following
         // functions, but be careful never to exceed VDD +0.3V max, or to
@@ -66,59 +41,67 @@ void HAL_AIN11::begin(const e_AIN11_ADDRESS_t I2C_ADDRESS, const uint16_t READ_I
         logPrint.printLog("AIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");    
     }
 }
-
-e_BPLC_ERROR_t HAL_AIN11::mapObjectToChannel(AnalogInput* P_OBJECT, const e_AIN11_CHANNEL_t CHANNEL)
+void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
 {
-    if(this->channels.state[CHANNEL] == AIN_CHANNEL__NOT_USED)
+    //Wenn Channel 1 übergeben wird, ist p_ioObject[0] gemeint 
+    CHANNEL--;
+    if(CHANNEL < 0 || CHANNEL > AIN11_CHANNEL_COUNT)
     {
-        this->channels.p_analogInputInstance[CHANNEL] = P_OBJECT;
-        this->channels.state[CHANNEL]    = AIN_CHANNEL__ANALOG;
-        P_OBJECT->setADCGain(this->adcGain);    //ADC gain für Spannungsberechnung übergeben
+        this->setError(AIN11_ERROR__CHANNEL_OUT_OF_RANGE);
     }
-    else 
+    else if(this->channels.p_ioObject[CHANNEL] != nullptr && CHANNEL == AIN11_CHANNEL_COUNT)
     {
-        this->errorCode = AIN11_ERROR__CHANNEL_ALREADY_IN_USE;
+        this->setError(AIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
     }
-    return this->errorCode;
+    else if(this->channels.p_ioObject[CHANNEL] != nullptr)
+    {
+        this->setError(AIN11_ERROR__CHANNEL_ALREADY_IN_USE);       
+    }
+    else
+    {
+        this->channels.p_ioObject[CHANNEL] = P_IO_OBJECT;
+    }
 }
-
 void HAL_AIN11::tick()
 {   
-    //I2C Verbindung zyklisch prüfen
-    if(!I2C_check::requestHeartbeat())
+    if(this->to_read.checkAndReset())
     {
-        this->errorCode = AIN11_ERROR__I2C_CONNECTION_FAILED;
-    }
-   
-  
-    if(this->errorCode == BPLC_ERROR__NO_ERROR)
-    {
-        if(this->to_read.check())
-        {
-            for(uint8_t CHANNEL = 0; CHANNEL < AIN11_CHANNEL__COUNT; CHANNEL++)
-            {            
-                if(this->channels.state[CHANNEL] == AIN_CHANNEL__ANALOG)
-                {
-                    const int16_t   RAW_ADC_VALUE = this->ADC.readADC_SingleEnded(this->channels.PIN[CHANNEL]);
-                    const float     VALUE_IN_VOLT = this->ADC.computeVolts(RAW_ADC_VALUE);
+        for(uint8_t CH = 0; CH < AIN11_CHANNEL_COUNT; CH++)
+        {            
+            if(this->channels.p_ioObject[CH] != nullptr)
+            {
+                u_IO_DATA_BASE_t tempBuffer;
 
-                    if(RAW_ADC_VALUE >= 0)
-                    {
-                        this->channels.p_analogInputInstance[CHANNEL]->halCallback(RAW_ADC_VALUE);                        
-                    }     
-                    else
-                    {
-                        this->channels.p_analogInputInstance[CHANNEL]->halCallback(0);
-                    }               
-
-                }                
-            }
-            this->to_read.reset(); 
+                switch (this->channels.p_ioObject[CH]->getIoType())
+                {                    
+                    case IO_TYPE__ANALOG_INPUT:    
+                        tempBuffer.analogIoData.value = this->ADC.readADC_SingleEnded(this->channels.PIN[CH]);
+                        if(tempBuffer.analogIoData.value >= 0)
+                        {
+                            this->channels.p_analogInputInstance[CH]->halCallback(tempBuffer.analogIoData.value);                        
+                        }     
+                        else
+                        {
+                            tempBuffer.analogIoData.value = 0;
+                            this->channels.p_analogInputInstance[CH]->halCallback(tempBuffer.analogIoData.value);
+                        }         
+                    break;
+                    
+                    default:
+                    case IO_TYPE__NOT_DEFINED:
+                        this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE);
+                    break;               
+                }
+            }       
         }
-    }
+    }    
 }
-
 e_BPLC_ERROR_t HAL_AIN11::getError()
 {
-    return this->errorCode;
+    //I2C Verbindung zyklisch prüfen
+    if(!this->requestHeartbeat())
+    {
+        this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED);
+    }
+    return this->getError();
 }

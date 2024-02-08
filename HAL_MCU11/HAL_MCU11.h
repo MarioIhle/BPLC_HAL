@@ -19,7 +19,7 @@
 #include "Arduino.h"
 #include "Wire.h"
 #include "SpecialFunctions.h"
-#include "BPLC_IOM.h"
+#include "BPLC_ioBaseTypes.h"
 #include "BPLC_LOG.h"
 
 //#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging

@@ -7,8 +7,7 @@
 #include "Arduino.h"
 #include "Wire.h"
 #include "I2C_check.h"
-#include "BPLC_IOM.h"
-#include "BPLC_TYPES.h"
+#include "BPLC_ioBaseTypes.h"
 #include "BPLC_ERRORS.h"
 #include "BPLC_LOG.h"
 

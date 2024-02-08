@@ -45,9 +45,10 @@ bool rotaryEncoder::isButtonPressed()
 }
 u_IO_DATA_BASE_t rotaryEncoder::halCallback(u_IO_DATA_BASE_t DATA)
 {
-    u_IO_DATA_BASE_t BUFFER.digitalIoData.state = DATA.rotaryEncoderData.stateA;
-    this->A.halCallback(BUFFER);
+    u_IO_DATA_BASE_t BUFFER;
     BUFFER.digitalIoData.state = DATA.rotaryEncoderData.stateA;
+    this->A.halCallback(BUFFER);
+    BUFFER.digitalIoData.state = DATA.rotaryEncoderData.stateB;
     this->B.halCallback(BUFFER);
     BUFFER.digitalIoData.state = DATA.rotaryEncoderData.statePushButton;
     this->Z.halCallback(BUFFER);
