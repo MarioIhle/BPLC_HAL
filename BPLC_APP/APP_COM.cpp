@@ -59,13 +59,13 @@ void BPLC_APP::tickNetwork()
             {
                 case MASTER_NODE_ERROR__NO_ERROR:
                     this->APP_COM.p_masterNode->tick();
-                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
+                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 2500, 2500);
                     this->APP_COM.to_communicationError.reset();
                 break;
 
                 case MASTER_NODE_ERROR__NO_SLAVE_AVAILABLE:
                     this->APP_COM.p_masterNode->tick();
-                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 100, 100);
+                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 100, 100);
                 break;
 
                 default:
@@ -80,15 +80,15 @@ void BPLC_APP::tickNetwork()
             switch(this->APP_COM.P_slaveNode->getNodeState())
             {
                 case SLAVE_NODE_STATE__NOT_AVAILABLE:
-                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 100, 100);
+                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 100, 100);
                 break;
 
                 case SLAVE_NODE_STATE__RESYNC_PORTS:
-                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 50, 50);
+                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 50, 50);
                 break;
                 
                 case SLAVE_NODE_STATE__AVAILABLE:
-                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkWithBreak(1, 2500, 2500);
+                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 2500, 2500);
                     this->APP_COM.to_communicationError.reset();
                 break;
             }

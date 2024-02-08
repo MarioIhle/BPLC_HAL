@@ -51,14 +51,14 @@ void BPLC_APP::tick()
    switch(this->APP_APP.deviceMode)
    {
       case APP_MODE__STOP:
-         this->APP_HAL.LD1_DEVICE_STATE.blinkWithBreak(1, 500, 500);      
+         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 500, 500);      
          this->APP_HAL.OEN.reset();    
       break;
 
       case APP_MODE__RUN_WITH_CONFIG_1:   
       case APP_MODE__RUN_WITH_CONFIG_2:
       case APP_MODE__RUN_WITH_CONFIG_3:               
-         this->APP_HAL.LD1_DEVICE_STATE.blinkWithBreak(1, 2500, 2500);           
+         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 2500, 2500);           
       break;
 
       case APP_MODE__START:           
@@ -67,9 +67,9 @@ void BPLC_APP::tick()
       break;
 
       case APP_MODE__SAFE_STATE:
-         this->APP_HAL.LD1_DEVICE_STATE.blinkWithBreak(1, 100, 100);     
-         this->APP_HAL.LD3_ERROR_OUT.blinkWithBreak((uint8_t)getFirstSystemErrorCode(), 500, 1500);    
-         this->APP_HAL.BUZZER.blinkWithBreak(3, 100, 30000);
+         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 100, 100);     
+         this->APP_HAL.LD3_ERROR_OUT.blinkContinious((uint8_t)getFirstSystemErrorCode(), 500, 1500);    
+         this->APP_HAL.BUZZER.blinkContinious(3, 100, 30000);
          this->APP_HAL.OEN.reset();    
       break;
 
@@ -81,7 +81,7 @@ void BPLC_APP::tick()
 
 void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
 {
-   this->APP_HAL.BUZZER.blink(BEEPS, BEEP_INTERVAL); 
+   this->APP_HAL.BUZZER.blinkOnce(BEEPS, BEEP_INTERVAL); 
 }
 
 e_APP_MODE_t BPLC_APP::getDeviceMode()

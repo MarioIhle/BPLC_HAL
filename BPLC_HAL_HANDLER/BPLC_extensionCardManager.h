@@ -1,5 +1,5 @@
-#ifndef BPLC_EXTENSION_CARD_HANDLER_h
-#define BPLC_EXTENSION_CARD_HANDLER_h
+#ifndef BPLC_extensionCardManager_h
+#define BPLC_extensionCardManager_h
 
 #include "Arduino.h"
 #include "BPLC_CARDS.h"

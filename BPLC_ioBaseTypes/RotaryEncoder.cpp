@@ -1,4 +1,4 @@
-#include "BPLC_IOM.h"
+#include "BPLC_ioBaseTypes.h"
 
 //--------------------------------------------------------------------
 //ROTARY ENCODER
@@ -6,12 +6,10 @@ rotaryEncoder::rotaryEncoder()
 {
     this->f_invertedDirection = false;
 }
-
 void rotaryEncoder::invertTurningDirection()
 {
     this->f_invertedDirection = true;
 }   
-
 e_movement_t rotaryEncoder::getTurningDirection()
 {
     e_movement_t direction = movement_idle;    
@@ -41,15 +39,17 @@ e_movement_t rotaryEncoder::getTurningDirection()
 
     return direction;
 }
-
 bool rotaryEncoder::isButtonPressed()
 {
     return this->Z.risingEdge();
 }
-
-void rotaryEncoder::halCallback(const bool STATE_A, const bool STATE_B, const bool STATE_Z)
+u_IO_DATA_BASE_t rotaryEncoder::halCallback(u_IO_DATA_BASE_t DATA)
 {
-    this->A.halCallback(STATE_A);
-    this->B.halCallback(STATE_B);
-    this->Z.halCallback(STATE_Z);
+    u_IO_DATA_BASE_t BUFFER.digitalIoData.state = DATA.rotaryEncoderData.stateA;
+    this->A.halCallback(BUFFER);
+    BUFFER.digitalIoData.state = DATA.rotaryEncoderData.stateA;
+    this->B.halCallback(BUFFER);
+    BUFFER.digitalIoData.state = DATA.rotaryEncoderData.statePushButton;
+    this->Z.halCallback(BUFFER);
+    return DATA;
 }

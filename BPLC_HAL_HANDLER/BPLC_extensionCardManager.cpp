@@ -1,4 +1,4 @@
-#include "BPLC_EXTENSION_CARD_HANDLER.h"
+#include "BPLC_extensionCardManager.h"
 
 BPLC_extensionCardHandler::BPLC_extensionCardHandler()
 {}

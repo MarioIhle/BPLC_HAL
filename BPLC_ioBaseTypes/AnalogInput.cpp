@@ -1,4 +1,4 @@
-#include "BPLC_IOM.h"
+#include "BPLC_ioBaseTypes.h"
 
 AnalogInput::AnalogInput(const float MAX_VOLTAGE)
 {

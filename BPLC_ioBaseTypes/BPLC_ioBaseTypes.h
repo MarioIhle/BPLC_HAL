@@ -27,24 +27,31 @@ typedef union
     struct         
     {
         bool state;
-    }digitalInputParameter;
+    }digitalIoData;
 
     struct         
     {
         uint32_t value;
-    }analogInputParameter;
+    }analogIoData;
 
     struct         
     {
         uint8_t         speed;
         e_movement_t    direction;
         float           current;
-    }dcDriveParameter;    
+    }dcDriveData;    
 
     struct         
     {
         float temperatur;
-    }tempSensParameter;    
+    }tempSensData;    
+
+    struct         
+    {
+        bool stateA;
+        bool stateB;
+        bool statePushButton;
+    }rotaryEncoderData;
     
 }u_IO_DATA_BASE_t;
 
@@ -54,6 +61,10 @@ typedef enum
     IO_TYPE__NOT_DEFINED,
     IO_TYPE__DIGITAL_INPUT,
     IO_TYPE__RPM_SENS,
+    IO_TYPE__OUTPUT_PULL,               //0= float, 1= GND
+	IO_TYPE__OUTPUT_PUSH,               //0= float, 1=VCC    
+	IO_TYPE__OUTPUT_PUSH_PULL,          //0= GND,   1=VCC  
+    IO_TYPE__OUTPUT_PUSH_PULL_INVERT,   //0= VCC,   1=GND inverteriter Ausgang, benötigt für H-Brücke mit DO11
 
     IO_TYPE__COUNT,
 }e_IO_TYPE_t;
@@ -66,8 +77,9 @@ typedef enum
 class IO_Interface
 {
     public:
-    virtual e_IO_TYPE_t          getIoType      () = 0; 
-    virtual u_IO_DATA_BASE_t     halCallback    (u_IO_DATA_BASE_t DATA) = 0;
+    virtual e_IO_TYPE_t         getIoType           () = 0; 
+    virtual bool                newDataAvailable    () = 0;
+    virtual u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t DATA) = 0;
 };
 
 
@@ -78,15 +90,16 @@ class digitalInput: public IO_Interface
 {
     public:
     //setup
-                        digitalInput(){this->ioType = IO_TYPE__DIGITAL_INPUT; this->state = false; this->previousState = false;}
+                        digitalInput    (){this->ioType = IO_TYPE__DIGITAL_INPUT; this->state = false; this->previousState = false;}
     //Applikation
-    bool 	            ishigh      (){return (bool)(this->state == true && this->previousState == true);}
-    bool	            islow       (){return (bool)(this->state == false && this->previousState == false);}
-	bool 	            risingEdge  (){return (bool)(this->state == true && this->previousState == false);}	
-	bool 	            fallingEdge (){return (bool)(this->state == false && this->previousState == true);}	
+    bool 	            ishigh          (){return (bool)(this->state == true && this->previousState == true);}
+    bool	            islow           (){return (bool)(this->state == false && this->previousState == false);}
+	bool 	            risingEdge      (){return (bool)(this->state == true && this->previousState == false);}	
+	bool 	            fallingEdge     (){return (bool)(this->state == false && this->previousState == true);}	
     //Hal handling
-    e_IO_TYPE_t         getIoType   (){return this->ioType;}
-    u_IO_DATA_BASE_t    halCallback (u_IO_DATA_BASE_t DATA){this->previousState = this->state; this->state = DATA.digitalInputParameter.state;}
+    e_IO_TYPE_t         getIoType       (){return this->ioType;}
+    bool                newDataAvailable(){};
+    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t DATA){this->previousState = this->state; this->state = DATA.digitalIoData.state;}
     
 
     private:
@@ -113,7 +126,8 @@ class AnalogInput: public IO_Interface
 
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
-    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t DATA){this->value = DATA.analogInputParameter.value;}
+    bool                newDataAvailable(){};
+    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t DATA){this->value = DATA.analogIoData.value;}
 
 
     private:
@@ -132,8 +146,8 @@ typedef enum
 	OUTPUTMODE__OFF,
 	OUTPUTMODE__ON, 
     OUTPUTMODE__VALUE,
-	OUTPUTMODE__BLINK,
-    OUTPUTMODE__BLINK_WITH_BREAK,
+	OUTPUTMODE__BLINK_ONCE,
+    OUTPUTMODE__BLINK_CONTINIOUS,
 
 	OUTPUTMODE__SIZE,
 }e_outputMode_t;
@@ -149,48 +163,34 @@ typedef enum
 }e_outputType_t;
 
 
-class Output: public IO_Interface
+class Output: public IO_Interface, blink
  {
 	public:
-	                    Output          (); 
-                        Output          (const e_outputType_t OUTPUT_TYPE);
-	                    Output          (const uint8_t ON_VALUE);		
-                        Output          (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE);
-    
-    void                begin           (const uint8_t ON_VALUE);
-	void                begin           (const e_outputType_t OUTPUT_TYPE, const uint8_t ON_VALUE = 255);    
-    //Setter
-	void                blink		    (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL);		                            //Blinkt für angeforderte Anzahl und Interval
-    void                blinkWithBreak  (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL, const unsigned long BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
-	void                set			    ();		//Output ON
-	void                reset		    ();		//Output OFF
-    void                setState        (const bool STATE);     //Über Parameter ON/OFF
-    void                setValue        (const uint8_t VALUE);  //Über Parameter 0-255
+    //Setup
+                        Output          (const e_outputType_t OUTPUT_TYPE = OUTPUTTYPE__PUSH, const uint8_t ON_VALUE = 255);    
     void                setOnValue      (const uint8_t VALUE);
-
+    //Applikation Handling
+	void                blinkOnce		 (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL);		                        //Blinkt für angeforderte Anzahl und Interval
+    void                blinkContinious (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL, const unsigned long BREAK_TIME); //Blinkt dauerhaft mit optinaler Pause
+	void                set			    ();		                //Output ON
+	void                reset		    ();		                //Output OFF
+    void                setState        (const bool STATE);     //ON/OFF
+    void                setValue        (const uint8_t VALUE);  //0-255
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
-    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t DATA){this->value = DATA.analogInputParameter.value;}
+    bool                newDataAvailable();
+    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t DATA){this->value = DATA.analogIoData.value;}
+
 
 	private: 
-    void tick  ();		//Wird von jeweiliger Hal getickt, bevor neue Portstate abgeholt wird
-
     e_outputMode_t	    mode;           //Aktueller Modus
     uint8_t             value;  	    //Aktueller Wert
+    bool                f_newDataAvailable;
 
     struct //Hauptsächlich für verarbeitende HAL interessant
     {
-        e_outputType_t  outputType;     //open drain, open source, push pull
         uint8_t         onValue;	    //Welcher Wert wird geschieben bei object.set():
     }setting;    
-    
-    struct 
-    {
-        uint8_t         blinks_requested;	//Angefragte Blinks
-	    uint8_t         count;      		//Counter der blinks 	    
-        Timeout         to_blink;			//Timeout für Blink Interval
-        Timeout         to_break;           //Timeout für Pausen interval
-    }blinkParameter;	
 };
 
 
@@ -201,43 +201,27 @@ class Output: public IO_Interface
 //--------------------------------------------------------------------
 //ROTARY ENCODER KLASSE
 //--------------------------------------------------------------------
-class rotaryEncoder  
+class rotaryEncoder:public IO_Interface
 {
 	public:
                         rotaryEncoder           ();
     void                invertTurningDirection  ();
     e_movement_t        getTurningDirection     ();
     bool                isButtonPressed         ();
-    void                halCallback             (const bool STATE_A, const bool STATE_B, const bool STATE_Z);
+
+    //Hal handling
+    e_IO_TYPE_t         getIoType   (){return this->ioType;}
+    bool                newDataAvailable(){};
+    u_IO_DATA_BASE_t    halCallback (u_IO_DATA_BASE_t DATA);
     
 
     private: 
-
+    e_IO_TYPE_t     ioType;
     bool            f_invertedDirection;
     digitalInput    A;
     digitalInput    B; 
     digitalInput    Z;   	   
 };
-
-//--------------------------------------------------------------------
-//PLATIN TEMPERTUR SENSOR KLASSE
-//--------------------------------------------------------------------
-class PT10x: 
-{
-    public:
-    PT10x();
-
-    void begin(AnalogInput* P_PORT_1, AnalogInput* P_PORT_2,  AnalogInput* P_PORT_VCC);
-
-    float getTemperatur   ();
-
-    private:   
-    AnalogInput* p_PORT_1;
-    AnalogInput* p_PORT_2;
-    AnalogInput* p_PORT_VCC;
-};
-
-
 //--------------------------------------------------------------------
 //dcDrive KLASSE
 //-------------------------------------------------------------------- 
@@ -292,16 +276,6 @@ class dcDrive: public IO_Interface
       }old;    
     }motParams;
 };
-
-//--------------------------------------------------------------------
-//SOFTWARE H-BRÜCKE KLASSE
-//-------------------------------------------------------------------- 
-class Software_H_Bridge: public IO_Interface
-{
-    public:
-    Software_H_Bridge();
-};
-
 //--------------------------------------------------------------------
 //RPM Sensor
 //-------------------------------------------------------------------- 
@@ -317,9 +291,12 @@ class rpmSensor: public IO_Interface
     
     //Hal handling
     e_IO_TYPE_t         getIoType   (){return this->ioType;}
-    u_IO_DATA_BASE_t    halCallback (u_IO_DATA_BASE_t DATA){this->previousState = this->state; this->state = DATA.digitalInputParameter.state;}
+    bool                newDataAvailable(){};
+    u_IO_DATA_BASE_t    halCallback (u_IO_DATA_BASE_t DATA){this->previousState = this->state; this->state = DATA.digitalIoData.state;}
 
-    private:      
+    private:     
+    e_IO_TYPE_t     ioType;
+
     digitalInput    dataObject;
     unsigned long   startTime;
     uint32_t        samples;
@@ -328,25 +305,25 @@ class rpmSensor: public IO_Interface
 
     Timeout         to_rpmCalculation;
 };
-
-
 //--------------------------------------------------------------------
 //Servo
-//-------------------------------------------------------------------- 
-
 class servoMotor: public IO_Interface
 {
     public:
-                    servoMotor          ();
-    void            begin               (const uint16_t MIN = 0, const uint16_t MAX = 180);
-    void            setServoPosition    (const uint16_t POSITION);
-    u_IO_DATA_BASE_t   halCallback         ();
-    bool            isThereANewPortValue();
+                        servoMotor          ();
+    void                begin               (const uint16_t MIN = 0, const uint16_t MAX = 180);
+    void                setServoPosition    (const uint16_t POSITION);
+    //Hal handling
+    e_IO_TYPE_t         getIoType           (){return this->ioType;}
+    bool                newDataAvailable    (){return this->f_newPositionAvailable;}
+    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t DATA);
+
 
     private:    
-    Timeout         to_ServoPwm;
-    uint16_t        minAngle;
-    uint16_t        maxAngle;
-    u_IO_DATA_BASE_t   pwmValue;
+    e_IO_TYPE_t         ioType;
+    uint16_t            minAngle;
+    uint16_t            maxAngle;
+    uint8_t             pwmValue;
+    bool                f_newPositionAvailable;
 };
 #endif
