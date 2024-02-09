@@ -24,11 +24,12 @@ uint16_t rpmSensor::getRPM()
 	}
 	return this->rpm;
 }
-u_IO_DATA_BASE_t rpmSensor::halCallback(u_IO_DATA_BASE_t DATA)
+u_IO_DATA_BASE_t rpmSensor::halCallback(u_IO_DATA_BASE_t* P_DATA)
 {
-	this->dataObject.halCallback(DATA);
+	this->dataObject.halCallback(P_DATA);
 	if(dataObject.risingEdge())
 	{
 		this->samples++;
 	}
+	return *P_DATA;
 }

@@ -3,7 +3,9 @@
 //--------------------------------------------------------------------
 //dcDrive
 dcDrive::dcDrive()
-{}
+{
+	this->ioType = IO_TYPE__DC_DRIVE;
+}
 void dcDrive::stop()
 {
 	//Bei Stopp letzte Parameter merken 
@@ -31,13 +33,19 @@ void dcDrive::start()
 }
 void dcDrive::setSpeed(const uint8_t SPEED)
 {   
-    this->motParams.speed     	  = SPEED;   
-	f_thereAreNewDriveParametersAvailable = true;
+    if(this->motParams.speed != SPEED)
+	{
+		this->motParams.speed = SPEED;
+		f_thereAreNewDriveParametersAvailable = true; 
+	}	
 }
 void dcDrive::setDirection(const e_movement_t DIRECTION)
 {
-    this->motParams.direction     = DIRECTION; 
-	f_thereAreNewDriveParametersAvailable = true;    
+	if(this->motParams.direction != DIRECTION)
+	{
+		this->motParams.direction = DIRECTION;
+		f_thereAreNewDriveParametersAvailable = true; 
+	}	   
 }
 void dcDrive::setDirectionAndSpeed(const e_movement_t DIRECTION, const uint8_t SPEED)
 {
@@ -61,16 +69,16 @@ e_DRIVE_STATE_t dcDrive::getDriveState()
 {
 	return this->driveState;
 }
-void dcDrive::setCurrent(const float CURRENT)
-{
-	this->motParams.current = CURRENT;
-}
-bool dcDrive::newDriveParameterAvailable()
-{
-	const bool newDriveParameterAvailable 		= this->f_thereAreNewDriveParametersAvailable;
+u_IO_DATA_BASE_t dcDrive::halCallback(u_IO_DATA_BASE_t* P_DATA)
+{	 
+	this->motParams.current  		= P_DATA->dcDriveData.current;
+	u_IO_DATA_BASE_t BUFFER;
+	BUFFER.dcDriveData.direction 	= this->motParams.direction;
+	BUFFER.dcDriveData.speed 		= this->motParams.speed;     
 	this->f_thereAreNewDriveParametersAvailable = false;
-	return newDriveParameterAvailable;
+	return BUFFER; 
 }
+
 //--------------------------------------------------------------------
 //Servo Motor
 servoMotor::servoMotor()
@@ -88,11 +96,11 @@ void servoMotor::setServoPosition(const uint16_t POSITION)
     this->pwmValue = map(POSITION, 180, 0, 136, 363);
 	this->f_newPositionAvailable = true;
 }
-u_IO_DATA_BASE_t servoMotor::halCallback(u_IO_DATA_BASE_t DATA)
+u_IO_DATA_BASE_t servoMotor::halCallback(u_IO_DATA_BASE_t* P_DATA)
 {
 	u_IO_DATA_BASE_t BUFFER;
-	BUFFER.analogIoData.value = this->pwmValue;
-	this->f_newPositionAvailable = false;
+	BUFFER.analogIoData.value 		= this->pwmValue;
+	this->f_newPositionAvailable 	= false;
 		
 	return BUFFER;
 }

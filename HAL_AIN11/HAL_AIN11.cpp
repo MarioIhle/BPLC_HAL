@@ -33,33 +33,33 @@ void HAL_AIN11::setup()
         this->ADC.setGain(this->adcGain);
         this->ADC.begin(this->deviceAddress);
         BPLC_LOG logPrint;
-        logPrint.printLog("AIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");      
+        logPrint.printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");      
     }    
     else
     {
         BPLC_LOG logPrint;
-        logPrint.printLog("AIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");    
+        logPrint.printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");    
     }
 }
 void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
 {
-    //Wenn Channel 1 übergeben wird, ist p_ioObject[0] gemeint 
-    CHANNEL--;
-    if(CHANNEL < 0 || CHANNEL > AIN11_CHANNEL_COUNT)
+    const uint8_t OBJECT_INSTANCE = CHANNEL - 1;
+
+    if(CHANNEL < 1 || CHANNEL > AIN11_CHANNEL_COUNT)
     {
         this->setError(AIN11_ERROR__CHANNEL_OUT_OF_RANGE);
     }
-    else if(this->channels.p_ioObject[CHANNEL] != nullptr && CHANNEL == AIN11_CHANNEL_COUNT)
+    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == AIN11_CHANNEL_COUNT)
     {
         this->setError(AIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
     }
-    else if(this->channels.p_ioObject[CHANNEL] != nullptr)
+    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
     {
         this->setError(AIN11_ERROR__CHANNEL_ALREADY_IN_USE);       
     }
     else
     {
-        this->channels.p_ioObject[CHANNEL] = P_IO_OBJECT;
+        this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
     }
 }
 void HAL_AIN11::tick()
@@ -78,12 +78,12 @@ void HAL_AIN11::tick()
                         tempBuffer.analogIoData.value = this->ADC.readADC_SingleEnded(this->channels.PIN[CH]);
                         if(tempBuffer.analogIoData.value >= 0)
                         {
-                            this->channels.p_analogInputInstance[CH]->halCallback(tempBuffer.analogIoData.value);                        
+                            this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                        
                         }     
                         else
                         {
                             tempBuffer.analogIoData.value = 0;
-                            this->channels.p_analogInputInstance[CH]->halCallback(tempBuffer.analogIoData.value);
+                            this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
                         }         
                     break;
                     

@@ -18,32 +18,32 @@ void HAL_REL11::setup()
         this->PCF.setAddress(this->deviceAddress);      
         this->PCF.begin();                              
         this->PCF.write8(false);                         
-        this->printLog("REL11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");       
+        this->printLog("REL11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");       
     }
     else
     {
-        this->printLog("REL11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");    
+        this->printLog("REL11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");    
     }  
 }   
 void HAL_REL11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
 {
-    //Wenn Channel 1 übergeben wird, ist p_ioObject[0] gemeint 
-    CHANNEL--;
-    if(CHANNEL < 0 || CHANNEL > REL11_CHANNEL_COUNT)
+    const uint8_t OBJECT_INSTANCE = CHANNEL - 1;
+
+    if(CHANNEL < 1 || CHANNEL > REL11_CHANNEL_COUNT)
     {
         this->setError(REL11_ERROR__CHANNEL_OUT_OF_RANGE);
     }
-    else if(this->channels.p_ioObject[CHANNEL] != nullptr && CHANNEL == REL11_CHANNEL_COUNT)
+    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == REL11_CHANNEL_COUNT)
     {
         this->setError(REL11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
     }
-    else if(this->channels.p_ioObject[CHANNEL] != nullptr)
+    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
     {
         this->setError(REL11_ERROR__CHANNEL_ALREADY_IN_USE);       
     }
     else
     {
-        this->channels.p_ioObject[CHANNEL] = P_IO_OBJECT;        
+        this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;        
     }
 }
 void HAL_REL11::tick()
@@ -54,7 +54,7 @@ void HAL_REL11::tick()
         {
             if(this->channels.p_ioObject[CH] != nullptr)
             {
-                if(this->channels.p_ioObject[CH]->isThereANewPortValue())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
+                if(this->channels.p_ioObject[CH]->newDataAvailable())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
                 {
                     u_IO_DATA_BASE_t tempBuffer;                
 

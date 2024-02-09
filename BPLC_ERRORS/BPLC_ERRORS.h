@@ -69,8 +69,6 @@ typedef enum
     MOT11_ERROR__OVER_TEMPERATURE,   
     MOT11_ERROR__CURRENT_NOT_TEACHED, 
     MOT11_ERROR__OEN_DISABLED,
-    MOT11_ERROR__CHANNEL_ALREADY_IN_USE,
-    MOT11_ERROR__ALL_CHANNELS_ALREADY_IN_USE,
 
     BPLC_ERROR__COUNT,
 }e_BPLC_ERROR_t;
@@ -78,7 +76,7 @@ typedef enum
 class BPLC_errorHandler
 {
     public:
-    e_MASTER_NODE_ERROR_t getError(){return this->errorCode;}
+    e_BPLC_ERROR_t getError(){return this->errorCode;}
     
     void setError(const e_BPLC_ERROR_t ERROR_CODE)
     {
@@ -98,7 +96,7 @@ class BPLC_errorHandler
     }
 
     private:
-    e_BPLC_ERROR_t errorCode
+    e_BPLC_ERROR_t errorCode;
 };
 
 class ERROR_OUT
@@ -172,13 +170,11 @@ class ERROR_OUT
         {"MOT11_ERROR__OVER_TEMPERATURE"},   
         {"MOT11_ERROR__CURRENT_NOT_TEACHED"}, 
         {"MOT11_ERROR__OEN_DISABLED"},
-        {"MOT11_ERROR__CHANNEL_ALREADY_IN_USE"},
-        {"MOT11_ERROR__ALL_CHANNELS_ALREADY_IN_USE"},
     };
 
     String getErrorCodeText(const e_BPLC_ERROR_t ERROR_CODE)
     {      
-        if(BPLC_ERROR__COUNT != 58)
+        if(BPLC_ERROR__COUNT != 56)
         {
             return("BPLC_ERROR__ERROR_TEXTS_NEED_UPDATE!");
         }

@@ -17,7 +17,7 @@
 #include "Arduino.h"
 
 //Lib includes
-#include "BPLC_IOM.h"
+#include "BPLC_ioBaseTypes.h"
 #include "BPLC_LOG.h"
 #include "SpecialFunctions.h"
 #include <Wire.h>

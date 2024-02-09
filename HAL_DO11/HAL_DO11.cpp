@@ -21,32 +21,32 @@ void HAL_DO11::setup()
         PCA.init();
         PCA.setPWMFrequency(200);   //Falls Servos verwendet werden, wird automatisch PWM freuenz auf 25Hz gesenkt!
         PCA.setAllChannelsPWM(0);
-        this->printLog("DO11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");      
+        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");      
     }    
     else
     {
-        this->printLog("DO11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");    
+        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");    
     }
 }
 void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
 {
-    //Wenn Channel 1 übergeben wird, ist p_ioObject[0] gemeint 
-    CHANNEL--;
-    if(CHANNEL < 0 || CHANNEL > DO11_CHANNEL_COUNT)
+    const uint8_t OBJECT_INSTANCE = CHANNEL - 1;
+
+    if(CHANNEL < 1 || CHANNEL > DO11_CHANNEL_COUNT)
     {
         this->setError(DIN11_ERROR__CHANNEL_OUT_OF_RANGE);
     }
-    else if(this->channels.p_ioObject[CHANNEL] != nullptr && CHANNEL == DO11_CHANNEL_COUNT)
+    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == DO11_CHANNEL_COUNT)
     {
         this->setError(DIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
     }
-    else if(this->channels.p_ioObject[CHANNEL] != nullptr)
+    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
     {
         this->setError(DIN11_ERROR__CHANNEL_ALREADY_IN_USE);       
     }
     else
     {
-        this->channels.p_ioObject[CHANNEL] = P_IO_OBJECT;
+        this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
         //Bei Servos, die PWM Frequenz senken
         if(P_IO_OBJECT->getIoType() == IO_TYPE__SERVO)
         {
@@ -60,10 +60,10 @@ void HAL_DO11::tick()
     {       
         if(this->channels.p_ioObject[CH] != nullptr)
         {
-            if(this->channels.p_ioObject[CH].newDataAvailable())
+            if(this->channels.p_ioObject[CH]->newDataAvailable())
             {
                 //PWM von 0-255 laden und umrechnen
-                const uint16_t TARGET_PWM_VALUE = map(this->channels.p_ioObject[CH]->halCallback().analogIoData.value, 0, 255, 0, 4095);
+                uint16_t TARGET_PWM_VALUE = map(this->channels.p_ioObject[CH]->halCallback().analogIoData.value, 0, 255, 0, 4095);
             
                 switch (this->channels.p_ioObject[CH]->getIoType())
                 {                    
@@ -130,7 +130,8 @@ void HAL_DO11::tick()
                         break;
 
                     case IO_TYPE__SERVO:
-                        uint16_t TARGET_PWM_VALUE = this->channels.p_servoInstance[CH]->halCallback().value;
+                        //Direkt 16bit wert von Servo Klasse berechent
+                        TARGET_PWM_VALUE = this->channels.p_ioObject[CH]->halCallback().analogIoData.value;
                         //Um überschneidung bei umschalten der PWM zu vermeiden, sonst FETS = rauch :C
                         PCA.setChannelOff(this->channels.PIN[CH][HS_MOSFET]); //Spannungsführend zuerst aus
                         PCA.setChannelOff(this->channels.PIN[CH][LS_MOSFET]);                                       

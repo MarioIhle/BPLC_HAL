@@ -4,7 +4,8 @@
 //ROTARY ENCODER
 rotaryEncoder::rotaryEncoder()
 {
-    this->f_invertedDirection = false;
+    this->f_invertedDirection   = false;
+    this->ioType                = IO_TYPE__DC_DRIVE; 
 }
 void rotaryEncoder::invertTurningDirection()
 {
@@ -43,14 +44,14 @@ bool rotaryEncoder::isButtonPressed()
 {
     return this->Z.risingEdge();
 }
-u_IO_DATA_BASE_t rotaryEncoder::halCallback(u_IO_DATA_BASE_t DATA)
+u_IO_DATA_BASE_t rotaryEncoder::halCallback(u_IO_DATA_BASE_t* P_DATA)
 {
     u_IO_DATA_BASE_t BUFFER;
-    BUFFER.digitalIoData.state = DATA.rotaryEncoderData.stateA;
-    this->A.halCallback(BUFFER);
-    BUFFER.digitalIoData.state = DATA.rotaryEncoderData.stateB;
-    this->B.halCallback(BUFFER);
-    BUFFER.digitalIoData.state = DATA.rotaryEncoderData.statePushButton;
-    this->Z.halCallback(BUFFER);
-    return DATA;
+    BUFFER.digitalIoData.state = P_DATA->rotaryEncoderData.stateA;
+    this->A.halCallback(&BUFFER);
+    BUFFER.digitalIoData.state = P_DATA->rotaryEncoderData.stateB;
+    this->B.halCallback(&BUFFER);
+    BUFFER.digitalIoData.state = P_DATA->rotaryEncoderData.statePushButton;
+    this->Z.halCallback(&BUFFER);
+    return BUFFER;
 }

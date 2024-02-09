@@ -152,7 +152,7 @@ void BPLC_APP::displaySettings()
       } 
       else
       {
-         this->APP_HAL.MOT11_CARD[MOT11_CARD__1].startCurrentAutotuning();
+         //this->APP_HAL.MOT11_CARD[MOT11_CARD__1].startCurrentAutotuning();
       }
    }
 

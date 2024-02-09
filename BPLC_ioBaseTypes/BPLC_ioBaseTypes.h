@@ -69,6 +69,7 @@ typedef enum
 	IO_TYPE__OUTPUT_PUSH_PULL,          //0= GND,   1=VCC  
     IO_TYPE__OUTPUT_PUSH_PULL_INVERT,   //0= VCC,   1=GND inverteriter Ausgang, benötigt für H-Brücke mit DO11
     IO_TYPE__SERVO,
+    IO_TYPE__DC_DRIVE,
 
     IO_TYPE__COUNT,
 }e_IO_TYPE_t;
@@ -83,7 +84,7 @@ class IO_Interface
     public:
     virtual e_IO_TYPE_t         getIoType           () = 0; 
     virtual bool                newDataAvailable    () = 0;
-    virtual u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t DATA) = 0;
+    virtual u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* DATA = nullptr) = 0;
 };
 
 
@@ -103,7 +104,7 @@ class digitalInput: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable(){return false;}
-    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t DATA){this->previousState = this->state; this->state = DATA.digitalIoData.state;}
+    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA){this->previousState = this->state; this->state = P_DATA->digitalIoData.state; return *P_DATA;}
     
 
     private:
@@ -130,8 +131,8 @@ class AnalogInput: public IO_Interface
 
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
-    bool                newDataAvailable(){};
-    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t DATA){this->value = DATA.analogIoData.value;}
+    bool                newDataAvailable    (){return false;}
+    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA){this->value = P_DATA->analogIoData.value; return *P_DATA;}
 
 
     private:
@@ -174,7 +175,7 @@ class Output: public IO_Interface, blink
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable();
-    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t DATA){this->value = DATA.analogIoData.value;}
+    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA);
 
 
 	private: 
@@ -206,9 +207,9 @@ class rotaryEncoder:public IO_Interface
     bool                isButtonPressed         ();
 
     //Hal handling
-    e_IO_TYPE_t         getIoType   (){return this->ioType;}
-    bool                newDataAvailable(){};
-    u_IO_DATA_BASE_t    halCallback (u_IO_DATA_BASE_t DATA);
+    e_IO_TYPE_t         getIoType       (){return this->ioType;}
+    bool                newDataAvailable(){return false;}
+    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA = nullptr);
     
 
     private: 
@@ -252,12 +253,15 @@ class dcDrive: public IO_Interface
     e_DRIVE_STATE_t getDriveState();
 
     //Für Hal
-    void setCurrent(const float CURRENT);
-    bool newDriveParameterAvailable();
+    //Hal handling
+    e_IO_TYPE_t         getIoType           (){return this->ioType;}
+    bool                newDataAvailable    (){return this->f_thereAreNewDriveParametersAvailable;}
+    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA = nullptr);
 
     private:
     e_DRIVE_STATE_t driveState; 
     bool            f_thereAreNewDriveParametersAvailable;
+    e_IO_TYPE_t     ioType;
     //Motor Parameter
     struct 
     {
@@ -287,8 +291,8 @@ class rpmSensor: public IO_Interface
     
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
-    bool                newDataAvailable    (){};
-    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t DATA);
+    bool                newDataAvailable    (){return false;}
+    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA = nullptr);
 
     private:     
     e_IO_TYPE_t     ioType;
@@ -312,14 +316,14 @@ class servoMotor: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
     bool                newDataAvailable    (){return this->f_newPositionAvailable;}
-    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t DATA);
+    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA = nullptr);
 
 
     private:    
     e_IO_TYPE_t         ioType;
     uint16_t            minAngle;
     uint16_t            maxAngle;
-    uint8_t             pwmValue;
+    uint16_t            pwmValue;
     bool                f_newPositionAvailable;
 };
 #endif

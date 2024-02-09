@@ -7,7 +7,7 @@
 #include "Arduino.h"
 #include "PCF8574.h"
 
-#include "BPLC_extensionCardManager.h"
+#include "HAL_interface.h"
 #include "BPLC_ioBaseTypes.h"
 #include "BPLC_ERRORS.h"
 #include "BPLC_LOG.h"
@@ -34,7 +34,7 @@ class HAL_REL11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:    
     //Hal Interface
-                    HAL_REL11           (const e_DIN11_ADDRESS_t I2C_ADDRESS);
+                    HAL_REL11           (const e_REL11_ADDRESS_t I2C_ADDRESS);
     void            setup               ();
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        

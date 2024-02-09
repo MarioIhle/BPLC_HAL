@@ -2,9 +2,9 @@
 
 //--------------------------------------------------------------------
 //OUTPUT
-Output::Output(const e_IO_TYPE_t OUTPUT_TYPE = IO_TYPE__OUTPUT_PUSH, const uint8_t ON_VALUE = 255) 
+Output::Output(const e_IO_TYPE_t OUTPUT_TYPE, const uint8_t ON_VALUE) 
 {
-	this->setting.outputType 	= OUTPUT_TYPE;
+	this->ioType 				= OUTPUT_TYPE;
 	this->setting.onValue 		= ON_VALUE;
     this->mode 					= OUTPUTMODE__OFF;
 }
@@ -45,7 +45,7 @@ void Output::setValue(const uint8_t VALUE)
 {
 	if(this->value != VALUE)
 	{
-		this->actualValue.value 	= VALUE;
+		this->value 				= VALUE;
 		this->mode 					= OUTPUTMODE__VALUE;
 		this->f_newDataAvailable 	= true;
 	}	
@@ -62,6 +62,12 @@ void Output::blinkContinious(const uint8_t BLINKS, const unsigned long BLINK_INT
     this->mode = OUTPUTMODE__BLINK_CONTINIOUS;
 }
 //Hal Handling
+u_IO_DATA_BASE_t Output::halCallback(u_IO_DATA_BASE_t* P_DATA)
+{
+	u_IO_DATA_BASE_t tempBuffer;
+	tempBuffer.analogIoData.value = this->value;
+	return tempBuffer;
+}
 bool Output::newDataAvailable()
 {
 	switch(this->mode)

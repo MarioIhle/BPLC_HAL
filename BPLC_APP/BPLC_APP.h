@@ -17,7 +17,7 @@
 #include "BPLC_ERRORS.h"
 #include "BPLC_LOG.h"
 //Hardware
-#include "BPLC_extensionCardManager.h"
+#include "BPLC_ecManager.h"
 #include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
 //Network
@@ -68,11 +68,10 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
             BPLC_APP                ();
     void    begin                   (const e_MCU_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS = 0);      
     void    invertEncoder           ();
-    void    addExtensionCard        (const e_EXTENSION_CARD_TYPE_t CARD_TYPE, const uint8_t CARD_COUNT);
     //Network
     void    mapPortToNetwork        (portInterface_APP* P_PORT);
 
-    void    mapExtensionCardChannel (IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL);
+    void    mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL);
 
     //Rountine aufruf
     void    tick                    ();    
@@ -144,13 +143,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     void setupHardware();
     void tickHardware();
     void handleMCUCard();
-    void handleDIN11Cards();
-    void handleDO11Cards();
-    void handleAIN11Cards();
-    void handleMOT11Cards();
-    void handleREL11Cards(); 
-      
-
+     
     struct 
     {
         //Hal objecte zu allen möglichen Erweiterungskarten
@@ -165,7 +158,6 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         Output          LD3_ERROR_OUT;   
         Output          OEN;   
         uint8_t         INT_count;
-
         
         struct
         {

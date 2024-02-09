@@ -65,12 +65,12 @@ class HAL_MCU11_revA
 
 
     private:   
-    rotaryEncoder*   p_encoder;
-    Output*          p_buzzer;
-    Output*          p_ld1;
-    Output*          p_ld2;
-    Output*          p_ld3;   
-    Output*          p_oen;             
+    IO_Interface*   p_encoder;
+    IO_Interface*   p_buzzer;
+    IO_Interface*   p_ld1;
+    IO_Interface*   p_ld2;
+    IO_Interface*   p_ld3;   
+    IO_Interface*   p_oen;             
 
     //Serial Baudrate
     struct 
@@ -83,24 +83,24 @@ class HAL_MCU11_revA
     //Pinsdefinition
     struct 
     {        
-        const uint8_t encoder_A = 39;
-        const uint8_t encoder_B = 36;
-        const uint8_t encoder_Z = 34;  
-        const uint8_t ld1       = 27;
-        const uint8_t ld2       = 26;
-        const uint8_t ld3       = 25;
+        const uint8_t ENCODER_A = 39;
+        const uint8_t ENCODER_B = 36;
+        const uint8_t ENCODER_BUTTON = 34;  
+        const uint8_t LD1       = 27;
+        const uint8_t LD2       = 26;
+        const uint8_t LD3       = 25;
         #ifdef DEBUGGING_MCU11_revA
-        const uint8_t p_oen       = 25;
+        const uint8_t OEN       = 25;
         #endif
         #ifndef DEBUGGING_MCU11_revA
-        const uint8_t p_oen       = 13;
+        const uint8_t OEN       = 13;
         #endif
         const uint8_t INT       = 35;
         #ifdef DEBUGGING_MCU11_revA
-        const uint8_t buzzer       = 25;
+        const uint8_t BUZZER       = 25;
         #endif
         #ifndef DEBUGGING_MCU11_revA
-        const uint8_t buzzer       = 15;
+        const uint8_t BUZZER       = 15;
         #endif
     }PIN;   
 };
@@ -123,12 +123,12 @@ class HAL_MCU11_revB
 
 
     private:
-    rotaryEncoder*   p_encoder;
-    Output*          p_buzzer;
-    Output*          p_ld1;
-    Output*          p_ld2;
-    Output*          p_ld3;   
-    Output*          p_oen;  
+    IO_Interface* p_encoder;
+    IO_Interface* p_buzzer;
+    IO_Interface* p_ld1;
+    IO_Interface* p_ld2;
+    IO_Interface* p_ld3;   
+    IO_Interface* p_oen;  
     //Serial Baudrate
     struct 
     {
@@ -140,15 +140,15 @@ class HAL_MCU11_revB
     //Pinsdefinition
     struct 
     {        
-        const uint8_t encoder_A = 39;
-        const uint8_t encoder_B = 36;
-        const uint8_t encoder_Z = 34;  
-        const uint8_t ld1       = 27;
-        const uint8_t ld2       = 26;
-        const uint8_t ld3       = 25;
-        const uint8_t OEN       = 2;   
-        const uint8_t INT       = 35;
-        const uint8_t buzzer    = 5;       
+        const uint8_t ENCODER_A         = 39;
+        const uint8_t ENCODER_B         = 36;
+        const uint8_t ENCODER_BUTTON    = 34;  
+        const uint8_t LD1               = 27;
+        const uint8_t LD2               = 26;
+        const uint8_t LD3               = 25;
+        const uint8_t OEN               = 2;   
+        const uint8_t INT               = 35;
+        const uint8_t BUZZER            = 5;       
     }PIN;    
 };
 #endif

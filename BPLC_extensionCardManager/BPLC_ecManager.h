@@ -67,19 +67,6 @@ typedef enum
 
 }e_EXTENSION_CARD_TYPE_t;
 
-
-
-
-//Datenelement
-class halInterface
-{
-    public:
-    virtual void            setup()    = 0;
-    virtual void            tick()     = 0;
-    virtual e_BPLC_ERROR_t  getError() = 0;
-    virtual void            mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL) = 0;
-};
-//Knoten
 class extensionCard
 {    
     public:
@@ -96,18 +83,17 @@ class extensionCard
     halInterface*           p_hal;
     e_EXTENSION_CARD_TYPE_t cardType; 
 };
-//Warteschlange
 class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
 {
     public:
                         BPLC_extensionCardHandler   ();    
     void                tickAllextensionCards       ();    
     void                mapObjectToExtensionCard    (IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL);
-    e_BPLC_ERROR_t      getError                    (){return this->getError()};
+    e_BPLC_ERROR_t      getError                    (){return this->getError();}
 
     private:
     extensionCard*  addNewExtensionCard     (const e_EXTENSION_CARD_TYPE_t EXTENSION_CARD_TYPE);
-    void            addextensionCardToList  (extensionCard* CARD_TO_ADD);
+    void            addExtensionCardToList  (extensionCard* CARD_TO_ADD);
     extensionCard*  searchExtensionCard     (const e_EXTENSION_CARD_TYPE_t  SEARCHED_EXTENSION_CARD);
     extensionCard*  p_firstExtensionCard;    
 };

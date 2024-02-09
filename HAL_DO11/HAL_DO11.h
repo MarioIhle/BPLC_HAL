@@ -6,7 +6,7 @@
 #include "BPLC_ioBaseTypes.h"
 #include "BPLC_LOG.h"
 #include "I2C_check.h"
-#include "BPLC_extensionCardManager.h"
+#include "HAL_interface.h"
 #include "BPLC_ERRORS.h"
 
 typedef enum

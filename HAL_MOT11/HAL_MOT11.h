@@ -10,20 +10,10 @@
 #include "BPLC_ioBaseTypes.h"
 #include "BPLC_ERRORS.h"
 #include "BPLC_LOG.h"
-
+#include "HAL_interface.h"
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES
 //-------------------------------------------------------------
-typedef enum
-{
-  MOT11_CARD__1,
-  MOT11_CARD__2,
-  MOT11_CARD__3,
-  MOT11_CARD__4,
-  
-  MOT11_CARD__MAX,
-}e_MOT11_CARD_t;
-
 typedef enum
 {
   MOT11_CARD_1_ADDRESS = 0x10,
@@ -34,13 +24,6 @@ typedef enum
   MOT11_CARD_ADDRESS_COUNT = 4,
 }e_MOT11_ADDRESS_t;
 
-typedef enum
-{
-  MOT_CHANNEL_STATE__NOT_USED,
-  MOT_CHANNEL_STATE__DC_DRIVE,
-
-  MOT_CHANNEL_STATE__COUNT,
-}e_MOT_CHANNEL_STATE_t;
 //-------------------------------------------------------------
 //APPLIKATION
 //-------------------------------------------------------------
@@ -87,29 +70,31 @@ typedef union
 }u_mot11_i2c_payload_t;
 #pragma pack (pop)
 
+#define MOT11_CHANNEL_COUNT 1
+
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
-class HAL_MOT11:BPLC_LOG, I2C_check
+class HAL_MOT11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
-    //Init
-    HAL_MOT11   ();
-    void            begin    (const e_MOT11_ADDRESS_t ADDRESS);
-    e_BPLC_ERROR_t  mapObject(dcDrive* P_OBJECT);
+    //setup
+                    HAL_MOT11           (const e_MOT11_ADDRESS_t I2C_ADDRESS);
+    void            setup               ();
+    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                ();        
+    e_BPLC_ERROR_t  getError            (){return this->getError();}  
+
+    void            startCurrentAutotuning();  
     
-    //Applikation
-    void tick();
-    void startCurrentAutotuning();
-    
-    e_BPLC_ERROR_t  getError();
   
     private:
-    //Applikation      
-    e_deviceState_t deviceState;
+    //Settings    
+    e_MOT11_ADDRESS_t   deviceAddress;
+    e_deviceState_t     deviceState;
 
     //I2C Kommunikation
-    void sendDriveCommand     (const e_movement_t DIRECTION, const uint8_t SPEED);
+    void sendDriveCommand     (const u_IO_DATA_BASE_t DRIVE_PARAMETER);
     void requestDriveParameter();
     void sendFrame            (const u_mot11_i2c_payload_t COMMAND);
     bool waitForACK           ();
@@ -126,18 +111,11 @@ class HAL_MOT11:BPLC_LOG, I2C_check
         uint8_t count;      //counter bis error ausgegeben wird
         uint8_t countLimit; //Limit ab wann error ausgegeben wird
       }i2cError;    
-      
-      e_BPLC_ERROR_t code;       //aktueller Erororcode
-    }error;
-
-    //Settings    
-    e_MOT11_ADDRESS_t   deviceAddress;
-
+    }errordetection;
     //Object handling
     struct 
     {
-      e_MOT_CHANNEL_STATE_t state;
-      dcDrive*                p_object;   
+      IO_Interface*           p_ioObject;   
     }channels;
 };
 #endif

@@ -6,10 +6,10 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 }
 void HAL_DIN11::setup()
 {  
-    this->errorCode     = BPLC_ERROR__NO_ERROR;   
+    this->setError(BPLC_ERROR__NO_ERROR);   
 
     //I2C Verbindung prüfen
-    if(I2C_check::begin(I2C_ADDRESS) == false)
+    if(I2C_check::begin(this->deviceAddress) == false)
     {
         this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED);        
     }
@@ -19,26 +19,26 @@ void HAL_DIN11::setup()
     {   
         PCF.setAddress(this->deviceAddress);   
         PCF.begin();      
-        this->printLog("DIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT SUCCESSFUL");      
+        this->printLog("DIN11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");      
     }    
     else
     {
-        this->printLog("DIN11revA CARD (" + String(I2C_ADDRESS) + ") INIT FAILED");
+        this->printLog("DIN11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");
     }
 }
 void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
 {
-    //Wenn Channel 1 übergeben wird, ist p_ioObject[0] gemeint 
-    CHANNEL--;
-    if(CHANNEL < 0 || CHANNEL > DIN11_CHANNEL_COUNT)
+    const uint8_t OBJECT_INSTANCE = CHANNEL - 1;
+
+    if(CHANNEL < 1 || CHANNEL > DIN11_CHANNEL_COUNT)
     {
         this->setError(DIN11_ERROR__CHANNEL_OUT_OF_RANGE);
     }
-    else if(this->channels.p_ioObject[CHANNEL] != nullptr && CHANNEL == DIN11_CHANNEL_COUNT)
+    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == DIN11_CHANNEL_COUNT)
     {
         this->setError(DIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
     }
-    else if(this->channels.p_ioObject[CHANNEL] != nullptr)
+    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
     {
         this->setError(DIN11_ERROR__CHANNEL_ALREADY_IN_USE);       
     }
@@ -46,19 +46,19 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
     {
         if(P_IO_OBJECT->getIoType() == IO_TYPE__ROTARY_ENCODER)
         {//3 pinPorts belegen mit gleichen objekt
-            this->channels.p_ioObject[CHANNEL]      = P_IO_OBJECT;
-            this->channels.p_ioObject[CHANNEL + 1]  = P_IO_OBJECT;
-            this->channels.p_ioObject[CHANNEL + 2]  = P_IO_OBJECT;
+            this->channels.p_ioObject[OBJECT_INSTANCE]      = P_IO_OBJECT;
+            this->channels.p_ioObject[OBJECT_INSTANCE + 1]  = P_IO_OBJECT;
+            this->channels.p_ioObject[OBJECT_INSTANCE + 2]  = P_IO_OBJECT;
         }
         else
         {
-            this->channels.p_ioObject[CHANNEL] = P_IO_OBJECT;
+            this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
         }
     }
 }
 void HAL_DIN11::tick()
 {   
-    if(this->errorCode == BPLC_ERROR__NO_ERROR)
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
     {           
         //PCF über I2C lesen
         this->PCF.read8();
@@ -74,14 +74,14 @@ void HAL_DIN11::tick()
                     case IO_TYPE__DIGITAL_INPUT:
                     case IO_TYPE__RPM_SENS:
                         tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);
-                        this->channels.p_ioObject[CH]->halCallback(tempBuffer); 
+                        this->channels.p_ioObject[CH]->halCallback(&tempBuffer); 
                         break;
 
                     case IO_TYPE__ROTARY_ENCODER:
                         tempBuffer.rotaryEncoderData.stateA             = !PCF.read(this->channels.PIN[CH]);
                         tempBuffer.rotaryEncoderData.stateB             = !PCF.read(this->channels.PIN[CH + 1]);
                         tempBuffer.rotaryEncoderData.statePushButton    = !PCF.read(this->channels.PIN[CH + 2]);
-                        this->channels.p_ioObject[CH]->halCallback(tempBuffer);
+                        this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
                         CH +=3;
                         break;
 

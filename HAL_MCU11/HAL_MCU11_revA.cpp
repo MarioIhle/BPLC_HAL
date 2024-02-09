@@ -14,17 +14,17 @@ HAL_MCU11_revA::HAL_MCU11_revA()
 void HAL_MCU11_revA::begin()
 {
     //encoder
-    pinMode(this->PIN.encoder_A, INPUT);
-    pinMode(this->PIN.encoder_B, INPUT);
-    pinMode(this->PIN.encoder_Z, INPUT);
+    pinMode(this->PIN.ENCODER_A, INPUT);
+    pinMode(this->PIN.ENCODER_B, INPUT);
+    pinMode(this->PIN.ENCODER_BUTTON, INPUT);
     //p_ld1-3
-    pinMode(this->PIN.ld1, OUTPUT);
-    pinMode(this->PIN.ld2, OUTPUT);
-    pinMode(this->PIN.ld3, OUTPUT);    
+    pinMode(this->PIN.LD1, OUTPUT);
+    pinMode(this->PIN.LD2, OUTPUT);
+    pinMode(this->PIN.LD3, OUTPUT);    
     //P_BUZZER
-    pinMode(this->PIN.buzzer, OUTPUT);
+    pinMode(this->PIN.BUZZER, OUTPUT);
     //p_oen
-    pinMode(this->PIN.p_oen, OUTPUT);
+    pinMode(this->PIN.OEN, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT_PULLUP);
     attachInterrupt(this->PIN.INT, INT_ISR, FALLING);       
@@ -77,30 +77,34 @@ void HAL_MCU11_revA::mapINT(uint8_t* P_INT_COUNT)
 void HAL_MCU11_revA::tick()
 {  
     //encoder
-    this->p_encoder->halCallback(digitalRead(this->PIN.encoder_A), digitalRead(this->PIN.encoder_B), digitalRead(this->PIN.encoder_Z));
+    u_IO_DATA_BASE_t tempbuffer;
+    tempbuffer.rotaryEncoderData.stateA             = digitalRead(this->PIN.ENCODER_A);
+    tempbuffer.rotaryEncoderData.stateB             = digitalRead(this->PIN.ENCODER_B);
+    tempbuffer.rotaryEncoderData.statePushButton    = digitalRead(this->PIN.ENCODER_BUTTON);
+    this->p_encoder->halCallback(&tempbuffer);
     //p_oen schreiben
-    if(this->p_oen->isThereANewPortValue())
+    if(this->p_oen->newDataAvailable())
     {
-        digitalWrite(this->PIN.p_oen, this->p_oen->halCallback().value);
+        analogWrite(this->PIN.OEN, this->p_oen->halCallback().analogIoData.value);
     }
-    //buzzer
-    if(this->p_buzzer->isThereANewPortValue())
+    //BUZZER
+    if(this->p_buzzer->newDataAvailable())
     {
-        analogWrite(this->PIN.buzzer, this->p_buzzer->halCallback().value);
+        analogWrite(this->PIN.BUZZER, this->p_buzzer->halCallback().analogIoData.value);
     }
     //p_ld1
-    if(this->p_ld1->isThereANewPortValue())
+    if(this->p_ld1->newDataAvailable())
     {
-        analogWrite(this->PIN.ld1, this->p_ld1->halCallback().value);
+        analogWrite(this->PIN.LD1, this->p_oen->halCallback().analogIoData.value);
     }
     //LD_COMMUNACTION_STATE
-    if(this->p_ld2->isThereANewPortValue())
+    if(this->p_ld2->newDataAvailable())
     {
-        analogWrite(this->PIN.ld2, this->p_ld2->halCallback().value);
+        analogWrite(this->PIN.LD2, this->p_oen->halCallback().analogIoData.value);
     }
     //p_ld3
-    if(this->p_ld3->isThereANewPortValue())
+    if(this->p_ld3->newDataAvailable())
     {
-        analogWrite(this->PIN.ld3, this->p_ld3->halCallback().value);  
-    }    
+        analogWrite(this->PIN.LD3, this->p_oen->halCallback().analogIoData.value);
+    } 
 }

@@ -1,4 +1,4 @@
-#include "BPLC_extensionCardManager.h"
+#include "BPLC_ecManager.h"
 
 BPLC_extensionCardHandler::BPLC_extensionCardHandler()
 {}
@@ -18,7 +18,7 @@ void BPLC_extensionCardHandler::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
 }  
 void BPLC_extensionCardHandler::tickAllextensionCards()
 {
-    extensionCard* p_extesionCardToTick = this->p_firstextensionCard;
+    extensionCard* p_extesionCardToTick = this->p_firstExtensionCard;
     while(p_extesionCardToTick != nullptr)
     {
         this->setError(p_extesionCardToTick->getHalInterface()->getError());
@@ -107,7 +107,7 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_EXTENSION_
             p_newHalInterface = new HAL_MOT11(MOT11_CARD_4_ADDRESS); 
             break;
     }                      
-    p_newHalInterface->begin(EXTENSION_CARD_TYPE);
+    p_newHalInterface->setup();
     extensionCard* p_extensionCard = new extensionCard();
     p_extensionCard->setHalInterface(p_newHalInterface);
     p_extensionCard->setCardType(EXTENSION_CARD_TYPE);
@@ -117,7 +117,7 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_EXTENSION_
 }
 extensionCard* BPLC_extensionCardHandler::searchExtensionCard(const e_EXTENSION_CARD_TYPE_t  SEARCHED_EXTENSION_CARD)
 {
-    extensionCard* p_searchedCard = this->p_firstextensionCard;
+    extensionCard* p_searchedCard = this->p_firstExtensionCard;
 
     while (p_searchedCard != nullptr)
     {
@@ -130,15 +130,15 @@ extensionCard* BPLC_extensionCardHandler::searchExtensionCard(const e_EXTENSION_
 
     return nullptr;
 }
-void BPLC_extensionCardHandler::addextensionCardToList(extensionCard* CARD_TO_ADD)
+void BPLC_extensionCardHandler::addExtensionCardToList(extensionCard* CARD_TO_ADD)
 {    
-    if(this->p_firstextensionCard == nullptr)
+    if(this->p_firstExtensionCard == nullptr)
     {
-        this->p_firstextensionCard = CARD_TO_ADD;
+        this->p_firstExtensionCard = CARD_TO_ADD;
     }
     else
     {
-        CARD_TO_ADD->setNext(this->p_firstextensionCard);
-        this->p_firstextensionCard = CARD_TO_ADD;
+        CARD_TO_ADD->setNext(this->p_firstExtensionCard);
+        this->p_firstExtensionCard = CARD_TO_ADD;
     }  
 }
