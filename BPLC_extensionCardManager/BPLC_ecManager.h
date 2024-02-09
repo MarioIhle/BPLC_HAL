@@ -96,7 +96,6 @@ class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
     extensionCard*  addNewExtensionCard             (const e_EXTENSION_CARD_TYPE_t EXTENSION_CARD_TYPE);
     void            addExtensionCardToList          (extensionCard* CARD_TO_ADD);
     extensionCard*  searchExtensionCard             (const e_EXTENSION_CARD_TYPE_t  SEARCHED_EXTENSION_CARD);
-    extensionCard*  p_MCU;
     extensionCard*  p_firstExtensionCard;    
     counter         isrCounter;
 };

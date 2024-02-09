@@ -25,9 +25,11 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_EXTENSION_
         //MCU
         case MCU_CARD__MCU11revA:    
             p_newHalInterface = new HAL_MCU11_revA();  
+            p_newHalInterface->mapObjectToChannel(&this->isrCounter, MCU_CHANNEL__INT);
             break;
         case MCU_CARD__MCU11revB:     
-            p_newHalInterface = new HAL_MCU11_revB();       
+            p_newHalInterface = new HAL_MCU11_revB();      
+            p_newHalInterface->mapObjectToChannel(&this->isrCounter, MCU_CHANNEL__INT); 
             break;        
         //DIN11revA
         case EXTENSION_CARD__DIN11revA_1:
@@ -107,21 +109,9 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_EXTENSION_
     p_newHalInterface->setup();
     extensionCard* p_extensionCard = new extensionCard();
     p_extensionCard->setHalInterface(p_newHalInterface);
-    p_extensionCard->setCardType(EXTENSION_CARD_TYPE);
+    p_extensionCard->setCardType(EXTENSION_CARD_TYPE);              
+    this->addExtensionCardToList(p_extensionCard);  
 
-    //Neue Karte zuweisen
-    switch(EXTENSION_CARD_TYPE)            
-    {
-        case MCU_CARD__MCU11revA:
-        case MCU_CARD__MCU11revB:
-            this->p_MCU = p_extensionCard;
-            this->p_MCU->getHalInterface()->mapObjectToChannel(&this->isrCounter, MCU_CHANNEL__INT); 
-            break;
-
-        default:                      
-            this->addExtensionCardToList(p_extensionCard);  
-            break;
-    }
     return p_extensionCard;    	
 }
 extensionCard* BPLC_extensionCardHandler::searchExtensionCard(const e_EXTENSION_CARD_TYPE_t  SEARCHED_EXTENSION_CARD)
