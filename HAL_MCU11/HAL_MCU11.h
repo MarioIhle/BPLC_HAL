@@ -21,48 +21,35 @@
 #include "SpecialFunctions.h"
 #include "BPLC_ioBaseTypes.h"
 #include "BPLC_LOG.h"
+#include "HAL_interface.h"
+
 
 //#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
-//--------------------------------------------------------------------
-//Typdefinitionen
-//--------------------------------------------------------------------
-//Encoder
-typedef enum
+
+enum
 {
-    ENCODER_PIN__A,
-    ENCODER_PIN__B,
-    ENCODER_PIN__Z,
+    MCU_CHANNEL__ENCODER,
+    MCU_CHANNEL__BUZZER,
+    MCU_CHANNEL__OEN,
+    MCU_CHANNEL__INT,
+    MCU_CHANNEL__LD1,
+    MCU_CHANNEL__LD2,
+    MCU_CHANNEL__LD3,
 
-    ENCODER_PIN__COUNT,
-}e_ENCODER_PINS_t;
-
-//digitalInput
-typedef struct
-{        
-    bool state;
-    bool previousState;
-}s_digitalInputState_t_MCU;
-
-
+    MCU_CHANNEL__COUNT,
+};
 //--------------------------------------------------------------------
 //HAL KLASSE
 //--------------------------------------------------------------------
-class HAL_MCU11_revA
+class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_LOG
 {
     public:
-    HAL_MCU11_revA();
-    
-    void begin          ();
-    void mapEncoder     (rotaryEncoder* P_ENCODER);
-    void mapBuzzer      (Output*        P_BUZZER_OBJECT);
-    void mapLD1         (Output*        P_LD1_OBJECT);
-    void mapLD2         (Output*        P_LD2_OBJECT);
-    void mapLD3         (Output*        P_LD3_OBJECT);
-    void mapOEN         (Output*        P_OEN_OBJECT);
-    void mapINT         (uint8_t*       P_INT_COUNT);
-
-    void tick();
-
+                    HAL_MCU11_revA      (){};
+    void            setup               ();
+    void            tick                ();
+    e_BPLC_ERROR_t  getError            (){return this->getError();}
+    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);
+   
 
     private:   
     IO_Interface*   p_encoder;
@@ -97,30 +84,22 @@ class HAL_MCU11_revA
         #endif
         const uint8_t INT       = 35;
         #ifdef DEBUGGING_MCU11_revA
-        const uint8_t BUZZER       = 25;
+        const uint8_t BUZZER    = 25;
         #endif
         #ifndef DEBUGGING_MCU11_revA
-        const uint8_t BUZZER       = 15;
+        const uint8_t BUZZER    = 15;
         #endif
     }PIN;   
 };
 
-class HAL_MCU11_revB
+class HAL_MCU11_revB: public halInterface, BPLC_errorHandler, BPLC_LOG
 {
     public:
-    HAL_MCU11_revB();
-    
-    void begin          ();
-    void mapEncoder     (rotaryEncoder* P_ENCODER);
-    void mapBuzzer      (Output*        P_BUZZER_OBJECT);
-    void mapLD1         (Output*        P_LD1_OBJECT);
-    void mapLD2         (Output*        P_LD2_OBJECT);
-    void mapLD3         (Output*        P_LD3_OBJECT);
-    void mapOEN         (Output*        P_OEN_OBJECT);
-    void mapINT         (uint8_t*       P_INT_COUNT);
-
-    void tick();
-
+                    HAL_MCU11_revB      (){};    
+    void            setup               ();
+    void            tick                ();
+    e_BPLC_ERROR_t  getError            (){return this->getError();}
+    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);
 
     private:
     IO_Interface* p_encoder;

@@ -5,18 +5,17 @@ BPLC_APP::BPLC_APP()
    this->APP_APP.deviceSettings.f_initDone = false;
 }
 
-void BPLC_APP::begin(const e_MCU_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS)
+void BPLC_APP::begin(const e_EXTENSION_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS)
 {   
    Serial.begin(115200);
    this->printLog("SETUP BPLC SYSTEM");
    //Schlüsselparameter übernehemen
-   this->APP_HAL.hardwareConfig.MCU_TYPE  = MCU_TYPE;  
    this->APP_COM.deviceAddress            = DEVICE_ADDRESS;
 
    //Setup submodule
    this->setupApplication();      
    this->setupHMI();   
-   this->setupHardware(); 
+   this->setupHardware(MCU_TYPE); 
    this->setupNetwork();
    this->setupSafety();   
    

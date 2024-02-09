@@ -60,7 +60,8 @@ typedef enum
 {
     IO_TYPE__NOT_DEFINED,
 
-    IO_TYPE__DIGITAL_INPUT,    
+    IO_TYPE__DIGITAL_INPUT,   
+    IO_TYPE__DIGITAL_COUNTER, 
     IO_TYPE__RPM_SENS,
     IO_TYPE__ROTARY_ENCODER,
     IO_TYPE__ANALOG_INPUT,
@@ -112,7 +113,29 @@ class digitalInput: public IO_Interface
     bool        previousState;
     e_IO_TYPE_t ioType;
 };
+//--------------------------------------------------------------------
+//COUNTER INPUT KLASSE
+//--------------------------------------------------------------------
+class counter: public IO_Interface
+{
+    public:
+    //setup
+                        counter         (){this->ioType = IO_TYPE__DIGITAL_COUNTER; this->count = 0;}
+    //Applikation
+    uint64_t 	        getCount        (){return this->count;}
+    void	            resetCount      (){this->count = 0;}
+	void 	            increment       (){this->count++;}	
+    void 	            decrement       (){this->count--;}
+    //Hal handling
+    e_IO_TYPE_t         getIoType       (){return this->ioType;}
+    bool                newDataAvailable(){return false;}
+    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA){this->increment(); return*P_DATA;}
+    
 
+    private:
+    volatile uint64_t   count; 
+    e_IO_TYPE_t ioType;
+};
 //--------------------------------------------------------------------
 //ANALOG INPUT KLASSE
 //--------------------------------------------------------------------

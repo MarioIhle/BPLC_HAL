@@ -29,7 +29,7 @@ void BPLC_APP::mapPortToNetwork(portInterface_APP* P_PORT)
     //Network setup
     if(this->APP_COM.deviceAddress < 0)
     {                       
-        this->setSystemError(BPLC_ERROR__ADDRESS_NOT_DEFINED);
+        this->setSystemError(BPLC_ERROR__NETWORK_ADDRESS_NOT_DEFINED);
     }
     else if(this->APP_COM.deviceAddress == 1)
     {

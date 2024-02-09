@@ -1,17 +1,13 @@
 #include "HAL_MCU11.h"
 
 //Callback für Hardware Interrupt 
-uint8_t* p_INT_count_HAL_REV_A;
+IO_Interface* p_INT_COUNTER_HAL_MCU_REVA;
 
 static void INT_ISR()
 {
-   *p_INT_count_HAL_REV_A = 1;
+    p_INT_COUNTER_HAL_MCU_REVA->halCallback();
 }
-
-HAL_MCU11_revA::HAL_MCU11_revA()
-{}
-    
-void HAL_MCU11_revA::begin()
+void HAL_MCU11_revA::setup()
 {
     //encoder
     pinMode(this->PIN.ENCODER_A, INPUT);
@@ -35,45 +31,67 @@ void HAL_MCU11_revA::begin()
     //I2C
     Wire.begin();
 
-    BPLC_LOG logPrint;
-    logPrint.printLog("MCU11revA INIT SUCCESSFUL");  
+    this->printLog("MCU11revA INIT SUCCESSFUL");  
 }
-
-void HAL_MCU11_revA::mapEncoder(rotaryEncoder* P_ENCODER)
+void HAL_MCU11_revA::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
 {
-    this->p_encoder = P_ENCODER;
-}
+    switch(CHANNEL)
+    {
+        case MCU_CHANNEL__ENCODER:
+            if(P_IO_OBJECT->getIoType() == IO_TYPE__ROTARY_ENCODER)
+            {
+                this->p_encoder = P_IO_OBJECT;
+            }
+            break;
 
-void HAL_MCU11_revA::mapBuzzer(Output* P_BUZZER_OBJECT)
-{
-    this->p_buzzer = P_BUZZER_OBJECT;
-}
+        case MCU_CHANNEL__BUZZER:
+            if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
+            {
+                this->p_buzzer = P_IO_OBJECT;
+            }            
+            break;
 
-void HAL_MCU11_revA:: mapLD1(Output* P_LD1_OBJECT)
-{
-    this->p_ld1 = P_LD1_OBJECT;
-}
+        case MCU_CHANNEL__OEN:
+            if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
+            {
+                this->p_oen = P_IO_OBJECT;
+            }
+            break;
 
-void HAL_MCU11_revA::mapLD2(Output* P_LD2_OBJECT)
-{
-    this->p_ld2 = P_LD2_OBJECT;
-}
+        case MCU_CHANNEL__INT:
+            if(P_IO_OBJECT->getIoType() == IO_TYPE__DIGITAL_INPUT)
+            {
+                p_INT_COUNTER_HAL_MCU_REVA = P_IO_OBJECT;
+            }        
+            break;
 
-void HAL_MCU11_revA::mapLD3(Output* P_LD3_OBJECT)
-{
-    this->p_ld3 = P_LD3_OBJECT;
-}
+        case MCU_CHANNEL__LD1:
+            if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
+            {
+                this->p_ld1 = P_IO_OBJECT;
+            }
+            break;
 
-void HAL_MCU11_revA::mapOEN(Output* P_OEN_OBJECT)
-{
-    this->p_oen = P_OEN_OBJECT;
-}
+        case MCU_CHANNEL__LD2:
+            if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
+            {
+                this->p_ld2 = P_IO_OBJECT;
+            }
+            break;
 
-void HAL_MCU11_revA::mapINT(uint8_t* P_INT_COUNT)
-{
-    p_INT_count_HAL_REV_A = P_INT_COUNT;
-}
+        case MCU_CHANNEL__LD3:
+            if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
+            {
+                this->p_ld3 = P_IO_OBJECT;
+            }
+            break;
 
+        default:
+        case MCU_CHANNEL__COUNT:
+            this->setError(BPLC_ERROR__MCU_CHANNEL_OUT_OF_RANGE);
+            break;
+    }
+}
 void HAL_MCU11_revA::tick()
 {  
     //encoder

@@ -66,7 +66,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     public:
     //Setup des BPLC Systems
             BPLC_APP                ();
-    void    begin                   (const e_MCU_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS = 0);      
+    void    begin                   (const e_EXTENSION_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS = 0);      
     void    invertEncoder           ();
     //Network
     void    mapPortToNetwork        (portInterface_APP* P_PORT);
@@ -140,15 +140,12 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     }APP_SAFETY;
 
     //APP_HAL
-    void setupHardware();
+    void setupHardware(const e_EXTENSION_CARD_TYPE_t MCU_TYPE);
     void tickHardware();
-    void handleMCUCard();
      
     struct 
     {
-        //Hal objecte zu allen möglichen Erweiterungskarten
-        HAL_MCU11_revA  MCU11revA_HAL;    
-        HAL_MCU11_revB  MCU11revB_HAL;        
+        //Hal objecte zu allen möglichen Erweiterungskarten     
         OLED_MCU11      oled;     
         
         rotaryEncoder   ENCODER; 
@@ -157,12 +154,6 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         Output          LD2_COMMUNICATION_STATE;
         Output          LD3_ERROR_OUT;   
         Output          OEN;   
-        uint8_t         INT_count;
-        
-        struct
-        {
-            e_MCU_CARD_TYPE_t   MCU_TYPE = MCU_CARD__NO_MCU_DEFINED;
-         }hardwareConfig;
     }APP_HAL;
 
 
