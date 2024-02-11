@@ -8,14 +8,14 @@ void BPLC_APP::setupNetwork()
     }
     else if(this->APP_COM.deviceAddress == MASTER_NODE_ADDRESS)
     {
-        this->printLog("Network setup as p_masterNode");
+        this->printLog("Network setup as masterNode");
         MasterNode* p_networkNode = new MasterNode;
         p_networkNode->begin(&Serial2, 4);
         this->APP_COM.p_masterNode = p_networkNode;
     }
     else
     {
-        this->printLog("Network setup as P_slaveNode with address: " + String(this->APP_COM.deviceAddress));
+        this->printLog("Network setup as slaveNode with address: " + String(this->APP_COM.deviceAddress));
         SlaveNode* p_networkNode = new SlaveNode;
         p_networkNode->begin(this->APP_COM.deviceAddress, &Serial2, 4);
         this->APP_COM.P_slaveNode = p_networkNode;
@@ -50,7 +50,6 @@ void BPLC_APP::tickNetwork()
             this->setSystemError(BPLC_ERROR__COMMUNICATION_FAILED);
         }
 
-
         const bool DEVICE_IS_MASTER_NODE = (bool)(this->APP_COM.deviceAddress == MASTER_NODE_ADDRESS);
 
         if(DEVICE_IS_MASTER_NODE)
@@ -69,6 +68,7 @@ void BPLC_APP::tickNetwork()
                 break;
 
                 default:
+
                 case MASTER_NODE_ERROR__COUNT:
                 break;
             }                    

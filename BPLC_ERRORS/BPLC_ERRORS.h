@@ -13,7 +13,9 @@ typedef enum
     BPLC_ERROR__RUNNTIME,
     BPLC_ERROR__COMMUNICATION_FAILED,
     BPLC_ERROR__NETWORK_ADDRESS_NOT_DEFINED,
-    BPLC_ERROR__MCU_CHANNEL_OUT_OF_RANGE,
+    //MCU11 errors
+    MCU11_ERROR__CHANNEL_OUT_OF_RANGE,
+    MCU11_ERROR__CHANNEL_POINTER_NOT_SET,
     //DIN11 errors
     DIN11_ERROR__I2C_CONNECTION_FAILED, 
     DIN11_ERROR__NO_CHANNEL_IN_USE,
@@ -77,6 +79,8 @@ typedef enum
 class BPLC_errorHandler
 {
     public:
+    BPLC_errorHandler(){this->errorCode = BPLC_ERROR__NO_ERROR;}
+    
     e_BPLC_ERROR_t getError(){return this->errorCode;}
     
     void setError(const e_BPLC_ERROR_t ERROR_CODE)
@@ -115,7 +119,9 @@ class ERROR_OUT
         {"BPLC_ERROR__RUNNTIME"},
         {"BPLC_ERROR__COMMUNICATION_FAILED"},
         {"BPLC_ERROR__NETWORK_ADDRESS_NOT_DEFINED"},
-        {"BPLC_ERROR__MCU_CHANNEL_OUT_OF_RANGE"},
+        //MCU11 errors
+        {"MCU11_ERROR__CHANNEL_OUT_OF_RANGE"},
+        {"MCU11_ERROR__CHANNEL_POINTER_NOT_SET"},
         //DIN11 errors
         {"DIN11_ERROR__I2C_CONNECTION_FAILED"}, 
         {"DIN11_ERROR__NO_CHANNEL_IN_USE"},
@@ -176,7 +182,7 @@ class ERROR_OUT
 
     String getErrorCodeText(const e_BPLC_ERROR_t ERROR_CODE)
     {      
-        if(BPLC_ERROR__COUNT != 56)
+        if(BPLC_ERROR__COUNT != 58)
         {
             return("BPLC_ERROR__ERROR_TEXTS_NEED_UPDATE!");
         }

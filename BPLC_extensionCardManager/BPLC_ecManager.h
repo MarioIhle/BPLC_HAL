@@ -69,7 +69,7 @@ typedef enum
 class extensionCard
 {    
     public:
-                            extensionCard   (){this->cardType = EXTENSION_CARD__NO_CARD_DEFINED;}
+                            extensionCard   (){this->cardType = EXTENSION_CARD__NO_CARD_DEFINED; this->p_next = nullptr; this->p_hal = nullptr;}
     void                    setNext         (extensionCard* P_NEXT){this->p_next = P_NEXT;}
     extensionCard*          getNext         (){return this->p_next;}
     halInterface*           getHalInterface (){return this->p_hal;}
@@ -82,14 +82,14 @@ class extensionCard
     halInterface*           p_hal;
     e_EXTENSION_CARD_TYPE_t cardType; 
 };
+
 class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
 {
     public:
                         BPLC_extensionCardHandler   ();    
-    void                setup                       ();
     void                tick                        ();    
     void                mapObjectToExtensionCard    (IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL);
-    e_BPLC_ERROR_t      getError                    (){return this->getError();}
+    e_BPLC_ERROR_t      getExtensionCradError       (){return this->getError();}
 
 
     private:    

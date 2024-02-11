@@ -7,10 +7,10 @@
 class halInterface
 {
     public:
-    virtual void            setup()    = 0;
-    virtual void            tick()     = 0;
-    virtual e_BPLC_ERROR_t  getError() = 0;
-    virtual void            mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL) = 0;
+    virtual void            init                () = 0;
+    virtual void            tick                () = 0;
+    virtual e_BPLC_ERROR_t  getErrorCode        () = 0;
+    virtual void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL) = 0;
 };
 
 #endif

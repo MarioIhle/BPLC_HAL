@@ -85,13 +85,18 @@ bool Output::newDataAvailable()
 		break;
 
 		case OUTPUTMODE__BLINK_ONCE:	 
-			if(this->getBlinkCycleCount() < 0)   
+			if(this->getBlinkCycleCount() == 0)   
 			{
-				if(this->tickBlink() != this->value)
+				if(this->tickBlink() == true && this->value != this->setting.onValue)
 				{
-					this->value = this->tickBlink();
+					this->value = this->setting.onValue;
 					this->f_newDataAvailable = true;
-				}
+				}	
+				else if(this->tickBlink() == false && this->value != 0)
+				{
+					this->value = 0;
+					this->f_newDataAvailable = true;
+				}	
 			}
 			else
 			{
@@ -100,11 +105,16 @@ bool Output::newDataAvailable()
 		break;
 
         case OUTPUTMODE__BLINK_CONTINIOUS:
-			if(this->tickBlink() != this->value)
+			if(this->tickBlink() == true && this->value != this->setting.onValue)
 			{
-				this->value = this->tickBlink();
+				this->value = this->setting.onValue;
 				this->f_newDataAvailable = true;
-			}			
+			}	
+			else if(this->tickBlink() == false && this->value != 0)
+			{
+				this->value = 0;
+				this->f_newDataAvailable = true;
+			}		
 		break;
 
 		default:

@@ -26,5 +26,5 @@ void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, cons
 void BPLC_APP::tickHardware()
 {   
    this->extensionCardHandler.tick();
-   this->setSystemError(this->extensionCardHandler.getError());
+   this->setSystemError(this->extensionCardHandler.getExtensionCradError());
 }

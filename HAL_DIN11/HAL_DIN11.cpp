@@ -4,9 +4,13 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 {
     this->deviceAddress = I2C_ADDRESS;
 }
-void HAL_DIN11::setup()
+void HAL_DIN11::init()
 {  
-    this->setError(BPLC_ERROR__NO_ERROR);   
+    this->setError(BPLC_ERROR__NO_ERROR);
+    for(uint8_t CH =0; CH < DIN11_CHANNEL_COUNT; CH++)
+    {
+        this->channels.p_ioObject[CH] = nullptr;
+    }       
 
     //I2C Verbindung prüfen
     if(I2C_check::begin(this->deviceAddress) == false)
@@ -15,7 +19,7 @@ void HAL_DIN11::setup()
     }
 
     //Applikationsparameter initialisieren
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->getErrorCode() == BPLC_ERROR__NO_ERROR)
     {   
         PCF.setAddress(this->deviceAddress);   
         PCF.begin();      
@@ -94,7 +98,7 @@ void HAL_DIN11::tick()
         }              
     }
 }
-e_BPLC_ERROR_t HAL_DIN11::getError()
+e_BPLC_ERROR_t HAL_DIN11::getErrorCode()
 {
     //I2C Verbindung zyklisch prüfen
     if(!this->requestHeartbeat())

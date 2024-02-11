@@ -4,12 +4,13 @@ HAL_MOT11::HAL_MOT11(const e_MOT11_ADDRESS_t I2C_ADDRESS)
 {
     this->deviceAddress = I2C_ADDRESS;
 }
-void HAL_MOT11::setup()
+void HAL_MOT11::init()
 {
     this->setError(BPLC_ERROR__NO_ERROR);
     this->errordetection.i2cError.countLimit    = 3;
     this->errordetection.i2cError.count         = 0;
- 
+    this->channels.p_ioObject                   = nullptr;
+    
     this->to_parameterPoll.setInterval(1000);
     this->to_I2C.setInterval(50);                 
     
@@ -20,7 +21,7 @@ void HAL_MOT11::setup()
     }
 
     //Applikationsparameter initialisieren
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->getErrorCode() == BPLC_ERROR__NO_ERROR)
     {   
         this->deviceState = deviceState_running;  
         this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");        
@@ -48,59 +49,62 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 }
 void HAL_MOT11::tick()
 {
-    //I2C Error check
-    const bool I2C_ERROR_COUNT_LIMIT_REACHED = (bool)(this->errordetection.i2cError.count >= this->errordetection.i2cError.countLimit);
-    if(I2C_ERROR_COUNT_LIMIT_REACHED)
-    {
-        this->setError(MOT11_ERROR__I2C_CONNECTION_FAILED);
-
-        #ifdef DEBUG_HAL_MOT11
-        Serial.println("errordetection count limit reachded");
-        #endif
-    }
-    //Error behandlung
-    if(this->getError() != BPLC_ERROR__NO_ERROR)
-    {
-        this->deviceState = deviceState_safeState;
-    }
-
-    if(this->getError() != MOT11_ERROR__I2C_CONNECTION_FAILED)
-    {        
-        switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    {  
+        //I2C Error check
+        const bool I2C_ERROR_COUNT_LIMIT_REACHED = (bool)(this->errordetection.i2cError.count >= this->errordetection.i2cError.countLimit);
+        if(I2C_ERROR_COUNT_LIMIT_REACHED)
         {
-            default:
-            case deviceState_init:    
-            case deviceState_safeState:    
-                //Über Request wird zyklisch alle live Parameter abgefragt
-                if(this->to_parameterPoll.check())
-                {
-                    this->requestDriveParameter(); 
-                    this->to_parameterPoll.reset();
-                } 
-            break;
+            this->setError(MOT11_ERROR__I2C_CONNECTION_FAILED);
 
-            case deviceState_running:   //Normalbetreb
-                if(this->channels.p_ioObject->newDataAvailable())
-                {
-                    this->sendDriveCommand(this->channels.p_ioObject->halCallback());
-                }
-                //Über Request wird zyklisch alle live Parameter abgefragt
-                if(this->to_parameterPoll.check())
-                {
-                    this->requestDriveParameter(); 
-                    this->to_parameterPoll.reset();
-                }  
-            break;
+            #ifdef DEBUG_HAL_MOT11
+            Serial.println("errordetection count limit reachded");
+            #endif
+        }
+        //Error behandlung
+        if(this->getErrorCode() != BPLC_ERROR__NO_ERROR)
+        {
+            this->deviceState = deviceState_safeState;
+        }
 
-            case deviceState_autotuning:
-                //Status abfragen, solange Autotuning aktiv nix tun
-                if(this->to_parameterPoll.check())
-                {
-                    this->requestDriveParameter(); 
-                    this->to_parameterPoll.reset();
-                }              
-            break;                  
-        }        
+        if(this->getErrorCode() != MOT11_ERROR__I2C_CONNECTION_FAILED)
+        {        
+            switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
+            {
+                default:
+                case deviceState_init:    
+                case deviceState_safeState:    
+                    //Über Request wird zyklisch alle live Parameter abgefragt
+                    if(this->to_parameterPoll.check())
+                    {
+                        this->requestDriveParameter(); 
+                        this->to_parameterPoll.reset();
+                    } 
+                break;
+
+                case deviceState_running:   //Normalbetreb
+                    if(this->channels.p_ioObject->newDataAvailable())
+                    {
+                        this->sendDriveCommand(this->channels.p_ioObject->halCallback());
+                    }
+                    //Über Request wird zyklisch alle live Parameter abgefragt
+                    if(this->to_parameterPoll.check())
+                    {
+                        this->requestDriveParameter(); 
+                        this->to_parameterPoll.reset();
+                    }  
+                break;
+
+                case deviceState_autotuning:
+                    //Status abfragen, solange Autotuning aktiv nix tun
+                    if(this->to_parameterPoll.check())
+                    {
+                        this->requestDriveParameter(); 
+                        this->to_parameterPoll.reset();
+                    }              
+                break;                  
+            }        
+        }
     }
 }
 void HAL_MOT11::startCurrentAutotuning()

@@ -45,13 +45,14 @@ class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_LOG
 {
     public:
                     HAL_MCU11_revA      (){};
-    void            setup               ();
+    void            init                ();
     void            tick                ();
-    e_BPLC_ERROR_t  getError            (){return this->getError();}
+    e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);
    
 
     private:   
+    void            tickSafety          ();
     IO_Interface*   p_encoder;
     IO_Interface*   p_buzzer;
     IO_Interface*   p_ld1;
@@ -95,13 +96,15 @@ class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_LOG
 class HAL_MCU11_revB: public halInterface, BPLC_errorHandler, BPLC_LOG
 {
     public:
-                    HAL_MCU11_revB      (){};    
-    void            setup               ();
+                    HAL_MCU11_revB      ();    
+    void            init                ();
     void            tick                ();
-    e_BPLC_ERROR_t  getError            (){return this->getError();}
+    e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);
 
     private:
+    void            tickSafety();
+
     IO_Interface* p_encoder;
     IO_Interface* p_buzzer;
     IO_Interface* p_ld1;

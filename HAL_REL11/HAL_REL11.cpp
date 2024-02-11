@@ -4,16 +4,21 @@ HAL_REL11::HAL_REL11(const e_REL11_ADDRESS_t I2C_ADDRESS)
 {
     this->deviceAddress = I2C_ADDRESS;
 }
-void HAL_REL11::setup()
+void HAL_REL11::init()
 {    
+    for(uint8_t CH =0; CH < REL11_CHANNEL_COUNT; CH++)
+    {
+        this->channels.p_ioObject[CH] = nullptr;
+    }       
     this->setError(BPLC_ERROR__NO_ERROR); 
+    
     //I2C Verbindung Prüfen
     if(!I2C_check::begin(this->deviceAddress))
     {
         this->setError(REL11_ERROR__I2C_CONNECTION_FAILED);        
     }
     //Applikationsparameter initialisieren
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->getErrorCode() == BPLC_ERROR__NO_ERROR)
     {   
         this->PCF.setAddress(this->deviceAddress);      
         this->PCF.begin();                              
@@ -83,7 +88,7 @@ void HAL_REL11::tick()
         }   
     } 
 }
-e_BPLC_ERROR_t HAL_REL11::getError()
+e_BPLC_ERROR_t HAL_REL11::getErrorCode()
 {
     //I2C Verbindung zyklisch prüfen
     if(!this->requestHeartbeat())

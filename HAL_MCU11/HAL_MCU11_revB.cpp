@@ -3,12 +3,23 @@
 //Callback für Hardware Interrupt 
 IO_Interface* p_INT_COUNTER_HAL_MCU_REVB;
 
+HAL_MCU11_revB::HAL_MCU11_revB()
+{}
 static void INT_ISR()
 {
    p_INT_COUNTER_HAL_MCU_REVB->halCallback();
 }
-void HAL_MCU11_revB::setup()
+void HAL_MCU11_revB::init()
 {
+    //Alles Initialisieren
+    this->p_buzzer  = nullptr;
+    this->p_encoder = nullptr;
+    this->p_ld1     = nullptr;
+    this->p_ld2     = nullptr;
+    this->p_ld3     = nullptr;
+    this->p_oen     = nullptr;
+    this->setError(BPLC_ERROR__NO_ERROR);
+
     //encoder
     pinMode(this->PIN.ENCODER_A, INPUT);
     pinMode(this->PIN.ENCODER_B, INPUT);
@@ -59,7 +70,7 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t
             break;
 
         case MCU_CHANNEL__INT:
-            if(P_IO_OBJECT->getIoType() == IO_TYPE__DIGITAL_INPUT)
+            if(P_IO_OBJECT->getIoType() == IO_TYPE__DIGITAL_COUNTER)
             {
                 p_INT_COUNTER_HAL_MCU_REVB = P_IO_OBJECT;
             }        
@@ -88,41 +99,79 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t
 
         default:
         case MCU_CHANNEL__COUNT:
-            this->setError(BPLC_ERROR__MCU_CHANNEL_OUT_OF_RANGE);
+            this->setError(MCU11_ERROR__CHANNEL_OUT_OF_RANGE);
             break;
     }
 }
 void HAL_MCU11_revB::tick()
 {  
-    //encoder
-    u_IO_DATA_BASE_t tempbuffer;
-    tempbuffer.rotaryEncoderData.stateA             = digitalRead(this->PIN.ENCODER_A);
-    tempbuffer.rotaryEncoderData.stateB             = digitalRead(this->PIN.ENCODER_B);
-    tempbuffer.rotaryEncoderData.statePushButton    = digitalRead(this->PIN.ENCODER_BUTTON);
-    this->p_encoder->halCallback(&tempbuffer);
-    //p_oen schreiben
-    if(this->p_oen->newDataAvailable())
+    //Hier prüfen bevor Pointer ins nichts zeigen
+    this->tickSafety();
+
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
     {
-        analogWrite(this->PIN.OEN, this->p_oen->halCallback().analogIoData.value);
+        //encoder
+        u_IO_DATA_BASE_t tempbuffer;
+        memset(&tempbuffer, 0, sizeof(u_IO_DATA_BASE_t));
+        tempbuffer.rotaryEncoderData.stateA             = digitalRead(this->PIN.ENCODER_A);
+        tempbuffer.rotaryEncoderData.stateB             = digitalRead(this->PIN.ENCODER_B);
+        tempbuffer.rotaryEncoderData.statePushButton    = digitalRead(this->PIN.ENCODER_BUTTON);
+        this->p_encoder->halCallback(&tempbuffer);
+        //p_oen schreiben
+        if(this->p_oen->newDataAvailable())
+        {
+            analogWrite(this->PIN.OEN, this->p_oen->halCallback().analogIoData.value);
+        }
+        //BUZZER
+        if(this->p_buzzer->newDataAvailable())
+        {
+            analogWrite(this->PIN.BUZZER, this->p_buzzer->halCallback().analogIoData.value);
+        }
+        //p_ld1
+        if(this->p_ld1->newDataAvailable())
+        {
+            analogWrite(this->PIN.LD1, this->p_ld1->halCallback().analogIoData.value);
+        }
+        //LD_COMMUNACTION_STATE
+        if(this->p_ld2->newDataAvailable())
+        {
+            analogWrite(this->PIN.LD2, this->p_ld2->halCallback().analogIoData.value);
+        }
+        //p_ld3
+        if(this->p_ld3->newDataAvailable())
+        {
+            analogWrite(this->PIN.LD3, this->p_ld3->halCallback().analogIoData.value);
+        } 
+    }    
+}
+void HAL_MCU11_revB::tickSafety()
+{
+    if(this->p_buzzer == nullptr)
+    {
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
     }
-    //BUZZER
-    if(this->p_buzzer->newDataAvailable())
+    if(this->p_encoder == nullptr)
     {
-        analogWrite(this->PIN.BUZZER, this->p_buzzer->halCallback().analogIoData.value);
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
     }
-    //p_ld1
-    if(this->p_ld1->newDataAvailable())
+    if(this->p_ld1 == nullptr)
     {
-        analogWrite(this->PIN.LD1, this->p_oen->halCallback().analogIoData.value);
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
     }
-    //LD_COMMUNACTION_STATE
-    if(this->p_ld2->newDataAvailable())
+    if(this->p_ld2 == nullptr)
     {
-        analogWrite(this->PIN.LD2, this->p_oen->halCallback().analogIoData.value);
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
     }
-    //p_ld3
-    if(this->p_ld3->newDataAvailable())
+    if(this->p_ld3 == nullptr)
     {
-        analogWrite(this->PIN.LD3, this->p_oen->halCallback().analogIoData.value);
-    } 
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
+    }
+    if(this->p_oen == nullptr)
+    {
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
+    }
+    if(p_INT_COUNTER_HAL_MCU_REVB == nullptr)
+    {
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
+    }
 }

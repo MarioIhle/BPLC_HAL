@@ -95,7 +95,7 @@ class IO_Interface
 class digitalInput: public IO_Interface
 {
     public:
-    //setup
+    //init
                         digitalInput    (){this->ioType = IO_TYPE__DIGITAL_INPUT; this->state = false; this->previousState = false;}
     //Applikation
     bool 	            ishigh          (){return (bool)(this->state == true && this->previousState == true);}
@@ -119,7 +119,7 @@ class digitalInput: public IO_Interface
 class counter: public IO_Interface
 {
     public:
-    //setup
+    //init
                         counter         (){this->ioType = IO_TYPE__DIGITAL_COUNTER; this->count = 0;}
     //Applikation
     uint64_t 	        getCount        (){return this->count;}

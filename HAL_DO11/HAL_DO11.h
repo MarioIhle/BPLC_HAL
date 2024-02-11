@@ -29,10 +29,10 @@ class HAL_DO11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
                     HAL_DO11            (const e_DO11_ADDRESS_t I2C_ADDRESS);
-    void            setup               ();
+    void            init                ();
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
-    e_BPLC_ERROR_t  getError            (); 
+    e_BPLC_ERROR_t  getErrorCode            (); 
 
     
     private:

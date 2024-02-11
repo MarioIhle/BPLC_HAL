@@ -5,7 +5,7 @@
 rotaryEncoder::rotaryEncoder()
 {
     this->f_invertedDirection   = false;
-    this->ioType                = IO_TYPE__DC_DRIVE; 
+    this->ioType                = IO_TYPE__ROTARY_ENCODER; 
 }
 void rotaryEncoder::invertTurningDirection()
 {
