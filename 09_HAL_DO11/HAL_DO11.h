@@ -32,7 +32,7 @@ class HAL_DO11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
     void            init                ();
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
-    e_BPLC_ERROR_t  getErrorCode            (); 
+    e_BPLC_ERROR_t  getErrorCode        (); 
 
     
     private:

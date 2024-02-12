@@ -6,7 +6,6 @@ HAL_MOT11::HAL_MOT11(const e_MOT11_ADDRESS_t I2C_ADDRESS)
 }
 void HAL_MOT11::init()
 {
-    this->setError(BPLC_ERROR__NO_ERROR);
     this->errordetection.i2cError.countLimit    = 3;
     this->errordetection.i2cError.count         = 0;
     this->channels.p_ioObject                   = nullptr;

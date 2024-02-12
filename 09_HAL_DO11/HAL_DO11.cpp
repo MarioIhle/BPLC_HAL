@@ -10,8 +10,6 @@ void HAL_DO11::init()
     {
         this->channels.p_ioObject[CH] = nullptr;
     }       
-
-    this->setError(BPLC_ERROR__NO_ERROR);
    
     //I2C verbindung prüfen
     if(!I2C_check::begin(this->deviceAddress))

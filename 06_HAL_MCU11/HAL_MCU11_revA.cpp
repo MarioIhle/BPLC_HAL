@@ -16,8 +16,7 @@ void HAL_MCU11_revA::init()
     this->p_ld2     = nullptr;
     this->p_ld3     = nullptr;
     this->p_oen     = nullptr;
-    this->setError(BPLC_ERROR__NO_ERROR);
-    
+     
     //encoder
     pinMode(this->PIN.ENCODER_A, INPUT);
     pinMode(this->PIN.ENCODER_B, INPUT);

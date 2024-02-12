@@ -6,7 +6,6 @@ HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t I2C_ADDRESS)
 }
 void HAL_DIN11::init()
 {  
-    this->setError(BPLC_ERROR__NO_ERROR);
     for(uint8_t CH =0; CH < DIN11_CHANNEL_COUNT; CH++)
     {
         this->channels.p_ioObject[CH] = nullptr;
