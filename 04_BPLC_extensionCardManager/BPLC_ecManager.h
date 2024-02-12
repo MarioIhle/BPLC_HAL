@@ -90,6 +90,7 @@ class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
     void                tick                        ();    
     void                mapObjectToExtensionCard    (IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL);
     e_BPLC_ERROR_t      getExtensionCradError       (){return this->getError();}
+    
 
 
     private:    

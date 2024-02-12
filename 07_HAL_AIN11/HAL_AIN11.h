@@ -46,8 +46,7 @@ class HAL_AIN11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
     Adafruit_ADS1115    ADC;
     e_AIN11_ADDRESS_t   deviceAddress;
     adsGain_t           adcGain;
-    Timeout             to_sampleTime;
-
+  
     //Object handling
     struct
     {

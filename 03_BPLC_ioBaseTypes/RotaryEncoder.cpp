@@ -42,7 +42,7 @@ e_movement_t rotaryEncoder::getTurningDirection()
 }
 bool rotaryEncoder::isButtonPressed()
 {
-    return this->Z.risingEdge();
+    return this->PB.risingEdge();
 }
 u_IO_DATA_BASE_t rotaryEncoder::halCallback(u_IO_DATA_BASE_t* P_DATA)
 {
@@ -52,6 +52,6 @@ u_IO_DATA_BASE_t rotaryEncoder::halCallback(u_IO_DATA_BASE_t* P_DATA)
     BUFFER.digitalIoData.state = P_DATA->rotaryEncoderData.stateB;
     this->B.halCallback(&BUFFER);
     BUFFER.digitalIoData.state = P_DATA->rotaryEncoderData.statePushButton;
-    this->Z.halCallback(&BUFFER);
+    this->PB.halCallback(&BUFFER);
     return BUFFER;
 }

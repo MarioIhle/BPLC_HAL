@@ -6,8 +6,6 @@ HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t I2C_ADDRESS)
 }
 void HAL_AIN11::init()
 {    
-    this->to_sampleTime.setInterval(1000);
-    
     for(uint8_t CH =0; CH < AIN11_CHANNEL_COUNT; CH++)
     {
         this->channels.p_ioObject[CH] = nullptr;
@@ -69,12 +67,12 @@ void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 void HAL_AIN11::tick()
 {   
     if(this->getError() == BPLC_ERROR__NO_ERROR)
-    {  
-        if(this->to_sampleTime.checkAndReset())
-        {
-            for(uint8_t CH = 0; CH < AIN11_CHANNEL_COUNT; CH++)
-            {            
-                if(this->channels.p_ioObject[CH] != nullptr)
+    {          
+        for(uint8_t CH = 0; CH < AIN11_CHANNEL_COUNT; CH++)
+        {            
+            if(this->channels.p_ioObject[CH] != nullptr)
+            {
+                if(this->channels.p_ioObject[CH]->newDataAvailable())
                 {
                     u_IO_DATA_BASE_t tempBuffer;
 
@@ -100,7 +98,7 @@ void HAL_AIN11::tick()
                     }
                 }       
             }
-        }    
+        }  
     }
 }
 e_BPLC_ERROR_t HAL_AIN11::getErrorCode()
@@ -111,8 +109,4 @@ e_BPLC_ERROR_t HAL_AIN11::getErrorCode()
         this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED);
     }
     return this->getError();
-}
-void HAL_AIN11::setSampleTime(const uint64_t SAMPLE_TIME)
-{
-    this->to_sampleTime.setInterval(SAMPLE_TIME);
 }

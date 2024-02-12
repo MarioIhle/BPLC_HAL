@@ -2,12 +2,13 @@
 
 AnalogInput::AnalogInput(const float MAX_VOLTAGE)
 {
-	this->maxVoltage = MAX_VOLTAGE;
+	this->maxVoltage 	= MAX_VOLTAGE;	
+	this->ioType	 	= IO_TYPE__ANALOG_INPUT;
+    this->value			= 0;   
+    this->alarmValue	= 0;
+    this->adcGain		= GAIN_TWOTHIRDS;   
+	this->to_sampleTime.setInterval(1000);         
 }   
-uint16_t AnalogInput::getValue()
-{
-	return this->value;
-}
 float AnalogInput::getValueInVolt()
 {
 	// see data sheet Table 3
@@ -51,12 +52,4 @@ float AnalogInput::getValueInVolt()
 	}
 
 	return valueInVolt;
-}
-void AnalogInput::setAlarm(const uint16_t ALARM_VALUE)
-{
-	this->alarmValue = ALARM_VALUE;
-}
-bool AnalogInput::isAlarmValueReached()
-{
-	return (bool)(this->value >= this->alarmValue);
 }

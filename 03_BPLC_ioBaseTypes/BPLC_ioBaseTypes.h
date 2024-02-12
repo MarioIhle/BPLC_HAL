@@ -109,9 +109,9 @@ class digitalInput: public IO_Interface
     
 
     private:
-    bool        state; 
-    bool        previousState;
-    e_IO_TYPE_t ioType;
+    bool                state; 
+    bool                previousState;
+    e_IO_TYPE_t         ioType;
 };
 //--------------------------------------------------------------------
 //COUNTER INPUT KLASSE
@@ -134,7 +134,7 @@ class counter: public IO_Interface
 
     private:
     volatile uint64_t   count; 
-    e_IO_TYPE_t ioType;
+    e_IO_TYPE_t         ioType;
 };
 //--------------------------------------------------------------------
 //ANALOG INPUT KLASSE
@@ -144,26 +144,29 @@ class counter: public IO_Interface
 class AnalogInput: public IO_Interface
 {
     public:
-                        AnalogInput(const float MAX_VOLTAGE = 5.00);   
+                        AnalogInput         (const float MAX_VOLTAGE = 5.00);   
     //Getter für Applikation
-    uint16_t            getValue            ();
+    uint16_t            getValue            (){return this->value;}
     float               getValueInVolt      ();
+    void                setAdcGain          (const adsGain_t GAIN){this->adcGain = GAIN;}
 
-    void                setAlarm            (const uint16_t ALARM_VALUE);
-    bool                isAlarmValueReached (); //true wenn VALUE >= AlarmValue
-
+    void                setAlarm            (const uint16_t ALARM_VALUE){this->alarmValue = ALARM_VALUE;}
+    bool                isAlarmValueReached (){return (bool)(this->value >= this->alarmValue);}
+    void                setSampleTime       (const uint64_t SAMPLE_TIME){this->to_sampleTime.setInterval(SAMPLE_TIME);}
+    
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
-    bool                newDataAvailable    (){return false;}
+    bool                newDataAvailable    (){return (bool)(this->to_sampleTime.checkAndReset());}
     u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA){this->value = P_DATA->analogIoData.value; return *P_DATA;}
 
 
     private:
-    e_IO_TYPE_t ioType;
-    uint16_t    value;   
-    uint16_t    alarmValue;
-    float       maxVoltage;
-    adsGain_t   adcGain;            //Verstärker einstellung des ADC(Auflösung für Spannugsberechnung)
+    e_IO_TYPE_t         ioType;
+    uint16_t            value;   
+    uint16_t            alarmValue;
+    float               maxVoltage;
+    Timeout             to_sampleTime;
+    adsGain_t           adcGain;            //Verstärker einstellung des ADC(Auflösung für Spannugsberechnung)
 };
 
 //--------------------------------------------------------------------
@@ -180,7 +183,6 @@ typedef enum
 
 	OUTPUTMODE__SIZE,
 }e_outputMode_t;
-
 
 class Output: public IO_Interface, blink
  {
@@ -230,17 +232,17 @@ class rotaryEncoder:public IO_Interface
     bool                isButtonPressed         ();
 
     //Hal handling
-    e_IO_TYPE_t         getIoType       (){return this->ioType;}
-    bool                newDataAvailable(){return false;}
-    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA = nullptr);
+    e_IO_TYPE_t         getIoType               (){return this->ioType;}
+    bool                newDataAvailable        (){return false;}
+    u_IO_DATA_BASE_t    halCallback             (u_IO_DATA_BASE_t* P_DATA = nullptr);
     
 
     private: 
-    e_IO_TYPE_t     ioType;
-    bool            f_invertedDirection;
-    digitalInput    A;
-    digitalInput    B; 
-    digitalInput    Z;   	   
+    e_IO_TYPE_t         ioType;
+    bool                f_invertedDirection;
+    digitalInput        A;
+    digitalInput        B; 
+    digitalInput        PB;   	   
 };
 //--------------------------------------------------------------------
 //dcDrive KLASSE
@@ -259,43 +261,41 @@ typedef enum
 class dcDrive: public IO_Interface
 {
     public: 
-    dcDrive();
-
+                        dcDrive                 ();
     //Drive Commands
-    void stop                 ();
-    void start                ();
-    void stopAndBreak         ();
-    void setSpeed             (const uint8_t SPEED);
-    void setDirection         (const e_movement_t DIRECTION);
-    void setDirectionAndSpeed (const e_movement_t DIRECTION, const uint8_t SPEED);
+    void                stop                    ();
+    void                start                   ();
+    void                stopAndBreak            ();
+    void                setSpeed                (const uint8_t SPEED);
+    void                setDirection            (const e_movement_t DIRECTION);
+    void                setDirectionAndSpeed    (const e_movement_t DIRECTION, const uint8_t SPEED);
 
     //Getter 
-    float           getCurrent   ();
-    e_movement_t    getDirection ();
-    uint8_t         getSpeed     ();
-    e_DRIVE_STATE_t getDriveState();
+    float               getCurrent              ();
+    e_movement_t        getDirection            ();
+    uint8_t             getSpeed                ();
+    e_DRIVE_STATE_t     getDriveState           ();
 
-    //Für Hal
     //Hal handling
-    e_IO_TYPE_t         getIoType           (){return this->ioType;}
-    bool                newDataAvailable    (){return this->f_thereAreNewDriveParametersAvailable;}
-    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA = nullptr);
+    e_IO_TYPE_t         getIoType               (){return this->ioType;}
+    bool                newDataAvailable        (){return this->f_thereAreNewDriveParametersAvailable;}
+    u_IO_DATA_BASE_t    halCallback             (u_IO_DATA_BASE_t* P_DATA = nullptr);
 
     private:
-    e_DRIVE_STATE_t driveState; 
-    bool            f_thereAreNewDriveParametersAvailable;
-    e_IO_TYPE_t     ioType;
+    e_DRIVE_STATE_t     driveState; 
+    bool                f_thereAreNewDriveParametersAvailable;
+    e_IO_TYPE_t         ioType;
     //Motor Parameter
     struct 
     {
-      e_movement_t direction;   //Aktuell angesteuerte Drehrichtung
-      uint8_t      speed;       //Aktuell angesteuerte Geschwindigkeit
-      float        current;     //Aktuelle Stromaufnahme
+      e_movement_t      direction;   //Aktuell angesteuerte Drehrichtung
+      uint8_t           speed;       //Aktuell angesteuerte Geschwindigkeit
+      float             current;     //Aktuelle Stromaufnahme
     
       struct  //Merke Struktur um nach Stop, letzte geschriebene Bewegung fortzusetzten 
       {
-        e_movement_t direction;  
-        uint8_t      speed;
+        e_movement_t    direction;  
+        uint8_t         speed;
       }old;    
     }motParams;
 };
@@ -307,9 +307,9 @@ class dcDrive: public IO_Interface
 class rpmSensor: public IO_Interface
 {
     public:
-                rpmSensor   ();
-    void        begin       (const uint16_t PULSES_PER_REV = 1, const uint16_t SAMPLE_TIME = 500);
-    uint16_t    getRPM      ();
+                        rpmSensor   ();
+    void                begin       (const uint16_t PULSES_PER_REV = 1, const uint16_t SAMPLE_TIME = 500);
+    uint16_t            getRPM      ();
 
     
     //Hal handling
@@ -318,15 +318,15 @@ class rpmSensor: public IO_Interface
     u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA = nullptr);
 
     private:     
-    e_IO_TYPE_t     ioType;
+    e_IO_TYPE_t         ioType;
 
-    digitalInput    dataObject;
-    unsigned long   startTime;
-    uint32_t        samples;
-    uint16_t        rpm;
-    uint16_t        pulsesPerRevolution;
+    digitalInput        dataObject;
+    unsigned long       startTime;
+    uint32_t            samples;
+    uint16_t            rpm;
+    uint16_t            pulsesPerRevolution;
 
-    Timeout         to_rpmCalculation;
+    Timeout             to_rpmCalculation;
 };
 //--------------------------------------------------------------------
 //Servo
