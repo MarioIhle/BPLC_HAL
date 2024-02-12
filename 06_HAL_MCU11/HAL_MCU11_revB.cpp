@@ -118,8 +118,8 @@ void HAL_MCU11_revB::tick()
         this->p_encoder->halCallback(&tempbuffer);
         //p_oen schreiben
         if(this->p_oen->newDataAvailable())
-        {
-            analogWrite(this->PIN.OEN, this->p_oen->halCallback().analogIoData.value);
+        {           
+            digitalWrite(this->PIN.OEN, this->p_oen->halCallback().digitalIoData.state);
         }
         //BUZZER
         if(this->p_buzzer->newDataAvailable())

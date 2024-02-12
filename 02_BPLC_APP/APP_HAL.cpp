@@ -9,6 +9,7 @@ void BPLC_APP::setupHardware(const e_EXTENSION_CARD_TYPE_t MCU_TYPE)
 {
    //BUZZER lautstärke anpassen
    this->APP_HAL.BUZZER.setOnValue(50);
+   this->APP_HAL.OEN.setOnValue(1);
    //MCU setup
    this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.BUZZER,                      MCU_TYPE, MCU_CHANNEL__BUZZER);  
    this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.ENCODER,                     MCU_TYPE, MCU_CHANNEL__ENCODER); 

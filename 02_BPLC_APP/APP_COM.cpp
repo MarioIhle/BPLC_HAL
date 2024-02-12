@@ -25,7 +25,6 @@ void BPLC_APP::setupNetwork()
 }
 void BPLC_APP::mapPortToNetwork(portInterface_APP* P_PORT)
 {    
-    this->printLog("PORT with Index: " + String(P_PORT->getDataBase()->getPortIndex()) + " mapped to Network");
     //Network setup
     if(this->APP_COM.deviceAddress < 0)
     {                       
