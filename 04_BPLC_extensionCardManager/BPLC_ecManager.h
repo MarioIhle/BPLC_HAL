@@ -84,7 +84,7 @@ class extensionCard
     private:
     extensionCard*          p_next;
     halInterface*           p_hal;
-    e_BPLC_CARD_TYPE_t cardType; 
+    e_BPLC_CARD_TYPE_t      cardType; 
 };
 
 class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
@@ -101,6 +101,6 @@ class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
     void                addExtensionCardToList          (extensionCard* CARD_TO_ADD);
     extensionCard*      searchExtensionCard             (const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD);
     extensionCard*      p_firstExtensionCard;    
-    counter             isrCounter;
+    volatile uint64_t   isrCount;
 };
 #endif

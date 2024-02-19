@@ -1,11 +1,15 @@
 #include "HAL_MCU11.h"
 
 //Callback für Hardware Interrupt 
-IO_Interface* p_INT_COUNTER_HAL_MCU_REVA;
+volatile uint64_t* p_ISR_COUNT_MCU_REVA;
 
 static void INT_ISR()
 {
-    p_INT_COUNTER_HAL_MCU_REVA->halCallback();
+    *p_ISR_COUNT_MCU_REVA = *p_ISR_COUNT_MCU_REVA + 2;
+}
+HAL_MCU11_revA::HAL_MCU11_revA(volatile uint64_t* P_ISR_COUNT)
+{
+    p_ISR_COUNT_MCU_REVA = P_ISR_COUNT;
 }
 void HAL_MCU11_revA::init()
 {
@@ -66,13 +70,6 @@ void HAL_MCU11_revA::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t
             }
             break;
 
-        case MCU_CHANNEL__INT:
-            if(P_IO_OBJECT->getIoType() == IO_TYPE__DIGITAL_COUNTER)
-            {
-                p_INT_COUNTER_HAL_MCU_REVA = P_IO_OBJECT;
-            }        
-            break;
-
         case MCU_CHANNEL__LD1:
             if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
             {
@@ -112,7 +109,7 @@ void HAL_MCU11_revA::tick()
     //p_oen schreiben
     if(this->p_oen->newDataAvailable())
     {
-        analogWrite(this->PIN.OEN, this->p_oen->halCallback().analogIoData.value);
+        digitalWrite(this->PIN.OEN, this->p_oen->halCallback().digitalIoData.state);
     }
     //BUZZER
     if(this->p_buzzer->newDataAvailable())
@@ -161,7 +158,7 @@ void HAL_MCU11_revA::tickSafety()
     {
         this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
     }
-    if(p_INT_COUNTER_HAL_MCU_REVA == nullptr)
+    if(p_ISR_COUNT_MCU_REVA == nullptr)
     {
         this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
     }

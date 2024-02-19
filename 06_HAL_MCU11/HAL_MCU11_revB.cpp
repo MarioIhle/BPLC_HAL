@@ -1,13 +1,14 @@
 #include "HAL_MCU11.h"
 
 //Callback für Hardware Interrupt 
-IO_Interface* p_INT_COUNTER_HAL_MCU_REVB;
-
-HAL_MCU11_revB::HAL_MCU11_revB()
-{}
+volatile uint64_t* p_ISR_COUNT_MCU_REVB;
 static void INT_ISR()
 {
-   p_INT_COUNTER_HAL_MCU_REVB->halCallback();
+   *p_ISR_COUNT_MCU_REVB = *p_ISR_COUNT_MCU_REVB + 2;
+}
+HAL_MCU11_revB::HAL_MCU11_revB(volatile uint64_t* P_ISR_COUNT)
+{
+    p_ISR_COUNT_MCU_REVB = P_ISR_COUNT;
 }
 void HAL_MCU11_revB::init()
 {
@@ -66,13 +67,6 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t
             {
                 this->p_oen = P_IO_OBJECT;
             }
-            break;
-
-        case MCU_CHANNEL__INT:
-            if(P_IO_OBJECT->getIoType() == IO_TYPE__DIGITAL_COUNTER)
-            {
-                p_INT_COUNTER_HAL_MCU_REVB = P_IO_OBJECT;
-            }        
             break;
 
         case MCU_CHANNEL__LD1:
@@ -169,7 +163,7 @@ void HAL_MCU11_revB::tickSafety()
     {
         this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
     }
-    if(p_INT_COUNTER_HAL_MCU_REVB == nullptr)
+    if(p_ISR_COUNT_MCU_REVB == nullptr)
     {
         this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
     }

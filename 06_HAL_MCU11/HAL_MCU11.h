@@ -44,7 +44,7 @@ enum
 class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_LOG
 {
     public:
-                    HAL_MCU11_revA      (){};
+                    HAL_MCU11_revA      (volatile uint64_t* P_ISR_COUNT);
     void            init                ();
     void            tick                ();
     e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}
@@ -96,7 +96,7 @@ class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_LOG
 class HAL_MCU11_revB: public halInterface, BPLC_errorHandler, BPLC_LOG
 {
     public:
-                    HAL_MCU11_revB      ();    
+                    HAL_MCU11_revB      (volatile uint64_t* P_ISR_COUNT);    
     void            init                ();
     void            tick                ();
     e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}

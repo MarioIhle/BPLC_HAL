@@ -126,13 +126,14 @@ class counter: public IO_Interface
                         counter         (){this->ioType = IO_TYPE__DIGITAL_COUNTER; this->count = 0;}
     //Applikation
     uint64_t 	        getCount        (){return this->count;}
+    void                setCount        (uint64_t COUNT){this->count = COUNT;}
     void	            resetCount      (){this->count = 0;}
 	void 	            increment       (){this->count++;}	
     void 	            decrement       (){this->count--;}
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable(){return false;}
-    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA){this->increment(); return*P_DATA;}
+    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA){this->count++; return *P_DATA;}
     
 
     private:

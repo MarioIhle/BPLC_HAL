@@ -24,13 +24,11 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_
     {
         //MCU
         case BPLC_CARD__MCU11revA:    
-            p_newHalInterface = new HAL_MCU11_revA();  
-            p_newHalInterface->mapObjectToChannel(&this->isrCounter, MCU_CHANNEL__INT);
+            p_newHalInterface = new HAL_MCU11_revA(&this->isrCount);  
             break;
         case BPLC_CARD__MCU11revB:    
         case BPLC_CARD__MCU11revC://Gleiches pinning, nur änderungen im Layout 
-            p_newHalInterface = new HAL_MCU11_revB();      
-            p_newHalInterface->mapObjectToChannel(&this->isrCounter, MCU_CHANNEL__INT); 
+            p_newHalInterface = new HAL_MCU11_revB(&this->isrCount);      
             break;        
         //DIN11revA
         case BPLC_CARD__DIN11revA_1:
@@ -158,29 +156,29 @@ void BPLC_extensionCardHandler::tick()
 {
     if(this->p_firstExtensionCard!= nullptr)
     {
-        extensionCard* p_extesionCardToTick = this->p_firstExtensionCard;
+        extensionCard* p_extensionCardToTick = this->p_firstExtensionCard;
        
-        while(p_extesionCardToTick != nullptr)
+        while(p_extensionCardToTick != nullptr)
         {
-            e_BPLC_ERROR_t EC_HAL_ERROR = p_extesionCardToTick->getHalInterface()->getErrorCode();
+            e_BPLC_ERROR_t EC_HAL_ERROR = p_extensionCardToTick->getHalInterface()->getErrorCode();
   
             if(EC_HAL_ERROR == BPLC_ERROR__NO_ERROR)
             {
-                switch(p_extesionCardToTick->getCardType())            
+                switch(p_extensionCardToTick->getCardType())            
                 {
                     case BPLC_CARD__DIN11revA_1:
                     case BPLC_CARD__DIN11revA_2:
                     case BPLC_CARD__DIN11revA_3:
                     case BPLC_CARD__DIN11revA_4:
-                        if(this->isrCounter.getCount() > 0)
+                        if(this->isrCount > 0)
                         {
-                            p_extesionCardToTick->getHalInterface()->tick();
-                            this->isrCounter.decrement();//Es könnten Flanken überschieben werden, dabei counter >1 mehrmals die Hal callbacks aufgerufen werden!!!!, aber gerade keine bessere Lösung vorhanden
+                            p_extensionCardToTick->getHalInterface()->tick();
+                            this->isrCount--;//Es könnten Flanken überschieben werden, dabei counter >1 mehrmals die Hal callbacks aufgerufen werden!!!!, aber gerade keine bessere Lösung vorhanden
                         }
                     break;
 
                     default:
-                        p_extesionCardToTick->getHalInterface()->tick();
+                        p_extensionCardToTick->getHalInterface()->tick();
                     break;
                 }          
             }  
@@ -188,7 +186,7 @@ void BPLC_extensionCardHandler::tick()
             {
                 this->setError(EC_HAL_ERROR);
             }
-            p_extesionCardToTick = p_extesionCardToTick->getNext();      
+            p_extensionCardToTick = p_extensionCardToTick->getNext();      
         }
     }
 }
