@@ -104,11 +104,11 @@ void HAL_MCU11_revB::tick()
     if(this->getError() == BPLC_ERROR__NO_ERROR)
     {
         //encoder
-        u_HAL_CALLBACK_DATA_t tempbuffer;
-        memset(&tempbuffer, 0, sizeof(u_HAL_CALLBACK_DATA_t));
-        tempbuffer.rotaryEncoderData.stateA             = digitalRead(this->PIN.ENCODER_A);
-        tempbuffer.rotaryEncoderData.stateB             = digitalRead(this->PIN.ENCODER_B);
-        tempbuffer.rotaryEncoderData.statePushButton    = digitalRead(this->PIN.ENCODER_BUTTON);
+        u_HAL_DATA_t tempbuffer;
+        memset(&tempbuffer, 0, sizeof(u_HAL_DATA_t));
+        tempbuffer.encoderData.stateA             = digitalRead(this->PIN.ENCODER_A);
+        tempbuffer.encoderData.stateB             = digitalRead(this->PIN.ENCODER_B);
+        tempbuffer.encoderData.stateZ    = digitalRead(this->PIN.ENCODER_BUTTON);
         this->p_encoder->halCallback(&tempbuffer);
         //p_oen schreiben
         if(this->p_oen->newDataAvailable())

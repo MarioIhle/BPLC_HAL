@@ -49,11 +49,23 @@ void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANN
     }
     else
     {
-        this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
-        //Bei Servos, die PWM Frequenz senken
-        if(P_IO_OBJECT->getIoType() == IO_TYPE__SERVO)
-        {
-            this->PCA.setPWMFrequency(25);
+        switch (P_IO_OBJECT->getIoType())
+        {                    
+            case IO_TYPE__OUTPUT_PULL:        
+            case IO_TYPE__OUTPUT_PUSH:      
+            case IO_TYPE__OUTPUT_PUSH_PULL:                         
+            case IO_TYPE__OUTPUT_PUSH_PULL_INVERT: 
+                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
+            break;
+
+            case IO_TYPE__SERVO:
+                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
+                this->PCA.setPWMFrequency(25);
+            break;
+
+            default:
+                this->setError(DO11_ERROR__IO_OBJECT_NOT_SUITABLE);
+            break;
         }
     }
 }

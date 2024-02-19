@@ -60,7 +60,7 @@ void HAL_REL11::tick()
             {
                 if(this->channels.p_ioObject[CH]->newDataAvailable())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
                 {
-                    u_HAL_CALLBACK_DATA_t tempBuffer;                
+                    u_HAL_DATA_t tempBuffer;                
 
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {

@@ -69,10 +69,10 @@ e_DRIVE_STATE_t dcDrive::getDriveState()
 {
 	return this->driveState;
 }
-u_HAL_CALLBACK_DATA_t dcDrive::halCallback(u_HAL_CALLBACK_DATA_t* P_DATA)
+u_HAL_DATA_t dcDrive::halCallback(u_HAL_DATA_t* P_DATA)
 {	 
 	this->motParams.current  		= P_DATA->dcDriveData.current;
-	u_HAL_CALLBACK_DATA_t BUFFER;
+	u_HAL_DATA_t BUFFER;
 	BUFFER.dcDriveData.direction 	= this->motParams.direction;
 	BUFFER.dcDriveData.speed 		= this->motParams.speed;     
 	this->f_thereAreNewDriveParametersAvailable = false;
@@ -96,9 +96,9 @@ void servoMotor::setServoPosition(const uint16_t POSITION)
     this->pwmValue = map(POSITION, 180, 0, 136, 363);
 	this->f_newPositionAvailable = true;
 }
-u_HAL_CALLBACK_DATA_t servoMotor::halCallback(u_HAL_CALLBACK_DATA_t* P_DATA)
+u_HAL_DATA_t servoMotor::halCallback(u_HAL_DATA_t* P_DATA)
 {
-	u_HAL_CALLBACK_DATA_t BUFFER;
+	u_HAL_DATA_t BUFFER;
 	BUFFER.analogIoData.value 		= this->pwmValue;
 	this->f_newPositionAvailable 	= false;
 		

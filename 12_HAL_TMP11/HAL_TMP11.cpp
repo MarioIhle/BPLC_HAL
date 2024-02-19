@@ -71,7 +71,7 @@ void HAL_TMP11::tick()
             {
                 if(this->channels.p_ioObject[CH]->newDataAvailable())
                 {
-                    u_HAL_CALLBACK_DATA_t tempBuffer;
+                    u_HAL_DATA_t tempBuffer;
 
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {         

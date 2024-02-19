@@ -47,10 +47,10 @@ typedef union
     {
         bool stateA;
         bool stateB;
-        bool statePushButton;
-    }rotaryEncoderData;
+        bool stateZ;
+    }encoderData;
     
-}u_HAL_CALLBACK_DATA_t;
+}u_HAL_DATA_t;
 //--------------------------------------------------------------------
 //IO TYPE
 typedef enum
@@ -61,6 +61,7 @@ typedef enum
     IO_TYPE__DIGITAL_COUNTER, 
     IO_TYPE__RPM_SENS,
     IO_TYPE__ROTARY_ENCODER,
+    IO_TYPE__POSITION_ENCODER,
     IO_TYPE__ANALOG_INPUT,
     IO_TYPE__OUTPUT_PULL,               //0= float, 1= GND
 	IO_TYPE__OUTPUT_PUSH,               //0= float, 1=VCC    
@@ -81,7 +82,7 @@ class IO_Interface
     public:
     virtual e_IO_TYPE_t         getIoType           () = 0; 
     virtual bool                newDataAvailable    () = 0;
-    virtual u_HAL_CALLBACK_DATA_t    halCallback         (u_HAL_CALLBACK_DATA_t* DATA = nullptr) = 0;
+    virtual u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* DATA = nullptr) = 0;
 };
 //--------------------------------------------------------------------
 //DIGITAL INPUT KLASSE
@@ -98,7 +99,7 @@ class digitalInput: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable(){return false;}
-    u_HAL_CALLBACK_DATA_t    halCallback     (u_HAL_CALLBACK_DATA_t* P_DATA){this->previousState = this->state; this->state = P_DATA->digitalIoData.state; return *P_DATA;}
+    u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA){this->previousState = this->state; this->state = P_DATA->digitalIoData.state; return *P_DATA;}
     
 
     private:
@@ -122,7 +123,7 @@ class counter: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable(){return false;}
-    u_HAL_CALLBACK_DATA_t    halCallback     (u_HAL_CALLBACK_DATA_t* P_DATA){if(P_DATA->digitalIoData.state == true && this->previousState == false){this->count++;} this->previousState = P_DATA->digitalIoData.state; return *P_DATA;}
+    u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA){if(P_DATA->digitalIoData.state == true && this->previousState == false){this->count++;} this->previousState = P_DATA->digitalIoData.state; return *P_DATA;}
     
 
     private:
@@ -150,7 +151,7 @@ class AnalogInput: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
     bool                newDataAvailable    (){return (bool)(this->to_sampleTime.checkAndReset());}
-    u_HAL_CALLBACK_DATA_t    halCallback         (u_HAL_CALLBACK_DATA_t* P_DATA){this->value = P_DATA->analogIoData.value; return *P_DATA;}
+    u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* P_DATA){this->value = P_DATA->analogIoData.value; return *P_DATA;}
 
 
     private:
@@ -190,7 +191,7 @@ class Output: public IO_Interface, blink
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable();
-    u_HAL_CALLBACK_DATA_t    halCallback     (u_HAL_CALLBACK_DATA_t* P_DATA);
+    u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA);
 
 
 	private: 
@@ -219,7 +220,7 @@ class rotaryEncoder:public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType               (){return this->ioType;}
     bool                newDataAvailable        (){return false;}
-    u_HAL_CALLBACK_DATA_t    halCallback             (u_HAL_CALLBACK_DATA_t* P_DATA = nullptr);
+    u_HAL_DATA_t        halCallback             (u_HAL_DATA_t* P_DATA = nullptr);
     
 
     private: 
@@ -228,6 +229,29 @@ class rotaryEncoder:public IO_Interface
     digitalInput        A;
     digitalInput        B; 
     digitalInput        PB;   	   
+};
+//--------------------------------------------------------------------
+//POSITION ENCODER KLASSE
+class positionEncoder:public IO_Interface
+{
+	public:
+                        positionEncoder                 (const uint16_t PULSES_PER_REV){this->pulsesPerRevolution = PULSES_PER_REV; this->ioType = IO_TYPE__POSITION_ENCODER;}
+    uint16_t            getPositionInDegree             (){return map(this->poitionIncrement.getCount(), 0 , this->pulsesPerRevolution, 0, 360);}
+    uint16_t            getPositionIncrement            (){return this->poitionIncrement.getCount();}
+
+    //Hal handling
+    e_IO_TYPE_t         getIoType                       (){return this->ioType;}
+    bool                newDataAvailable                (){return false;}
+    u_HAL_DATA_t        halCallback                     (u_HAL_DATA_t* P_DATA = nullptr);
+    
+
+    private: 
+    e_IO_TYPE_t         ioType;
+    counter             poitionIncrement;
+    uint16_t            pulsesPerRevolution;
+    digitalInput        A;
+    digitalInput        B; 
+    digitalInput        Z;   	   
 };
 //--------------------------------------------------------------------
 //DC DRIVE KLASSE
@@ -263,7 +287,7 @@ class dcDrive: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType               (){return this->ioType;}
     bool                newDataAvailable        (){return this->f_thereAreNewDriveParametersAvailable;}
-    u_HAL_CALLBACK_DATA_t    halCallback             (u_HAL_CALLBACK_DATA_t* P_DATA = nullptr);
+    u_HAL_DATA_t        halCallback             (u_HAL_DATA_t* P_DATA = nullptr);
 
     private:
     e_DRIVE_STATE_t     driveState; 
@@ -297,7 +321,7 @@ class rpmSensor: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
     bool                newDataAvailable    (){return false;}
-    u_HAL_CALLBACK_DATA_t    halCallback         (u_HAL_CALLBACK_DATA_t* P_DATA = nullptr);
+    u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* P_DATA = nullptr);
 
 
     private:     
@@ -321,7 +345,7 @@ class servoMotor: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
     bool                newDataAvailable    (){return this->f_newPositionAvailable;}
-    u_HAL_CALLBACK_DATA_t    halCallback         (u_HAL_CALLBACK_DATA_t* P_DATA = nullptr);
+    u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* P_DATA = nullptr);
 
 
     private:    
