@@ -66,12 +66,12 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     public:
     //Setup des BPLC Systems
             BPLC_APP                ();
-    void    begin                   (const e_EXTENSION_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS = 0);      
+    void    begin                   (const e_BPLC_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS = 0);      
     void    invertEncoder           ();
     //Network
     void    mapPortToNetwork        (portInterface_APP* P_PORT);
 
-    void    mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL);
+    void    mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const uint8_t CHANNEL);
 
     //Rountine aufruf
     void    tick                    ();    
@@ -140,7 +140,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     }APP_SAFETY;
 
     //APP_HAL
-    void setupHardware(const e_EXTENSION_CARD_TYPE_t MCU_TYPE);
+    void setupHardware(const e_BPLC_CARD_TYPE_t MCU_TYPE);
     void tickHardware();
      
     struct 

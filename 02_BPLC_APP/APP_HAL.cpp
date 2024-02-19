@@ -5,7 +5,7 @@ void BPLC_APP::invertEncoder()
    this->printLog("onboard Encoder invertetd");
    this->APP_HAL.ENCODER.invertTurningDirection();
 }
-void BPLC_APP::setupHardware(const e_EXTENSION_CARD_TYPE_t MCU_TYPE)
+void BPLC_APP::setupHardware(const e_BPLC_CARD_TYPE_t MCU_TYPE)
 {
    //BUZZER lautstärke anpassen
    this->APP_HAL.BUZZER.setOnValue(50);
@@ -20,7 +20,7 @@ void BPLC_APP::setupHardware(const e_EXTENSION_CARD_TYPE_t MCU_TYPE)
    //MCU Onboard OLED DISPLAY
    this->APP_HAL.oled.begin();       
 }
-void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_EXTENSION_CARD_TYPE_t CARD, const uint8_t CHANNEL)
+void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const uint8_t CHANNEL)
 {
    this->extensionCardHandler.mapObjectToExtensionCard(P_IO_OBJECT, CARD, CHANNEL);
 }
