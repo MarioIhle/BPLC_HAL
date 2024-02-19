@@ -76,6 +76,7 @@ void HAL_DIN11::tick()
                 {                    
                     case IO_TYPE__DIGITAL_INPUT:
                     case IO_TYPE__RPM_SENS:
+                    case IO_TYPE__COUNT:
                         tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);
                         this->channels.p_ioObject[CH]->halCallback(&tempBuffer); 
                         break;
@@ -85,7 +86,7 @@ void HAL_DIN11::tick()
                         tempBuffer.rotaryEncoderData.stateB             = !PCF.read(this->channels.PIN[CH + 1]);
                         tempBuffer.rotaryEncoderData.statePushButton    = !PCF.read(this->channels.PIN[CH + 2]);
                         this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
-                        CH +=3;
+                        CH +=3;//Sonst wird encoder 3x gelesen...
                         break;
 
                     default:

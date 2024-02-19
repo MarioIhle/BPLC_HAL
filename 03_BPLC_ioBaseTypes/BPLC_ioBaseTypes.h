@@ -133,12 +133,13 @@ class counter: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable(){return false;}
-    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA){this->count++; return *P_DATA;}
+    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA){if(P_DATA->digitalIoData.state == true && this->previousState == false){this->count++;} this->previousState = P_DATA->digitalIoData.state; return *P_DATA;}
     
 
     private:
     volatile uint64_t   count; 
     e_IO_TYPE_t         ioType;
+    volatile bool       previousState;
 };
 //--------------------------------------------------------------------
 //ANALOG INPUT KLASSE
@@ -311,22 +312,21 @@ class dcDrive: public IO_Interface
 class rpmSensor: public IO_Interface
 {
     public:
-                        rpmSensor   ();
-    void                begin       (const uint16_t PULSES_PER_REV = 1, const uint16_t SAMPLE_TIME = 500);
-    uint16_t            getRPM      ();
-
+                        rpmSensor           ();
+    void                begin               (const uint16_t PULSES_PER_REV = 1, const uint16_t SAMPLE_TIME = 500);
+    uint16_t            getRPM              ();
     
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
     bool                newDataAvailable    (){return false;}
     u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA = nullptr);
 
+
     private:     
     e_IO_TYPE_t         ioType;
-
-    digitalInput        dataObject;
+    counter             sampleCounter;
     unsigned long       startTime;
-    uint32_t            samples;
+
     uint16_t            rpm;
     uint16_t            pulsesPerRevolution;
 
