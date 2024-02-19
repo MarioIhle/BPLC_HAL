@@ -17,7 +17,7 @@ void HAL_AIN11::init()
        this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED);        
     }
     //Applikationsparameter initialisieren         
-    if(this->getErrorCode() == BPLC_ERROR__NO_ERROR)
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
     {   
         // The ADC input range (or gain) can be changed via the following
         // functions, but be careful never to exceed VDD +0.3V max, or to
@@ -34,13 +34,11 @@ void HAL_AIN11::init()
         
         this->ADC.setGain(this->adcGain);
         this->ADC.begin(this->deviceAddress);
-        BPLC_LOG logPrint;
-        logPrint.printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");      
+        this->printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");      
     }    
     else
     {
-        BPLC_LOG logPrint;
-        logPrint.printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");    
+        this->printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");    
     }
 }
 void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)

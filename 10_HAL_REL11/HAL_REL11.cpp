@@ -17,7 +17,7 @@ void HAL_REL11::init()
         this->setError(REL11_ERROR__I2C_CONNECTION_FAILED);        
     }
     //Applikationsparameter initialisieren
-    if(this->getErrorCode() == BPLC_ERROR__NO_ERROR)
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
     {   
         this->PCF.setAddress(this->deviceAddress);      
         this->PCF.begin();                              

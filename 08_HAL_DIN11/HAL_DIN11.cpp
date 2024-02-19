@@ -18,7 +18,7 @@ void HAL_DIN11::init()
     }
 
     //Applikationsparameter initialisieren
-    if(this->getErrorCode() == BPLC_ERROR__NO_ERROR)
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
     {   
         PCF.setAddress(this->deviceAddress);   
         PCF.begin();      

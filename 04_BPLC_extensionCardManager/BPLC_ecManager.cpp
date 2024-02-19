@@ -27,7 +27,8 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_
             p_newHalInterface = new HAL_MCU11_revA();  
             p_newHalInterface->mapObjectToChannel(&this->isrCounter, MCU_CHANNEL__INT);
             break;
-        case BPLC_CARD__MCU11revB:     
+        case BPLC_CARD__MCU11revB:    
+        case BPLC_CARD__MCU11revC://Gleiches pinning, nur änderungen im Layout 
             p_newHalInterface = new HAL_MCU11_revB();      
             p_newHalInterface->mapObjectToChannel(&this->isrCounter, MCU_CHANNEL__INT); 
             break;        
@@ -70,7 +71,7 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_
         case BPLC_CARD__AIN11revA_4:
             p_newHalInterface = new HAL_AIN11(AIN11_CARD_4_ADDRESS); 
             break;
-        //AIN11revA
+        //REL11revA
         case BPLC_CARD__REL11revA_1:
             p_newHalInterface = new HAL_REL11(REL11_CARD_1_ADDRESS); 
             break;
@@ -83,7 +84,7 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_
         case BPLC_CARD__REL11revA_4:
             p_newHalInterface = new HAL_REL11(REL11_CARD_4_ADDRESS); 
             break;
-        //AIN11revA
+        //MOT11revA
         case BPLC_CARD__MOT11revA_1:
             p_newHalInterface = new HAL_MOT11(MOT11_CARD_1_ADDRESS); 
             break;
@@ -95,6 +96,20 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_
             break;
         case BPLC_CARD__MOT11revA_4:
             p_newHalInterface = new HAL_MOT11(MOT11_CARD_4_ADDRESS); 
+            break;
+
+            //AIN11revA
+        case BPLC_CARD__TMP11revA_1:
+            p_newHalInterface = new HAL_TMP11(TMP11_CARD_1_ADDRESS); 
+            break;
+        case BPLC_CARD__TMP11revA_2:
+            p_newHalInterface = new HAL_TMP11(TMP11_CARD_2_ADDRESS); 
+            break;
+        case BPLC_CARD__TMP11revA_3:
+            p_newHalInterface = new HAL_TMP11(TMP11_CARD_3_ADDRESS); 
+            break;
+        case BPLC_CARD__TMP11revA_4:
+            p_newHalInterface = new HAL_TMP11(TMP11_CARD_4_ADDRESS); 
             break;
             
         default:

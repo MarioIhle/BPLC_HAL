@@ -71,6 +71,9 @@ typedef enum
     IO_TYPE__OUTPUT_PUSH_PULL_INVERT,   //0= VCC,   1=GND inverteriter Ausgang, benötigt für H-Brücke mit DO11
     IO_TYPE__SERVO,
     IO_TYPE__DC_DRIVE,
+    IO_TYPE__PT100,
+    IO_TYPE__PT1000,
+    IO_TYPE__PTC,
 
     IO_TYPE__COUNT,
 }e_IO_TYPE_t;

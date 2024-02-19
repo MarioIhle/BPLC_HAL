@@ -20,7 +20,7 @@ void HAL_MOT11::init()
     }
 
     //Applikationsparameter initialisieren
-    if(this->getErrorCode() == BPLC_ERROR__NO_ERROR)
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
     {   
         this->deviceState = deviceState_running;  
         this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");        

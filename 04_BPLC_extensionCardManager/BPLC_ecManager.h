@@ -11,13 +11,15 @@
 #include "HAL_REL11.h"
 #include "HAL_DO11.h"
 #include "HAL_MOT11.h"
+#include "HAL_TMP11.h"
 
 typedef enum
 {
     BPLC_CARD__NO_CARD_DEFINED,
 
     BPLC_CARD__MCU11revA,
-    BPLC_CARD__MCU11revB,   
+    BPLC_CARD__MCU11revB,
+    BPLC_CARD__MCU11revC,   
 
     BPLC_CARD__DIN11revA_1,
     BPLC_CARD__DIN11revA_2,
@@ -59,6 +61,11 @@ typedef enum
     BPLC_CARD__FUSE12revA_3,
     BPLC_CARD__FUSE12revA_4,
 
+    BPLC_CARD__TMP11revA_1,
+    BPLC_CARD__TMP11revA_2,
+    BPLC_CARD__TMP11revA_3,
+    BPLC_CARD__TMP11revA_4,
+
     BPLC_CARD__TYPE_COUNT,
 
 }e_BPLC_CARD_TYPE_t;
@@ -89,12 +96,11 @@ class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
     e_BPLC_ERROR_t      getExtensionCradError       (){return this->getError();}
     
 
-
     private:    
-    extensionCard*  addNewExtensionCard             (const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE);
-    void            addExtensionCardToList          (extensionCard* CARD_TO_ADD);
-    extensionCard*  searchExtensionCard             (const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD);
-    extensionCard*  p_firstExtensionCard;    
-    counter         isrCounter;
+    extensionCard*      addNewExtensionCard             (const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE);
+    void                addExtensionCardToList          (extensionCard* CARD_TO_ADD);
+    extensionCard*      searchExtensionCard             (const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD);
+    extensionCard*      p_firstExtensionCard;    
+    counter             isrCounter;
 };
 #endif
