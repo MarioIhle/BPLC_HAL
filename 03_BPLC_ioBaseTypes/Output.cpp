@@ -66,6 +66,7 @@ u_IO_DATA_BASE_t Output::halCallback(u_IO_DATA_BASE_t* P_DATA)
 {
 	u_IO_DATA_BASE_t tempBuffer;
 	tempBuffer.analogIoData.value = this->value;
+	this->f_newDataAvailable = false;
 	return tempBuffer;
 }
 bool Output::newDataAvailable()

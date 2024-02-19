@@ -113,9 +113,7 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_
             break;
             
         default:
-        case BPLC_CARD__TYPE_COUNT:
         case BPLC_CARD__NO_CARD_DEFINED:
-        case MCU_CARD__NO_MCU_DEFINED:
             this->printResetReason("extensionCardManager", "addNewExtensionCard", "CARD NOT DEFINED");
             abort();
             break;
