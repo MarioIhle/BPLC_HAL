@@ -132,7 +132,7 @@ Serial.println("kein ACK empfangen");
 #endif 
     } 
 }
-void HAL_MOT11::sendDriveCommand(const u_IO_DATA_BASE_t DRIVE_PARAMETER)
+void HAL_MOT11::sendDriveCommand(const u_HAL_CALLBACK_DATA_t DRIVE_PARAMETER)
 {  
     u_mot11_i2c_payload_t COMMAND;
     memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
@@ -245,7 +245,7 @@ bool HAL_MOT11::waitForDriveParameter()
     if(RECEIVED_ERROR_CODE_PLAUSIBLE && inCommand.extract.key == mot11_i2c_key__getDriveState)
     {
         this->deviceState = (e_deviceState_t)inCommand.extract.deviceState;
-        u_IO_DATA_BASE_t tempBuffer;
+        u_HAL_CALLBACK_DATA_t tempBuffer;
         tempBuffer.dcDriveData.current = inCommand.extract.current;
         this->channels.p_ioObject->halCallback(&tempBuffer);
         this->setError((e_BPLC_ERROR_t)inCommand.extract.error);

@@ -70,7 +70,7 @@ void HAL_DIN11::tick()
         {      
             if(this->channels.p_ioObject[CH] != nullptr)
             {
-                u_IO_DATA_BASE_t tempBuffer;                
+                u_HAL_CALLBACK_DATA_t tempBuffer;                
 
                 switch (this->channels.p_ioObject[CH]->getIoType())
                 {                    

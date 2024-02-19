@@ -101,7 +101,7 @@ void HAL_MCU11_revA::tick()
 {  
     this->tickSafety();
     //encoder
-    u_IO_DATA_BASE_t tempbuffer;
+    u_HAL_CALLBACK_DATA_t tempbuffer;
     tempbuffer.rotaryEncoderData.stateA             = digitalRead(this->PIN.ENCODER_A);
     tempbuffer.rotaryEncoderData.stateB             = digitalRead(this->PIN.ENCODER_B);
     tempbuffer.rotaryEncoderData.statePushButton    = digitalRead(this->PIN.ENCODER_BUTTON);

@@ -94,7 +94,7 @@ class HAL_MOT11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
     e_deviceState_t     deviceState;
 
     //I2C Kommunikation
-    void sendDriveCommand     (const u_IO_DATA_BASE_t DRIVE_PARAMETER);
+    void sendDriveCommand     (const u_HAL_CALLBACK_DATA_t DRIVE_PARAMETER);
     void requestDriveParameter();
     void sendFrame            (const u_mot11_i2c_payload_t COMMAND);
     bool waitForACK           ();

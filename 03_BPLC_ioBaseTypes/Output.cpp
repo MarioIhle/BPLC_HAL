@@ -62,9 +62,9 @@ void Output::blinkContinious(const uint8_t BLINKS, const unsigned long BLINK_INT
     this->mode = OUTPUTMODE__BLINK_CONTINIOUS;
 }
 //Hal Handling
-u_IO_DATA_BASE_t Output::halCallback(u_IO_DATA_BASE_t* P_DATA)
+u_HAL_CALLBACK_DATA_t Output::halCallback(u_HAL_CALLBACK_DATA_t* P_DATA)
 {
-	u_IO_DATA_BASE_t tempBuffer;
+	u_HAL_CALLBACK_DATA_t tempBuffer;
 	tempBuffer.analogIoData.value = this->value;
 	this->f_newDataAvailable = false;
 	return tempBuffer;

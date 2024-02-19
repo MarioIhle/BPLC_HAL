@@ -11,30 +11,30 @@ void rotaryEncoder::invertTurningDirection()
 {
     this->f_invertedDirection = true;
 }   
-e_movement_t rotaryEncoder::getTurningDirection()
+e_MOVEMENT_t rotaryEncoder::getTurningDirection()
 {
-    e_movement_t direction = movement_idle;    
+    e_MOVEMENT_t direction = MOVEMENT__IDLE;    
 
     if(this->A.islow() && this->B.fallingEdge())
     {
         if(this->f_invertedDirection == false)
         {
-            direction = movement_right;
+            direction = MOVEMENT__RIGHT;
         }
         else
         {
-            direction = movement_left;
+            direction = MOVEMENT__LEFT;
         }        
     }
     else if(this->B.islow() && this->A.fallingEdge())
     {
         if(this->f_invertedDirection == false)
         {
-            direction = movement_left;
+            direction = MOVEMENT__LEFT;
         }
         else
         {
-            direction = movement_right;
+            direction = MOVEMENT__RIGHT;
         }   
     }
 
@@ -44,9 +44,9 @@ bool rotaryEncoder::isButtonPressed()
 {
     return this->PB.risingEdge();
 }
-u_IO_DATA_BASE_t rotaryEncoder::halCallback(u_IO_DATA_BASE_t* P_DATA)
+u_HAL_CALLBACK_DATA_t rotaryEncoder::halCallback(u_HAL_CALLBACK_DATA_t* P_DATA)
 {
-    u_IO_DATA_BASE_t BUFFER;
+    u_HAL_CALLBACK_DATA_t BUFFER;
     BUFFER.digitalIoData.state = P_DATA->rotaryEncoderData.stateA;
     this->A.halCallback(&BUFFER);
     BUFFER.digitalIoData.state = P_DATA->rotaryEncoderData.stateB;

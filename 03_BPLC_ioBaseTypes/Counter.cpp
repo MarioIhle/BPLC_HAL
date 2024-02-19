@@ -26,7 +26,7 @@ uint16_t rpmSensor::getRPM()
 	}
 	return this->rpm;
 }
-u_IO_DATA_BASE_t rpmSensor::halCallback(u_IO_DATA_BASE_t* P_DATA)
+u_HAL_CALLBACK_DATA_t rpmSensor::halCallback(u_HAL_CALLBACK_DATA_t* P_DATA)
 {
 	this->sampleCounter.halCallback(P_DATA);
 	return *P_DATA;

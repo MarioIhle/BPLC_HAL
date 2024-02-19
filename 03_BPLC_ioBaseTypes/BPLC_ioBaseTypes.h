@@ -7,21 +7,18 @@
 #include "PCA9685.h"
 
 //####################################################################
-//ALLGEMEINE TYPEN
-//####################################################################
-
 //Encoder oder Motoren richtung
 typedef enum
 {
-    movement_idle,
-    movement_left,
-    movement_right,
-    movement_break,
+    MOVEMENT__IDLE,
+    MOVEMENT__LEFT,
+    MOVEMENT__RIGHT,
+    MOVEMENT__BREAK,
 
-    movement_count,
-}e_movement_t;
-
-//Portinformation
+    MOVEMENT__COUNT,
+}e_MOVEMENT_t;
+//--------------------------------------------------------------------
+//CALLBACK DATA STRUCT
 typedef union
 {        
     struct         
@@ -37,7 +34,7 @@ typedef union
     struct         
     {
         uint8_t         speed;
-        e_movement_t    direction;
+        e_MOVEMENT_t    direction;
         float           current;
     }dcDriveData;    
 
@@ -53,9 +50,9 @@ typedef union
         bool statePushButton;
     }rotaryEncoderData;
     
-}u_IO_DATA_BASE_t;
-
-
+}u_HAL_CALLBACK_DATA_t;
+//--------------------------------------------------------------------
+//IO TYPE
 typedef enum
 {
     IO_TYPE__NOT_DEFINED,
@@ -77,24 +74,17 @@ typedef enum
 
     IO_TYPE__COUNT,
 }e_IO_TYPE_t;
-
-
-
 //####################################################################
-//BASIS OBJEKTE
-//####################################################################
+//IO INTERFACE
 class IO_Interface
 {
     public:
     virtual e_IO_TYPE_t         getIoType           () = 0; 
     virtual bool                newDataAvailable    () = 0;
-    virtual u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* DATA = nullptr) = 0;
+    virtual u_HAL_CALLBACK_DATA_t    halCallback         (u_HAL_CALLBACK_DATA_t* DATA = nullptr) = 0;
 };
-
-
 //--------------------------------------------------------------------
 //DIGITAL INPUT KLASSE
-//--------------------------------------------------------------------
 class digitalInput: public IO_Interface
 {
     public:
@@ -108,7 +98,7 @@ class digitalInput: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable(){return false;}
-    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA){this->previousState = this->state; this->state = P_DATA->digitalIoData.state; return *P_DATA;}
+    u_HAL_CALLBACK_DATA_t    halCallback     (u_HAL_CALLBACK_DATA_t* P_DATA){this->previousState = this->state; this->state = P_DATA->digitalIoData.state; return *P_DATA;}
     
 
     private:
@@ -117,8 +107,7 @@ class digitalInput: public IO_Interface
     e_IO_TYPE_t         ioType;
 };
 //--------------------------------------------------------------------
-//COUNTER INPUT KLASSE
-//--------------------------------------------------------------------
+//COUNTER KLASSE
 class counter: public IO_Interface
 {
     public:
@@ -133,7 +122,7 @@ class counter: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable(){return false;}
-    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA){if(P_DATA->digitalIoData.state == true && this->previousState == false){this->count++;} this->previousState = P_DATA->digitalIoData.state; return *P_DATA;}
+    u_HAL_CALLBACK_DATA_t    halCallback     (u_HAL_CALLBACK_DATA_t* P_DATA){if(P_DATA->digitalIoData.state == true && this->previousState == false){this->count++;} this->previousState = P_DATA->digitalIoData.state; return *P_DATA;}
     
 
     private:
@@ -143,7 +132,6 @@ class counter: public IO_Interface
 };
 //--------------------------------------------------------------------
 //ANALOG INPUT KLASSE
-//--------------------------------------------------------------------
 #define SPANNUNGSTEILER (5900/1200)
 
 class AnalogInput: public IO_Interface
@@ -162,7 +150,7 @@ class AnalogInput: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
     bool                newDataAvailable    (){return (bool)(this->to_sampleTime.checkAndReset());}
-    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA){this->value = P_DATA->analogIoData.value; return *P_DATA;}
+    u_HAL_CALLBACK_DATA_t    halCallback         (u_HAL_CALLBACK_DATA_t* P_DATA){this->value = P_DATA->analogIoData.value; return *P_DATA;}
 
 
     private:
@@ -173,11 +161,8 @@ class AnalogInput: public IO_Interface
     Timeout             to_sampleTime;
     adsGain_t           adcGain;            //Verstärker einstellung des ADC(Auflösung für Spannugsberechnung)
 };
-
 //--------------------------------------------------------------------
 //OUTPUT KLASSE
-//Digital & Analog spielt keine Rolle
-//--------------------------------------------------------------------
 typedef enum
 {
 	OUTPUTMODE__OFF,
@@ -205,7 +190,7 @@ class Output: public IO_Interface, blink
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable();
-    u_IO_DATA_BASE_t    halCallback     (u_IO_DATA_BASE_t* P_DATA);
+    u_HAL_CALLBACK_DATA_t    halCallback     (u_HAL_CALLBACK_DATA_t* P_DATA);
 
 
 	private: 
@@ -219,27 +204,22 @@ class Output: public IO_Interface, blink
         uint8_t         onValue;	    //Welcher Wert wird geschieben bei object.set():
     }setting;    
 };
-
-
 //####################################################################
 //SPEZIAL OBJEKTE
-//####################################################################
-
 //--------------------------------------------------------------------
 //ROTARY ENCODER KLASSE
-//--------------------------------------------------------------------
 class rotaryEncoder:public IO_Interface
 {
 	public:
                         rotaryEncoder           ();
     void                invertTurningDirection  ();
-    e_movement_t        getTurningDirection     ();
+    e_MOVEMENT_t        getTurningDirection     ();
     bool                isButtonPressed         ();
 
     //Hal handling
     e_IO_TYPE_t         getIoType               (){return this->ioType;}
     bool                newDataAvailable        (){return false;}
-    u_IO_DATA_BASE_t    halCallback             (u_IO_DATA_BASE_t* P_DATA = nullptr);
+    u_HAL_CALLBACK_DATA_t    halCallback             (u_HAL_CALLBACK_DATA_t* P_DATA = nullptr);
     
 
     private: 
@@ -250,8 +230,7 @@ class rotaryEncoder:public IO_Interface
     digitalInput        PB;   	   
 };
 //--------------------------------------------------------------------
-//dcDrive KLASSE
-//-------------------------------------------------------------------- 
+//DC DRIVE KLASSE
 typedef enum
 {
     DRIVE_STATE__IDLE,
@@ -272,19 +251,19 @@ class dcDrive: public IO_Interface
     void                start                   ();
     void                stopAndBreak            ();
     void                setSpeed                (const uint8_t SPEED);
-    void                setDirection            (const e_movement_t DIRECTION);
-    void                setDirectionAndSpeed    (const e_movement_t DIRECTION, const uint8_t SPEED);
+    void                setDirection            (const e_MOVEMENT_t DIRECTION);
+    void                setDirectionAndSpeed    (const e_MOVEMENT_t DIRECTION, const uint8_t SPEED);
 
     //Getter 
     float               getCurrent              ();
-    e_movement_t        getDirection            ();
+    e_MOVEMENT_t        getDirection            ();
     uint8_t             getSpeed                ();
     e_DRIVE_STATE_t     getDriveState           ();
 
     //Hal handling
     e_IO_TYPE_t         getIoType               (){return this->ioType;}
     bool                newDataAvailable        (){return this->f_thereAreNewDriveParametersAvailable;}
-    u_IO_DATA_BASE_t    halCallback             (u_IO_DATA_BASE_t* P_DATA = nullptr);
+    u_HAL_CALLBACK_DATA_t    halCallback             (u_HAL_CALLBACK_DATA_t* P_DATA = nullptr);
 
     private:
     e_DRIVE_STATE_t     driveState; 
@@ -293,20 +272,19 @@ class dcDrive: public IO_Interface
     //Motor Parameter
     struct 
     {
-      e_movement_t      direction;   //Aktuell angesteuerte Drehrichtung
+      e_MOVEMENT_t      direction;   //Aktuell angesteuerte Drehrichtung
       uint8_t           speed;       //Aktuell angesteuerte Geschwindigkeit
       float             current;     //Aktuelle Stromaufnahme
     
       struct  //Merke Struktur um nach Stop, letzte geschriebene Bewegung fortzusetzten 
       {
-        e_movement_t    direction;  
+        e_MOVEMENT_t    direction;  
         uint8_t         speed;
       }old;    
     }motParams;
 };
 //--------------------------------------------------------------------
 //RPM Sensor
-//-------------------------------------------------------------------- 
 #define MAX_SAMPLES_UNTIL_CALCULATION   500
 
 class rpmSensor: public IO_Interface
@@ -319,7 +297,7 @@ class rpmSensor: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
     bool                newDataAvailable    (){return false;}
-    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA = nullptr);
+    u_HAL_CALLBACK_DATA_t    halCallback         (u_HAL_CALLBACK_DATA_t* P_DATA = nullptr);
 
 
     private:     
@@ -343,7 +321,7 @@ class servoMotor: public IO_Interface
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
     bool                newDataAvailable    (){return this->f_newPositionAvailable;}
-    u_IO_DATA_BASE_t    halCallback         (u_IO_DATA_BASE_t* P_DATA = nullptr);
+    u_HAL_CALLBACK_DATA_t    halCallback         (u_HAL_CALLBACK_DATA_t* P_DATA = nullptr);
 
 
     private:    

@@ -14,11 +14,11 @@ void BPLC_APP::handleDisplay()
                this->APP_HAL.oled.enterMenu();            
             }
 
-            if(this->APP_HAL.ENCODER.getTurningDirection() == movement_right)
+            if(this->APP_HAL.ENCODER.getTurningDirection() == MOVEMENT__RIGHT)
             {
                this->APP_HAL.oled.showNextTextOfThisMenu();
             }
-            else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
+            else if(this->APP_HAL.ENCODER.getTurningDirection() == MOVEMENT__LEFT)
             {
                this->APP_HAL.oled.showPrevioursTextOfThisMenu();
             }           
@@ -42,7 +42,7 @@ void BPLC_APP::handleDisplay()
          break;
 
          case menu_screenSaver: 
-            if(this->APP_HAL.ENCODER.isButtonPressed() || this->APP_HAL.ENCODER.getTurningDirection() != movement_idle)
+            if(this->APP_HAL.ENCODER.isButtonPressed() || this->APP_HAL.ENCODER.getTurningDirection() != MOVEMENT__IDLE)
             {
                this->APP_HAL.oled.setMenu(menu_mainMenu);
             }
@@ -77,7 +77,7 @@ void BPLC_APP::editDeviceMode()
       }      
    }
 
-   if(this->APP_HAL.ENCODER.getTurningDirection() == movement_right)
+   if(this->APP_HAL.ENCODER.getTurningDirection() == MOVEMENT__RIGHT)
    {
       if(this->APP_HAL.oled.parameterEntered())
       {
@@ -88,7 +88,7 @@ void BPLC_APP::editDeviceMode()
          this->APP_HAL.oled.showNextTextOfThisMenu();            
       }
    }
-   else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
+   else if(this->APP_HAL.ENCODER.getTurningDirection() == MOVEMENT__LEFT)
    {    
       if(this->APP_HAL.oled.parameterEntered())
       {
@@ -131,11 +131,11 @@ void BPLC_APP::hardwareErrorOut()
       } 
    }
 
-   if(this->APP_HAL.ENCODER.getTurningDirection() == movement_right)
+   if(this->APP_HAL.ENCODER.getTurningDirection() == MOVEMENT__RIGHT)
    {
       this->APP_HAL.oled.showNextTextOfThisMenu();
    }
-   else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
+   else if(this->APP_HAL.ENCODER.getTurningDirection() == MOVEMENT__LEFT)
    {
       this->APP_HAL.oled.showPrevioursTextOfThisMenu();
    }    
@@ -156,11 +156,11 @@ void BPLC_APP::displaySettings()
       }
    }
 
-   if(this->APP_HAL.ENCODER.getTurningDirection() == movement_right)
+   if(this->APP_HAL.ENCODER.getTurningDirection() == MOVEMENT__RIGHT)
    {
       this->APP_HAL.oled.showNextTextOfThisMenu();
    }
-   else if(this->APP_HAL.ENCODER.getTurningDirection() == movement_left)
+   else if(this->APP_HAL.ENCODER.getTurningDirection() == MOVEMENT__LEFT)
    {
       this->APP_HAL.oled.showPrevioursTextOfThisMenu();
    } 
@@ -169,7 +169,7 @@ void BPLC_APP::displaySettings()
 void BPLC_APP::handle_vDip()
 {  
    const bool           IS_ENCODER_BUTTON_PRESSED  = this->APP_HAL.ENCODER.isButtonPressed();
-   const e_movement_t   TURNING_DIRECTION          = this->APP_HAL.ENCODER.getTurningDirection();
+   const e_MOVEMENT_t   TURNING_DIRECTION          = this->APP_HAL.ENCODER.getTurningDirection();
    const bool           PARARMETER_IS_ENTERED      = this->APP_HAL.oled.parameterEntered();
    const e_V_DIP_t      SELECTED_DIP               = (e_V_DIP_t)this->APP_HAL.oled.getActiveMenuTextNum();
 
@@ -193,7 +193,7 @@ void BPLC_APP::handle_vDip()
       }  
    }
 
-   if(TURNING_DIRECTION == movement_right)
+   if(TURNING_DIRECTION == MOVEMENT__RIGHT)
    {
       if(PARARMETER_IS_ENTERED)
       {
@@ -204,7 +204,7 @@ void BPLC_APP::handle_vDip()
          this->APP_HAL.oled.showNextTextOfThisMenu();   
       }
    }
-   else if(TURNING_DIRECTION == movement_left)
+   else if(TURNING_DIRECTION == MOVEMENT__LEFT)
    {    
       if(PARARMETER_IS_ENTERED)
       {
