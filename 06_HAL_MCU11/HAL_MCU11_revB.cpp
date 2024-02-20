@@ -4,7 +4,7 @@
 volatile uint64_t* p_ISR_COUNT_MCU_REVB;
 static void INT_ISR()
 {
-   *p_ISR_COUNT_MCU_REVB = *p_ISR_COUNT_MCU_REVB + 2;
+   *p_ISR_COUNT_MCU_REVB = *p_ISR_COUNT_MCU_REVB + 1;
 }
 HAL_MCU11_revB::HAL_MCU11_revB(volatile uint64_t* P_ISR_COUNT)
 {

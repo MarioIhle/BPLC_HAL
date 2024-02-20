@@ -5,7 +5,7 @@ volatile uint64_t* p_ISR_COUNT_MCU_REVA;
 
 static void INT_ISR()
 {
-    *p_ISR_COUNT_MCU_REVA = *p_ISR_COUNT_MCU_REVA + 2;
+    *p_ISR_COUNT_MCU_REVA = *p_ISR_COUNT_MCU_REVA + 1;
 }
 HAL_MCU11_revA::HAL_MCU11_revA(volatile uint64_t* P_ISR_COUNT)
 {

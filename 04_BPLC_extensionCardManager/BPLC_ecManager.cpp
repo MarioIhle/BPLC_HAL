@@ -173,7 +173,7 @@ void BPLC_extensionCardHandler::tick()
                         if(this->isrCount > 0)
                         {
                             p_extensionCardToTick->getHalInterface()->tick();
-                            this->isrCount--;//Es könnten Flanken überschieben werden, dabei counter >1 mehrmals die Hal callbacks aufgerufen werden!!!!, aber gerade keine bessere Lösung vorhanden
+                            this->isrCount--;
                         }
                     break;
 
