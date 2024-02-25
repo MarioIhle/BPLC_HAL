@@ -148,12 +148,12 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         //Hal objecte zu allen möglichen Erweiterungskarten     
         OLED_MCU11      oled;     
         
-        rotaryEncoder   ENCODER; 
-        Output          BUZZER;
-        Output          LD1_DEVICE_STATE;
-        Output          LD2_COMMUNICATION_STATE;
-        Output          LD3_ERROR_OUT;   
-        Output          OEN;   
+        hmiEncoder      ENCODER; 
+        output          BUZZER;
+        output          LD1_DEVICE_STATE;
+        output          LD2_COMMUNICATION_STATE;
+        output          LD3_ERROR_OUT;   
+        output          OEN;   
     }APP_HAL;
 
 
