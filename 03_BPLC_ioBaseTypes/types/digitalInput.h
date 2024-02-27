@@ -15,15 +15,21 @@ class digitalInput: public IO_Interface
     bool	            islow           (){return (bool)(this->state == false && this->previousState == false);}
 	bool 	            risingEdge      ()
     {
-        bool RISING_EDGE_OCCOURED   = this->f_risingEdgeOccoured;
-        this->f_risingEdgeOccoured  = false;
-        return this->f_risingEdgeOccoured;
+        if(this->f_risingEdgeOccoured)
+        {   
+            this->f_risingEdgeOccoured  = false;
+            return true;
+        }        
+        return false;
     }
 	bool 	            fallingEdge     ()
     {
-        bool FALLING_EDGE_OCCOURED  = this->f_fallingEdgeOccoured;
-        this->f_fallingEdgeOccoured = false;
-        return this->f_fallingEdgeOccoured;
+        if(this->f_fallingEdgeOccoured)
+        {   
+            this->f_fallingEdgeOccoured  = false;
+            return true;
+        }        
+        return false;
     }
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}

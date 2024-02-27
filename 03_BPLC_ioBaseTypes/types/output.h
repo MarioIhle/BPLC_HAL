@@ -27,6 +27,12 @@ class output: public IO_Interface, blink
 		this->setting.onValue 		= ON_VALUE;
 		this->mode 					= OUTPUTMODE__OFF;
 	}  
+	void 				begin			(const e_IO_TYPE_t OUTPUT_TYPE = IO_TYPE__OUTPUT_PUSH, const uint8_t ON_VALUE = 255)	
+	{
+		this->ioType 				= OUTPUT_TYPE;
+		this->setting.onValue 		= ON_VALUE;
+		this->mode 					= OUTPUTMODE__OFF;
+	}  
     void                setOnValue      (const uint8_t VALUE){this->setting.onValue = VALUE;}
     //Applikation Handling
 	void                blinkOnce		(const uint8_t BLINKS, const unsigned long BLINK_INTERVAL)			                        //Blinkt für angeforderte Anzahl und Interval

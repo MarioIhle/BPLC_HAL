@@ -8,17 +8,17 @@
 
 #define SPANNUNGSTEILER (5900/1200)
 
-class AnalogInput: public IO_Interface
+class analogInput: public IO_Interface
 {
     public:
-                        AnalogInput         (const float MAX_VOLTAGE = 5.00)
+                        analogInput         (const float MAX_VOLTAGE = 5.00, const uint64_t SAMPLE_TIME = 1000)
     {
         this->maxVoltage 	= MAX_VOLTAGE;	
         this->ioType	 	= IO_TYPE__ANALOG_INPUT;
         this->value			= 0;   
         this->alarmValue	= 0;
         this->adcGain		= GAIN_TWOTHIRDS;   
-        this->to_sampleTime.setInterval(1000);         
+        this->to_sampleTime.setInterval(SAMPLE_TIME);         
     }  
     //Getter für Applikation
     uint16_t            getValue            (){return this->value;}

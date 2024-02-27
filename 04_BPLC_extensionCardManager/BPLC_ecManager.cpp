@@ -172,15 +172,14 @@ void BPLC_extensionCardHandler::tick()
                     case BPLC_CARD__DIN11revA_4:
                         if(this->isrCount > 0)
                         {
-                            p_extensionCardToTick->getHalInterface()->tick();
-                            this->isrCount--;
+                            p_extensionCardToTick->getHalInterface()->tick();                           
                         }
                     break;
 
                     default:
                         p_extensionCardToTick->getHalInterface()->tick();
                     break;
-                }          
+                }      
             }  
             else
             {
@@ -188,5 +187,10 @@ void BPLC_extensionCardHandler::tick()
             }
             p_extensionCardToTick = p_extensionCardToTick->getNext();      
         }
+        //nach lesen ALLER (DIN) Karten count verringern
+        if(this->isrCount > 0)
+        {                  
+            this->isrCount--;
+        }  
     }
 }

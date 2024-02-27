@@ -76,9 +76,8 @@ void HAL_DIN11::tick()
     {         
         for(uint8_t READ = 0; READ < 2; READ++)//2x lesen um Flankenauswertung zu ermöglichen
         {
-            //PCF über I2C lesen
             this->PCF.read8();
-            //Alle genutzen Channels abfragen
+            
             for(uint8_t CH = 0; CH < DIN11_CHANNEL_COUNT; CH++)
             {      
                 if(this->channels.p_ioObject[CH] != nullptr)

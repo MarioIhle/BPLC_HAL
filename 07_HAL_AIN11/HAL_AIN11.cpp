@@ -73,13 +73,16 @@ void HAL_AIN11::tick()
                 if(this->channels.p_ioObject[CH]->newDataAvailable())
                 {
                     u_HAL_DATA_t tempBuffer;
+                    int16_t      readSingleEnded;
 
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {                    
                         case IO_TYPE__ANALOG_INPUT:    
-                            tempBuffer.analogIoData.value = this->ADC.readADC_SingleEnded(this->channels.PIN[CH]);
-                            if(tempBuffer.analogIoData.value >= 0)
+                            readSingleEnded = this->ADC.readADC_SingleEnded(this->channels.PIN[CH]);
+                            
+                            if(readSingleEnded >= 0)
                             {
+                                tempBuffer.analogIoData.value = readSingleEnded;
                                 this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                        
                             }     
                             else

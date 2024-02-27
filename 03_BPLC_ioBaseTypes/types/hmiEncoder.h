@@ -15,58 +15,71 @@ class hmiEncoder:public IO_Interface
     }
     void                invertTurningDirection  (){this->f_invertedDirection = true;}
     e_MOVEMENT_t        getTurningDirection     ()
-    {        
-        e_MOVEMENT_t direction = MOVEMENT__IDLE;    
-
-        if(this->A.islow() && this->B.fallingEdge())
+    {     
+        e_MOVEMENT_t direction = MOVEMENT__IDLE;  
+        //"rechts"  
+        if(     this->stateA != this->previoursStateA
+            ||  this->stateB != this->previoursStateB)
         {
-            if(this->f_invertedDirection == false)
+            if(     this->stateA == false && this->previoursStateA == true 
+                &&  this->stateB == false)
             {
-                direction = MOVEMENT__RIGHT;
+                if(this->f_invertedDirection == false)
+                {
+                    direction = MOVEMENT__RIGHT;
+                }
+                else
+                {
+                    direction = MOVEMENT__LEFT;
+                }       
+            }//"links"
+            else if(this->stateA == false && 
+                    this->stateB == false && this->previoursStateB == true)
+            {
+                if(this->f_invertedDirection == false)
+                {
+                    direction = MOVEMENT__LEFT;
+                }
+                else
+                {
+                    direction = MOVEMENT__RIGHT;
+                }              
             }
-            else
-            {
-                direction = MOVEMENT__LEFT;
-            }        
+            previoursStateA = stateA;
+            previoursStateB = stateB;            
         }
-        else if(this->B.islow() && this->A.fallingEdge())
-        {
-            if(this->f_invertedDirection == false)
-            {
-                direction = MOVEMENT__LEFT;
-            }
-            else
-            {
-                direction = MOVEMENT__RIGHT;
-            }   
-        }
-
         return direction;
     }
-    bool                isButtonPressed         (){return this->PB.risingEdge();}
+    bool                isButtonPressed         ()    
+    {
+        const bool BUTTON_WAS_PRESSED   = (bool)(statePushButton == false && this->previoursStatePushButton == true); 
+        this->previoursStatePushButton  = statePushButton;
+        return BUTTON_WAS_PRESSED;
+    }
 
     //Hal handling
     e_IO_TYPE_t         getIoType               (){return this->ioType;}
     bool                newDataAvailable        (){return false;}
     u_HAL_DATA_t        halCallback             (u_HAL_DATA_t* P_DATA = nullptr)
-    {
-        u_HAL_DATA_t BUFFER;
-        BUFFER.digitalIoData.state = P_DATA->encoderData.stateA;
-        this->A.halCallback(&BUFFER);
-        BUFFER.digitalIoData.state = P_DATA->encoderData.stateB;
-        this->B.halCallback(&BUFFER);
-        BUFFER.digitalIoData.state = P_DATA->encoderData.stateZ;
-        this->PB.halCallback(&BUFFER);
-        return BUFFER;
+    {      
+        stateA          = P_DATA->encoderData.stateA;
+        stateB          = P_DATA->encoderData.stateB;
+        statePushButton = P_DATA->encoderData.stateZ;
+        
+        return *P_DATA;
     }
     
 
     private: 
+
     e_IO_TYPE_t         ioType;
     bool                f_invertedDirection;
-    digitalInput        A;
-    digitalInput        B; 
-    digitalInput        PB;   	   
+    bool                stateA;
+    bool                stateB;
+    bool                statePushButton;
+    bool                previoursStateA;
+    bool                previoursStateB;
+    bool                previoursStatePushButton;
 };
 
 #endif

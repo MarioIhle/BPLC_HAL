@@ -15,7 +15,14 @@ class counter: public IO_Interface
     void                setCount        (uint64_t COUNT){this->count = COUNT;}
     void	            resetCount      (){this->count = 0;}
 	void 	            increment       (){this->count++;}	
-    void 	            decrement       (){this->count--;}
+    void 	            decrement       ()
+    {
+        this->count--; 
+        if( this->count < 0)
+        {
+            this->count = 0;
+        }
+    }
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable(){return false;}

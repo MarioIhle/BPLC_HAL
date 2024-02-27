@@ -8,9 +8,29 @@
 class positionEncoder:public IO_Interface
 {
 	public:
-                        positionEncoder                 (const uint16_t PULSES_PER_REV){this->pulsesPerRevolution = PULSES_PER_REV; this->ioType = IO_TYPE__POSITION_ENCODER;}
-    uint16_t            getPositionInDegree             (){return map(this->poitionIncrement.getCount(), 0 , this->pulsesPerRevolution, 0, 360);}
-    uint16_t            getPositionIncrement            (){return this->poitionIncrement.getCount();}
+                        positionEncoder                 (const uint16_t PULSES_PER_REV){this->pulsesPerRevolution = PULSES_PER_REV; this->ioType = IO_TYPE__POSITION_ENCODER; this->f_zIndexIsKnown = false;}
+    uint16_t            getPositionInDegree             ()
+    {
+        if(this->f_zIndexIsKnown)
+        {
+            return map(this->poitionIncrement.getCount(), 0 , this->pulsesPerRevolution, 0, 360);
+        }
+        else
+        {
+            return false;
+        }
+    }
+    uint16_t            getPositionIncrement            ()
+    {
+        if(this->f_zIndexIsKnown)
+        {
+            return this->poitionIncrement.getCount();
+        }  
+        else
+        {
+            return false;
+        }
+    }
 
     //Hal handling
     e_IO_TYPE_t         getIoType                       (){return this->ioType;}
@@ -56,6 +76,7 @@ class positionEncoder:public IO_Interface
     digitalInput        A;
     digitalInput        B; 
     digitalInput        Z;   	   
+    bool                f_zIndexIsKnown;
 };
 
 #endif

@@ -10,7 +10,7 @@ void BPLC_APP::begin(const e_BPLC_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADD
    Serial.begin(115200);
    this->printLog("SETUP BPLC SYSTEM");
    //Schlüsselparameter übernehemen
-   this->APP_COM.deviceAddress            = DEVICE_ADDRESS;
+   this->APP_COM.deviceAddress = DEVICE_ADDRESS;
 
    //Setup submodule
    this->setupApplication();      
