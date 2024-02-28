@@ -56,12 +56,12 @@ void BPLC_APP::tick()
 
       case APP_MODE__RUN_WITH_CONFIG_1:   
       case APP_MODE__RUN_WITH_CONFIG_2:
-      case APP_MODE__RUN_WITH_CONFIG_3:               
+      case APP_MODE__RUN_WITH_CONFIG_3:     
+         this->APP_HAL.OEN.set();           
          this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 2500, 2500);           
       break;
 
-      case APP_MODE__START:           
-         this->APP_HAL.OEN.set(); 
+      case APP_MODE__START: //OEN nicht aktiv, einmal gesamtes System durchlaufen um mögliche Fehler zu detektieren.         
          this->APP_APP.deviceMode = APP_MODE__RUN_WITH_CONFIG_1;
       break;
 

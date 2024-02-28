@@ -16,10 +16,10 @@
 //-------------------------------------------------------------
 typedef enum
 {
-  MOT11_CARD_1_ADDRESS = 0x10,
-  MOT11_CARD_2_ADDRESS = 0x11,
-  MOT11_CARD_3_ADDRESS = 0x12,
-  MOT11_CARD_4_ADDRESS = 0x13,
+  MOT11_CARD_1_ADDRESS = 0xA0,
+  MOT11_CARD_2_ADDRESS = 0xA1,
+  MOT11_CARD_3_ADDRESS = 0xA2,
+  MOT11_CARD_4_ADDRESS = 0xA3,
   
   MOT11_CARD_ADDRESS_COUNT = 4,
 }e_MOT11_ADDRESS_t;

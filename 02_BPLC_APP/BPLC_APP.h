@@ -127,6 +127,8 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     bool            thereIsAnSystemError();
     e_BPLC_ERROR_t  getFirstSystemErrorCode();
 
+    void            scanForUnkonwnI2CDevices();
+
     struct  
     {   
         struct 
@@ -135,8 +137,9 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
             uint8_t         runtimeExeeded;
         }runntimeControl;  
         
-        e_BPLC_ERROR_t  errorCode[HARDWARE_ERROR_BUFFER_SIZE];       
-        ERROR_OUT       errorOut;   //Textausgabe der ErrorCodes
+        e_BPLC_ERROR_t      errorCode[HARDWARE_ERROR_BUFFER_SIZE];       
+        ERROR_OUT           errorOut;   //Textausgabe der ErrorCodes
+        Timeout             to_scanI2Cbus;
     }APP_SAFETY;
 
     //APP_HAL

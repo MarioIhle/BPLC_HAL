@@ -12,6 +12,8 @@
 #include "HAL_DO11.h"
 #include "HAL_MOT11.h"
 #include "HAL_TMP11.h"
+#include "HAL_NANO11.h"
+#include "HAL_FUSE12.h"
 
 typedef enum
 {
@@ -21,50 +23,45 @@ typedef enum
     BPLC_CARD__MCU11revB,
     BPLC_CARD__MCU11revC,   
 
-    BPLC_CARD__DIN11revA_1,
-    BPLC_CARD__DIN11revA_2,
-    BPLC_CARD__DIN11revA_3,
-    BPLC_CARD__DIN11revA_4,
+    BPLC_CARD__DIN11revA_1 = DIN11_CARD_1_ADDRESS,
+    BPLC_CARD__DIN11revA_2 = DIN11_CARD_2_ADDRESS,
+    BPLC_CARD__DIN11revA_3 = DIN11_CARD_3_ADDRESS,
+    BPLC_CARD__DIN11revA_4 = DIN11_CARD_4_ADDRESS,
 
-    BPLC_CARD__DO11revA_1,
-    BPLC_CARD__DO11revA_2,
-    BPLC_CARD__DO11revA_3,
-    BPLC_CARD__DO11revA_4,
+    BPLC_CARD__DO11revA_1 = DO11_CARD_1_ADDRESS,
+    BPLC_CARD__DO11revA_2 = DO11_CARD_2_ADDRESS,
+    BPLC_CARD__DO11revA_3 = DO11_CARD_3_ADDRESS,
+    BPLC_CARD__DO11revA_4 = DO11_CARD_4_ADDRESS,
 
-    BPLC_CARD__AIN11revA_1,
-    BPLC_CARD__AIN11revA_2,
-    BPLC_CARD__AIN11revA_3,
-    BPLC_CARD__AIN11revA_4,
+    BPLC_CARD__AIN11revA_1 = AIN11_CARD_1_ADDRESS,
+    BPLC_CARD__AIN11revA_2 = AIN11_CARD_2_ADDRESS,
+    BPLC_CARD__AIN11revA_3 = AIN11_CARD_3_ADDRESS,
+    BPLC_CARD__AIN11revA_4 = AIN11_CARD_4_ADDRESS,
 
-    BPLC_CARD__REL11revA_1,
-    BPLC_CARD__REL11revA_2,
-    BPLC_CARD__REL11revA_3,
-    BPLC_CARD__REL11revA_4,
+    BPLC_CARD__REL11revA_1 = REL11_CARD_1_ADDRESS,
+    BPLC_CARD__REL11revA_2 = REL11_CARD_2_ADDRESS,
+    BPLC_CARD__REL11revA_3 = REL11_CARD_3_ADDRESS,
+    BPLC_CARD__REL11revA_4 = REL11_CARD_4_ADDRESS,
 
-    BPLC_CARD__MOT11revA_1,
-    BPLC_CARD__MOT11revA_2,
-    BPLC_CARD__MOT11revA_3,
-    BPLC_CARD__MOT11revA_4,
+    BPLC_CARD__MOT11revA_1 = MOT11_CARD_1_ADDRESS,
+    BPLC_CARD__MOT11revA_2 = MOT11_CARD_2_ADDRESS,
+    BPLC_CARD__MOT11revA_3 = MOT11_CARD_3_ADDRESS,
+    BPLC_CARD__MOT11revA_4 = MOT11_CARD_4_ADDRESS,
 
-    BPLC_CARD__NANO11revA_1,
-    BPLC_CARD__NANO11revA_2,
-    BPLC_CARD__NANO11revA_3,
-    BPLC_CARD__NANO11revA_4,
+    BPLC_CARD__NANO11revA_1 = NANO11_CARD_1_ADDRESS,
+    BPLC_CARD__NANO11revA_2 = NANO11_CARD_2_ADDRESS,
+    BPLC_CARD__NANO11revA_3 = NANO11_CARD_3_ADDRESS,
+    BPLC_CARD__NANO11revA_4 = NANO11_CARD_4_ADDRESS,
     
-    BPLC_CARD__FUSE11revA_1,
-    BPLC_CARD__FUSE11revA_2,
-    BPLC_CARD__FUSE11revA_3,
-    BPLC_CARD__FUSE11revA_4,
+    BPLC_CARD__FUSE12revA_1 = FUSE12_CARD_1_ADDRESS,
+    BPLC_CARD__FUSE12revA_2 = FUSE12_CARD_2_ADDRESS,
+    BPLC_CARD__FUSE12revA_3 = FUSE12_CARD_3_ADDRESS,
+    BPLC_CARD__FUSE12revA_4 = FUSE12_CARD_4_ADDRESS,
 
-    BPLC_CARD__FUSE12revA_1,
-    BPLC_CARD__FUSE12revA_2,
-    BPLC_CARD__FUSE12revA_3,
-    BPLC_CARD__FUSE12revA_4,
-
-    BPLC_CARD__TMP11revA_1,
-    BPLC_CARD__TMP11revA_2,
-    BPLC_CARD__TMP11revA_3,
-    BPLC_CARD__TMP11revA_4,
+    BPLC_CARD__TMP11revA_1 = TMP11_CARD_1_ADDRESS,
+    BPLC_CARD__TMP11revA_2 = TMP11_CARD_2_ADDRESS,
+    BPLC_CARD__TMP11revA_3 = TMP11_CARD_3_ADDRESS,
+    BPLC_CARD__TMP11revA_4 = TMP11_CARD_4_ADDRESS,
 
     BPLC_CARD__TYPE_COUNT,
 
@@ -90,10 +87,11 @@ class extensionCard
 class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
 {
     public:
-                        BPLC_extensionCardHandler   ();    
-    void                tick                        ();    
-    void                mapObjectToExtensionCard    (IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const uint8_t CHANNEL);
-    e_BPLC_ERROR_t      getExtensionCradError       (){return this->getError();}
+                        BPLC_extensionCardHandler           ();    
+    void                tick                                ();    
+    void                mapObjectToExtensionCard            (IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const uint8_t CHANNEL);
+    e_BPLC_ERROR_t      getExtensionCradError               (){return this->getError();}
+    bool                i2cAddressIsUsedByExtensionCard     (const uint8_t I2C_ADDRESS);
     
 
     private:    

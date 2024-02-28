@@ -16,6 +16,11 @@ void BPLC_extensionCardHandler::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
         p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);
     }      
 }  
+bool BPLC_extensionCardHandler::i2cAddressIsUsedByExtensionCard(const uint8_t I2C_ADDRESS)
+{
+    const bool I2C_ADDRESS_IS_USED_BY_ACTIVE_EC = (bool)this->searchExtensionCard((e_BPLC_CARD_TYPE_t)I2C_ADDRESS);
+    return I2C_ADDRESS_IS_USED_BY_ACTIVE_EC;
+}
 extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE)
 {  
     halInterface* p_newHalInterface;
