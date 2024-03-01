@@ -20,7 +20,7 @@
 #include "Wire.h"
 #include "SpecialFunctions.h"
 #include "BPLC_ioBaseTypes.h"
-#include "BPLC_LOG.h"
+#include "BPLC_PLI.h"
 #include "HAL_interface.h"
 
 

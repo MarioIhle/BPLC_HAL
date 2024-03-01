@@ -15,7 +15,7 @@
 #include "SpecialFunctions.h"
 //BPLC
 #include "BPLC_ERRORS.h"
-#include "BPLC_LOG.h"
+#include "BPLC_PLI.h"
 //Hardware
 #include "BPLC_ecManager.h"
 #include "HAL_MCU11.h"
@@ -85,8 +85,8 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
 
     
     private:
-   
-    BPLC_extensionCardHandler extensionCardHandler;  
+    BPLC_controlInterface       controlPanelHandler;
+    BPLC_extensionCardHandler   extensionCardHandler;  
 
     //APP_APP 
     void            setupApplication();

@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include "BPLC_ioBaseTypes.h"
 #include "BPLC_ERRORS.h"
+#include "BPLC_PLI.h"
 //HAL´s
 #include "HAL_MCU11.h"
 #include "HAL_DIN11.h"
@@ -90,14 +91,13 @@ class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
                         BPLC_extensionCardHandler           ();    
     void                tick                                ();    
     void                mapObjectToExtensionCard            (IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const uint8_t CHANNEL);
-    e_BPLC_ERROR_t      getExtensionCradError               (){return this->getError();}
+    e_BPLC_ERROR_t      getModulError                       (){return this->getError();}
     bool                i2cAddressIsUsedByExtensionCard     (const uint8_t I2C_ADDRESS);
-    
+    void                addNewExtensionCard                 (const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE);
 
-    private:    
-    extensionCard*      addNewExtensionCard             (const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE);
-    void                addExtensionCardToList          (extensionCard* CARD_TO_ADD);
-    extensionCard*      searchExtensionCard             (const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD);
+    private:        
+    void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
+    extensionCard*      searchExtensionCard                 (const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD);
     extensionCard*      p_firstExtensionCard;    
     volatile uint64_t   isrCount;
 };

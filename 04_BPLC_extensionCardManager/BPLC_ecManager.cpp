@@ -11,9 +11,117 @@ void BPLC_extensionCardHandler::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
         p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);
     }
     else
-    {
-        p_cardToMapChannelTo = this->addNewExtensionCard(CARD);
-        p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);
+    {//Error Setzen
+        switch (CARD)
+        {
+            case BPLC_CARD__AIN11revA_1:    
+                this->setError(ECM_ERROR__AIN11revA_ADDR_4_NOT_DEFINED);
+            break;
+            case BPLC_CARD__AIN11revA_2:    
+                this->setError(ECM_ERROR__AIN11revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__AIN11revA_3:    
+                this->setError(ECM_ERROR__AIN11revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__AIN11revA_4:   
+                this->setError(ECM_ERROR__AIN11revA_ADDR_4_NOT_DEFINED);
+             break; 
+
+            case BPLC_CARD__DIN11revA_1:  
+                this->setError(ECM_ERROR__DIN11revA_ADDR_1_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__DIN11revA_2:  
+                this->setError(ECM_ERROR__DIN11revA_ADDR_2_NOT_DEFINED);
+            break;
+            case BPLC_CARD__DIN11revA_3:  
+                this->setError(ECM_ERROR__DIN11revA_ADDR_3_NOT_DEFINED);  
+            break; 
+            case BPLC_CARD__DIN11revA_4:  
+                this->setError(ECM_ERROR__DIN11revA_ADDR_4_NOT_DEFINED);
+            break; 
+
+            case BPLC_CARD__DO11revA_1:  
+                this->setError(ECM_ERROR__DO11revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__DO11revA_2:    
+                this->setError(ECM_ERROR__DO11revA_ADDR_4_NOT_DEFINED);
+            break;
+            case BPLC_CARD__DO11revA_3:    
+                this->setError(ECM_ERROR__DO11revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__DO11revA_4:    
+                this->setError(ECM_ERROR__DO11revA_ADDR_4_NOT_DEFINED);
+            break;            
+
+            case BPLC_CARD__REL11revA_1:    
+                this->setError(ECM_ERROR__REL11revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__REL11revA_2:    
+                this->setError(ECM_ERROR__REL11revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__REL11revA_3:    
+                this->setError(ECM_ERROR__REL11revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__REL11revA_4:    
+                this->setError(ECM_ERROR__REL11revA_ADDR_4_NOT_DEFINED);
+            break; 
+
+            case BPLC_CARD__MOT11revA_1:    
+                this->setError(ECM_ERROR__MOT11revA_ADDR_4_NOT_DEFINED);
+            break;
+            case BPLC_CARD__MOT11revA_2:    
+                this->setError(ECM_ERROR__MOT11revA_ADDR_4_NOT_DEFINED);
+            break;
+            case BPLC_CARD__MOT11revA_3:    
+                this->setError(ECM_ERROR__MOT11revA_ADDR_4_NOT_DEFINED);
+            break;
+            case BPLC_CARD__MOT11revA_4:    
+                this->setError(ECM_ERROR__MOT11revA_ADDR_4_NOT_DEFINED);
+            break; 
+
+            case BPLC_CARD__TMP11revA_1:   
+                this->setError(ECM_ERROR__TMP11revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__TMP11revA_2:   
+                this->setError(ECM_ERROR__TMP11revA_ADDR_4_NOT_DEFINED);
+            break;
+            case BPLC_CARD__TMP11revA_3:   
+                this->setError(ECM_ERROR__TMP11revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__TMP11revA_4:   
+                this->setError(ECM_ERROR__TMP11revA_ADDR_4_NOT_DEFINED);
+            break;
+
+            case BPLC_CARD__NANO11revA_1:   
+                this->setError(ECM_ERROR__NANO11revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__NANO11revA_2:    
+                this->setError(ECM_ERROR__NANO11revA_ADDR_4_NOT_DEFINED);
+            break;
+            case BPLC_CARD__NANO11revA_3:   
+                this->setError(ECM_ERROR__NANO11revA_ADDR_4_NOT_DEFINED); 
+            break; 
+            case BPLC_CARD__NANO11revA_4:    
+                this->setError(ECM_ERROR__NANO11revA_ADDR_4_NOT_DEFINED);
+            break;  
+
+            case BPLC_CARD__FUSE12revA_1:   
+                this->setError(ECM_ERROR__FUSE12revA_ADDR_4_NOT_DEFINED); 
+            break; 
+            case BPLC_CARD__FUSE12revA_2:    
+                this->setError(ECM_ERROR__FUSE12revA_ADDR_4_NOT_DEFINED);
+            break; 
+            case BPLC_CARD__FUSE12revA_3:    
+                this->setError(ECM_ERROR__FUSE12revA_ADDR_4_NOT_DEFINED);
+            break;
+            case BPLC_CARD__FUSE12revA_4:    
+                this->setError(ECM_ERROR__FUSE12revA_ADDR_4_NOT_DEFINED);
+            break;                  
+        
+            default:
+                this->setError(ECM_ERROR__UNDIFINED_EC_NOT_DEFINED);
+            break;
+        }
     }      
 }  
 bool BPLC_extensionCardHandler::i2cAddressIsUsedByExtensionCard(const uint8_t I2C_ADDRESS)
@@ -21,7 +129,7 @@ bool BPLC_extensionCardHandler::i2cAddressIsUsedByExtensionCard(const uint8_t I2
     const bool I2C_ADDRESS_IS_USED_BY_ACTIVE_EC = (bool)this->searchExtensionCard((e_BPLC_CARD_TYPE_t)I2C_ADDRESS);
     return I2C_ADDRESS_IS_USED_BY_ACTIVE_EC;
 }
-extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE)
+void BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE)
 {  
     halInterface* p_newHalInterface;
 
@@ -100,8 +208,7 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_
         case BPLC_CARD__MOT11revA_4:
             p_newHalInterface = new HAL_MOT11(MOT11_CARD_4_ADDRESS); 
             break;
-
-            //AIN11revA
+        //AIN11revA
         case BPLC_CARD__TMP11revA_1:
             p_newHalInterface = new HAL_TMP11(TMP11_CARD_1_ADDRESS); 
             break;
@@ -121,14 +228,20 @@ extensionCard* BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_
             abort();
             break;
     }         
+    
+    p_newHalInterface->init();    
     //Neues extensionCard Objekt erzeugen und hal zuweisen
-    p_newHalInterface->init();
-    extensionCard* p_extensionCard = new extensionCard();
-    p_extensionCard->setHalInterface(p_newHalInterface);
-    p_extensionCard->setCardType(EXTENSION_CARD_TYPE);              
-    this->addExtensionCardToList(p_extensionCard);  
-
-    return p_extensionCard;    	
+    if(p_newHalInterface->getErrorCode() != BPLC_ERROR__NO_ERROR)
+    {
+        extensionCard* p_extensionCard = new extensionCard();
+        p_extensionCard->setHalInterface(p_newHalInterface);
+        p_extensionCard->setCardType(EXTENSION_CARD_TYPE);   
+        this->addExtensionCardToList(p_extensionCard);  
+    }         
+    else
+    {
+        this->setError(p_newHalInterface->getErrorCode());
+    }   
 }
 extensionCard* BPLC_extensionCardHandler::searchExtensionCard(const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD)
 {
@@ -159,43 +272,46 @@ void BPLC_extensionCardHandler::addExtensionCardToList(extensionCard* CARD_TO_AD
 }
 void BPLC_extensionCardHandler::tick()
 {
-    if(this->p_firstExtensionCard!= nullptr)
+    if(this->getError() == BPLC_ERROR__NO_ERROR)
     {
-        extensionCard* p_extensionCardToTick = this->p_firstExtensionCard;
-       
-        while(p_extensionCardToTick != nullptr)
+        if(this->p_firstExtensionCard!= nullptr)
         {
-            e_BPLC_ERROR_t EC_HAL_ERROR = p_extensionCardToTick->getHalInterface()->getErrorCode();
-  
-            if(EC_HAL_ERROR == BPLC_ERROR__NO_ERROR)
+            extensionCard* p_extensionCardToTick = this->p_firstExtensionCard;
+        
+            while(p_extensionCardToTick != nullptr)
             {
-                switch(p_extensionCardToTick->getCardType())            
+                e_BPLC_ERROR_t EC_HAL_ERROR = p_extensionCardToTick->getHalInterface()->getErrorCode();
+    
+                if(EC_HAL_ERROR == BPLC_ERROR__NO_ERROR)
                 {
-                    case BPLC_CARD__DIN11revA_1:
-                    case BPLC_CARD__DIN11revA_2:
-                    case BPLC_CARD__DIN11revA_3:
-                    case BPLC_CARD__DIN11revA_4:
-                        if(this->isrCount > 0)
-                        {
-                            p_extensionCardToTick->getHalInterface()->tick();                           
-                        }
-                    break;
+                    switch(p_extensionCardToTick->getCardType())            
+                    {
+                        case BPLC_CARD__DIN11revA_1:
+                        case BPLC_CARD__DIN11revA_2:
+                        case BPLC_CARD__DIN11revA_3:
+                        case BPLC_CARD__DIN11revA_4:
+                            if(this->isrCount > 0)
+                            {
+                                p_extensionCardToTick->getHalInterface()->tick();                           
+                            }
+                        break;
 
-                    default:
-                        p_extensionCardToTick->getHalInterface()->tick();
-                    break;
-                }      
-            }  
-            else
-            {
-                this->setError(EC_HAL_ERROR);
+                        default:
+                            p_extensionCardToTick->getHalInterface()->tick();
+                        break;
+                    }      
+                }  
+                else
+                {
+                    this->setError(EC_HAL_ERROR);
+                }
+                p_extensionCardToTick = p_extensionCardToTick->getNext();      
             }
-            p_extensionCardToTick = p_extensionCardToTick->getNext();      
+            //nach lesen ALLER (DIN) Karten count verringern
+            if(this->isrCount > 0)
+            {                  
+                this->isrCount--;
+            }  
         }
-        //nach lesen ALLER (DIN) Karten count verringern
-        if(this->isrCount > 0)
-        {                  
-            this->isrCount--;
-        }  
-    }
+    }    
 }

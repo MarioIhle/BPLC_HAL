@@ -10,7 +10,7 @@
 #include "HAL_interface.h"
 #include "BPLC_ioBaseTypes.h"
 #include "BPLC_ERRORS.h"
-#include "BPLC_LOG.h"
+#include "BPLC_PLI.h"
 #include "I2C_check.h"
 
 //-------------------------------------------------------------
