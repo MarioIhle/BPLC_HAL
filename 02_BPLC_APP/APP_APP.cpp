@@ -40,8 +40,7 @@ void BPLC_APP::setupApplication()
 
 void BPLC_APP::tick()
 {   
-   this->controlPanelHandler.tick();
-   //BPLC Hardware handling
+   this->tickControlPanel();
    this->tickSafety();     
    this->handleDisplay();
    this->tickHardware();   

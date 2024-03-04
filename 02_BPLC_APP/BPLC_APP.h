@@ -85,8 +85,10 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
 
     
     private:
-    BPLC_controlInterface       controlPanelHandler;
-    BPLC_extensionCardHandler   extensionCardHandler;  
+    //ControlPanel
+    BPLC_controlInterface   hostPc;
+    void                    tickControlPanel();
+    void                    setupControlPanel();
 
     //APP_APP 
     void            setupApplication();
@@ -120,6 +122,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         int16_t     temp_ParameterStorage;         
     }APP_HMI;    
   
+
     //Externer aufruf, wenn HAL Objekt ein Error meldet
     void            setupSafety();
     void            tickSafety();
@@ -142,9 +145,11 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         Timeout             to_scanI2Cbus;
     }APP_SAFETY;
 
+
     //APP_HAL
-    void setupHardware(const e_BPLC_CARD_TYPE_t MCU_TYPE);
-    void tickHardware();
+    BPLC_extensionCardHandler   extensionCardHandler; 
+    void                        setupHardware(const e_BPLC_CARD_TYPE_t MCU_TYPE);
+    void                        tickHardware();
      
     struct 
     {

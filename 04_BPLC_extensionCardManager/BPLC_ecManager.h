@@ -95,6 +95,7 @@ class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
     bool                i2cAddressIsUsedByExtensionCard     (const uint8_t I2C_ADDRESS);
     void                addNewExtensionCard                 (const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE);
 
+
     private:        
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
     extensionCard*      searchExtensionCard                 (const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD);

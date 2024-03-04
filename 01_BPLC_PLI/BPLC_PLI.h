@@ -1,8 +1,8 @@
 #ifndef BPLC_LOG_h
 #define BPLC_LOG_h
 #include "Arduino.h"
+#include "SpecialFunctions.h"
 //BPLC_ParameterLogInterface
-
 
 typedef enum
 {
@@ -28,25 +28,18 @@ typedef enum
 
 }e_BPLC_PLI_KEY_t;
 
-typedef struct 
+typedef union 
 {
-    uint16_t key;
-    uint16_t paramValue;
+    struct 
+    {
+        uint16_t key;
+        uint16_t paramValue;
+    }command;
+    
+    uint8_t data[sizeof(command)];    
 
-}s_BPLC_PLI_COMMAND_t;
+}u_BPLC_PLI_COMMAND_t;
 
-
-class BPLC_controlInterface:BPLC_LOG
-{
-    public:
-            BPLC_controlInterface();
-    void    tick();
-    void    setCallbackForKey(const e_BPLC_PLI_KEY_t KEY, void (*callback)());
-
-
-    private:
-    void*   callbackFunction[BPLC_PLI_KEY__COUNT];
-};
 
 class BPLC_LOG
 {
@@ -59,5 +52,20 @@ class BPLC_LOG
 
     private:
 
+};
+
+#define hostStartFrame  36  //ASCII $
+#define hostEndFrame    37  //ASCII %
+
+class BPLC_controlInterface: BPLC_LOG
+{
+    public:
+                            BPLC_controlInterface  ();
+    bool                    available              ();
+    u_BPLC_PLI_COMMAND_t    getCommand             ();
+
+
+    private:
+    fifoBuffer          mailbox;        
 };
 #endif

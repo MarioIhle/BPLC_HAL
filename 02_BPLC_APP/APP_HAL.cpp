@@ -7,7 +7,6 @@ void BPLC_APP::invertEncoder()
 }
 void BPLC_APP::setupHardware(const e_BPLC_CARD_TYPE_t MCU_TYPE)
 {
-   this->controlPanelHandler.setCallbackForKey(BPLC_PLI_KEY__DEFINE_MCU11revA, &this->extensionCardHandler.addNewExtensionCard);
    //BUZZER lautstärke anpassen
    this->APP_HAL.BUZZER.setOnValue(50);
    this->APP_HAL.OEN.setOnValue(1);

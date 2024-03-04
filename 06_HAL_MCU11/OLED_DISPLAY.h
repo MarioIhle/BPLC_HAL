@@ -18,7 +18,7 @@
 
 //Lib includes
 #include "BPLC_ioBaseTypes.h"
-#include "BPLC_LOG.h"
+#include "BPLC_PLI.h"
 #include "SpecialFunctions.h"
 #include <Wire.h>
 #include "Adafruit_GFX.h"
