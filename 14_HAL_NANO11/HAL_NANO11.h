@@ -22,7 +22,7 @@ typedef enum
     NANO11_CARD_3_ADDRESS = 0xB2,
     NANO11_CARD_4_ADDRESS = 0xB3,
     
-    NANO11_CARD_ADDRESS__COUNT = 4,
+    NANO11_CARD_ADDRESS_COUNT = 4,
 }e_NANO11_ADDRESS_t;
 
 //-------------------------------------------------------------

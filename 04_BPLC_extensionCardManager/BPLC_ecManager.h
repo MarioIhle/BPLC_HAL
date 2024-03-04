@@ -7,14 +7,16 @@
 #include "BPLC_PLI.h"
 //HAL´s
 #include "HAL_MCU11.h"
-#include "HAL_DIN11.h"
 #include "HAL_AIN11.h"
-#include "HAL_REL11.h"
+#include "HAL_DIN11.h"
 #include "HAL_DO11.h"
+#include "HAL_REL11.h"
 #include "HAL_MOT11.h"
 #include "HAL_TMP11.h"
+#include "HAL_PPO11.h"
 #include "HAL_NANO11.h"
 #include "HAL_FUSE12.h"
+
 
 typedef enum
 {

@@ -53,7 +53,7 @@ void HAL_PPO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
     }
     else
     {        
-        switch (this->channels.p_ioObject[CH]->getIoType())
+        switch (P_IO_OBJECT->getIoType())
         {                    
             case IO_TYPE__OUTPUT_PULL:        
             case IO_TYPE__OUTPUT_PUSH:      
