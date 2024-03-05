@@ -17,13 +17,13 @@
 //-------------------------------------------------------------
 typedef enum
 {
-    FUSE12_CARD_1_ADDRESS = 0xC0,
-    FUSE12_CARD_2_ADDRESS = 0xC1,
-    FUSE12_CARD_3_ADDRESS = 0xC2,
-    FUSE12_CARD_4_ADDRESS = 0xC3,
+    I2C_ADDRESS_FUSE12__ADDR_1 = 0xC0,
+    I2C_ADDRESS_FUSE12__ADDR_2 = 0xC1,
+    I2C_ADDRESS_FUSE12__ADDR_3 = 0xC2,
+    I2C_ADDRESS_FUSE12__ADDR_4 = 0xC3,
     
-    FUSE12_CARD_ADDRESS_COUNT = 4,
-}e_FUSE12_ADDRESS_t;
+    I2C_ADDRESS_FUSE12__COUNT = 4,
+}e_I2C_ADDRSS_FUSE12_t;
 
 //-------------------------------------------------------------
 //HAL_AIN11 KLASSE
@@ -31,8 +31,8 @@ typedef enum
 class HAL_FUSE12:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
-                    HAL_FUSE12          (const e_FUSE12_ADDRESS_t I2C_ADDRESS);
-    void            init                ();
+                    HAL_FUSE12          ();
+    void            init                (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
     e_BPLC_ERROR_t  getErrorCode        ();
@@ -40,7 +40,7 @@ class HAL_FUSE12:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
   
     private:          
     //Settings  
-    e_FUSE12_ADDRESS_t   deviceAddress;
+    e_I2C_ADDRSS_FUSE12_t   deviceAddress;
   
     //Object handling
     struct

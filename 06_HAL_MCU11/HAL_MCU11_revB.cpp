@@ -10,7 +10,7 @@ HAL_MCU11_revB::HAL_MCU11_revB(volatile uint64_t* P_ISR_COUNT)
 {
     p_ISR_COUNT_MCU_REVB = P_ISR_COUNT;
 }
-void HAL_MCU11_revB::init()
+void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
 {
     //Alles Initialisieren
     this->p_buzzer  = nullptr;

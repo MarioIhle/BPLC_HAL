@@ -108,7 +108,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
     }    
     return newEcAdded;
 }
-extensionCard* BPLC_extensionCardManager::searchExtensionCard(const e_BPLC_CARD_TYPE_t SEARCHED_EXTENSION_CARD, const uint8_t ADDR)
+extensionCard* BPLC_extensionCardManager::searchExtensionCard(const e_BPLC_CARD_TYPE_t SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR)
 {
     extensionCard* p_searchedCard = this->p_firstExtensionCard;
 

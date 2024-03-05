@@ -17,13 +17,13 @@
 //-------------------------------------------------------------
 typedef enum
 {
-    TMP11_CARD_1_ADDRESS = 0x68,
-    TMP11_CARD_2_ADDRESS = 0x6A,
-    TMP11_CARD_3_ADDRESS = 0x6C,
-    TMP11_CARD_4_ADDRESS = 0x6E,
+    I2C_ADDRESS_TMP11__ADDR_1 = 0x68,
+    I2C_ADDRESS_TMP11__ADDR_2 = 0x6A,
+    I2C_ADDRESS_TMP11__ADDR_3 = 0x6C,
+    I2C_ADDRESS_TMP11__ADDR_4 = 0x6E,
     
-    TMP11_CARD_ADDRESS_COUNT = 4,
-}e_TMP11_ADDRESS_t;
+    I2C_ADDRESS_TMP11__COUNT = 4,
+}e_I2C_ADDRESS_TMP11_t;
 
 #define TMP11_CHANNEL_COUNT 4
 //-------------------------------------------------------------
@@ -32,8 +32,8 @@ typedef enum
 class HAL_TMP11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
-                    HAL_TMP11           (const e_TMP11_ADDRESS_t I2C_ADDRESS);
-    void            init                ();
+                    HAL_TMP11           ();
+    void            init                (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
     e_BPLC_ERROR_t  getErrorCode        ();
@@ -41,9 +41,9 @@ class HAL_TMP11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
   
     private:          
     //Settings
-    Adafruit_ADS1115    ADC;
-    e_TMP11_ADDRESS_t   deviceAddress;
-    adsGain_t           adcGain;
+    Adafruit_ADS1115        ADC;
+    e_I2C_ADDRESS_TMP11_t   deviceAddress;
+    adsGain_t               adcGain;
   
     //Object handling
     struct

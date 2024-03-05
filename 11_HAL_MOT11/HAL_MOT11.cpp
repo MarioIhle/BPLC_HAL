@@ -1,11 +1,29 @@
 #include "HAL_MOT11.h"
 
-HAL_MOT11::HAL_MOT11(const e_MOT11_ADDRESS_t I2C_ADDRESS)
+HAL_MOT11::HAL_MOT11()
+{}
+void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
 {
-    this->deviceAddress = I2C_ADDRESS;
-}
-void HAL_MOT11::init()
-{
+    switch(ADDR)
+    {
+        case EC_ADDR_1:
+            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_1;
+            break;
+        case EC_ADDR_2:
+            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_2;
+            break;
+        case EC_ADDR_3:
+            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_3;
+            break;
+        case EC_ADDR_4:
+            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_4;
+            break;
+            
+        default:
+            this->setError(MOT11_ERROR__I2C_ADDRESS_OUT_OF_RANGE);
+            break;
+    }
+
     this->errordetection.i2cError.countLimit    = 3;
     this->errordetection.i2cError.count         = 0;
     this->channels.p_ioObject                   = nullptr;

@@ -17,14 +17,14 @@
 //-------------------------------------------------------------
 typedef enum
 {
-    DIN11_CARD_1_ADDRESS = 0x20,
-    DIN11_CARD_2_ADDRESS = 0x22,
-    DIN11_CARD_3_ADDRESS = 0x21,
-    DIN11_CARD_4_ADDRESS = 0x23,
+    I2C_ADDRESS_DIN11__ADDR_1 = 0x20,
+    I2C_ADDRESS_DIN11__ADDR_2 = 0x22,
+    I2C_ADDRESS_DIN11__ADDR_3 = 0x21,
+    I2C_ADDRESS_DIN11__ADDR_4 = 0x23,
     
-    DIN11_CARD_ADDRESS_COUNT = 4,
+    I2C_ADDRESS_DIN11__COUNT = 4,
 
-}e_DIN11_ADDRESS_t;
+}e_I2C_ADDRESS_DIN11_t;
 
 #define DIN11_CHANNEL_COUNT 8
 
@@ -38,8 +38,8 @@ class HAL_DIN11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
     //Hal Interface
-                    HAL_DIN11           (const e_DIN11_ADDRESS_t I2C_ADDRESS);
-    void            init                ();
+                    HAL_DIN11           ();
+    void            init                (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
     e_BPLC_ERROR_t  getErrorCode        (); 
@@ -48,7 +48,7 @@ class HAL_DIN11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
     private:    
     //Settings
     PCF8574           PCF;
-    e_DIN11_ADDRESS_t deviceAddress;
+    e_I2C_ADDRESS_DIN11_t deviceAddress;
 
     struct
     {

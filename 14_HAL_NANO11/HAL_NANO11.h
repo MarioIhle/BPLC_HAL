@@ -17,13 +17,13 @@
 //-------------------------------------------------------------
 typedef enum
 {
-    NANO11_CARD_1_ADDRESS = 0xB0,
-    NANO11_CARD_2_ADDRESS = 0xB1,
-    NANO11_CARD_3_ADDRESS = 0xB2,
-    NANO11_CARD_4_ADDRESS = 0xB3,
+    I2C_ADDRESS_NANO11__ADDR_1 = 0xB0,
+    I2C_ADDRESS_NANO11__ADDR_2 = 0xB1,
+    I2C_ADDRESS_NANO11__ADDR_3 = 0xB2,
+    I2C_ADDRESS_NANO11__ADDR_4 = 0xB3,
     
-    NANO11_CARD_ADDRESS_COUNT = 4,
-}e_NANO11_ADDRESS_t;
+    I2C_ADDRESS_NANO11__COUNT = 4,
+}e_I2C_ADDRESS_NANO11_t;
 
 //-------------------------------------------------------------
 //HAL_AIN11 KLASSE
@@ -31,8 +31,8 @@ typedef enum
 class HAL_NANO11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
-                    HAL_NANO11          (const e_NANO11_ADDRESS_t I2C_ADDRESS);
-    void            init                ();
+                    HAL_NANO11          ();
+    void            init                (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
     e_BPLC_ERROR_t  getErrorCode        ();
@@ -40,7 +40,7 @@ class HAL_NANO11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
   
     private:          
     //Settings  
-    e_NANO11_ADDRESS_t   deviceAddress;
+    e_I2C_ADDRESS_NANO11_t   deviceAddress;
   
     //Object handling
     struct

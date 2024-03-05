@@ -16,13 +16,13 @@
 //-------------------------------------------------------------
 typedef enum
 {
-  MOT11_CARD_1_ADDRESS = 0xA0,
-  MOT11_CARD_2_ADDRESS = 0xA1,
-  MOT11_CARD_3_ADDRESS = 0xA2,
-  MOT11_CARD_4_ADDRESS = 0xA3,
+  I2C_ADDRESS_MOT11__ADDR_1 = 0xA0,
+  I2C_ADDRESS_MOT11__ADDR_2 = 0xA1,
+  I2C_ADDRESS_MOT11__ADDR_3 = 0xA2,
+  I2C_ADDRESS_MOT11__ADDR_4 = 0xA3,
   
-  MOT11_CARD_ADDRESS_COUNT = 4,
-}e_MOT11_ADDRESS_t;
+  I2C_ADDRESS_MOT11__COUNT = 4,
+}e_I2C_ADDRESS_MOT11_t;
 
 //-------------------------------------------------------------
 //APPLIKATION
@@ -79,8 +79,8 @@ class HAL_MOT11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
     //setup
-                    HAL_MOT11           (const e_MOT11_ADDRESS_t I2C_ADDRESS);
-    void            init                ();
+                    HAL_MOT11           ();
+    void            init                (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
     e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}  
@@ -90,8 +90,8 @@ class HAL_MOT11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
   
     private:
     //Settings    
-    e_MOT11_ADDRESS_t   deviceAddress;
-    e_deviceState_t     deviceState;
+    e_I2C_ADDRESS_MOT11_t   deviceAddress;
+    e_deviceState_t         deviceState;
 
     //I2C Kommunikation
     void sendDriveCommand     (const u_HAL_DATA_t DRIVE_PARAMETER);

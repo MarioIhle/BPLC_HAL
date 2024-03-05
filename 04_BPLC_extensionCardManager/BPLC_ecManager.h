@@ -53,7 +53,7 @@ class extensionCard
     void                    setHalInterface (halInterface* P_HAL_INTERFACE){this->p_hal = P_HAL_INTERFACE;}
     void                    setCardType     (const e_BPLC_CARD_TYPE_t CARD_TYPE){this->cardType = CARD_TYPE;}
     e_BPLC_CARD_TYPE_t      getCardType     (){return this->cardType;}
-    void                    setAddr         (const e_EC_ADDR_t ADDR){this->addr = ADDR};
+    void                    setAddr         (const e_EC_ADDR_t ADDR){this->addr = ADDR;}
     e_EC_ADDR_t             getAddr         (){return this->addr;}
 
 
@@ -77,7 +77,7 @@ class BPLC_extensionCardManager:BPLC_errorHandler, BPLC_LOG
 
     private:        
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
-    extensionCard*      searchExtensionCard                 (const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD);
+    extensionCard*      searchExtensionCard                 (const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR);
     extensionCard*      p_firstExtensionCard;    
     volatile uint64_t   isrCount;
 };

@@ -72,7 +72,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     //Network PORT
     void    mapPortToNetwork        (portInterface_APP* P_PORT);
     //IO PORT
-    void    mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const uint8_t CHANNEL);
+    void    mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const e_EC_ADDR_t ADDR, const uint8_t CHANNEL);
     //Rountine aufruf
     void    tick                    ();    
     //Buzzer aus Applikation heraus nutzen
@@ -131,14 +131,14 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
                     e_BPLC_CARD_TYPE_t  mcuCard;
                     bool                oledAvailable;
                     bool                ain11revACards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                din11revACards [DIN11_CARD_ADDRESS_COUNT];                
-                    bool                do11revACards  [DO11_CARD_ADDRESS_COUNT];
-                    bool                rel11revACards [REL11_CARD_ADDRESS_COUNT];
-                    bool                mot11revAcards [MOT11_CARD_ADDRESS_COUNT];
-                    bool                tmp11revACards [TMP11_CARD_ADDRESS_COUNT];
-                    bool                ppo11revACards [PPO11_CARD_ADDRESS_COUNT];
-                    bool                nano11revACards[NANO11_CARD_ADDRESS_COUNT];
-                    bool                fuse12revACards[FUSE12_CARD_ADDRESS_COUNT];
+                    bool                din11revACards [I2C_ADDRESS_AIN11__COUNT];                
+                    bool                do11revACards  [I2C_ADDRESS_AIN11__COUNT];
+                    bool                rel11revACards [I2C_ADDRESS_AIN11__COUNT];
+                    bool                mot11revAcards [I2C_ADDRESS_AIN11__COUNT];
+                    bool                tmp11revACards [I2C_ADDRESS_AIN11__COUNT];
+                    bool                ppo11revACards [I2C_ADDRESS_AIN11__COUNT];
+                    bool                nano11revACards[I2C_ADDRESS_NANO11__COUNT];
+                    bool                fuse12revACards[I2C_ADDRESS_FUSE12__COUNT];
                 }hardware;
 
             }device;               

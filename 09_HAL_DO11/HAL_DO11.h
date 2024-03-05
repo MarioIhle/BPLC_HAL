@@ -11,14 +11,14 @@
 
 typedef enum
 {
-    DO11_CARD_1_ADDRESS = 0x43,
-    DO11_CARD_2_ADDRESS = 0x42,
-    DO11_CARD_3_ADDRESS = 0x41,
-    DO11_CARD_4_ADDRESS = 0x40,
+    I2C_ADDRESS_DO11__ADDR_1 = 0x43,
+    I2C_ADDRESS_DO11__ADDR_2 = 0x42,
+    I2C_ADDRESS_DO11__ADDR_3 = 0x41,
+    I2C_ADDRESS_DO11__ADDR_4 = 0x40,
     
-    DO11_CARD_ADDRESS_COUNT = 4,
+    I2C_ADDRESS_DO11__COUNT = 4,
 
-}e_DO11_ADDRESS_t;
+}e_I2C_ADDRESS_DO11_t;
 
 #define DEAD_TIME 100 //besser geht nicht, ohne kurzeitigen Kurzschluss bei PWM änderung
 #define LS_MOSFET 0
@@ -28,8 +28,8 @@ typedef enum
 class HAL_DO11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
-                    HAL_DO11            (const e_DO11_ADDRESS_t I2C_ADDRESS);
-    void            init                ();
+                    HAL_DO11            ();
+    void            init                (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
     e_BPLC_ERROR_t  getErrorCode        (); 
@@ -37,8 +37,8 @@ class HAL_DO11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
     
     private:
     //Settings          
-    PCA9685             PCA;
-    e_DO11_ADDRESS_t    deviceAddress;
+    PCA9685                 PCA;
+    e_I2C_ADDRESS_DO11_t    deviceAddress;
     
     struct
     {
