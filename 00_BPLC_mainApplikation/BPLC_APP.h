@@ -130,7 +130,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
                 {            
                     e_BPLC_CARD_TYPE_t  mcuCard;
                     bool                oledAvailable;
-                    bool                ain11revACards [AIN11_CARD_ADDRESS_COUNT];
+                    bool                ain11revACards [I2C_ADDRESS_AIN11__COUNT];
                     bool                din11revACards [DIN11_CARD_ADDRESS_COUNT];                
                     bool                do11revACards  [DO11_CARD_ADDRESS_COUNT];
                     bool                rel11revACards [REL11_CARD_ADDRESS_COUNT];

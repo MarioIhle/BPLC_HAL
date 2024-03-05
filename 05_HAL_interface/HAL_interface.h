@@ -4,10 +4,24 @@
 #include "BPLC_ERRORS.h"
 #include "BPLC_ioBaseTypes.h"
 
+typedef enum 
+{    
+    EC_ADDR_1,
+    EC_ADDR_2,
+    EC_ADDR_3,
+    EC_ADDR_4,
+    EC_ADDR_5,
+    EC_ADDR_6,
+    EC_ADDR_7,
+    EC_ADDR_8,
+
+    EC_ADDR_NOT_DEFINED,
+}e_EC_ADDR_t;
+
 class halInterface
 {
     public:
-    virtual void            init                () = 0;
+    virtual void            init                (const e_EC_ADDR_t ADDR) = 0;
     virtual void            tick                () = 0;
     virtual e_BPLC_ERROR_t  getErrorCode        () = 0;
     virtual void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL) = 0;

@@ -7,7 +7,7 @@ void BPLC_APP::setupHardware()
    if(MCU_TYPE != BPLC_CARD__NO_CARD_DEFINED)
    {      
       //HAL initialisieren
-      const bool INIT_SUCCSESFUL   = this->extensionCardHandler.addNewExtensionCard(MCU_TYPE);
+      const bool INIT_SUCCSESFUL = this->extensionCardHandler.addNewExtensionCard(MCU_TYPE, 0);
       if(INIT_SUCCSESFUL)
       {
          //BUZZER lautstärke anpassen
@@ -31,33 +31,77 @@ void BPLC_APP::setupHardware()
    }
 
    //AIN11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < AIN11_CARD_ADDRESS_COUNT; CARD_ADDR++)
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < AIN11_CARD_I2C_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.hardware.ain11revACards[CARD_ADDR])
-      {
-         switch (CARD_ADDR)
-         {
-            case 0:
-               this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__AIN11revA_1);
-               break;
-
-            case 1:
-               this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__AIN11revA_2);
-               break;
-
-            case 2:
-               this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__AIN11revA_3);
-               break;
-
-            case 3:
-               this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__AIN11revA_4);
-               break;
-            
-            default:
-               break;
-         }   
+      {  
+         this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__AIN11revA, (e_EC_ADDR_t)CARD_ADDR);
       }
    }   
+   //DIN11revA Cards initialisieren
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < DIN11_CARD_ADDRESS_COUNT; CARD_ADDR++)
+   {
+      if(this->APP_APP.settings.device.hardware.din11revACards[CARD_ADDR])
+      {   
+         this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  
+      }             
+   }
+   //DO11revA Cards initialisieren
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < DO11_CARD_ADDRESS_COUNT; CARD_ADDR++)
+   {
+      if(this->APP_APP.settings.device.hardware.do11revACards[CARD_ADDR])
+      {        
+         this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__DO11revA, (e_EC_ADDR_t)CARD_ADDR);           
+      }
+   }
+   //REL11revA Cards initialisieren
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < REL11_CARD_ADDRESS_COUNT; CARD_ADDR++)
+   {
+      if(this->APP_APP.settings.device.hardware.rel11revACards[CARD_ADDR])
+      {
+         this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__REL11revA, (e_EC_ADDR_t)CARD_ADDR);
+      }
+   }
+   //MOT11revA Cards initialisieren
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < MOT11_CARD_ADDRESS_COUNT; CARD_ADDR++)
+   {
+      if(this->APP_APP.settings.device.hardware.mot11revAcards[CARD_ADDR])
+      {
+         this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__MOT11revA, (e_EC_ADDR_t)CARD_ADDR);
+      }
+   }
+   //TMP11revA Cards initialisieren
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < TMP11_CARD_ADDRESS_COUNT; CARD_ADDR++)
+   {
+      if(this->APP_APP.settings.device.hardware.tmp11revACards[CARD_ADDR])
+      {
+         this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__TMP11revA, (e_EC_ADDR_t)CARD_ADDR);
+      }
+   }
+   //PPO11revA Cards initialisieren
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < PPO11_CARD_ADDRESS_COUNT; CARD_ADDR++)
+   {
+      if(this->APP_APP.settings.device.hardware.ppo11revACards[CARD_ADDR])
+      {
+         this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__PPO11revA, (e_EC_ADDR_t)CARD_ADDR);
+      }
+   }
+   //NANO11revA Cards initialisieren
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < NANO11_CARD_ADDRESS_COUNT; CARD_ADDR++)
+   {
+      if(this->APP_APP.settings.device.hardware.nano11revACards[CARD_ADDR])
+      {
+         this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__NANO11revA, (e_EC_ADDR_t)CARD_ADDR);
+      }
+   }
+   //FUSE11revA Cards initialisieren
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < FUSE12_CARD_ADDRESS_COUNT; CARD_ADDR++)
+   {
+      if(this->APP_APP.settings.device.hardware.fuse12revACards[CARD_ADDR])
+      {
+         this->extensionCardHandler.addNewExtensionCard(BPLC_CARD__FUSE11revA, (e_EC_ADDR_t)CARD_ADDR);
+      }
+   }
 }
 void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const uint8_t CHANNEL)
 {

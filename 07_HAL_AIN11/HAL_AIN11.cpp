@@ -1,11 +1,29 @@
 #include "HAL_AIN11.h"
 
-HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t I2C_ADDRESS)
-{
-    this->deviceAddress = I2C_ADDRESS;
-}
-void HAL_AIN11::init()
+HAL_AIN11::HAL_AIN11()
+{}
+void HAL_AIN11::init(const e_EC_ADDR_t ADDR)
 {    
+    switch(ADDR)
+    {
+        case EC_ADDR_1:
+            this->deviceAddress = I2C_ADDRESS_AIN11__ADDR_1;
+            break;
+        case EC_ADDR_2:
+            this->deviceAddress = I2C_ADDRESS_AIN11__ADDR_2;
+            break;
+        case EC_ADDR_3:
+            this->deviceAddress = I2C_ADDRESS_AIN11__ADDR_3;
+            break;
+        case EC_ADDR_4:
+            this->deviceAddress = I2C_ADDRESS_AIN11__ADDR_4;
+            break;
+            
+        default:
+            this->setError(AIN11_ERROR__I2C_ADDRESS_OUT_OF_RANGE);
+            break;
+    }
+
     for(uint8_t CH =0; CH < AIN11_CHANNEL_COUNT; CH++)
     {
         this->channels.p_ioObject[CH] = nullptr;

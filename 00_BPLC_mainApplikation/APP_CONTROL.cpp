@@ -39,7 +39,7 @@ void BPLC_APP::tickControlPanel()
                 Serial.print("MCU:          "); Serial.println(this->APP_APP.settings.device.hardware.mcuCard);
                 Serial.print("oledAvailable:"); Serial.println(this->APP_APP.settings.device.hardware.oledAvailable);              
 
-                for(uint8_t card = 0; card < AIN11_CARD_ADDRESS_COUNT; card++)
+                for(uint8_t card = 0; card < AIN11_CARD_I2C_ADDRESS_COUNT; card++)
                 {
                     if(this->APP_APP.settings.device.hardware.ain11revACards[card])
                     {
