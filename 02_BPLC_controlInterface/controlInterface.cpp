@@ -2,10 +2,13 @@
 
 BPLC_controlInterface::BPLC_controlInterface()
 {}
-bool BPLC_controlInterface::available()
+bool BPLC_controlInterface::commandAvailable()
 {
     while(Serial.available())
     {      
+        //Host heartbeat
+        this->to_keepAlive.reset();
+
         u_BPLC_PLI_COMMAND_t inCommand;
         memset(&inCommand, 0, sizeof(u_BPLC_PLI_COMMAND_t));
 

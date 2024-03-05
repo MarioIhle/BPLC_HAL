@@ -2,37 +2,41 @@
 #define BPLC_LOG_h
 #include "Arduino.h"
 #include "SpecialFunctions.h"
-//BPLC_ParameterLogInterface
 
 typedef enum
-{
-    BPLC_PLI_KEY__DEVICE_MODE_STOP,
+{   
+    //System
+    BPLC_PLI_KEY__GET_SYSTEM_ERRORS,
+    BPLC_PLI_KEY__RESET_ALL_ERRORS,
+    BPLC_PLI_KEY__GET_DEVICE_SETTINGS,
+    BPLC_PLI_KEY__RESET_ALL_SETTINGS,
+    BPLC_PLI_KEY__SOFT_RESET,
+    BPLC_PLI_KEY__INVERT_ENCODER,
+    BPLC_PLI_KEY__USE_BUZZER,
+    BPLC_PLI_KEY__BEEP_ON_ENCODER_INPUT,
+
+    //Applikation
+    BPLC_PLI_KEY__DEVICE_MODE_STOP = 0x10,
     BPLC_PLI_KEY__DEVICE_MODE_RUN,
     BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_SAFETY,
     BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_HARDWARE,
     BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_COMMUNICATION,
-    BPLC_PLI_KEY__GET_SYSTEM_ERRORS,
-    BPLC_PLI_KEY__SET_DEVICE_ADDRESS,
 
-    BPLC_PLI_KEY__DEFINE_MCU11revA,
-    BPLC_PLI_KEY__DEFINE_MCU11revB,
-    BPLC_PLI_KEY__DEFINE_MCU11revC,
+    //Kommunikation
+    BPLC_PLI_KEY__SET_DEVICE_ADDRESS = 0x20,
 
-    BPLC_PLI_KEY__ADD_EC_DIN11revA_ADDR_1,
-    BPLC_PLI_KEY__ADD_EC_DIN11revA_ADDR_2,
-    BPLC_PLI_KEY__ADD_EC_DIN11revA_ADDR_3,
-    BPLC_PLI_KEY__ADD_EC_DIN11revA_ADDR_4,
+    //Hardware
+    BPLC_PLI_KEY__DEFINE_MCU = 0x30,
+    BPLC_PLI_KEY__ADD_EC_AIN11revA,
+    BPLC_PLI_KEY__ADD_EC_DIN11revA,
+    BPLC_PLI_KEY__ADD_EC_DO11revA,
+    BPLC_PLI_KEY__ADD_EC_REL11revA,
+    BPLC_PLI_KEY__ADD_EC_MOT111revA,
+    BPLC_PLI_KEY__ADD_EC_TMP11revA,
+    BPLC_PLI_KEY__ADD_EC_PPO11revA,
+    BPLC_PLI_KEY__ADD_EC_NANOrevA,
+    BPLC_PLI_KEY__ADD_EC_FUSE12revA,
 
-    BPLC_PLI_KEY__ADD_EC_AIN11revA_ADDR_1,
-    BPLC_PLI_KEY__ADD_EC_AIN11revA_ADDR_2,
-    BPLC_PLI_KEY__ADD_EC_AIN11revA_ADDR_3,
-    BPLC_PLI_KEY__ADD_EC_AIN11revA_ADDR_4,
-    
-    BPLC_PLI_KEY__RESET_ALL_ERRORS,
-    BPLC_PLI_KEY__RESET_ALL_SETTINGS,
-    BPLC_PLI_KEY__GET_SETTINGS,
-    BPLC_PLI_KEY__SOFT_RESET,
-    
     BPLC_PLI_KEY__COUNT,
 
 }e_BPLC_PLI_KEY_t;
@@ -41,8 +45,8 @@ typedef union
 {
     struct 
     {
-        uint16_t key;
-        uint16_t paramValue;
+        uint8_t key;
+        uint8_t paramValue;
     }command;
     
     uint8_t data[sizeof(command)];    
@@ -70,11 +74,13 @@ class BPLC_controlInterface: BPLC_LOG
 {
     public:
                             BPLC_controlInterface  ();
-    bool                    available              ();
+    bool                    commandAvailable       ();
     u_BPLC_PLI_COMMAND_t    getCommand             ();
+    bool                    available              (){return (bool)(this->to_keepAlive.check() == false);}
 
 
     private:
-    fifoBuffer          mailbox;        
+    fifoBuffer          mailbox;  
+    Timeout             to_keepAlive;      
 };
 #endif

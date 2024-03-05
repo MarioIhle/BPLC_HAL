@@ -30,7 +30,7 @@ void BPLC_APP::tickSafety()
    //Auf gesetzte Errors prüfen
    if(this->thereIsAnSystemError())
    {
-      this->APP_APP.deviceMode = APP_MODE__SAFE_STATE;
+      this->setDeviceMode(APP_MODE__SAFE_STATE);
    }
    //I2C Bus überwachung
    if(APP_SAFETY.to_scanI2Cbus.checkAndReset())

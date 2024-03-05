@@ -69,18 +69,14 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     //Setup des BPLC Systems
             BPLC_APP                ();
     void    begin                   ();      
-    void    invertEncoder           ();
-    //Network
+    //Network PORT
     void    mapPortToNetwork        (portInterface_APP* P_PORT);
-
+    //IO PORT
     void    mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const uint8_t CHANNEL);
-
     //Rountine aufruf
     void    tick                    ();    
-
     //Buzzer aus Applikation heraus nutzen
     void    beep                    (const uint8_t BEEPS, const int BEEP_INTERVAL);    
-
     //Dip Controll
     void    setVDip                 (const e_V_DIP_t DIP_NUM, const int16_t VALUE);
     int16_t getVDip                 (const e_V_DIP_t DIP_NUM);
@@ -112,31 +108,44 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         {
             bool f_setupParameterFlash;
             bool f_completeSetupDone;
-        }setup;
-
+        }setup;       
+        
         union 
         {        
             struct 
             {
-                bool f_beepOnEncoderInput;
-                bool f_useBuzzer;                  
-          
-                e_BPLC_CARD_TYPE_t  mcuCard;
-                bool                oledAvailable;
-                bool                ain11revACards [AIN11_CARD_ADDRESS_COUNT];
-                bool                din11revACards [DIN11_CARD_ADDRESS_COUNT];                
-                bool                do11revACards  [DO11_CARD_ADDRESS_COUNT];
-                bool                rel11revACards [REL11_CARD_ADDRESS_COUNT];
-                bool                mot11revAcards [MOT11_CARD_ADDRESS_COUNT];
-                bool                tmp11revACards [TMP11_CARD_ADDRESS_COUNT];
-                bool                ppo11revACards [PPO11_CARD_ADDRESS_COUNT];
-                bool                nano11revACards[NANO11_CARD_ADDRESS_COUNT];
-                bool                fuse12revACards[FUSE12_CARD_ADDRESS_COUNT];
-            }settings;               
+                struct 
+                {
+                    bool f_beepOnEncoderInput;
+                    bool f_useBuzzer;
+                    bool f_encoderInverted;   
+                }application;   
 
-            uint8_t data[sizeof(settings)];
+                struct 
+                {
+                    uint8_t deviceAddress;  
+                }communication;               
 
-        }device; 
+                struct 
+                {            
+                    e_BPLC_CARD_TYPE_t  mcuCard;
+                    bool                oledAvailable;
+                    bool                ain11revACards [AIN11_CARD_ADDRESS_COUNT];
+                    bool                din11revACards [DIN11_CARD_ADDRESS_COUNT];                
+                    bool                do11revACards  [DO11_CARD_ADDRESS_COUNT];
+                    bool                rel11revACards [REL11_CARD_ADDRESS_COUNT];
+                    bool                mot11revAcards [MOT11_CARD_ADDRESS_COUNT];
+                    bool                tmp11revACards [TMP11_CARD_ADDRESS_COUNT];
+                    bool                ppo11revACards [PPO11_CARD_ADDRESS_COUNT];
+                    bool                nano11revACards[NANO11_CARD_ADDRESS_COUNT];
+                    bool                fuse12revACards[FUSE12_CARD_ADDRESS_COUNT];
+                }hardware;
+
+            }device;               
+
+            uint8_t flashData[sizeof(device)];
+        }settings; 
+
     }APP_APP;       
     
     //APP_HMI
@@ -203,8 +212,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     struct 
     {        
         MasterNode*     p_masterNode;
-        SlaveNode*      P_slaveNode;   
-        uint8_t         deviceAddress = 0;       
+        SlaveNode*      P_slaveNode;  
         Timeout         to_communicationError; 
     }APP_COM;  
 };

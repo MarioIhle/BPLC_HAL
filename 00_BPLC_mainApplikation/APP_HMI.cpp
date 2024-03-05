@@ -2,7 +2,7 @@
 
 void BPLC_APP::handleDisplay()
 {  
-   if(this->APP_HAL.oled.getError() == BPLC_ERROR__NO_ERROR && this->APP_APP.device.settings.oledAvailable == true)
+   if(this->APP_HAL.oled.getError() == BPLC_ERROR__NO_ERROR && this->APP_APP.settings.device.hardware.oledAvailable == true)
    {
       this->APP_HAL.oled.tick();
 

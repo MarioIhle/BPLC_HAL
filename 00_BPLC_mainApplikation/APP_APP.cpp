@@ -8,12 +8,10 @@ void BPLC_APP::begin()
 {   
    Serial.begin(115200);
    this->printLog("SETUP BPLC SYSTEM");
-   //Schlüsselparameter übernehemen
-   this->APP_COM.deviceAddress = 0;
-
-   //Setup submodule
+   //Device Parameter aus Flash laden
    this->setupParameterFlash();
    this->readDeviceSettings();
+   //Module initialisieren
    this->setupApplication();      
    this->setupHMI();   
    this->setupHardware();      
@@ -62,7 +60,8 @@ void BPLC_APP::tick()
          this->APP_HAL.OEN.set();           
          this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 2500, 2500);  
          this->tickSafety();
-         this->tickHardware();         
+         this->tickHardware();    
+         this->tickNetwork();      
          break;
 
       case APP_MODE__RUN_WITHOUT_SAFETY:   

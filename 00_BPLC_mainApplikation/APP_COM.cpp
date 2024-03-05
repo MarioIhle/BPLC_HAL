@@ -2,11 +2,11 @@
 
 void BPLC_APP::setupNetwork()
 {
-    if(this->APP_COM.deviceAddress == 0)
+    if(this->APP_APP.settings.device.communication.deviceAddress == 0)
     {
         //Netzwerk nicht in Benutzung
     }
-    else if(this->APP_COM.deviceAddress == MASTER_NODE_ADDRESS)
+    else if(this->APP_APP.settings.device.communication.deviceAddress == MASTER_NODE_ADDRESS)
     {
         this->printLog("Network setup as masterNode");
         MasterNode* p_networkNode = new MasterNode;
@@ -15,9 +15,9 @@ void BPLC_APP::setupNetwork()
     }
     else
     {
-        this->printLog("Network setup as slaveNode with address: " + String(this->APP_COM.deviceAddress));
+        this->printLog("Network setup as slaveNode with address: " + String(this->APP_APP.settings.device.communication.deviceAddress));
         SlaveNode* p_networkNode = new SlaveNode;
-        p_networkNode->begin(this->APP_COM.deviceAddress, &Serial2, 4);
+        p_networkNode->begin(this->APP_APP.settings.device.communication.deviceAddress, &Serial2, 4);
         this->APP_COM.P_slaveNode = p_networkNode;
     }
     //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
@@ -26,11 +26,11 @@ void BPLC_APP::setupNetwork()
 void BPLC_APP::mapPortToNetwork(portInterface_APP* P_PORT)
 {    
     //Network setup
-    if(this->APP_COM.deviceAddress < 0)
+    if(this->APP_APP.settings.device.communication.deviceAddress < 0)
     {                       
         this->setSystemError(BPLC_ERROR__NETWORK_ADDRESS_NOT_DEFINED);
     }
-    else if(this->APP_COM.deviceAddress == 1)
+    else if(this->APP_APP.settings.device.communication.deviceAddress == 1)
     {
         this->APP_COM.p_masterNode->mapPortToNetwork(P_PORT);
     }
@@ -41,7 +41,7 @@ void BPLC_APP::mapPortToNetwork(portInterface_APP* P_PORT)
 }
 void BPLC_APP::tickNetwork()
 {
-    if(this->APP_COM.deviceAddress > 0)
+    if(this->APP_APP.settings.device.communication.deviceAddress > 0)
     {      
         //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
         if(this->APP_COM.to_communicationError.check())
@@ -49,7 +49,7 @@ void BPLC_APP::tickNetwork()
             this->setSystemError(BPLC_ERROR__COMMUNICATION_FAILED);
         }
 
-        const bool DEVICE_IS_MASTER_NODE = (bool)(this->APP_COM.deviceAddress == MASTER_NODE_ADDRESS);
+        const bool DEVICE_IS_MASTER_NODE = (bool)(this->APP_APP.settings.device.communication.deviceAddress == MASTER_NODE_ADDRESS);
 
         if(DEVICE_IS_MASTER_NODE)
         {                       

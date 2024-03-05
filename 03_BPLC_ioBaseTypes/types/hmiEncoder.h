@@ -13,7 +13,7 @@ class hmiEncoder:public IO_Interface
         this->f_invertedDirection   = false;
         this->ioType                = IO_TYPE__ROTARY_ENCODER; 
     }
-    void                invertTurningDirection  (){this->f_invertedDirection = true;}
+    void                invertTurningDirection  (){this->f_invertedDirection = !this->f_invertedDirection;}
     e_MOVEMENT_t        getTurningDirection     ()
     {     
         e_MOVEMENT_t direction = MOVEMENT__IDLE;  

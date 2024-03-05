@@ -24,13 +24,13 @@ void HAL_MCU11_revB::init()
     pinMode(this->PIN.ENCODER_A, INPUT);
     pinMode(this->PIN.ENCODER_B, INPUT);
     pinMode(this->PIN.ENCODER_BUTTON, INPUT);
-    //p_ld1-3
+    //ld1-3
     pinMode(this->PIN.LD1, OUTPUT);
     pinMode(this->PIN.LD2, OUTPUT);
     pinMode(this->PIN.LD3, OUTPUT);    
-    //P_BUZZER
+    //BUZZER
     pinMode(this->PIN.BUZZER, OUTPUT);
-    //p_oen
+    //oen
     pinMode(this->PIN.OEN, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT_PULLUP);
