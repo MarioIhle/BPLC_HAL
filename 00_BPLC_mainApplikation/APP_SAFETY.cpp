@@ -51,7 +51,7 @@ void BPLC_APP::scanForUnkonwnI2CDevices()
 
          if(FOUND_DEVICE_IS_NOT_DEFINED)
          {
-            this->printLog("I2C Device Found but not defined, Addess: " + String(possibleDevice));
+            this->printLog("I2C Device Found but not defined, Address: " + String(possibleDevice));
             this->setSystemError(BPLC_ERROR__UNDEFINED_I2C_DEVICE_FOUND);
          }
       }     

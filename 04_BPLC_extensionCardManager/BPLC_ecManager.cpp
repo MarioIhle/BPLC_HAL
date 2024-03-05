@@ -231,7 +231,7 @@ void BPLC_extensionCardHandler::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
     
     p_newHalInterface->init();    
     //Neues extensionCard Objekt erzeugen und hal zuweisen
-    if(p_newHalInterface->getErrorCode() != BPLC_ERROR__NO_ERROR)
+    if(p_newHalInterface->getErrorCode() == BPLC_ERROR__NO_ERROR)
     {
         extensionCard* p_extensionCard = new extensionCard();
         p_extensionCard->setHalInterface(p_newHalInterface);

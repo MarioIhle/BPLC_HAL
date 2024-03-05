@@ -22,7 +22,7 @@ typedef enum
     FUSE12_CARD_3_ADDRESS = 0xC2,
     FUSE12_CARD_4_ADDRESS = 0xC3,
     
-    FUSE12_CARD_ADDRESS__COUNT = 4,
+    FUSE12_CARD_ADDRESS_COUNT = 4,
 }e_FUSE12_ADDRESS_t;
 
 //-------------------------------------------------------------

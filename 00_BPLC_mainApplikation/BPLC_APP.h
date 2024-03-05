@@ -13,6 +13,7 @@
 //-------------------------------------------------------------
 #include "Arduino.h"
 #include "SpecialFunctions.h"
+#include <Preferences.h>
 //BPLC
 #include "BPLC_ERRORS.h"
 #include "BPLC_PLI.h"
@@ -46,9 +47,10 @@ typedef enum
     APP_MODE__STOP,    
     APP_MODE__START,
     APP_MODE__SAFE_STATE,
-    APP_MODE__RUN_WITH_CONFIG_1,
-    APP_MODE__RUN_WITH_CONFIG_2,
-    APP_MODE__RUN_WITH_CONFIG_3,
+    APP_MODE__RUN,
+    APP_MODE__RUN_WITHOUT_SAFETY,
+    APP_MODE__RUN_WITHOUT_EC_CARDS,
+    APP_MODE__RUN_WITHOUT_COM,
 
     APP_MODE__COUNT,
 }e_APP_MODE_t;
@@ -66,7 +68,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     public:
     //Setup des BPLC Systems
             BPLC_APP                ();
-    void    begin                   (const e_BPLC_CARD_TYPE_t MCU_TYPE, const uint8_t DEVICE_ADDRESS = 0);      
+    void    begin                   ();      
     void    invertEncoder           ();
     //Network
     void    mapPortToNetwork        (portInterface_APP* P_PORT);
@@ -87,8 +89,8 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     private:
     //ControlPanel
     BPLC_controlInterface   hostPc;
-    void                    tickControlPanel();
-    void                    setupControlPanel();
+    void                    tickControlPanel    ();
+    void                    setupControlPanel   ();
 
     //APP_APP 
     void            setupApplication();
@@ -106,16 +108,32 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
             bool f_beepOnEncoderInput;
             bool f_useBuzzer;
             bool f_initDone;
+
+            struct 
+            {
+                e_BPLC_CARD_TYPE_t  mcuCard;
+                bool                oledAvailable;
+                bool                ainCard [AIN11_CARD_ADDRESS_COUNT];
+                bool                dinCard [DIN11_CARD_ADDRESS_COUNT];                
+                bool                doCard  [DO11_CARD_ADDRESS_COUNT];
+                bool                relCard [REL11_CARD_ADDRESS_COUNT];
+                bool                motCard [MOT11_CARD_ADDRESS_COUNT];
+                bool                tempCard[TMP11_CARD_ADDRESS_COUNT];
+                bool                ppoCard [PPO11_CARD_ADDRESS_COUNT];
+                bool                nanoCard[NANO11_CARD_ADDRESS_COUNT];
+                bool                fuseCard[FUSE12_CARD_ADDRESS_COUNT];
+            }hardware;            
+            
         }deviceSettings; 
     }APP_APP;       
     
     //APP_HMI
-    void setupHMI();
-    void handleDisplay();
-    void editDeviceMode();
-    void hardwareErrorOut();
-    void displaySettings();
-    void handle_vDip();
+    void setupHMI           ();
+    void handleDisplay      ();
+    void editDeviceMode     ();
+    void hardwareErrorOut   ();
+    void displaySettings    ();
+    void handle_vDip        ();
 
     struct
     {        
@@ -124,12 +142,13 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
   
 
     //Externer aufruf, wenn HAL Objekt ein Error meldet
-    void            setupSafety();
-    void            tickSafety();
-    void            setSystemError(const e_BPLC_ERROR_t ERROR_CODE);
-    bool            thereIsAnSystemError();
-    e_BPLC_ERROR_t  getFirstSystemErrorCode();
+    void            setupSafety             ();
+    void            tickSafety              ();
 
+    void            setSystemError          (const e_BPLC_ERROR_t ERROR_CODE);
+    bool            thereIsAnSystemError    ();
+    e_BPLC_ERROR_t  getFirstSystemErrorCode ();
+    void            resetLastError          (){this->APP_SAFETY.errorCode[0] = BPLC_ERROR__NO_ERROR;}
     void            scanForUnkonwnI2CDevices();
 
     struct  
@@ -148,8 +167,8 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
 
     //APP_HAL
     BPLC_extensionCardHandler   extensionCardHandler; 
-    void                        setupHardware(const e_BPLC_CARD_TYPE_t MCU_TYPE);
-    void                        tickHardware();
+    void                        setupHardware   ();
+    void                        tickHardware    ();
      
     struct 
     {
@@ -166,8 +185,8 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
 
 
     //BPLC_COM Netzwerk(BertaNetPorts)
-    void setupNetwork();
-    void tickNetwork();
+    void setupNetwork   ();
+    void tickNetwork    ();
 
     struct 
     {        
