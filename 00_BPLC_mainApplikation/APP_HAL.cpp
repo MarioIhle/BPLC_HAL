@@ -7,28 +7,35 @@ void BPLC_APP::invertEncoder()
 }
 void BPLC_APP::setupHardware()
 {
-   if(this->APP_APP.deviceSettings.hardware.mcuCard != BPLC_CARD__NO_CARD_DEFINED)
+   if(this->APP_APP.device.settings.mcuCard != BPLC_CARD__NO_CARD_DEFINED)
    {      
       //HAL initialisieren
-      this->extensionCardHandler.addNewExtensionCard(this->APP_APP.deviceSettings.hardware.mcuCard);
-      //BUZZER lautstärke anpassen
-      this->APP_HAL.BUZZER.setOnValue(50);
-      this->APP_HAL.OEN.setOnValue(1);
-      //MCU IO´s mappen
-      this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.BUZZER,                      this->APP_APP.deviceSettings.hardware.mcuCard, MCU_CHANNEL__BUZZER);  
-      this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.ENCODER,                     this->APP_APP.deviceSettings.hardware.mcuCard, MCU_CHANNEL__ENCODER); 
-      this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.OEN,                         this->APP_APP.deviceSettings.hardware.mcuCard, MCU_CHANNEL__OEN); 
-      this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.LD1_DEVICE_STATE,            this->APP_APP.deviceSettings.hardware.mcuCard, MCU_CHANNEL__LD1); 
-      this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.LD2_COMMUNICATION_STATE,     this->APP_APP.deviceSettings.hardware.mcuCard, MCU_CHANNEL__LD2); 
-      this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.LD3_ERROR_OUT,               this->APP_APP.deviceSettings.hardware.mcuCard, MCU_CHANNEL__LD3);  
-      //OnboardDisplay initialisieren
-      this->APP_HAL.oled.begin();     
-      this->APP_APP.deviceSettings.hardware.oledAvailable = true;
+      const bool MCU_HAL_INIT_OK = this->extensionCardHandler.addNewExtensionCard(this->APP_APP.device.settings.mcuCard);
+      if(MCU_HAL_INIT_OK)
+      {
+         //BUZZER lautstärke anpassen
+         this->APP_HAL.BUZZER.setOnValue(50);
+         this->APP_HAL.OEN.setOnValue(1);
+         //MCU IO´s mappen
+         this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.BUZZER,                      this->APP_APP.device.settings.mcuCard, MCU_CHANNEL__BUZZER);  
+         this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.ENCODER,                     this->APP_APP.device.settings.mcuCard, MCU_CHANNEL__ENCODER); 
+         this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.OEN,                         this->APP_APP.device.settings.mcuCard, MCU_CHANNEL__OEN); 
+         this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.LD1_DEVICE_STATE,            this->APP_APP.device.settings.mcuCard, MCU_CHANNEL__LD1); 
+         this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.LD2_COMMUNICATION_STATE,     this->APP_APP.device.settings.mcuCard, MCU_CHANNEL__LD2); 
+         this->extensionCardHandler.mapObjectToExtensionCard(&this->APP_HAL.LD3_ERROR_OUT,               this->APP_APP.device.settings.mcuCard, MCU_CHANNEL__LD3);  
+         //OnboardDisplay initialisieren
+         this->APP_HAL.oled.begin();     
+         this->APP_APP.device.settings.oledAvailable = true;
+      }
+   }
+   else
+   {
+      this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED);
    }
    //AIN11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < AIN11_CARD_ADDRESS_COUNT; CARD_ADDR++)
    {
-      if(this->APP_APP.deviceSettings.hardware.ainCard[CARD_ADDR])
+      if(this->APP_APP.device.settings.ain11revACards[CARD_ADDR])
       {
          switch (CARD_ADDR)
          {
@@ -59,7 +66,11 @@ void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, cons
    this->extensionCardHandler.mapObjectToExtensionCard(P_IO_OBJECT, CARD, CHANNEL);
 }
 void BPLC_APP::tickHardware()
-{   
+{  
    this->extensionCardHandler.tick();
    this->setSystemError(this->extensionCardHandler.getModulError());
+}
+void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
+{
+   this->APP_HAL.BUZZER.blinkOnce(BEEPS, BEEP_INTERVAL); 
 }

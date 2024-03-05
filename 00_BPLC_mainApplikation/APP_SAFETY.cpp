@@ -10,7 +10,7 @@ void BPLC_APP::setupSafety()
 void BPLC_APP::tickSafety()
 {
    //Init überwachung
-   if(this->APP_APP.deviceSettings.f_initDone == false)
+   if(this->APP_APP.setup.f_completeSetupDone == false)
    {
       this->setSystemError(BPLC_ERROR__BPLC_BEGIN_CALL_MISSING);
    }
@@ -49,53 +49,11 @@ void BPLC_APP::scanForUnkonwnI2CDevices()
       {
          const bool FOUND_DEVICE_IS_NOT_DEFINED = (bool)(this->extensionCardHandler.i2cAddressIsUsedByExtensionCard(possibleDevice) == false);
 
-         if(FOUND_DEVICE_IS_NOT_DEFINED)
+         if(FOUND_DEVICE_IS_NOT_DEFINED && possibleDevice != 60 && possibleDevice != 188)
          {
             this->printLog("I2C Device Found but not defined, Address: " + String(possibleDevice));
             this->setSystemError(BPLC_ERROR__UNDEFINED_I2C_DEVICE_FOUND);
          }
       }     
    }      
-}
-//Errorout
-bool BPLC_APP::thereIsAnSystemError()
-{
-   bool THERE_IS_AN_ERROR = false;
-
-   for(uint8_t ERROR_CODE_BUFFER_SLOT = 0; ERROR_CODE_BUFFER_SLOT < HARDWARE_ERROR_BUFFER_SIZE; ERROR_CODE_BUFFER_SLOT++)
-   {
-      if(this->APP_SAFETY.errorCode[ERROR_CODE_BUFFER_SLOT] != BPLC_ERROR__NO_ERROR)
-      {
-         THERE_IS_AN_ERROR = true;
-         break;
-      }
-   }
-   return THERE_IS_AN_ERROR;
-}
-e_BPLC_ERROR_t BPLC_APP::getFirstSystemErrorCode()
-{   
-   return this->APP_SAFETY.errorCode[0];
-}
-void BPLC_APP::setSystemError(const e_BPLC_ERROR_t ERROR_CODE)
-{        
-   for(uint8_t ERROR_CODE_BUFFER_SLOT = 0; ERROR_CODE_BUFFER_SLOT < HARDWARE_ERROR_BUFFER_SIZE; ERROR_CODE_BUFFER_SLOT++)
-   {
-      if(this->APP_SAFETY.errorCode[ERROR_CODE_BUFFER_SLOT] == ERROR_CODE)
-      {
-         //error schon gespeichert
-         break;
-      }
-      else if(this->APP_SAFETY.errorCode[ERROR_CODE_BUFFER_SLOT] == BPLC_ERROR__NO_ERROR)
-      {     
-         //freier slot
-         this->APP_SAFETY.errorCode[ERROR_CODE_BUFFER_SLOT] = ERROR_CODE;
-         //Ausgabe des Errors auf USB Schnittstelle
-         this->printError("SYSTEM ERROR CODE SET: " + String(ERROR_CODE) + ", " + String(this->APP_SAFETY.errorOut.getErrorCodeText(ERROR_CODE)));      
-         break;
-      }
-      else
-      {
-         //Slot schon belegt        
-      }
-   }  
 }

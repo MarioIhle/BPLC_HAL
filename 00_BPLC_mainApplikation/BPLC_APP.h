@@ -93,7 +93,12 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     void                    setupControlPanel   ();
 
     //APP_APP 
-    void            setupApplication();
+    void            setupApplication    ();
+    //DeviceSettings
+    Preferences     parameterFlash;
+    void            setupParameterFlash ();
+    void            saveDeviceSettings  ();
+    void            readDeviceSettings  ();
     //Device Mode
     e_APP_MODE_t    getDeviceMode   ();    
     void            setDeviceMode   (const e_APP_MODE_t MODE);
@@ -103,28 +108,35 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
         e_APP_MODE_t   deviceMode;
         int16_t        virtualDipSwitch[vDIP_COUNT]; 
 
-        struct 
+        struct
         {
-            bool f_beepOnEncoderInput;
-            bool f_useBuzzer;
-            bool f_initDone;
+            bool f_setupParameterFlash;
+            bool f_completeSetupDone;
+        }setup;
 
+        union 
+        {        
             struct 
             {
+                bool f_beepOnEncoderInput;
+                bool f_useBuzzer;                  
+          
                 e_BPLC_CARD_TYPE_t  mcuCard;
                 bool                oledAvailable;
-                bool                ainCard [AIN11_CARD_ADDRESS_COUNT];
-                bool                dinCard [DIN11_CARD_ADDRESS_COUNT];                
-                bool                doCard  [DO11_CARD_ADDRESS_COUNT];
-                bool                relCard [REL11_CARD_ADDRESS_COUNT];
-                bool                motCard [MOT11_CARD_ADDRESS_COUNT];
-                bool                tempCard[TMP11_CARD_ADDRESS_COUNT];
-                bool                ppoCard [PPO11_CARD_ADDRESS_COUNT];
-                bool                nanoCard[NANO11_CARD_ADDRESS_COUNT];
-                bool                fuseCard[FUSE12_CARD_ADDRESS_COUNT];
-            }hardware;            
-            
-        }deviceSettings; 
+                bool                ain11revACards [AIN11_CARD_ADDRESS_COUNT];
+                bool                din11revACards [DIN11_CARD_ADDRESS_COUNT];                
+                bool                do11revACards  [DO11_CARD_ADDRESS_COUNT];
+                bool                rel11revACards [REL11_CARD_ADDRESS_COUNT];
+                bool                mot11revAcards [MOT11_CARD_ADDRESS_COUNT];
+                bool                tmp11revACards [TMP11_CARD_ADDRESS_COUNT];
+                bool                ppo11revACards [PPO11_CARD_ADDRESS_COUNT];
+                bool                nano11revACards[NANO11_CARD_ADDRESS_COUNT];
+                bool                fuse12revACards[FUSE12_CARD_ADDRESS_COUNT];
+            }settings;               
+
+            uint8_t data[sizeof(settings)];
+
+        }device; 
     }APP_APP;       
     
     //APP_HMI
@@ -147,8 +159,8 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
 
     void            setSystemError          (const e_BPLC_ERROR_t ERROR_CODE);
     bool            thereIsAnSystemError    ();
-    e_BPLC_ERROR_t  getFirstSystemErrorCode ();
-    void            resetLastError          (){this->APP_SAFETY.errorCode[0] = BPLC_ERROR__NO_ERROR;}
+    e_BPLC_ERROR_t  getSystemErrorCode      (const uint8_t ERROR_CODE_SLOT = 0);
+    void            resetError              (const uint8_t ERROR_CODE_SLOT = 0){this->APP_SAFETY.errorCode[ERROR_CODE_SLOT] = BPLC_ERROR__NO_ERROR;}
     void            scanForUnkonwnI2CDevices();
 
     struct  
@@ -166,7 +178,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
 
 
     //APP_HAL
-    BPLC_extensionCardHandler   extensionCardHandler; 
+    BPLC_extensionCardManager   extensionCardHandler; 
     void                        setupHardware   ();
     void                        tickHardware    ();
      

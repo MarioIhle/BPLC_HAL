@@ -93,15 +93,15 @@ class extensionCard
     e_BPLC_CARD_TYPE_t      cardType; 
 };
 
-class BPLC_extensionCardHandler:BPLC_errorHandler, BPLC_LOG
+class BPLC_extensionCardManager:BPLC_errorHandler, BPLC_LOG
 {
     public:
-                        BPLC_extensionCardHandler           ();    
+                        BPLC_extensionCardManager           ();    
     void                tick                                ();    
     void                mapObjectToExtensionCard            (IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const uint8_t CHANNEL);
     e_BPLC_ERROR_t      getModulError                       (){return this->getError();}
     bool                i2cAddressIsUsedByExtensionCard     (const uint8_t I2C_ADDRESS);
-    void                addNewExtensionCard                 (const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE);
+    bool                addNewExtensionCard                 (const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE);
 
 
     private:        
