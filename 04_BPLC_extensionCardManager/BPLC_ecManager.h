@@ -1,10 +1,6 @@
 #ifndef BPLC_extensionCardManager_h
 #define BPLC_extensionCardManager_h
 
-#include "Arduino.h"
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_errorHandler.h"
-#include "BPLC_controlInterface.h"
 //HAL´s
 #include "HAL_MCU11.h"
 #include "HAL_AIN11.h"

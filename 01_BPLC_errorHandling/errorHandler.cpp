@@ -1,6 +1,5 @@
 #include "BPLC_errorHandler.h"
 
-
 BPLC_errorHandler::BPLC_errorHandler()
 {
     memset(&this->errorCode, 0, sizeof(this->errorCode))
