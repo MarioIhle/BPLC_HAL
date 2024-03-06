@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 #include "BPLC_ioBaseTypes.h"
-#include "BPLC_ERRORS.h"
+#include "BPLC_ERROR.h"
 #include "BPLC_PLI.h"
 //HAL´s
 #include "HAL_MCU11.h"

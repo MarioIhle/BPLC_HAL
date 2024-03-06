@@ -1,4 +1,4 @@
-#include "BPLC_ERRORS.h"
+#include "BPLC_ERROR.h"
 
 BPLC_errorHandler::BPLC_errorHandler()
 {

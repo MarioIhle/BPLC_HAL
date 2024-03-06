@@ -7,7 +7,6 @@
 #include "BPLC_PLI.h"
 #include "I2C_check.h"
 #include "HAL_interface.h"
-#include "BPLC_ERRORS.h"
 
 typedef enum
 {

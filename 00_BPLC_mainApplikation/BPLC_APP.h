@@ -15,7 +15,7 @@
 #include "SpecialFunctions.h"
 #include <Preferences.h>
 //BPLC
-#include "BPLC_ERRORS.h"
+#include "BPLC_ERROR.h"
 #include "BPLC_PLI.h"
 //Hardware
 #include "BPLC_ecManager.h"

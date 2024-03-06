@@ -23,7 +23,7 @@
 #include <Wire.h>
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
-#include "BPLC_ERRORS.h"
+#include "BPLC_ERROR.h"
 #include "I2C_check.h"
 
 //#define DEBUG_OLED_DISPLAY

@@ -20,7 +20,7 @@ void HAL_DO11::init(const e_EC_ADDR_t ADDR)
             break;
             
         default:
-            this->setError(AIN11_ERROR__I2C_ADDRESS_OUT_OF_RANGE);
+            this->setError(AIN11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
             break;
     }
 
@@ -32,7 +32,7 @@ void HAL_DO11::init(const e_EC_ADDR_t ADDR)
     //I2C verbindung prüfen
     if(!I2C_check::begin(this->deviceAddress))
     {
-        this->setError(DO11_ERROR__I2C_CONNECTION_FAILED);     
+        this->setError(DO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);     
     }
     
     //Applikationsparameter initialisieren
@@ -55,15 +55,15 @@ void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANN
 
     if(CHANNEL < 1 || CHANNEL > DO11_CHANNEL_COUNT)
     {
-        this->setError(DO11_ERROR__CHANNEL_OUT_OF_RANGE);
+        this->setError(DO11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == DO11_CHANNEL_COUNT)
     {
-        this->setError(DO11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
+        this->setError(DO11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
     {
-        this->setError(DO11_ERROR__CHANNEL_ALREADY_IN_USE);       
+        this->setError(DO11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
     else
     {
@@ -82,7 +82,7 @@ void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANN
             break;
 
             default:
-                this->setError(DO11_ERROR__IO_OBJECT_NOT_SUITABLE);
+                this->setError(DO11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
             break;
         }
     }
@@ -194,7 +194,7 @@ void HAL_DO11::tick()
 
                         default:
                         case IO_TYPE__NOT_DEFINED:
-                            this->setError(DO11_ERROR__IO_OBJECT_NOT_SUITABLE);
+                            this->setError(DO11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
                         break;               
                     }
                 }
@@ -207,7 +207,7 @@ e_BPLC_ERROR_t HAL_DO11::getErrorCode()
     //I2C Verbindung zyklisch prüfen
     if(!this->requestHeartbeat())
     {
-        this->setError(DO11_ERROR__I2C_CONNECTION_FAILED);
+        this->setError(DO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
     }
     return this->getError();
 }

@@ -20,7 +20,7 @@ void HAL_AIN11::init(const e_EC_ADDR_t ADDR)
             break;
             
         default:
-            this->setError(AIN11_ERROR__I2C_ADDRESS_OUT_OF_RANGE);
+            this->setError(AIN11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
             break;
     }
 
@@ -32,7 +32,7 @@ void HAL_AIN11::init(const e_EC_ADDR_t ADDR)
     //I2C Verbindung prüfen
     if(!I2C_check::begin(this->deviceAddress))
     {
-       this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED);        
+       this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
     //Applikationsparameter initialisieren         
     if(this->getError() == BPLC_ERROR__NO_ERROR)
@@ -65,15 +65,15 @@ void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 
     if(CHANNEL < 1 || CHANNEL > AIN11_CHANNEL_COUNT)
     {
-        this->setError(AIN11_ERROR__CHANNEL_OUT_OF_RANGE);
+        this->setError(AIN11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == AIN11_CHANNEL_COUNT)
     {
-        this->setError(AIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
+        this->setError(AIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
     {
-        this->setError(AIN11_ERROR__CHANNEL_ALREADY_IN_USE);       
+        this->setError(AIN11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
     else
     {
@@ -112,7 +112,7 @@ void HAL_AIN11::tick()
                         
                         default:
                         case IO_TYPE__NOT_DEFINED:
-                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE);
+                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
                         break;               
                     }
                 }       
@@ -125,7 +125,7 @@ e_BPLC_ERROR_t HAL_AIN11::getErrorCode()
     //I2C Verbindung zyklisch prüfen
     if(!this->requestHeartbeat())
     {
-        this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED);
+        this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
     }
     return this->getError();
 }

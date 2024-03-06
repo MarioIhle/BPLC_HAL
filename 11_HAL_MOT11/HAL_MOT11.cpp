@@ -20,7 +20,7 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
             break;
             
         default:
-            this->setError(MOT11_ERROR__I2C_ADDRESS_OUT_OF_RANGE);
+            this->setError(MOT11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
             break;
     }
 
@@ -34,7 +34,7 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     //I2C Verbindung prüfen
     if(I2C_check::begin(this->deviceAddress) == false)
     {
-        this->setError(MOT11_ERROR__I2C_CONNECTION_FAILED);        
+        this->setError(MOT11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
 
     //Applikationsparameter initialisieren
@@ -53,11 +53,11 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 {
     if(CHANNEL < 1 || CHANNEL > MOT11_CHANNEL_COUNT)
     {
-        this->setError(DIN11_ERROR__CHANNEL_OUT_OF_RANGE);
+        this->setError(DIN11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject != nullptr && CHANNEL == MOT11_CHANNEL_COUNT)
     {
-        this->setError(DIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
+        this->setError(DIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
     else
     {   
@@ -72,7 +72,7 @@ void HAL_MOT11::tick()
         const bool I2C_ERROR_COUNT_LIMIT_REACHED = (bool)(this->errordetection.i2cError.count >= this->errordetection.i2cError.countLimit);
         if(I2C_ERROR_COUNT_LIMIT_REACHED)
         {
-            this->setError(MOT11_ERROR__I2C_CONNECTION_FAILED);
+            this->setError(MOT11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
 
             #ifdef DEBUG_HAL_MOT11
             Serial.println("errordetection count limit reachded");
@@ -266,11 +266,11 @@ bool HAL_MOT11::waitForDriveParameter()
         u_HAL_DATA_t tempBuffer;
         tempBuffer.dcDriveData.current = inCommand.extract.current;
         this->channels.p_ioObject->halCallback(&tempBuffer);
-        this->setError((e_BPLC_ERROR_t)inCommand.extract.error);
+        this->setError((e_BPLC_ERROR_t)inCommand.extract.error, __FILENAME__, __LINE__);
     }
     else
     {        
-        this->setError(MOT11_ERROR__RECEIVED_DRIVE_PARAMETER_NOT_PLAUSIBLE);
+        this->setError(MOT11_ERROR__RECEIVED_DRIVE_PARAMETER_NOT_PLAUSIBLE, __FILENAME__, __LINE__);
     }
 
 #ifdef DEBUG_HAL_MOT11 

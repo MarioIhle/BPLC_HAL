@@ -2,7 +2,7 @@
 #define BPLC_LOG_h
 #include "Arduino.h"
 #include "SpecialFunctions.h"
-#include "BPLC_ERRORS.h"
+#include "BPLC_ERROR.h"
 
 typedef enum
 {   
@@ -60,7 +60,7 @@ class BPLC_LOG: ERROR_OUT
     public:
             BPLC_LOG            ();
     void    printLog            (String TEXT, String FILE, const uint16_t LINE);
-    void    printError          (String TEXT, String FILE, const uint16_t LINE);
+    void    printError          (const e_BPLC_ERROR_t ERROR_CODE,  String FILE, const uint16_t LINE);
     void    printResetReason    (String TEXT, String FILE, const uint16_t LINE);
 
 

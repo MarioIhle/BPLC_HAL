@@ -1,7 +1,7 @@
 #ifndef HAL_interface_h
 #define HAL_interface_h
 
-#include "BPLC_ERRORS.h"
+#include "BPLC_ERROR.h"
 #include "BPLC_ioBaseTypes.h"
 
 typedef enum 
