@@ -1,20 +1,13 @@
 #ifndef HAL_DIN11_h
 #define HAL_DIN11_h
-
 //-------------------------------------------------------------
 //INCLUDES
-//-------------------------------------------------------------
-#include "Arduino.h"
+#include "HAL_interface.h"
+#include "PCA9685.h"
 #include "PCF8574.h"
 
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_PLI.h"
-#include "I2C_check.h"
-#include "HAL_interface.h"
-
 //-------------------------------------------------------------
-//HARDWARE SPEZIFISCHE TYPES
-//-------------------------------------------------------------
+//I2C ADDRESSEN
 typedef enum
 {
     I2C_ADDRESS_DIN11__ADDR_1 = 0x20,
@@ -26,15 +19,11 @@ typedef enum
 
 }e_I2C_ADDRESS_DIN11_t;
 
+//-------------------------------------------------------------
 #define DIN11_CHANNEL_COUNT 8
 
-
 //-------------------------------------------------------------
-//HAL_DIN11 KLASSE
-//-------------------------------------------------------------
-#define READ_TWO_TIMES 2
-
-class HAL_DIN11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_DIN11:BPLC_logPrint, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
     //Hal Interface

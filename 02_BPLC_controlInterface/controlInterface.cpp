@@ -1,4 +1,4 @@
-#include "BPLC_PLI.h"
+#include "BPLC_controlInterface.h"
 
 BPLC_controlInterface::BPLC_controlInterface()
 {}
@@ -27,7 +27,7 @@ bool BPLC_controlInterface::commandAvailable()
             }
             else
             {
-                this->printLog("COMMAND KEY INVALID!");
+                this->printLog("COMMAND KEY INVALID!", __FILENAME__, __LINE__);
             }   
         }
     }

@@ -1,8 +1,9 @@
-#ifndef BPLC_LOG_h
-#define BPLC_LOG_h
+#ifndef BPLC_controlInterface_h
+#define BPLC_controlInterface_h
+
 #include "Arduino.h"
+#include "BPLC_errorCodes.h"
 #include "SpecialFunctions.h"
-#include "BPLC_ERROR.h"
 
 typedef enum
 {   
@@ -55,22 +56,23 @@ typedef union
 }u_BPLC_PLI_COMMAND_t;
 
 
-class BPLC_LOG: ERROR_OUT
+class BPLC_logPrint 
 {
     public:
-            BPLC_LOG            ();
+            BPLC_logPrint       ();
     void    printLog            (String TEXT, String FILE, const uint16_t LINE);
     void    printError          (const e_BPLC_ERROR_t ERROR_CODE,  String FILE, const uint16_t LINE);
     void    printResetReason    (String TEXT, String FILE, const uint16_t LINE);
 
 
     private:
+    ERROR_OUT errorText;
 };
 
 #define hostStartFrame  36  //ASCII $
 #define hostEndFrame    37  //ASCII %
 
-class BPLC_controlInterface: BPLC_LOG
+class BPLC_controlInterface: BPLC_logPrint
 {
     public:
                             BPLC_controlInterface  ();

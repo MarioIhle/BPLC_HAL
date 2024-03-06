@@ -2,18 +2,10 @@
 #define HAL_FUSE12_h
 //-------------------------------------------------------------
 //INCLUDES
-//-------------------------------------------------------------
-#include "Arduino.h"
-#include "SpecialFunctions.h"
-
-#include "BPLC_ioBaseTypes.h"
 #include "HAL_interface.h"
-#include "BPLC_PLI.h"
-#include "I2C_check.h"
 
 //-------------------------------------------------------------
-//HARDWARE SPEZIFISCHE TYPES
-//-------------------------------------------------------------
+//I2C ADDRESSEN
 typedef enum
 {
     I2C_ADDRESS_FUSE12__ADDR_1 = 0xC0,
@@ -25,9 +17,7 @@ typedef enum
 }e_I2C_ADDRSS_FUSE12_t;
 
 //-------------------------------------------------------------
-//HAL_AIN11 KLASSE
-//-------------------------------------------------------------
-class HAL_FUSE12:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_FUSE12:BPLC_logPrint, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
                     HAL_FUSE12          ();

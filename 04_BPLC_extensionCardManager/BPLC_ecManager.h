@@ -3,8 +3,8 @@
 
 #include "Arduino.h"
 #include "BPLC_ioBaseTypes.h"
-#include "BPLC_ERROR.h"
-#include "BPLC_PLI.h"
+#include "BPLC_errorHandler.h"
+#include "BPLC_controlInterface.h"
 //HAL´s
 #include "HAL_MCU11.h"
 #include "HAL_AIN11.h"
@@ -64,7 +64,7 @@ class extensionCard
     e_EC_ADDR_t             addr;
 };
 
-class BPLC_extensionCardManager:BPLC_errorHandler, BPLC_LOG
+class BPLC_extensionCardManager:BPLC_errorHandler, BPLC_logPrint
 {
     public:
                         BPLC_extensionCardManager           ();    

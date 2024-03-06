@@ -111,7 +111,7 @@ void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
    {
       this->APP_APP.deviceMode = MODE;
       //Log Print
-      BPLC_LOG logPrint;
+      BPLC_logPrint logPrint;
       switch(MODE)
       {
          case APP_MODE__STOP:

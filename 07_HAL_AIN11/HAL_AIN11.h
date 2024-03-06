@@ -2,19 +2,11 @@
 #define HAL_AIN11_h
 //-------------------------------------------------------------
 //INCLUDES
-//-------------------------------------------------------------
-#include "Arduino.h"
-#include <Adafruit_ADS1X15.h>
-#include "SpecialFunctions.h"
-
-#include "BPLC_ioBaseTypes.h"
 #include "HAL_interface.h"
-#include "BPLC_PLI.h"
-#include "I2C_check.h"
+#include <Adafruit_ADS1X15.h>
 
 //-------------------------------------------------------------
-//HARDWARE SPEZIFISCHE TYPES
-//-------------------------------------------------------------
+//I2C ADDRESSEN
 typedef enum
 {
     I2C_ADDRESS_AIN11__ADDR_1 = 0x48,
@@ -25,11 +17,11 @@ typedef enum
     I2C_ADDRESS_AIN11__COUNT = 4,
 }e_I2C_ADDRESS_AIN11_t;
 
+//-------------------------------------------------------------
 #define AIN11_CHANNEL_COUNT 4
+
 //-------------------------------------------------------------
-//HAL_AIN11 KLASSE
-//-------------------------------------------------------------
-class HAL_AIN11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_AIN11:BPLC_logPrint, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
                     HAL_AIN11           ();

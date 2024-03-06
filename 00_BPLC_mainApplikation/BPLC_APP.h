@@ -15,11 +15,10 @@
 #include "SpecialFunctions.h"
 #include <Preferences.h>
 //BPLC
-#include "BPLC_ERROR.h"
-#include "BPLC_PLI.h"
+#include "BPLC_errorHandler.h"
+#include "BPLC_controlInterface.h"
 //Hardware
 #include "BPLC_ecManager.h"
-#include "HAL_MCU11.h"
 #include "OLED_DISPLAY.h" 
 //Network
 #include "BertaNetNode.h"
@@ -63,7 +62,7 @@ typedef enum
 #define RUNTIME_ERRORS_MAX 3
 #define RUNNTIME 1000
 
-class BPLC_APP:BPLC_LOG, ERROR_OUT
+class BPLC_APP:BPLC_logPrint, ERROR_OUT
 {
     public:
     //Setup des BPLC Systems

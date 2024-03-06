@@ -1,13 +1,13 @@
 #ifndef HAL_PPO11_h
 #define HAL_PPO11_h
-#include "Arduino.h"
-#include "SpecialFunctions.h"
-#include "PCA9685.h"
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_PLI.h"
-#include "I2C_check.h"
-#include "HAL_interface.h"
 
+//-------------------------------------------------------------
+//INCLUDES
+#include "HAL_interface.h"
+#include "PCA9685.h"
+
+//-------------------------------------------------------------
+//I2C ADDRESSEN
 typedef enum
 {
    I2C_ADDRESS_PPO11__ADDR_1 = 0x47,
@@ -19,12 +19,14 @@ typedef enum
 
 }e_I2C_ADDRESS_PPO11_t;
 
+//-------------------------------------------------------------
 #define DEAD_TIME 100 //besser geht nicht, ohne kurzeitigen Kurzschluss bei PWM änderung
 #define LS_MOSFET 0
 #define HS_MOSFET 1
 #define PPO11_CHANNEL_COUNT 8
 
-class HAL_PPO11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+//-------------------------------------------------------------
+class HAL_PPO11:BPLC_logPrint, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
                     HAL_PPO11           ();

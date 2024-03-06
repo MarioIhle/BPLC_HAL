@@ -17,10 +17,6 @@
 //---------------------------------------------------
 
 #include "Arduino.h"
-#include "Wire.h"
-#include "SpecialFunctions.h"
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_PLI.h"
 #include "HAL_interface.h"
 
 
@@ -41,7 +37,7 @@ enum
 //--------------------------------------------------------------------
 //HAL KLASSE
 //--------------------------------------------------------------------
-class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_LOG
+class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_logPrint
 {
     public:
                     HAL_MCU11_revA      (volatile uint64_t* P_ISR_COUNT);
@@ -93,7 +89,7 @@ class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_LOG
     }PIN;   
 };
 
-class HAL_MCU11_revB: public halInterface, BPLC_errorHandler, BPLC_LOG
+class HAL_MCU11_revB: public halInterface, BPLC_errorHandler, BPLC_logPrint
 {
     public:
                     HAL_MCU11_revB      (volatile uint64_t* P_ISR_COUNT);    

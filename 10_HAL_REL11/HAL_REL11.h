@@ -3,18 +3,11 @@
 
 //-------------------------------------------------------------
 //INCLUDES
-//-------------------------------------------------------------
-#include "Arduino.h"
+#include "HAL_interface.h"
 #include "PCF8574.h"
 
-#include "HAL_interface.h"
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_PLI.h"
-#include "I2C_check.h"
-
 //-------------------------------------------------------------
-//HARDWARE DEBUGGING
-//-------------------------------------------------------------
+//I2C ADDRESSEN
 typedef enum
 {
     I2C_ADDRESS_REL11__ADDR_1 = 0x24,
@@ -26,10 +19,9 @@ typedef enum
 }e_I2C_ADDRESS_REL11_t;
 
 #define REL11_CHANNEL_COUNT 3
+
 //-------------------------------------------------------------
-//HAL_DIN11 KLASSE
-//-------------------------------------------------------------
-class HAL_REL11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_REL11:BPLC_logPrint, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:    
     //Hal Interface
@@ -50,5 +42,4 @@ class HAL_REL11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
         const uint8_t PIN         [REL11_CHANNEL_COUNT] = {0, 1, 2};         
     }channels; 
 };
-
 #endif

@@ -1,18 +1,12 @@
 #ifndef HAL_MOT11_h
 #define HAL_MOT11_h
-
 //-------------------------------------------------------------
 //INCLUDES
-//-------------------------------------------------------------
-#include "Arduino.h"
-#include "Wire.h"
-#include "I2C_check.h"
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_PLI.h"
 #include "HAL_interface.h"
+#include "PCA9685.h"
+
 //-------------------------------------------------------------
-//HARDWARE SPEZIFISCHE TYPES
-//-------------------------------------------------------------
+//I2C ADDRESSEN
 typedef enum
 {
   I2C_ADDRESS_MOT11__ADDR_1 = 0xA0,
@@ -74,7 +68,7 @@ typedef union
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
-class HAL_MOT11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_MOT11:BPLC_logPrint, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
     //setup

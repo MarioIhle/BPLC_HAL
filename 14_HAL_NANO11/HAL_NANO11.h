@@ -2,17 +2,10 @@
 #define HAL_NANO11_h
 //-------------------------------------------------------------
 //INCLUDES
-//-------------------------------------------------------------
-#include "Arduino.h"
-#include "SpecialFunctions.h"
-#include "BPLC_ioBaseTypes.h"
 #include "HAL_interface.h"
-#include "BPLC_PLI.h"
-#include "I2C_check.h"
 
 //-------------------------------------------------------------
-//HARDWARE SPEZIFISCHE TYPES
-//-------------------------------------------------------------
+//I2C ADDRESSEN
 typedef enum
 {
     I2C_ADDRESS_NANO11__ADDR_1 = 0xB0,
@@ -24,9 +17,7 @@ typedef enum
 }e_I2C_ADDRESS_NANO11_t;
 
 //-------------------------------------------------------------
-//HAL_AIN11 KLASSE
-//-------------------------------------------------------------
-class HAL_NANO11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_NANO11:BPLC_logPrint, I2C_check, public halInterface, BPLC_errorHandler
 {
     public:
                     HAL_NANO11          ();

@@ -42,11 +42,11 @@ void HAL_DO11::init(const e_EC_ADDR_t ADDR)
         PCA.init();
         PCA.setPWMFrequency(200);   //Falls Servos verwendet werden, wird automatisch PWM freuenz auf 25Hz gesenkt!
         PCA.setAllChannelsPWM(0);
-        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");      
+        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
     {
-        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");    
+        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
 }
 void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
