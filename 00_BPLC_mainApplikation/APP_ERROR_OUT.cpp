@@ -18,7 +18,7 @@ e_BPLC_ERROR_t BPLC_APP::getSystemErrorCode(const uint8_t ERROR_CODE_SLOT)
 {   
    return this->APP_SAFETY.errorCode[ERROR_CODE_SLOT];
 }
-void BPLC_APP::setSystemError(const e_BPLC_ERROR_t ERROR_CODE)
+void BPLC_APP::setSystemError(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE)
 {        
    for(uint8_t ERROR_CODE_BUFFER_SLOT = 0; ERROR_CODE_BUFFER_SLOT < HARDWARE_ERROR_BUFFER_SIZE; ERROR_CODE_BUFFER_SLOT++)
    {
@@ -32,7 +32,7 @@ void BPLC_APP::setSystemError(const e_BPLC_ERROR_t ERROR_CODE)
          //freier slot
          this->APP_SAFETY.errorCode[ERROR_CODE_BUFFER_SLOT] = ERROR_CODE;
          //Ausgabe des Errors auf USB Schnittstelle
-         this->printError("SYSTEM ERROR CODE SET: " + String(ERROR_CODE) + ", " + String(this->APP_SAFETY.errorOut.getErrorCodeText(ERROR_CODE)));      
+         this->printError(ERROR_CODE, FILE, LINE);      
          break;
       }
       else

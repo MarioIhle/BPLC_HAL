@@ -166,7 +166,7 @@ class BPLC_APP:BPLC_LOG, ERROR_OUT
     void            setupSafety             ();
     void            tickSafety              ();
 
-    void            setSystemError          (const e_BPLC_ERROR_t ERROR_CODE);
+    void            setSystemError          (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
     bool            thereIsAnSystemError    ();
     e_BPLC_ERROR_t  getSystemErrorCode      (const uint8_t ERROR_CODE_SLOT = 0);
     void            resetError              (const uint8_t ERROR_CODE_SLOT = 0){this->APP_SAFETY.errorCode[ERROR_CODE_SLOT] = BPLC_ERROR__NO_ERROR;}

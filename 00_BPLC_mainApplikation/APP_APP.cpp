@@ -7,7 +7,7 @@ BPLC_APP::BPLC_APP()
 void BPLC_APP::begin()
 {   
    Serial.begin(115200);
-   this->printLog("SETUP BPLC SYSTEM");
+   this->printLog("SETUP BPLC SYSTEM", __FILENAME__, __LINE__);
    //Device Parameter aus Flash laden
    this->setupParameterFlash();
    this->readDeviceSettings();
@@ -21,12 +21,12 @@ void BPLC_APP::begin()
    //Fehlerprüfung bevor System startet
    if(this->getSystemErrorCode() == BPLC_ERROR__NO_ERROR)
    {
-      this->printLog("BPLC SYSTEM INIT SUCCESSFUL");
+      this->printLog("BPLC SYSTEM INIT SUCCESSFUL", __FILENAME__, __LINE__);
       this->setDeviceMode(APP_MODE__START);
    }
    else
    {
-      this->printLog("BPLC SYSTEM INIT FAILED");
+      this->printLog("BPLC SYSTEM INIT FAILED", __FILENAME__, __LINE__);
       this->setDeviceMode(APP_MODE__SAFE_STATE);
    }   
    this->APP_APP.setup.f_completeSetupDone = true;

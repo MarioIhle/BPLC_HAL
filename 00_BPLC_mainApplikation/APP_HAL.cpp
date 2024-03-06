@@ -27,7 +27,7 @@ void BPLC_APP::setupHardware()
    }
    else
    {
-      this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED);
+      this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED, __LINE__, __FILE__);
    }
 
    //AIN11revA Cards initialisieren

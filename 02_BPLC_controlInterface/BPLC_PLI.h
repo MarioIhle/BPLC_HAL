@@ -2,6 +2,7 @@
 #define BPLC_LOG_h
 #include "Arduino.h"
 #include "SpecialFunctions.h"
+#include "BPLC_ERRORS.h"
 
 typedef enum
 {   
@@ -54,17 +55,16 @@ typedef union
 }u_BPLC_PLI_COMMAND_t;
 
 
-class BPLC_LOG
+class BPLC_LOG: ERROR_OUT
 {
     public:
-    BPLC_LOG();
-    void printLog(String TEXT);
-    void printError(String TEXT);
-    void printResetReason(String MODUL, String FUNKTION, String REASON);
+            BPLC_LOG            ();
+    void    printLog            (String TEXT, String FILE, const uint16_t LINE);
+    void    printError          (String TEXT, String FILE, const uint16_t LINE);
+    void    printResetReason    (String TEXT, String FILE, const uint16_t LINE);
 
 
     private:
-
 };
 
 #define hostStartFrame  36  //ASCII $
