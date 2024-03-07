@@ -15,6 +15,7 @@ void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String F
 {
     if(this->error.errorCode == BPLC_ERROR__NO_ERROR)
     {
+        this->error.errorCode       = ERROR_CODE;
         this->error.timestamp       = millis();
         this->error.file            = FILE;
         this->error.line            = LINE;
