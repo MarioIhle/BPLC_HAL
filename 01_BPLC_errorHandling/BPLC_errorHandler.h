@@ -16,6 +16,21 @@ typedef struct
 
 }s_errorBufferElement_t;
 
+class BPLC_ERROR
+{
+    public:
+                            BPLC_ERROR      (){};
+    void                    setNext         (BPLC_ERROR* P_NEXT){this->p_nextError = P_NEXT;}
+    BPLC_ERROR*             getNext         (){return this->p_nextError;}
+    void                    setErrorData    (s_errorBufferElement_t ERROR_DATA){this->errorData = ERROR_DATA;}
+    s_errorBufferElement_t  getErrorData    (){return this->errorData;}
+
+    private:
+    BPLC_ERROR*     p_nextError;
+
+    s_errorBufferElement_t errorData;
+};
+
 //Zugriff von übergeordneten Modul
 class BPLC_moduleErrorInterface
 {
@@ -28,13 +43,19 @@ class BPLC_moduleErrorInterface
 class BPLC_moduleErrorHandler
 {
     public:
-                    BPLC_moduleErrorHandler ();
-    e_BPLC_ERROR_t  getError                ();
-    void            setError                (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
-    void            resetError              (String FILE, const uint16_t LINE);
+                            BPLC_moduleErrorHandler ();
+    uint8_t                 getErrorCount           ();
+    s_errorBufferElement_t* getError                (uint8_t ERROR_NUMBER = 0);
+    
+    void                    setError                (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
+    void                    resetError              (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
 
     private:
-    s_errorBufferElement_t  error;
+    BPLC_ERROR*             searchError             (const e_BPLC_ERROR_t ERROR_CODE);
+    void                    addErrorToList          (BPLC_ERROR* ERROR_TO_ADD);
+    void                    deleteErrorFromList     (BPLC_ERROR* ERROR_TO_DELETE);
+
+    BPLC_ERROR*             p_firstError;
     BPLC_logPrint           log;
 };
 #endif
