@@ -122,7 +122,7 @@ void HAL_TMP11::tick()
         }  
     }
 }
-e_BPLC_ERROR_t HAL_TMP11::getErrorCode()
+e_BPLC_ERROR_t HAL_TMP11::getModulError()
 {
     //I2C Verbindung zyklisch prüfen
     if(!this->requestHeartbeat())

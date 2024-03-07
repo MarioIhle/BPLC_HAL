@@ -37,14 +37,18 @@ enum
 //--------------------------------------------------------------------
 //HAL KLASSE
 //--------------------------------------------------------------------
-class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_logPrint
+class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint
 {
     public:
                     HAL_MCU11_revA      (volatile uint64_t* P_ISR_COUNT);
+    //Hal interface 
     void            init                (const e_EC_ADDR_t ADDR);
-    void            tick                ();
-    e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}
-    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);
+    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                ();        
+    e_BPLC_ERROR_t  getErrorCode        (){return this->getError();};
+    //Modul Error Interface
+    e_BPLC_ERROR_t  getModulError       (){return this->getError();}
+    void            resetModulError     (String FILE, const uint16_t LINE){this->resetError(FILE, LINE);}
    
 
     private:   
@@ -89,14 +93,18 @@ class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_logPrint
     }PIN;   
 };
 
-class HAL_MCU11_revB: public halInterface, BPLC_errorHandler, BPLC_logPrint
+class HAL_MCU11_revB: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint
 {
     public:
                     HAL_MCU11_revB      (volatile uint64_t* P_ISR_COUNT);    
+    //Hal interface 
     void            init                (const e_EC_ADDR_t ADDR);
-    void            tick                ();
-    e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}
-    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);
+    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                ();        
+    e_BPLC_ERROR_t  getErrorCode        (){return this->getError();};
+    //Modul Error Interface
+    e_BPLC_ERROR_t  getModulError       (){return this->getError();}
+    void            resetModulError     (String FILE, const uint16_t LINE){this->resetError(FILE, LINE);}
 
     private:
     void            tickSafety();

@@ -21,15 +21,19 @@ typedef enum
 #define REL11_CHANNEL_COUNT 3
 
 //-------------------------------------------------------------
-class HAL_REL11:BPLC_logPrint, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_REL11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:    
     //Hal Interface
                     HAL_REL11           ();
+    //Hal interface 
     void            init                (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
-    e_BPLC_ERROR_t  getErrorCode        (); 
+    //Modul Error Interface
+    e_BPLC_ERROR_t  getModulError       ();
+    void            resetModulError     (String FILE, const uint16_t LINE){this->resetError(FILE, LINE);}
+
 
     private:    
     //Settings

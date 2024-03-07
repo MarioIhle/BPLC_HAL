@@ -68,15 +68,19 @@ typedef union
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
-class HAL_MOT11:BPLC_logPrint, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_MOT11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
     //setup
                     HAL_MOT11           ();
+    //Hal interface 
     void            init                (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
-    e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}  
+    //Modul Error Interface
+    e_BPLC_ERROR_t  getModulError       (){return this->getError();}
+    void            resetModulError     (String FILE, const uint16_t LINE){this->resetError(FILE, LINE);}
+
 
     void            startCurrentAutotuning();  
     

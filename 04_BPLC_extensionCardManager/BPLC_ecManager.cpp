@@ -88,7 +88,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
         p_newHalInterface->init(ADDR);  
 
         //Neues extensionCard Objekt erzeugen und in Liste aufnehmen
-        if(p_newHalInterface->getErrorCode() == BPLC_ERROR__NO_ERROR)
+        if(p_newHalInterface->getModulError() == BPLC_ERROR__NO_ERROR)
         {
             extensionCard* p_extensionCard = new extensionCard();
             p_extensionCard->setHalInterface(p_newHalInterface);
@@ -99,7 +99,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
         }         
         else
         {
-            this->setError(p_newHalInterface->getErrorCode(), __FILENAME__, __LINE__);
+            this->setError(p_newHalInterface->getModulError(), __FILENAME__, __LINE__);
         }   
     }
     else
@@ -143,7 +143,7 @@ void BPLC_extensionCardManager::tick()
     
         while(p_extensionCardToTick != nullptr)
         {
-            e_BPLC_ERROR_t EC_HAL_ERROR = p_extensionCardToTick->getHalInterface()->getErrorCode();
+            e_BPLC_ERROR_t EC_HAL_ERROR = p_extensionCardToTick->getHalInterface()->getModulError();
 
             if(EC_HAL_ERROR == BPLC_ERROR__NO_ERROR)
             {
