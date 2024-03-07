@@ -27,7 +27,7 @@ bool BPLC_controlInterface::commandAvailable()
             }
             else
             {
-                this->printLog("COMMAND KEY INVALID!", __FILENAME__, __LINE__);
+                this->printLog("RECEIVED COMMAND KEY INVALID!", __FILENAME__, __LINE__);
             }   
         }
     }

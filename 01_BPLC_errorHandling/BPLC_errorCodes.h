@@ -141,12 +141,12 @@ typedef enum
 
 
 
-class ERROR_OUT
+class ERROR_errorText
 {
     public:
-    ERROR_OUT(){};
+    ERROR_errorText(){};
 
-    String ERROR_TEXT[BPLC_ERROR__COUNT]=
+    String ERROR_CODE_TEXT[BPLC_ERROR__COUNT]=
     {
         {"BPLC_ERROR__NO_ERROR"}, 
         {"BPLC_ERROR__NO_MCU_DEFINED"}, 
@@ -263,15 +263,12 @@ class ERROR_OUT
     {      
         if(BPLC_ERROR__COUNT != 109)
         {
-            return("BPLC_ERROR__ERROR_TEXTS_NEED_UPDATE!");
+            return("ERROR_TEXTS_NEED_UPDATE!");
         }
         else
         {
-            return ERROR_TEXT[ERROR_CODE];
+            return ERROR_CODE_TEXT[ERROR_CODE];
         }          
     }       
 };
-
-
-
 #endif

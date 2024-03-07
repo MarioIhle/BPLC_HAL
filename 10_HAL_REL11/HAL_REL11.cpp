@@ -40,11 +40,11 @@ void HAL_REL11::init(const e_EC_ADDR_t ADDR)
         this->PCF.setAddress(this->deviceAddress);      
         this->PCF.begin();                              
         this->PCF.write8(false);                         
-        this->printLog("REL11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");       
+        this->printLog("REL11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);       
     }
     else
     {
-        this->printLog("REL11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");    
+        this->printLog("REL11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
     }  
 }   
 void HAL_REL11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)

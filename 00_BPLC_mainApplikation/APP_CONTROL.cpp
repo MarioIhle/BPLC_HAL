@@ -22,14 +22,14 @@ void BPLC_APP::tickControlPanel()
             case BPLC_PLI_KEY__GET_SYSTEM_ERRORS:
                 for(uint8_t error = 0; error < HARDWARE_ERROR_BUFFER_SIZE; error++)
                 {
-                    this->printError(String(error+1) + ". SYSTEM ERROR CODE: " + String(this->getSystemErrorCode(error)) + ", " + String(this->APP_SAFETY.errorOut.getErrorCodeText(this->getSystemErrorCode(error)))); 
+                    this->printError(this->getSystemErrorCode(error), __FILENAME__, __LINE__); 
                 }
                 break;
 
             case BPLC_PLI_KEY__RESET_ALL_ERRORS:
                 for(uint8_t error = 0; error < HARDWARE_ERROR_BUFFER_SIZE; error++)
                 {
-                    this->resetError(error);
+                    this->resetSystemError(error);
                 }
                 break;
 
@@ -265,7 +265,7 @@ void BPLC_APP::tickControlPanel()
                 break;        
 
             default:
-                this->printLog("host command not executable!");
+                this->printLog("host command not executable!", __FILENAME__, __LINE__);
                 break;
         }        
     }

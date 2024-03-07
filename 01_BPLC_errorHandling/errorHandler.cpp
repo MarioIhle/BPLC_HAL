@@ -2,7 +2,10 @@
 
 BPLC_errorHandler::BPLC_errorHandler()
 {
-    memset(&this->errorCode, 0, sizeof(this->errorCode))
+    this->error.errorCode = BPLC_ERROR__NO_ERROR;
+    this->error.timestamp       = 0;
+    this->error.file            = "";
+    this->error.line            = 0;
 }  
 e_BPLC_ERROR_t BPLC_errorHandler::getError()
 {
@@ -16,14 +19,17 @@ void BPLC_errorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String FILE, c
         this->error.file            = FILE;
         this->error.line            = LINE;
 
-        this->printError(ERROR_CODE, FILE, LINE);
+        //this->printError(ERROR_CODE, FILE, LINE);
     }
 }
 void BPLC_errorHandler::resetError(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE)
 {
     if(this->error.errorCode == ERROR_CODE)
     {
-        memset(this->errorCodes, 0, sizeof(s_errorBufferElement_t));
-        this->printLog("reset error code: " + String(ERROR_CODE), FILE, LINE);
+        this->error.errorCode = BPLC_ERROR__NO_ERROR;
+        this->error.timestamp       = 0;
+        this->error.file            = "";
+        this->error.line            = 0;
+        //this->printLog("reset error code: " + String(ERROR_CODE), FILE, LINE);
     }
 }

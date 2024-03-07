@@ -1,4 +1,4 @@
-#include "BPLC_controlInterface.h"
+#include "BPLC_logPrint.h"
 
 BPLC_logPrint::BPLC_logPrint()
 {}
@@ -13,7 +13,7 @@ void BPLC_logPrint::printError(const e_BPLC_ERROR_t ERROR_CODE,  String FILE, co
 {
     Serial.println("----------------ERROR----------------");
     Serial.println("OS Time: " + String(millis()) + ", FILE: " + FILE +", LINE: " + String(LINE));
-    Serial.println("-->ERROR CODE: " + String(ERROR_CODE) + ", " + String(this->errorText.getErrorCodeText(ERROR_CODE)));
+    Serial.println("-->ERROR CODE: " + String(ERROR_CODE) + ", " + String(this->getErrorCodeText(ERROR_CODE)));
     Serial.flush();
 }
 void BPLC_logPrint::printResetReason(String TEXT, String FILE, const uint16_t LINE)

@@ -2,11 +2,11 @@
 #define HAL_interface_h
 
 #include "Arduino.h"
-#include "BPLC_errorHandler.h"
-#include "BPLC_controlInterface.h"
+#include "BPLC_errorCodes.h"
 #include "BPLC_ioBaseTypes.h"
+#include "BPLC_errorHandler.h"
 #include "I2C_check.h"
-#include "SpecialFunctions.h"
+#include "BPLC_logPrint.h"
 
 typedef enum 
 {    

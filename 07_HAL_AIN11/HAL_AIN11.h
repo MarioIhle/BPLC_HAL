@@ -21,7 +21,7 @@ typedef enum
 #define AIN11_CHANNEL_COUNT 4
 
 //-------------------------------------------------------------
-class HAL_AIN11:BPLC_logPrint, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_AIN11: public halInterface, BPLC_errorHandler, BPLC_logPrint, I2C_check
 {
     public:
                     HAL_AIN11           ();

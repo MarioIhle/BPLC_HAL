@@ -18,7 +18,7 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
                 switch (ADDR)
                 {
                     case 0:
-                        this->setError(ECM_ERROR__AIN11revA_ADDR_1_NOT_DEFINED);
+                        this->setError(ECM_ERROR__AIN11revA_ADDR_1_NOT_DEFINED, __FILENAME__, __LINE__);
                         break;
                     
                     default:
@@ -27,7 +27,7 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
                 break;
 
             default:
-                this->setError(ECM_ERROR__EC_NOT_DEFINED);
+                this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);
             break;
         }
     }      
@@ -80,7 +80,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
                 
             default:
             case BPLC_CARD__NO_CARD_DEFINED:
-                this->printResetReason("extensionCardManager", "addNewExtensionCard", "CARD NOT DEFINED");
+                this->printResetReason("CARD NOT DEFINED", __FILENAME__, __LINE__);
                 abort();
                 break;
         }         
@@ -99,12 +99,12 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
         }         
         else
         {
-            this->setError(p_newHalInterface->getErrorCode());
+            this->setError(p_newHalInterface->getErrorCode(), __FILENAME__, __LINE__);
         }   
     }
     else
     {
-        this->printLog("EC ALREADY DEFINDED");
+        this->printLog("EC ALREADY DEFINDED", __FILENAME__, __LINE__);
     }    
     return newEcAdded;
 }
@@ -163,7 +163,7 @@ void BPLC_extensionCardManager::tick()
             }  
             else
             {
-                this->setError(EC_HAL_ERROR);
+                this->setError(EC_HAL_ERROR, __FILENAME__, __LINE__);
             }
             p_extensionCardToTick = p_extensionCardToTick->getNext();      
         }

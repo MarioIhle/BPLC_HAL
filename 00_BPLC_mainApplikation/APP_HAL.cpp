@@ -27,7 +27,7 @@ void BPLC_APP::setupHardware()
    }
    else
    {
-      this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED, __LINE__, __FILE__);
+      this->setSystemError(BPLC_ERROR__NO_MCU_DEFINED, __FILENAME__, __LINE__);
    }
 
    //AIN11revA Cards initialisieren
@@ -110,7 +110,7 @@ void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, cons
 void BPLC_APP::tickHardware()
 {  
    this->extensionCardHandler.tick();
-   this->setSystemError(this->extensionCardHandler.getModulError());
+   this->setSystemError(this->extensionCardHandler.getModulError(), __FILENAME__, __LINE__);
 }
 void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
 {

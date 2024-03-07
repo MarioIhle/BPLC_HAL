@@ -62,7 +62,7 @@ typedef enum
 #define RUNTIME_ERRORS_MAX 3
 #define RUNNTIME 1000
 
-class BPLC_APP:BPLC_logPrint, ERROR_OUT
+class BPLC_APP: BPLC_logPrint
 {
     public:
     //Setup des BPLC Systems
@@ -164,13 +164,14 @@ class BPLC_APP:BPLC_logPrint, ERROR_OUT
     //Externer aufruf, wenn HAL Objekt ein Error meldet
     void            setupSafety             ();
     void            tickSafety              ();
-
-    void            setSystemError          (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
-    bool            thereIsAnSystemError    ();
-    e_BPLC_ERROR_t  getSystemErrorCode      (const uint8_t ERROR_CODE_SLOT = 0);
-    void            resetError              (const uint8_t ERROR_CODE_SLOT = 0){this->APP_SAFETY.errorCode[ERROR_CODE_SLOT] = BPLC_ERROR__NO_ERROR;}
     void            scanForUnkonwnI2CDevices();
 
+    //Error Sammler 
+    bool            thereIsAnSystemError    ();
+    void            setSystemError          (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);    
+    e_BPLC_ERROR_t  getSystemErrorCode      (const uint8_t ERROR_CODE_SLOT = 0);
+    void            resetSystemError        (const uint8_t ERROR_CODE_SLOT = 0);
+    
     struct  
     {   
         struct 
@@ -179,8 +180,7 @@ class BPLC_APP:BPLC_logPrint, ERROR_OUT
             uint8_t         runtimeExeeded;
         }runntimeControl;  
         
-        e_BPLC_ERROR_t      errorCode[HARDWARE_ERROR_BUFFER_SIZE];       
-        ERROR_OUT           errorOut;   //Textausgabe der ErrorCodes
+        e_BPLC_ERROR_t      systemErrorCodes[HARDWARE_ERROR_BUFFER_SIZE];      
         Timeout             to_scanI2Cbus;
     }APP_SAFETY;
 

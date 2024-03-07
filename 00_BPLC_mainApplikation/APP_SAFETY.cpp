@@ -12,7 +12,7 @@ void BPLC_APP::tickSafety()
    //Init überwachung
    if(this->APP_APP.setup.f_completeSetupDone == false)
    {
-      this->setSystemError(BPLC_ERROR__BPLC_BEGIN_CALL_MISSING);
+      this->setSystemError(BPLC_ERROR__BPLC_BEGIN_CALL_MISSING, __FILENAME__, __LINE__);
    }
    //Runntime überwachung der Applikation   
    if(this->APP_SAFETY.runntimeControl.to_runnntime.check())
@@ -22,7 +22,7 @@ void BPLC_APP::tickSafety()
 
    if(this->APP_SAFETY.runntimeControl.runtimeExeeded >= RUNTIME_ERRORS_MAX)
    {
-      this->setSystemError(BPLC_ERROR__RUNNTIME);
+      this->setSystemError(BPLC_ERROR__RUNNTIME, __FILENAME__, __LINE__);
       this->APP_SAFETY.runntimeControl.runtimeExeeded = RUNTIME_ERRORS_MAX;
    }
    this->APP_SAFETY.runntimeControl.to_runnntime.reset();
@@ -51,8 +51,8 @@ void BPLC_APP::scanForUnkonwnI2CDevices()
 
          if(FOUND_DEVICE_IS_NOT_DEFINED && possibleDevice != 60 && possibleDevice != 188)
          {
-            this->printLog("I2C Device Found but not defined, Address: " + String(possibleDevice));
-            this->setSystemError(BPLC_ERROR__UNDEFINED_I2C_DEVICE_FOUND);
+            this->printLog("I2C Device Found but not defined, Address: " + String(possibleDevice), __FILENAME__, __LINE__);
+            this->setSystemError(BPLC_ERROR__UNDEFINED_I2C_DEVICE_FOUND, __FILENAME__, __LINE__);
          }
       }     
    }      

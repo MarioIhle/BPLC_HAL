@@ -115,25 +115,25 @@ void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
       switch(MODE)
       {
          case APP_MODE__STOP:
-            logPrint.printLog("DEVICEMODE: STOP");
+            logPrint.printLog("DEVICEMODE: STOP", __FILENAME__, __LINE__);
             break; 
          case APP_MODE__START:
-            logPrint.printLog("DEVICEMODE: START");
+            logPrint.printLog("DEVICEMODE: START", __FILENAME__, __LINE__);
             break;
          case APP_MODE__SAFE_STATE:
-            logPrint.printLog("DEVICEMODE: SAFE STATE");
+            logPrint.printLog("DEVICEMODE: SAFE STATE", __FILENAME__, __LINE__);
             break;
          case APP_MODE__RUN:
-            logPrint.printLog("DEVICEMODE: RUN ");
+            logPrint.printLog("DEVICEMODE: RUN ", __FILENAME__, __LINE__);
             break;
          case APP_MODE__RUN_WITHOUT_SAFETY:
-            logPrint.printLog("DEVICEMODE: RUN CONFIG WITOUT SAFETY");
+            logPrint.printLog("DEVICEMODE: RUN CONFIG WITOUT SAFETY", __FILENAME__, __LINE__);
             break;
          case APP_MODE__RUN_WITHOUT_EC_CARDS:
-            logPrint.printLog("DEVICEMODE: RUN WITHOUT EC CARDS");
+            logPrint.printLog("DEVICEMODE: RUN WITHOUT EC CARDS", __FILENAME__, __LINE__);
             break;
          case APP_MODE__RUN_WITHOUT_COM:
-            logPrint.printLog("DEVICEMODE: RUN WITHOUT COM");
+            logPrint.printLog("DEVICEMODE: RUN WITHOUT COM", __FILENAME__, __LINE__);
             break;
       }      
    }   

@@ -43,7 +43,7 @@ void HAL_MCU11_revA::init(const e_EC_ADDR_t ADDR)
     //I2C
     Wire.begin();
 
-    this->printLog("MCU11revA INIT SUCCESSFUL");  
+    this->printLog("MCU11revA INIT SUCCESSFUL", __FILENAME__, __LINE__);  
 }
 void HAL_MCU11_revA::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
 {
@@ -93,7 +93,7 @@ void HAL_MCU11_revA::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t
 
         default:
         case MCU_CHANNEL__COUNT:
-            this->setError(MCU11_ERROR__CHANNEL_OUT_OF_RANGE);
+            this->setError(MCU11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
             break;
     }
 }
@@ -102,8 +102,8 @@ void HAL_MCU11_revA::tick()
     this->tickSafety();
     //encoder
     u_HAL_DATA_t tempbuffer;
-    tempbuffer.encoderData.stateA             = digitalRead(this->PIN.ENCODER_A);
-    tempbuffer.encoderData.stateB             = digitalRead(this->PIN.ENCODER_B);
+    tempbuffer.encoderData.stateA    = digitalRead(this->PIN.ENCODER_A);
+    tempbuffer.encoderData.stateB    = digitalRead(this->PIN.ENCODER_B);
     tempbuffer.encoderData.stateZ    = digitalRead(this->PIN.ENCODER_BUTTON);
     this->p_encoder->halCallback(&tempbuffer);
     //p_oen schreiben
@@ -136,30 +136,30 @@ void HAL_MCU11_revA::tickSafety()
 {
     if(this->p_buzzer == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }
     if(this->p_encoder == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }
     if(this->p_ld1 == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }
     if(this->p_ld2 == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }
     if(this->p_ld3 == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }
     if(this->p_oen == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }
     if(p_ISR_COUNT_MCU_REVA == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET);
+        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }
 }

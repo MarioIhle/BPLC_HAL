@@ -2,7 +2,6 @@
 #define BPLC_errorHander_h
 
 #include "Arduino.h"
-#include "BPLC_controlInterface.h"
 #include "BPLC_errorCodes.h"
 
 #define ERROR_BUFFER_SIZE 10
@@ -16,7 +15,7 @@ typedef struct
 
 }s_errorBufferElement_t;
 
-class BPLC_errorHandler: BPLC_logPrint, ERROR_OUT
+class BPLC_errorHandler
 {
     public:
                     BPLC_errorHandler       ();

@@ -41,12 +41,12 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     if(this->getError() == BPLC_ERROR__NO_ERROR)
     {   
         this->deviceState = deviceState_running;  
-        this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");        
+        this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
     {
         this->deviceState = deviceState_safeState;
-        this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");  
+        this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
 }
 void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)

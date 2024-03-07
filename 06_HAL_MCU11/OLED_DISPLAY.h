@@ -18,8 +18,7 @@
 
 //Lib includes
 #include "BPLC_ioBaseTypes.h"
-#include "BPLC_errorHandler.h"
-#include "BPLC_controlInterface.h"
+#include "BPLC_errorCodes.h"
 
 #include "SpecialFunctions.h"
 #include <Wire.h>
@@ -78,7 +77,7 @@ typedef struct{
 //---------------------------------------------------
 //MCU11 KLASSE
 //---------------------------------------------------
-class OLED_MCU11:BPLC_logPrint, I2C_check
+class OLED_MCU11: I2C_check
 {
     public:
             OLED_MCU11  ();
@@ -125,7 +124,7 @@ class OLED_MCU11:BPLC_logPrint, I2C_check
  
     String          TEXT_OUTPUT[2];
 
-    ERROR_OUT errorOut;
+    ERROR_errorText errorOut;
 
     s_screenSaverParameter_t    screenSaverParameter;
     s_deviceSettingsParameter_t deviceSettings;      
