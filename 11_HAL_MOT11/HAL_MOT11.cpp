@@ -84,7 +84,7 @@ void HAL_MOT11::tick()
             this->deviceState = deviceState_safeState;
         }
 
-        if(this->getError() != MOT11_ERROR__I2C_CONNECTION_FAILED)
+        if(this->getError()->errorCode != MOT11_ERROR__I2C_CONNECTION_FAILED)
         {        
             switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
             {
