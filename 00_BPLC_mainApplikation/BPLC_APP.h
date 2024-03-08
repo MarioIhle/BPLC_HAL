@@ -54,7 +54,6 @@ typedef enum
     APP_MODE__COUNT,
 }e_APP_MODE_t;
 
-
 //-------------------------------------------------------------
 //BPLC_APP KLASSE
 //-------------------------------------------------------------
@@ -162,6 +161,7 @@ class BPLC_APP: BPLC_logPrint
   
 
     //Externer aufruf, wenn HAL Objekt ein Error meldet
+    
     BPLC_moduleErrorHandler errorSammler;
 
     void            setupSafety             ();
