@@ -35,6 +35,7 @@ class HAL_PPO11: public halInterface, private BPLC_moduleErrorHandler, private B
     void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                ();        
     //Modul Error Interface
+    uint8_t         getErrorCount       (){this->getErrorCount();}
     e_BPLC_ERROR_t  getModulError       ();
     void            resetModulError     (String FILE, const uint16_t LINE){this->resetError(FILE, LINE);}
 

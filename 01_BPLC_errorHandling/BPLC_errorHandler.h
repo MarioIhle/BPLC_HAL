@@ -35,8 +35,9 @@ class BPLC_ERROR
 class BPLC_moduleErrorInterface
 {
     public:
-    virtual e_BPLC_ERROR_t  getModulError  () = 0;
-    virtual void            resetModulError(String FILE, const uint16_t LINE) = 0;
+    virtual uint8_t         getModulErrorCount  () = 0;
+    virtual e_BPLC_ERROR_t  getModulError       () = 0;
+    virtual void            resetModulError     (String FILE, const uint16_t LINE) = 0;
 };
 
 //Modulinternes Error Handling

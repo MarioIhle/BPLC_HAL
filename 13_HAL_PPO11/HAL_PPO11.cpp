@@ -179,5 +179,5 @@ e_BPLC_ERROR_t HAL_PPO11::getModulError()
     {
         this->setError(PPO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
     }
-    return this->getError();
+    return this->getError()->errorCode;
 }

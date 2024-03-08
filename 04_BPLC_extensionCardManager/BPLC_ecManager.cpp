@@ -143,6 +143,7 @@ void BPLC_extensionCardManager::tick()
     
         while(p_extensionCardToTick != nullptr)
         {
+            if()
             e_BPLC_ERROR_t EC_HAL_ERROR = p_extensionCardToTick->getHalInterface()->getModulError();
 
             if(EC_HAL_ERROR == BPLC_ERROR__NO_ERROR)
