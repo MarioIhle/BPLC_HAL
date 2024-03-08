@@ -20,6 +20,11 @@ void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String F
         this->error.file            = FILE;
         this->error.line            = LINE;
 
+        if(this->p_setErrorCB != nullptr)
+        {
+            this->p_setErrorCB(ERROR_CODE, FILE, LINE);
+        }        
+        
         this->log.printError(ERROR_CODE, FILE, LINE);
     }
 }

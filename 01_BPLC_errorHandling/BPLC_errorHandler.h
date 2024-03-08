@@ -24,16 +24,20 @@ class BPLC_moduleErrorInterface
     virtual void            resetModulError(String FILE, const uint16_t LINE) = 0;
 };
 
+typedef void (*setErrorCallback)(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
+
 //Modulinternes Error Handling
 class BPLC_moduleErrorHandler
 {
     public:
                     BPLC_moduleErrorHandler ();
+    void            setCallback             (setErrorCallback functionToCall){this->p_setErrorCB =functionToCall;}
     e_BPLC_ERROR_t  getError                ();
     void            setError                (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
     void            resetError              (String FILE, const uint16_t LINE);
 
     private:
+    setErrorCallback        p_setErrorCB;
     s_errorBufferElement_t  error;
     BPLC_logPrint           log;
 };

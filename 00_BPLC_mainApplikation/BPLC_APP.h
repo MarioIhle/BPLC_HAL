@@ -162,6 +162,8 @@ class BPLC_APP: BPLC_logPrint
   
 
     //Externer aufruf, wenn HAL Objekt ein Error meldet
+    BPLC_moduleErrorHandler errorSammler;
+
     void            setupSafety             ();
     void            tickSafety              ();
     void            scanForUnkonwnI2CDevices();
