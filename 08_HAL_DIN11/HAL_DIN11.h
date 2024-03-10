@@ -27,21 +27,22 @@ class HAL_DIN11: public halInterface, private BPLC_moduleErrorHandler, private B
 {
     public:
     //Hal Interface
-                    HAL_DIN11           ();
+                    HAL_DIN11               ();
     //Hal interface 
-    void            init                (const e_EC_ADDR_t ADDR);
-    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
-    void            tick                ();        
-    //Modul Error Interface
-    e_BPLC_ERROR_t  getModulError       ();
-    void            resetModulError     (String FILE, const uint16_t LINE){this->resetError(FILE, LINE);}
-
-        
+    void            init                    (const e_EC_ADDR_t ADDR);
+    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                    ();        
+    //Modul Error Interface   
+    uint8_t         getModuleErrorCount           ()                                                      {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
+   
     
     private:    
     //Settings
-    PCF8574           PCF;
-    e_I2C_ADDRESS_DIN11_t deviceAddress;
+    PCF8574                 PCF;
+    e_I2C_ADDRESS_DIN11_t   deviceAddress;
 
     struct
     {

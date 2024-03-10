@@ -20,17 +20,15 @@ void BPLC_APP::tickControlPanel()
         {
             //System
             case BPLC_PLI_KEY__GET_SYSTEM_ERRORS:
-                for(uint8_t error = 0; error < HARDWARE_ERROR_BUFFER_SIZE; error++)
+                for(uint8_t error = 0; error < this->systemErrorManager.getErrorCount(); error++)
                 {
-                    this->printError(this->getSystemErrorCode(error), __FILENAME__, __LINE__); 
+                    this->printLog("LIST ALL SYSTEM ERRORS:", __FILENAME__, __LINE__);
+                    this->printError(this->systemErrorManager.getError(error)->errorCode, __FILENAME__, __LINE__); 
                 }
                 break;
 
-            case BPLC_PLI_KEY__RESET_ALL_ERRORS:
-                for(uint8_t error = 0; error < HARDWARE_ERROR_BUFFER_SIZE; error++)
-                {
-                    this->resetSystemError(error);
-                }
+            case BPLC_PLI_KEY__RESET_ALL_ERRORS:               
+                this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);                
                 break;
 
             case BPLC_PLI_KEY__GET_DEVICE_SETTINGS:

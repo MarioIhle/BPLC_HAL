@@ -28,7 +28,7 @@ void BPLC_APP::mapPortToNetwork(portInterface_APP* P_PORT)
     //Network setup
     if(this->APP_APP.settings.device.communication.deviceAddress < 0)
     {                       
-        this->setSystemError(BPLC_ERROR__NETWORK_ADDRESS_NOT_DEFINED, __FILENAME__, __LINE__);
+        this->systemErrorManager.setError(BPLC_ERROR__NETWORK_ADDRESS_NOT_DEFINED, __FILENAME__, __LINE__);
     }
     else if(this->APP_APP.settings.device.communication.deviceAddress == 1)
     {
@@ -46,7 +46,7 @@ void BPLC_APP::tickNetwork()
         //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
         if(this->APP_COM.to_communicationError.check())
         {
-            this->setSystemError(BPLC_ERROR__COMMUNICATION_FAILED, __FILENAME__, __LINE__);
+            this->systemErrorManager.setError(BPLC_ERROR__COMMUNICATION_FAILED, __FILENAME__, __LINE__);
         }
 
         const bool DEVICE_IS_MASTER_NODE = (bool)(this->APP_APP.settings.device.communication.deviceAddress == MASTER_NODE_ADDRESS);

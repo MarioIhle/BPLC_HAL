@@ -101,7 +101,7 @@ void HAL_MCU11_revB::tick()
     //Hier prüfen bevor Pointer ins nichts zeigen
     this->tickSafety();
 
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {
         //encoder
         u_HAL_DATA_t tempbuffer;

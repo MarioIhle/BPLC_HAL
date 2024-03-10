@@ -162,31 +162,26 @@ class BPLC_APP: BPLC_logPrint
   
 
     //Externer aufruf, wenn HAL Objekt ein Error meldet
+    BPLC_moduleErrorHandler systemErrorManager;
+
     void            setupSafety             ();
     void            tickSafety              ();
     void            scanForUnkonwnI2CDevices();
-
-    //Error Sammler 
-    bool            thereIsAnSystemError    ();
-    void            setSystemError          (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);    
-    e_BPLC_ERROR_t  getSystemErrorCode      (const uint8_t ERROR_CODE_SLOT = 0);
-    void            resetSystemError        (const uint8_t ERROR_CODE_SLOT = 0);
-    
+   
     struct  
     {   
         struct 
         {
             Timeout         to_runnntime;
             uint8_t         runtimeExeeded;
-        }runntimeControl;  
-        
-        e_BPLC_ERROR_t      systemErrorCodes[HARDWARE_ERROR_BUFFER_SIZE];      
+        }runntimeControl;          
+
         Timeout             to_scanI2Cbus;
     }APP_SAFETY;
 
 
     //APP_HAL
-    BPLC_extensionCardManager   extensionCardHandler; 
+    BPLC_extensionCardManager   extensionCardManager; 
     void                        setupHardware   ();
     void                        tickHardware    ();
      

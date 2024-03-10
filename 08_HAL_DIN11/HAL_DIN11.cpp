@@ -29,14 +29,14 @@ void HAL_DIN11::init(const e_EC_ADDR_t ADDR)
         this->channels.p_ioObject[CH] = nullptr;
     }       
 
-    //I2C Verbindung prüfen
-    if(I2C_check::begin(this->deviceAddress) == false)
+    //I2C verbindung prüfen
+    if(!I2C_check::begin(this->deviceAddress))
     {
-        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
+        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);     
     }
 
     //Applikationsparameter initialisieren
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {   
         PCF.setAddress(this->deviceAddress);   
         PCF.begin();      
@@ -90,7 +90,13 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 }
 void HAL_DIN11::tick()
 {   
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    //I2C Verbindung zyklisch prüfen
+    if(!this->requestHeartbeat())
+    {
+        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+    }
+    //Hal ticken
+    if(this->noErrorSet())
     {         
         for(uint8_t READ = 0; READ < 2; READ++)//2x lesen um Flankenauswertung zu ermöglichen
         {
@@ -129,13 +135,4 @@ void HAL_DIN11::tick()
             }    
         }         
     }
-}
-e_BPLC_ERROR_t HAL_DIN11::getModulError()
-{
-    //I2C Verbindung zyklisch prüfen
-    if(!this->requestHeartbeat())
-    {
-        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
-    }
-    return this->getError();
 }

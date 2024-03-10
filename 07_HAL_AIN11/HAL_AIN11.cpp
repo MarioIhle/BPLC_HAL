@@ -35,7 +35,7 @@ void HAL_AIN11::init(const e_EC_ADDR_t ADDR)
        this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
     //Applikationsparameter initialisieren         
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {   
         // The ADC input range (or gain) can be changed via the following
         // functions, but be careful never to exceed VDD +0.3V max, or to
@@ -82,7 +82,13 @@ void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 }
 void HAL_AIN11::tick()
 {   
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    //I2C Verbindung zyklisch prüfen
+    if(!this->requestHeartbeat())
+    {
+        this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+    }
+    //Hal ticken
+    if(this->noErrorSet())
     {          
         for(uint8_t CH = 0; CH < AIN11_CHANNEL_COUNT; CH++)
         {            
@@ -119,13 +125,4 @@ void HAL_AIN11::tick()
             }
         }  
     }
-}
-e_BPLC_ERROR_t HAL_AIN11::getModulError()
-{
-    //I2C Verbindung zyklisch prüfen
-    if(!this->requestHeartbeat())
-    {
-        this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
-    }
-    return this->getError();
 }

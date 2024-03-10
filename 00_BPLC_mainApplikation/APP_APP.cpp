@@ -12,14 +12,14 @@ void BPLC_APP::begin()
    this->setupParameterFlash();
    this->readDeviceSettings();
    //Module initialisieren
+   this->setupSafety();
    this->setupApplication();      
    this->setupHMI();   
    this->setupHardware();      
-   this->setupNetwork();
-   this->setupSafety();   
+   this->setupNetwork();  
    
    //Fehlerprüfung bevor System startet
-   if(this->getSystemErrorCode() == BPLC_ERROR__NO_ERROR)
+   if(this->systemErrorManager.noErrorSet())
    {
       this->printLog("BPLC SYSTEM INIT SUCCESSFUL", __FILENAME__, __LINE__);
       this->setDeviceMode(APP_MODE__START);
@@ -87,7 +87,7 @@ void BPLC_APP::tick()
 
       case APP_MODE__SAFE_STATE:
          this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 100, 100);     
-         this->APP_HAL.LD3_ERROR_OUT.blinkContinious((uint8_t)getSystemErrorCode(), 500, 1500);    
+         this->APP_HAL.LD3_ERROR_OUT.blinkContinious((uint8_t)this->systemErrorManager.getError()->errorCode , 500, 1500);    
          this->APP_HAL.BUZZER.blinkContinious(3, 100, 30000);
          this->APP_HAL.OEN.reset();   
          this->tickHardware(); 
@@ -110,30 +110,29 @@ void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
    if(this->APP_APP.deviceMode != MODE)
    {
       this->APP_APP.deviceMode = MODE;
-      //Log Print
-      BPLC_logPrint logPrint;
+
       switch(MODE)
       {
          case APP_MODE__STOP:
-            logPrint.printLog("DEVICEMODE: STOP", __FILENAME__, __LINE__);
+            this->printLog("DEVICEMODE: STOP", __FILENAME__, __LINE__);
             break; 
          case APP_MODE__START:
-            logPrint.printLog("DEVICEMODE: START", __FILENAME__, __LINE__);
+            this->printLog("DEVICEMODE: START", __FILENAME__, __LINE__);
             break;
          case APP_MODE__SAFE_STATE:
-            logPrint.printLog("DEVICEMODE: SAFE STATE", __FILENAME__, __LINE__);
+            this->printLog("DEVICEMODE: SAFE STATE", __FILENAME__, __LINE__);
             break;
          case APP_MODE__RUN:
-            logPrint.printLog("DEVICEMODE: RUN ", __FILENAME__, __LINE__);
+            this->printLog("DEVICEMODE: RUN ", __FILENAME__, __LINE__);
             break;
          case APP_MODE__RUN_WITHOUT_SAFETY:
-            logPrint.printLog("DEVICEMODE: RUN CONFIG WITOUT SAFETY", __FILENAME__, __LINE__);
+            this->printLog("DEVICEMODE: RUN CONFIG WITOUT SAFETY", __FILENAME__, __LINE__);
             break;
          case APP_MODE__RUN_WITHOUT_EC_CARDS:
-            logPrint.printLog("DEVICEMODE: RUN WITHOUT EC CARDS", __FILENAME__, __LINE__);
+            this->printLog("DEVICEMODE: RUN WITHOUT EC CARDS", __FILENAME__, __LINE__);
             break;
          case APP_MODE__RUN_WITHOUT_COM:
-            logPrint.printLog("DEVICEMODE: RUN WITHOUT COM", __FILENAME__, __LINE__);
+            this->printLog("DEVICEMODE: RUN WITHOUT COM", __FILENAME__, __LINE__);
             break;
       }      
    }   
