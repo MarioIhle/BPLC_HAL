@@ -73,7 +73,8 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     e_BPLC_ERROR_t      getModulError                       (){return this->getError();}
     void                resetModulError                     (String FILE, const uint16_t LINE){this->resetError(FILE, LINE);}
 
-    private:        
+    private:     
+    BPLC_moduleErrorHandler   
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
     extensionCard*      searchExtensionCard                 (const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR);
     extensionCard*      p_firstExtensionCard;    

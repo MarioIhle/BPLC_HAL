@@ -37,7 +37,7 @@ enum
 //--------------------------------------------------------------------
 //HAL KLASSE
 //--------------------------------------------------------------------
-class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint
+class HAL_MCU11_revA: public halInterface, private BPLC_rrorHandler, private BPLC_logPrint
 {
     public:
                     HAL_MCU11_revA      (volatile uint64_t* P_ISR_COUNT);
@@ -93,7 +93,7 @@ class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, priv
     }PIN;   
 };
 
-class HAL_MCU11_revB: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint
+class HAL_MCU11_revB: public halInterface, private BPLC_rrorHandler, private BPLC_logPrint
 {
     public:
                     HAL_MCU11_revB      (volatile uint64_t* P_ISR_COUNT);    

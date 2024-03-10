@@ -17,7 +17,7 @@ typedef enum
 }e_I2C_ADDRESS_NANO11_t;
 
 //-------------------------------------------------------------
-class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
+class HAL_NANO11: public halInterface, private BPLC_rrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
                     HAL_NANO11          ();

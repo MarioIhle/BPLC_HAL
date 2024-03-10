@@ -68,7 +68,7 @@ typedef union
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
-class HAL_MOT11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
+class HAL_MOT11: public halInterface, private BPLC_rrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
     //setup

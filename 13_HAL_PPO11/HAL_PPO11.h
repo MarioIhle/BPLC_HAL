@@ -26,7 +26,7 @@ typedef enum
 #define PPO11_CHANNEL_COUNT 8
 
 //-------------------------------------------------------------
-class HAL_PPO11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
+class HAL_PPO11: public halInterface, private BPLC_rrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
                     HAL_PPO11           ();

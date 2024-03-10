@@ -1,12 +1,5 @@
 #include "BPLC_APP.h"
 
-setErrorCallback p_BPLC_systemErrorCallback;
-
-static void BPLC_errorCallBack(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE)
-{
-   p_BPLC_systemErrorCallback(ERROR_CODE, FILE, LINE);
-}
-
 void BPLC_APP::setupSafety()
 {
    p_BPLC_systemErrorCallback = this->errorSammler.setError;
@@ -16,7 +9,7 @@ void BPLC_APP::setupSafety()
    this->APP_SAFETY.to_scanI2Cbus.setInterval(60000);
    this->APP_SAFETY.to_scanI2Cbus.now();     //Wird nach Setup bei ersten tick ausgeführt, bevor OEN aktiv wird!#
 
-   this->extensionCardHandler.setCallbackTest(BPLC_errorCallBack);
+   this->extensionCardHandler.setErrorHandler(BPLC_errorCallBack);
 }
 void BPLC_APP::tickSafety()
 {

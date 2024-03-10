@@ -17,7 +17,7 @@ typedef enum
 }e_I2C_ADDRSS_FUSE12_t;
 
 //-------------------------------------------------------------
-class HAL_FUSE12: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
+class HAL_FUSE12: public halInterface, private BPLC_rrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
                     HAL_FUSE12          ();

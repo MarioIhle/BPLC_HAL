@@ -21,7 +21,7 @@ typedef enum
 #define REL11_CHANNEL_COUNT 3
 
 //-------------------------------------------------------------
-class HAL_REL11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
+class HAL_REL11: public halInterface, private BPLC_rrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:    
     //Hal Interface
