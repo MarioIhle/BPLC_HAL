@@ -13,31 +13,10 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
         p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);
     }
     else
-    {//Error Setzen
-        switch (CARD)
-        {
-            case BPLC_CARD__AIN11revA:
-                switch (ADDR)
-                {
-                    case 0:
-                        this->setError(ECM_ERROR__AIN11revA_ADDR_1_NOT_DEFINED, __FILENAME__, __LINE__);
-                        break;
-                    
-                    default:
-                        break;
-                    }           
-                break;
-
-            default:
-                this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);
-            break;
-        }
+    {//Error Setzen        
+        this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);       
     }      
 }  
-bool BPLC_extensionCardManager::i2cAddressIsUsedByExtensionCard(const uint8_t I2C_ADDRESS)
-{
-    return false;
-}
 bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR)
 {
     bool newEcAdded = false;   
@@ -86,14 +65,15 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
                 abort();
                 break;
         }         
+        
+        //System Error Manager an Hal moduleErrorManager übergeben
+        p_newHalInterface->setSuperiorErrorManager(this->p_superiorErrorManager);
         //Hal mit entsprechender ADDR(wird in Hal zu entsprechender i2c addresse gemappt)initialisieren
         p_newHalInterface->init(ADDR);          
         const bool NO_HAL_ERROR = (bool)(p_newHalInterface->getModuleErrorCount() == 0);
 
         if(NO_HAL_ERROR)
-        {
-            //System Error Manager an Hal moduleErrorManager übergeben
-            p_newHalInterface->setSuperiorErrorManager(this->p_superiorErrorManager);
+        {            
             //Neues extensionCard Objekt erzeugen und in Liste aufnehmen
             extensionCard* p_extensionCard = new extensionCard();
             //Interface für neu erzeugte Hal an extensionCard objekt übergeben

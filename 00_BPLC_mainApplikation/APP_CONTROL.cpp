@@ -20,10 +20,10 @@ void BPLC_APP::tickControlPanel()
         {
             //System
             case BPLC_PLI_KEY__GET_SYSTEM_ERRORS:
+                this->printLog("LIST ALL SYSTEM ERRORS:", __FILENAME__, __LINE__);
                 for(uint8_t error = 0; error < this->systemErrorManager.getErrorCount(); error++)
-                {
-                    this->printLog("LIST ALL SYSTEM ERRORS:", __FILENAME__, __LINE__);
-                    this->printError(this->systemErrorManager.getError(error)->errorCode, __FILENAME__, __LINE__); 
+                {                    
+                    this->printErrorSet(this->systemErrorManager.getError(error)->errorCode, __FILENAME__, __LINE__); 
                 }
                 break;
 
@@ -37,63 +37,63 @@ void BPLC_APP::tickControlPanel()
                 Serial.print("MCU:          "); Serial.println(this->APP_APP.settings.device.hardware.mcuCard);
                 Serial.print("oledAvailable:"); Serial.println(this->APP_APP.settings.device.hardware.oledAvailable);              
 
-                for(uint8_t card = 0; card < I2C_ADDRESS_AIN11__COUNT; card++)
+                for(uint8_t card = 0; card < AIN11_ADDRESS_COUNT; card++)
                 {
                     if(this->APP_APP.settings.device.hardware.ain11revACards[card])
                     {
                         Serial.print("AIN11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }                    
                 }                          
-                for(uint8_t card = 0; card < I2C_ADDRESS_DIN11__COUNT; card++)
+                for(uint8_t card = 0; card < DIN11_ADDRESS_COUNT; card++)
                 {
                     if(this->APP_APP.settings.device.hardware.din11revACards[card])
                     {
                         Serial.print("DIN11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }
                 } 
-                for(uint8_t card = 0; card < I2C_ADDRESS_DO11__COUNT; card++)
+                for(uint8_t card = 0; card < DO11_ADDRESS_COUNT; card++)
                 {
                     if(this->APP_APP.settings.device.hardware.do11revACards[card])
                     {
                         Serial.print("DO11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 } 
-                for(uint8_t card = 0; card < I2C_ADDRESS_REL11__COUNT; card++)
+                for(uint8_t card = 0; card < REL11_ADDRESS_COUNT; card++)
                 {
                     if(this->APP_APP.settings.device.hardware.rel11revACards[card])
                     {
                         Serial.print("REL11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 } 
-                for(uint8_t card = 0; card < I2C_ADDRESS_MOT11__COUNT; card++)
+                for(uint8_t card = 0; card < MOT11_ADDRESS_COUNT; card++)
                 {
                     if(this->APP_APP.settings.device.hardware.mot11revAcards[card])
                     {
                         Serial.print("MOT11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 } 
-                for(uint8_t card = 0; card < I2C_ADDRESS_TMP11__COUNT; card++)
+                for(uint8_t card = 0; card < TMP11_ADDRESS_COUNT; card++)
                 {
                     if(this->APP_APP.settings.device.hardware.tmp11revACards[card])
                     {
                         Serial.print("TMP11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 } 
-                for(uint8_t card = 0; card < I2C_ADDRESS_PPO11__COUNT; card++)
+                for(uint8_t card = 0; card < PPO11_ADDRESS_COUNT; card++)
                 {
                     if(this->APP_APP.settings.device.hardware.ppo11revACards[card])
                     {
                         Serial.print("PPO11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 }
-                for(uint8_t card = 0; card < I2C_ADDRESS_NANO11__COUNT; card++)
+                for(uint8_t card = 0; card < NANO11_ADDRESS_COUNT; card++)
                 {
                     if(this->APP_APP.settings.device.hardware.nano11revACards[card])
                     {
                         Serial.print("NANO11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 }
-                for(uint8_t card = 0; card < I2C_ADDRESS_FUSE12__COUNT; card++)
+                for(uint8_t card = 0; card < FUSE12_ADDRESS_COUNT; card++)
                 {
                     if(this->APP_APP.settings.device.hardware.fuse12revACards[card])
                     {

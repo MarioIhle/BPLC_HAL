@@ -38,25 +38,92 @@ void BPLC_APP::tickSafety()
    //I2C Bus überwachung
    if(APP_SAFETY.to_scanI2Cbus.checkAndReset())
    {
-      //this->scanForUnkonwnI2CDevices();
+      this->scanForUnkonwnI2CDevices();
    }
 }
 //I2C Bus überwachung
 void BPLC_APP::scanForUnkonwnI2CDevices()
 {    
-   for(uint8_t possibleDevice = 0; possibleDevice < 255; possibleDevice++)
+   for(uint8_t i2cDeviceAddress = 0; i2cDeviceAddress < 255; i2cDeviceAddress++)
    {
-      Wire.beginTransmission(possibleDevice);
+      Wire.beginTransmission(i2cDeviceAddress);
       const bool DEVICE_FOUND = (bool)(Wire.endTransmission() == 0); 
+
+      //Prüfen ob gefundene I2C device Adresse als BPLC device bekannt ist
       if(DEVICE_FOUND)
       {
-         const bool FOUND_DEVICE_IS_NOT_DEFINED = (bool)(this->extensionCardManager.i2cAddressIsUsedByExtensionCard(possibleDevice) == false);
-
-         if(FOUND_DEVICE_IS_NOT_DEFINED && possibleDevice != 60 && possibleDevice != 188)
+         //AINrevA Card Addressen auf Verfügbarkeit prüfen
+         for(uint8_t CARD_ADDR = 0; CARD_ADDR < AIN11_ADDRESS_COUNT; CARD_ADDR++)
          {
-            this->printLog("I2C Device Found but not defined, Address: " + String(possibleDevice), __FILENAME__, __LINE__);
-            this->systemErrorManager.setError(BPLC_ERROR__UNDEFINED_I2C_DEVICE_FOUND, __FILENAME__, __LINE__);
+            if(i2cDeviceAddress == AIN11_I2C_ADDRESSES[CARD_ADDR] && this->APP_APP.settings.device.hardware.ain11revACards[CARD_ADDR] == false)
+            {
+               this->systemErrorManager.setError(AIN11_ERROR__UNDEFINED_AIN11_FOUND, __FILENAME__, __LINE__);
+            }
+         }         
+         //DIN11revA Cards Addressen auf Verfügbarkeit prüfen
+         for (uint8_t CARD_ADDR = 0; CARD_ADDR < DO11_ADDRESS_COUNT; CARD_ADDR++)
+         {
+            if(i2cDeviceAddress == DIN11_I2C_ADDRESSES[CARD_ADDR] && this->APP_APP.settings.device.hardware.din11revACards[CARD_ADDR] == false)
+            {
+               this->systemErrorManager.setError(DIN11_ERROR__UNDEFINED_DIN11_FOUND, __FILENAME__, __LINE__);
+            }             
          }
+         //DO11revA Cards Addressen auf Verfügbarkeit prüfen
+         for (uint8_t CARD_ADDR = 0; CARD_ADDR < DO11_ADDRESS_COUNT; CARD_ADDR++)
+         {
+            if(i2cDeviceAddress == DO11_I2C_ADDRESSES[CARD_ADDR] && this->APP_APP.settings.device.hardware.do11revACards[CARD_ADDR] == false)
+            {
+               this->systemErrorManager.setError(DO11_ERROR__UNDEFINED_DO11_FOUND, __FILENAME__, __LINE__);
+            }
+         }
+         //REL11revA Cards Addressen auf Verfügbarkeit prüfen
+         for (uint8_t CARD_ADDR = 0; CARD_ADDR < REL11_ADDRESS_COUNT; CARD_ADDR++)
+         {
+            if(i2cDeviceAddress == REL11_I2C_ADDRESSES[CARD_ADDR] && this->APP_APP.settings.device.hardware.rel11revACards[CARD_ADDR] == false)
+            {
+               this->systemErrorManager.setError(REL11_ERROR__UNDEFINED_REL11_FOUND, __FILENAME__, __LINE__);
+            }
+         }
+         //MOT11revA Cards Addressen auf Verfügbarkeit prüfen
+         for (uint8_t CARD_ADDR = 0; CARD_ADDR < MOT11_ADDRESS_COUNT; CARD_ADDR++)
+         {
+            if(i2cDeviceAddress == MOT11_I2C_ADDRESSES[CARD_ADDR] && this->APP_APP.settings.device.hardware.mot11revAcards[CARD_ADDR] == false)
+            {
+              //this->systemErrorManager.setError(MOT11_ERROR__UNDEFINED_MOT11_FOUND, __FILENAME__, __LINE__);
+            }
+         }
+         //TMP11revA Cards Addressen auf Verfügbarkeit prüfen
+         for (uint8_t CARD_ADDR = 0; CARD_ADDR < TMP11_ADDRESS_COUNT; CARD_ADDR++)
+         {
+            if(i2cDeviceAddress == TMP11_I2C_ADDRESSES[CARD_ADDR] && this->APP_APP.settings.device.hardware.tmp11revACards[CARD_ADDR] == false)
+            {
+               this->systemErrorManager.setError(TMP11_ERROR__UNDEFINED_TMP11_FOUND, __FILENAME__, __LINE__);
+            }
+         }
+         //PPO11revA Cards Addressen auf Verfügbarkeit prüfen
+         for (uint8_t CARD_ADDR = 0; CARD_ADDR < PPO11_ADDRESS_COUNT; CARD_ADDR++)
+         {
+            if(i2cDeviceAddress == PPO11_I2C_ADDRESSES[CARD_ADDR] && this->APP_APP.settings.device.hardware.ppo11revACards[CARD_ADDR] == false)
+            {
+               this->systemErrorManager.setError(PPO11_ERROR__UNDEFINED_PPO11_FOUND, __FILENAME__, __LINE__);
+            }
+         }
+         //NANO11revA Cards Addressen auf Verfügbarkeit prüfen
+         for (uint8_t CARD_ADDR = 0; CARD_ADDR < NANO11_ADDRESS_COUNT; CARD_ADDR++)
+         {
+            if(i2cDeviceAddress == NANO11_I2C_ADDRESSES[CARD_ADDR] && this->APP_APP.settings.device.hardware.nano11revACards[CARD_ADDR] == false)
+            {
+               this->systemErrorManager.setError(NANO11_ERROR__UNDEFINED_NANO11_FOUND, __FILENAME__, __LINE__);
+            }
+         }
+         //FUSE12revA Cards Addressen auf Verfügbarkeit prüfen
+         for (uint8_t CARD_ADDR = 0; CARD_ADDR < FUSE12_ADDRESS_COUNT; CARD_ADDR++)
+         {
+            if(i2cDeviceAddress == FUSE12_I2C_ADDRESSES[CARD_ADDR] && this->APP_APP.settings.device.hardware.fuse12revACards[CARD_ADDR] == false)
+            {
+               //this->systemErrorManager.setError(FUSE12_ERROR__UNDEFINED_FUSE12_FOUND, __FILENAME__, __LINE__);
+            }
+         }      
       }     
    }      
 }

@@ -67,7 +67,6 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
                         BPLC_extensionCardManager           ();    
     void                tick                                ();    
     void                mapObjectToExtensionCard            (IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const e_EC_ADDR_t ADDR, const uint8_t CHANNEL);
-    bool                i2cAddressIsUsedByExtensionCard     (const uint8_t I2C_ADDRESS);
     bool                addNewExtensionCard                 (const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR);
     //Modul Error Interface   
     uint8_t             getModuleErrorCount     ()                                                      {return this->getErrorCount();}

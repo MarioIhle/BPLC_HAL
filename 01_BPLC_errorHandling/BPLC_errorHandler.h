@@ -20,14 +20,14 @@ typedef struct
 class errorListElement
 {
     public:
-                            errorListElement    (){};
+                            errorListElement    (){p_nextError = nullptr; memset(&this->errorData, 0, sizeof(this->errorData));}
     void                    setNextError        (errorListElement* P_NEXT){this->p_nextError = P_NEXT;}
     errorListElement*       getNextError        (){return this->p_nextError;}
     void                    setErrorData        (s_error_t ERROR_DATA){this->errorData = ERROR_DATA;}
     s_error_t*              getErrorData        (){return &this->errorData;}
 
     private:
-    errorListElement*     p_nextError;
+    errorListElement*       p_nextError;
 
     s_error_t errorData;
 };

@@ -33,7 +33,7 @@ void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
     //oen
     pinMode(this->PIN.OEN, OUTPUT);
     //INT
-    pinMode(this->PIN.INT, INPUT_PULLUP);
+    pinMode(this->PIN.INT, INPUT);
     attachInterrupt(this->PIN.INT, INT_ISR, FALLING);       
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB

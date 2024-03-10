@@ -14,12 +14,15 @@ s_error_t* BPLC_moduleErrorHandler::getError(uint8_t ERROR_NUMBER)
 {
     errorListElement* p_searchedError = this->p_firstError;
 
-    for(uint8_t errorNumber = 0; errorNumber < ERROR_NUMBER; errorNumber++)
-    {        
-        p_searchedError = p_searchedError->getNextError();     
+    if(ERROR_NUMBER < this->errorCount)
+    {
+        for(uint8_t errorNumber = 0; errorNumber < ERROR_NUMBER; errorNumber++)
+        {          
+            p_searchedError = p_searchedError->getNextError();     
+        }
     }
-
-    return p_searchedError->getErrorData();  
+        
+    return p_searchedError->getErrorData();      
 }    
 void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE)
 {
@@ -39,10 +42,11 @@ void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String F
             p_newError->setErrorData(ERROR_DATA);
 
             this->addErrorToList(p_newError);
-            this->log.printError(ERROR_CODE, FILE, LINE);
+            this->log.printErrorSet(ERROR_CODE, FILE, LINE);
 
             if(this->p_superiorErrorManager != nullptr)
             {
+                this->log.printLog("SET ERROR AT SUPERIOR ERROR HANDLER", __FILENAME__, __LINE__);
                 p_superiorErrorManager->setError(ERROR_CODE, FILE, LINE);
             }
             this->errorCount++;
@@ -56,7 +60,7 @@ void BPLC_moduleErrorHandler::resetError(const e_BPLC_ERROR_t ERROR_CODE, String
     if(p_errorToDelete != nullptr)
     {
         this->deleteErrorFromList(p_errorToDelete);
-        this->log.printLog("reset Error: " + String(ERROR_CODE) , FILE, LINE);
+        this->log.printErrorSet(ERROR_CODE, FILE, LINE);
 
         if(this->p_superiorErrorManager != nullptr)
         {
@@ -67,16 +71,12 @@ void BPLC_moduleErrorHandler::resetError(const e_BPLC_ERROR_t ERROR_CODE, String
 }
 void BPLC_moduleErrorHandler::resetAllErrors(String FILE, const uint16_t LINE)
 {
-    this->log.printLog("reset all module errors !", FILE, LINE);
-
-    const uint8_t ERRORS_SET = this->getErrorCount();
+    this->log.printLog("reset all module errors !", FILE, LINE);    
     
-    for(uint8_t ERROR = 0; ERROR < ERRORS_SET; ERROR++)
-    {
-        const e_BPLC_ERROR_t ERROR_CODE_TO_DELETE = this->getError(ERROR)->errorCode;
-        this->resetError(ERROR_CODE_TO_DELETE, FILE, LINE);
-    }    
-    this->errorCount = 0;
+    while (this->getErrorCount() > 0)
+    {   
+        this->resetError(this->p_firstError->getErrorData()->errorCode, FILE, LINE);
+    }  
 }
 //Private
 errorListElement* BPLC_moduleErrorHandler::searchError(const e_BPLC_ERROR_t ERROR_CODE)
@@ -84,7 +84,7 @@ errorListElement* BPLC_moduleErrorHandler::searchError(const e_BPLC_ERROR_t ERRO
     errorListElement* p_searchedError = this->p_firstError;
 
     while (p_searchedError != nullptr)
-    {
+    {        
         if(p_searchedError->getErrorData()->errorCode == ERROR_CODE)
         {
             return p_searchedError;

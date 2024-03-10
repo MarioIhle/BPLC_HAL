@@ -129,15 +129,15 @@ class BPLC_APP: BPLC_logPrint
                 {            
                     e_BPLC_CARD_TYPE_t  mcuCard;
                     bool                oledAvailable;
-                    bool                ain11revACards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                din11revACards [I2C_ADDRESS_AIN11__COUNT];                
-                    bool                do11revACards  [I2C_ADDRESS_AIN11__COUNT];
-                    bool                rel11revACards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                mot11revAcards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                tmp11revACards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                ppo11revACards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                nano11revACards[I2C_ADDRESS_NANO11__COUNT];
-                    bool                fuse12revACards[I2C_ADDRESS_FUSE12__COUNT];
+                    bool                ain11revACards [AIN11_ADDRESS_COUNT];
+                    bool                din11revACards [DIN11_ADDRESS_COUNT];                
+                    bool                do11revACards  [DO11_ADDRESS_COUNT];
+                    bool                rel11revACards [REL11_ADDRESS_COUNT];
+                    bool                mot11revAcards [MOT11_ADDRESS_COUNT];
+                    bool                tmp11revACards [TMP11_ADDRESS_COUNT];
+                    bool                ppo11revACards [PPO11_ADDRESS_COUNT];
+                    bool                nano11revACards[NANO11_ADDRESS_COUNT];
+                    bool                fuse12revACards[FUSE12_ADDRESS_COUNT];
                 }hardware;
 
             }device;               

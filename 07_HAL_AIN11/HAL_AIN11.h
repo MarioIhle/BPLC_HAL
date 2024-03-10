@@ -6,19 +6,10 @@
 #include <Adafruit_ADS1X15.h>
 
 //-------------------------------------------------------------
-//I2C ADDRESSEN
-typedef enum
-{
-    I2C_ADDRESS_AIN11__ADDR_1 = 0x48,
-    I2C_ADDRESS_AIN11__ADDR_2 = 0x49,
-    I2C_ADDRESS_AIN11__ADDR_3 = 0x4A,
-    I2C_ADDRESS_AIN11__ADDR_4 = 0x4B,
-    
-    I2C_ADDRESS_AIN11__COUNT = 4,
-}e_I2C_ADDRESS_AIN11_t;
-
-//-------------------------------------------------------------
+//Card definition
+#define AIN11_ADDRESS_COUNT 4
 #define AIN11_CHANNEL_COUNT 4
+const uint8_t AIN11_I2C_ADDRESSES[AIN11_ADDRESS_COUNT] = {0x48, 0x49, 0x4A, 0x4B};
 
 //-------------------------------------------------------------
 class HAL_AIN11: public halInterface,  private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
@@ -37,9 +28,9 @@ class HAL_AIN11: public halInterface,  private BPLC_moduleErrorHandler, private 
 
     private:          
     //Settings
-    Adafruit_ADS1115        ADC;
-    e_I2C_ADDRESS_AIN11_t   deviceAddress;
-    adsGain_t               adcGain;
+    Adafruit_ADS1115    ADC;
+    uint8_t             deviceAddress;
+    adsGain_t           adcGain;
   
     //Object handling
     struct

@@ -6,16 +6,10 @@
 #include "PCA9685.h"
 
 //-------------------------------------------------------------
-//I2C ADDRESSEN
-typedef enum
-{
-  I2C_ADDRESS_MOT11__ADDR_1 = 0xA0,
-  I2C_ADDRESS_MOT11__ADDR_2 = 0xA1,
-  I2C_ADDRESS_MOT11__ADDR_3 = 0xA2,
-  I2C_ADDRESS_MOT11__ADDR_4 = 0xA3,
-  
-  I2C_ADDRESS_MOT11__COUNT = 4,
-}e_I2C_ADDRESS_MOT11_t;
+//Card definition
+#define MOT11_ADDRESS_COUNT 10
+#define MOT11_CHANNEL_COUNT 1
+const uint8_t MOT11_I2C_ADDRESSES[MOT11_ADDRESS_COUNT] = {0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9};
 
 //-------------------------------------------------------------
 //APPLIKATION
@@ -89,7 +83,7 @@ class HAL_MOT11: public halInterface, private BPLC_moduleErrorHandler, private B
   
     private:
     //Settings    
-    e_I2C_ADDRESS_MOT11_t   deviceAddress;
+    uint8_t   deviceAddress;
     e_deviceState_t         deviceState;
 
     //I2C Kommunikation

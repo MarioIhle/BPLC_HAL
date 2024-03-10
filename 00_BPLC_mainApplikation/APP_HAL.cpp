@@ -31,7 +31,7 @@ void BPLC_APP::setupHardware()
    }
 
    //AIN11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < I2C_ADDRESS_AIN11__COUNT; CARD_ADDR++)
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < AIN11_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.hardware.ain11revACards[CARD_ADDR])
       {  
@@ -39,7 +39,7 @@ void BPLC_APP::setupHardware()
       }
    }   
    //DIN11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < I2C_ADDRESS_DIN11__COUNT; CARD_ADDR++)
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < DIN11_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.hardware.din11revACards[CARD_ADDR])
       {   
@@ -47,7 +47,7 @@ void BPLC_APP::setupHardware()
       }             
    }
    //DO11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < I2C_ADDRESS_DO11__COUNT; CARD_ADDR++)
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < DO11_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.hardware.do11revACards[CARD_ADDR])
       {        
@@ -55,7 +55,7 @@ void BPLC_APP::setupHardware()
       }
    }
    //REL11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < I2C_ADDRESS_REL11__COUNT; CARD_ADDR++)
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < REL11_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.hardware.rel11revACards[CARD_ADDR])
       {
@@ -63,7 +63,7 @@ void BPLC_APP::setupHardware()
       }
    }
    //MOT11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < I2C_ADDRESS_MOT11__COUNT; CARD_ADDR++)
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < MOT11_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.hardware.mot11revAcards[CARD_ADDR])
       {
@@ -71,7 +71,7 @@ void BPLC_APP::setupHardware()
       }
    }
    //TMP11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < I2C_ADDRESS_TMP11__COUNT; CARD_ADDR++)
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < TMP11_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.hardware.tmp11revACards[CARD_ADDR])
       {
@@ -79,7 +79,7 @@ void BPLC_APP::setupHardware()
       }
    }
    //PPO11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < I2C_ADDRESS_PPO11__COUNT; CARD_ADDR++)
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < PPO11_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.hardware.ppo11revACards[CARD_ADDR])
       {
@@ -87,19 +87,19 @@ void BPLC_APP::setupHardware()
       }
    }
    //NANO11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < I2C_ADDRESS_NANO11__COUNT; CARD_ADDR++)
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < NANO11_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.hardware.nano11revACards[CARD_ADDR])
       {
          this->extensionCardManager.addNewExtensionCard(BPLC_CARD__NANO11revA, (e_EC_ADDR_t)CARD_ADDR);
       }
    }
-   //FUSE11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < I2C_ADDRESS_FUSE12__COUNT; CARD_ADDR++)
+   //FUSE12revA Cards initialisieren
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < FUSE12_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.hardware.fuse12revACards[CARD_ADDR])
       {
-         this->extensionCardManager.addNewExtensionCard(BPLC_CARD__FUSE11revA, (e_EC_ADDR_t)CARD_ADDR);
+         this->extensionCardManager.addNewExtensionCard(BPLC_CARD__FUSE12revA, (e_EC_ADDR_t)CARD_ADDR);
       }
    }
 }

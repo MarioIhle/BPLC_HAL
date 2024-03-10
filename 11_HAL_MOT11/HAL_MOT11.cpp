@@ -4,25 +4,14 @@ HAL_MOT11::HAL_MOT11()
 {}
 void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
 {
-    switch(ADDR)
+    if(ADDR < MOT11_ADDRESS_COUNT)
     {
-        case EC_ADDR_1:
-            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_1;
-            break;
-        case EC_ADDR_2:
-            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_2;
-            break;
-        case EC_ADDR_3:
-            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_3;
-            break;
-        case EC_ADDR_4:
-            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_4;
-            break;
-            
-        default:
-            this->setError(MOT11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
-            break;
+        this->deviceAddress = MOT11_I2C_ADDRESSES[ADDR];             
     }
+    else
+    {
+        this->setError(MOT11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
+    } 
 
     this->errordetection.i2cError.countLimit    = 3;
     this->errordetection.i2cError.count         = 0;

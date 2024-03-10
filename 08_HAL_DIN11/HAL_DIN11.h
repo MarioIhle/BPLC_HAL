@@ -7,20 +7,10 @@
 #include "PCF8574.h"
 
 //-------------------------------------------------------------
-//I2C ADDRESSEN
-typedef enum
-{
-    I2C_ADDRESS_DIN11__ADDR_1 = 0x20,
-    I2C_ADDRESS_DIN11__ADDR_2 = 0x22,
-    I2C_ADDRESS_DIN11__ADDR_3 = 0x21,
-    I2C_ADDRESS_DIN11__ADDR_4 = 0x23,
-    
-    I2C_ADDRESS_DIN11__COUNT = 4,
-
-}e_I2C_ADDRESS_DIN11_t;
-
-//-------------------------------------------------------------
+//Card definition
+#define DIN11_ADDRESS_COUNT 4
 #define DIN11_CHANNEL_COUNT 8
+const uint8_t DIN11_I2C_ADDRESSES[DIN11_ADDRESS_COUNT] = {0x20, 0x22, 0x21, 0x23};
 
 //-------------------------------------------------------------
 class HAL_DIN11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
@@ -33,7 +23,7 @@ class HAL_DIN11: public halInterface, private BPLC_moduleErrorHandler, private B
     void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
     void            tick                    ();        
     //Modul Error Interface   
-    uint8_t         getModuleErrorCount           ()                                                      {return this->getErrorCount();}
+    uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
     e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
     void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
     void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
@@ -41,8 +31,8 @@ class HAL_DIN11: public halInterface, private BPLC_moduleErrorHandler, private B
     
     private:    
     //Settings
-    PCF8574                 PCF;
-    e_I2C_ADDRESS_DIN11_t   deviceAddress;
+    PCF8574 PCF;
+    uint8_t deviceAddress;
 
     struct
     {
