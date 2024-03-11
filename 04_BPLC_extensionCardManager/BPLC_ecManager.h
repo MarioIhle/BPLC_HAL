@@ -60,17 +60,20 @@ class extensionCard
     e_EC_ADDR_t             addr;
 };
 
+
 class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint
 {
     public:
                         BPLC_extensionCardManager           ();    
     void                tick                                ();    
     void                mapObjectToExtensionCard            (IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const e_EC_ADDR_t ADDR, const uint8_t CHANNEL);
-    bool                i2cAddressIsUsedByExtensionCard     (const uint8_t I2C_ADDRESS);
     bool                addNewExtensionCard                 (const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR);
-    //Modul Error Interface
-    e_BPLC_ERROR_t      getModulError                       (){return this->getError();}
-    void                resetModulError                     (String FILE, const uint16_t LINE){this->resetError(FILE, LINE);}
+    //Modul Error Interface   
+    uint8_t             getModuleErrorCount     ()                                                      {return this->getErrorCount();}
+    e_BPLC_ERROR_t      getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void                resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void                setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
+
 
     private:        
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);

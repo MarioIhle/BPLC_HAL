@@ -100,37 +100,41 @@ void HAL_MCU11_revA::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t
 void HAL_MCU11_revA::tick()
 {  
     this->tickSafety();
-    //encoder
-    u_HAL_DATA_t tempbuffer;
-    tempbuffer.encoderData.stateA    = digitalRead(this->PIN.ENCODER_A);
-    tempbuffer.encoderData.stateB    = digitalRead(this->PIN.ENCODER_B);
-    tempbuffer.encoderData.stateZ    = digitalRead(this->PIN.ENCODER_BUTTON);
-    this->p_encoder->halCallback(&tempbuffer);
-    //p_oen schreiben
-    if(this->p_oen->newDataAvailable())
+    
+    if(this->noErrorSet())
     {
-        digitalWrite(this->PIN.OEN, this->p_oen->halCallback().digitalIoData.state);
-    }
-    //BUZZER
-    if(this->p_buzzer->newDataAvailable())
-    {
-        analogWrite(this->PIN.BUZZER, this->p_buzzer->halCallback().analogIoData.value);
-    }
-    //p_ld1
-    if(this->p_ld1->newDataAvailable())
-    {
-        analogWrite(this->PIN.LD1, this->p_ld1->halCallback().analogIoData.value);
-    }
-    //LD_COMMUNACTION_STATE
-    if(this->p_ld2->newDataAvailable())
-    {
-        analogWrite(this->PIN.LD2, this->p_ld2->halCallback().analogIoData.value);
-    }
-    //p_ld3
-    if(this->p_ld3->newDataAvailable())
-    {
-        analogWrite(this->PIN.LD3, this->p_ld3->halCallback().analogIoData.value);
-    } 
+        //encoder
+        u_HAL_DATA_t tempbuffer;
+        tempbuffer.encoderData.stateA    = digitalRead(this->PIN.ENCODER_A);
+        tempbuffer.encoderData.stateB    = digitalRead(this->PIN.ENCODER_B);
+        tempbuffer.encoderData.stateZ    = digitalRead(this->PIN.ENCODER_BUTTON);
+        this->p_encoder->halCallback(&tempbuffer);
+        //p_oen schreiben
+        if(this->p_oen->newDataAvailable())
+        {
+            digitalWrite(this->PIN.OEN, this->p_oen->halCallback().digitalIoData.state);
+        }
+        //BUZZER
+        if(this->p_buzzer->newDataAvailable())
+        {
+            analogWrite(this->PIN.BUZZER, this->p_buzzer->halCallback().analogIoData.value);
+        }
+        //p_ld1
+        if(this->p_ld1->newDataAvailable())
+        {
+            analogWrite(this->PIN.LD1, this->p_ld1->halCallback().analogIoData.value);
+        }
+        //LD_COMMUNACTION_STATE
+        if(this->p_ld2->newDataAvailable())
+        {
+            analogWrite(this->PIN.LD2, this->p_ld2->halCallback().analogIoData.value);
+        }
+        //p_ld3
+        if(this->p_ld3->newDataAvailable())
+        {
+            analogWrite(this->PIN.LD3, this->p_ld3->halCallback().analogIoData.value);
+        } 
+    }    
 }
 void HAL_MCU11_revA::tickSafety()
 {

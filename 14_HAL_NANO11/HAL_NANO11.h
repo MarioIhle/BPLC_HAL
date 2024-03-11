@@ -5,34 +5,31 @@
 #include "HAL_interface.h"
 
 //-------------------------------------------------------------
-//I2C ADDRESSEN
-typedef enum
-{
-    I2C_ADDRESS_NANO11__ADDR_1 = 0xB0,
-    I2C_ADDRESS_NANO11__ADDR_2 = 0xB1,
-    I2C_ADDRESS_NANO11__ADDR_3 = 0xB2,
-    I2C_ADDRESS_NANO11__ADDR_4 = 0xB3,
-    
-    I2C_ADDRESS_NANO11__COUNT = 4,
-}e_I2C_ADDRESS_NANO11_t;
+//Card definition
+#define NANO11_ADDRESS_COUNT 10
+#define NANO11_CHANNEL_COUNT 1
+const uint8_t NANO11_I2C_ADDRESSES[NANO11_ADDRESS_COUNT] = {0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9};
 
 //-------------------------------------------------------------
 class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
-                    HAL_NANO11          ();
+    //Hal constructor
+                    HAL_NANO11              ();
     //Hal interface 
-    void            init                (const e_EC_ADDR_t ADDR);
-    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
-    void            tick                ();        
-    //Modul Error Interface
-    e_BPLC_ERROR_t  getModulError       (){return this->getError();}
-    void            resetModulError     (String FILE, const uint16_t LINE){this->resetError(FILE, LINE);}
+    void            init                    (const e_EC_ADDR_t ADDR);
+    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                    ();        
+    //Modul Error Interface   
+    uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
 
   
     private:          
     //Settings  
-    e_I2C_ADDRESS_NANO11_t   deviceAddress;
+    uint8_t   deviceAddress;
   
     //Object handling
     struct

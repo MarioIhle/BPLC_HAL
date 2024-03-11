@@ -1,7 +1,9 @@
 #include "BPLC_ecManager.h"
 
 BPLC_extensionCardManager::BPLC_extensionCardManager()
-{}
+{
+    this->isrCount = 0;
+}
 void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const e_EC_ADDR_t ADDR, const uint8_t CHANNEL)                                
 {
     extensionCard* p_cardToMapChannelTo = this->searchExtensionCard(CARD, ADDR);
@@ -11,31 +13,10 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
         p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);
     }
     else
-    {//Error Setzen
-        switch (CARD)
-        {
-            case BPLC_CARD__AIN11revA:
-                switch (ADDR)
-                {
-                    case 0:
-                        this->setError(ECM_ERROR__AIN11revA_ADDR_1_NOT_DEFINED, __FILENAME__, __LINE__);
-                        break;
-                    
-                    default:
-                        break;
-                    }           
-                break;
-
-            default:
-                this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);
-            break;
-        }
+    {//Error Setzen        
+        this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);       
     }      
 }  
-bool BPLC_extensionCardManager::i2cAddressIsUsedByExtensionCard(const uint8_t I2C_ADDRESS)
-{
-    return false;
-}
 bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR)
 {
     bool newEcAdded = false;   
@@ -80,27 +61,28 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
                 
             default:
             case BPLC_CARD__NO_CARD_DEFINED:
-                this->printResetReason("CARD NOT DEFINED", __FILENAME__, __LINE__);
+                this->printResetReason("CARD NOT KNOWN", __FILENAME__, __LINE__);
                 abort();
                 break;
         }         
-        //Hal initialisieren
-        p_newHalInterface->init(ADDR);  
+        
+        //System Error Manager an Hal moduleErrorManager übergeben
+        p_newHalInterface->setSuperiorErrorManager(this->p_superiorErrorManager);
+        //Hal mit entsprechender ADDR(wird in Hal zu entsprechender i2c addresse gemappt)initialisieren
+        p_newHalInterface->init(ADDR);          
+        const bool NO_HAL_ERROR = (bool)(p_newHalInterface->getModuleErrorCount() == 0);
 
-        //Neues extensionCard Objekt erzeugen und in Liste aufnehmen
-        if(p_newHalInterface->getModulError() == BPLC_ERROR__NO_ERROR)
-        {
+        if(NO_HAL_ERROR)
+        {            
+            //Neues extensionCard Objekt erzeugen und in Liste aufnehmen
             extensionCard* p_extensionCard = new extensionCard();
+            //Interface für neu erzeugte Hal an extensionCard objekt übergeben
             p_extensionCard->setHalInterface(p_newHalInterface);
             p_extensionCard->setCardType(EXTENSION_CARD_TYPE);  
             p_extensionCard->setAddr(ADDR); 
             this->addExtensionCardToList(p_extensionCard);  
             newEcAdded = true;
-        }         
-        else
-        {
-            this->setError(p_newHalInterface->getModulError(), __FILENAME__, __LINE__);
-        }   
+        }        
     }
     else
     {
@@ -143,10 +125,9 @@ void BPLC_extensionCardManager::tick()
     
         while(p_extensionCardToTick != nullptr)
         {
-            if()
-            e_BPLC_ERROR_t EC_HAL_ERROR = p_extensionCardToTick->getHalInterface()->getModulError();
+            const bool NO_HAL_ERROR = (bool)(p_extensionCardToTick->getHalInterface()->getModuleErrorCount() == 0);
 
-            if(EC_HAL_ERROR == BPLC_ERROR__NO_ERROR)
+            if(NO_HAL_ERROR)
             {
                 switch(p_extensionCardToTick->getCardType())            
                 {
@@ -161,11 +142,7 @@ void BPLC_extensionCardManager::tick()
                         p_extensionCardToTick->getHalInterface()->tick();
                     break;
                 }      
-            }  
-            else
-            {
-                this->setError(EC_HAL_ERROR, __FILENAME__, __LINE__);
-            }
+            }      
             p_extensionCardToTick = p_extensionCardToTick->getNext();      
         }
         //nach lesen ALLER (DIN) Karten count verringern
@@ -173,6 +150,5 @@ void BPLC_extensionCardManager::tick()
         {                  
             this->isrCount--;
         }  
-    }
-      
+    }      
 }

@@ -4,25 +4,14 @@ HAL_MOT11::HAL_MOT11()
 {}
 void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
 {
-    switch(ADDR)
+    if(ADDR < MOT11_ADDRESS_COUNT)
     {
-        case EC_ADDR_1:
-            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_1;
-            break;
-        case EC_ADDR_2:
-            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_2;
-            break;
-        case EC_ADDR_3:
-            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_3;
-            break;
-        case EC_ADDR_4:
-            this->deviceAddress = I2C_ADDRESS_MOT11__ADDR_4;
-            break;
-            
-        default:
-            this->setError(MOT11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
-            break;
+        this->deviceAddress = MOT11_I2C_ADDRESSES[ADDR];             
     }
+    else
+    {
+        this->setError(MOT11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
+    } 
 
     this->errordetection.i2cError.countLimit    = 3;
     this->errordetection.i2cError.count         = 0;
@@ -38,7 +27,7 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     }
 
     //Applikationsparameter initialisieren
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {   
         this->deviceState = deviceState_running;  
         this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
@@ -66,7 +55,7 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 }
 void HAL_MOT11::tick()
 {
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {  
         //I2C Error check
         const bool I2C_ERROR_COUNT_LIMIT_REACHED = (bool)(this->errordetection.i2cError.count >= this->errordetection.i2cError.countLimit);
@@ -79,48 +68,45 @@ void HAL_MOT11::tick()
             #endif
         }
         //Error behandlung
-        if(this->getError() != BPLC_ERROR__NO_ERROR)
+        if(this->getError()->errorCode != BPLC_ERROR__NO_ERROR)
         {
             this->deviceState = deviceState_safeState;
         }
+            
+        switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
+        {
+            default:
+            case deviceState_init:    
+            case deviceState_safeState:    
+                //Über Request wird zyklisch alle live Parameter abgefragt
+                if(this->to_parameterPoll.check())
+                {
+                    this->requestDriveParameter(); 
+                    this->to_parameterPoll.reset();
+                } 
+            break;
 
-        if(this->getError()->errorCode != MOT11_ERROR__I2C_CONNECTION_FAILED)
-        {        
-            switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
-            {
-                default:
-                case deviceState_init:    
-                case deviceState_safeState:    
-                    //Über Request wird zyklisch alle live Parameter abgefragt
-                    if(this->to_parameterPoll.check())
-                    {
-                        this->requestDriveParameter(); 
-                        this->to_parameterPoll.reset();
-                    } 
-                break;
+            case deviceState_running:   //Normalbetreb
+                if(this->channels.p_ioObject->newDataAvailable())
+                {
+                    this->sendDriveCommand(this->channels.p_ioObject->halCallback());
+                }
+                //Über Request wird zyklisch alle live Parameter abgefragt
+                if(this->to_parameterPoll.check())
+                {
+                    this->requestDriveParameter(); 
+                    this->to_parameterPoll.reset();
+                }  
+            break;
 
-                case deviceState_running:   //Normalbetreb
-                    if(this->channels.p_ioObject->newDataAvailable())
-                    {
-                        this->sendDriveCommand(this->channels.p_ioObject->halCallback());
-                    }
-                    //Über Request wird zyklisch alle live Parameter abgefragt
-                    if(this->to_parameterPoll.check())
-                    {
-                        this->requestDriveParameter(); 
-                        this->to_parameterPoll.reset();
-                    }  
-                break;
-
-                case deviceState_autotuning:
-                    //Status abfragen, solange Autotuning aktiv nix tun
-                    if(this->to_parameterPoll.check())
-                    {
-                        this->requestDriveParameter(); 
-                        this->to_parameterPoll.reset();
-                    }              
-                break;                  
-            }        
+            case deviceState_autotuning:
+                //Status abfragen, solange Autotuning aktiv nix tun
+                if(this->to_parameterPoll.check())
+                {
+                    this->requestDriveParameter(); 
+                    this->to_parameterPoll.reset();
+                }              
+            break;                     
         }
     }
 }

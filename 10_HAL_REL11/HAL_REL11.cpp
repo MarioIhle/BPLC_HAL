@@ -4,25 +4,14 @@ HAL_REL11::HAL_REL11()
 {}
 void HAL_REL11::init(const e_EC_ADDR_t ADDR)
 {    
-    switch(ADDR)
+    if(ADDR < REL11_ADDRESS_COUNT)
     {
-        case EC_ADDR_1:
-            this->deviceAddress = I2C_ADDRESS_REL11__ADDR_1;
-            break;
-        case EC_ADDR_2:
-            this->deviceAddress = I2C_ADDRESS_REL11__ADDR_2;
-            break;
-        case EC_ADDR_3:
-            this->deviceAddress = I2C_ADDRESS_REL11__ADDR_3;
-            break;
-        case EC_ADDR_4:
-            this->deviceAddress = I2C_ADDRESS_REL11__ADDR_4;
-            break;
-            
-        default:
-            this->setError(REL11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
-            break;
+        this->deviceAddress = REL11_I2C_ADDRESSES[ADDR];             
     }
+    else
+    {
+        this->setError(REL11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
+    } 
 
     for(uint8_t CH =0; CH < REL11_CHANNEL_COUNT; CH++)
     {
@@ -35,7 +24,7 @@ void HAL_REL11::init(const e_EC_ADDR_t ADDR)
         this->setError(REL11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
     //Applikationsparameter initialisieren
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {   
         this->PCF.setAddress(this->deviceAddress);      
         this->PCF.begin();                              
@@ -70,7 +59,13 @@ void HAL_REL11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 }
 void HAL_REL11::tick()
 {
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    //I2C Verbindung zyklisch prüfen
+    if(!this->requestHeartbeat())
+    {
+        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+    }
+    //Hal ticken
+    if(this->noErrorSet())
     {         
         for(int CH = 0; CH < REL11_CHANNEL_COUNT; CH++)
         {
@@ -104,13 +99,4 @@ void HAL_REL11::tick()
             }
         }   
     } 
-}
-e_BPLC_ERROR_t HAL_REL11::getModulError()
-{
-    //I2C Verbindung zyklisch prüfen
-    if(!this->requestHeartbeat())
-    {
-        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
-    }
-    return this->getError();
 }

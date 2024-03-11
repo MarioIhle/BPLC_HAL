@@ -129,15 +129,15 @@ class BPLC_APP: BPLC_logPrint
                 {            
                     e_BPLC_CARD_TYPE_t  mcuCard;
                     bool                oledAvailable;
-                    bool                ain11revACards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                din11revACards [I2C_ADDRESS_AIN11__COUNT];                
-                    bool                do11revACards  [I2C_ADDRESS_AIN11__COUNT];
-                    bool                rel11revACards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                mot11revAcards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                tmp11revACards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                ppo11revACards [I2C_ADDRESS_AIN11__COUNT];
-                    bool                nano11revACards[I2C_ADDRESS_NANO11__COUNT];
-                    bool                fuse12revACards[I2C_ADDRESS_FUSE12__COUNT];
+                    bool                ain11revACards [AIN11_ADDRESS_COUNT];
+                    bool                din11revACards [DIN11_ADDRESS_COUNT];                
+                    bool                do11revACards  [DO11_ADDRESS_COUNT];
+                    bool                rel11revACards [REL11_ADDRESS_COUNT];
+                    bool                mot11revAcards [MOT11_ADDRESS_COUNT];
+                    bool                tmp11revACards [TMP11_ADDRESS_COUNT];
+                    bool                ppo11revACards [PPO11_ADDRESS_COUNT];
+                    bool                nano11revACards[NANO11_ADDRESS_COUNT];
+                    bool                fuse12revACards[FUSE12_ADDRESS_COUNT];
                 }hardware;
 
             }device;               
@@ -162,31 +162,26 @@ class BPLC_APP: BPLC_logPrint
   
 
     //Externer aufruf, wenn HAL Objekt ein Error meldet
+    BPLC_moduleErrorHandler systemErrorManager;
+
     void            setupSafety             ();
     void            tickSafety              ();
     void            scanForUnkonwnI2CDevices();
-
-    //Error Sammler 
-    bool            thereIsAnSystemError    ();
-    void            setSystemError          (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);    
-    e_BPLC_ERROR_t  getSystemErrorCode      (const uint8_t ERROR_CODE_SLOT = 0);
-    void            resetSystemError        (const uint8_t ERROR_CODE_SLOT = 0);
-    
+   
     struct  
     {   
         struct 
         {
             Timeout         to_runnntime;
             uint8_t         runtimeExeeded;
-        }runntimeControl;  
-        
-        e_BPLC_ERROR_t      systemErrorCodes[HARDWARE_ERROR_BUFFER_SIZE];      
+        }runntimeControl;          
+
         Timeout             to_scanI2Cbus;
     }APP_SAFETY;
 
 
     //APP_HAL
-    BPLC_extensionCardManager   extensionCardHandler; 
+    BPLC_extensionCardManager   extensionCardManager; 
     void                        setupHardware   ();
     void                        tickHardware    ();
      

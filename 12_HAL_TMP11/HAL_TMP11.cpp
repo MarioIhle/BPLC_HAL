@@ -4,25 +4,14 @@ HAL_TMP11::HAL_TMP11()
 {}
 void HAL_TMP11::init(const e_EC_ADDR_t ADDR)
 {    
-    switch(ADDR)
+    if(ADDR < TMP11_ADDRESS_COUNT)
     {
-        case EC_ADDR_1:
-            this->deviceAddress = I2C_ADDRESS_TMP11__ADDR_1;
-            break;
-        case EC_ADDR_2:
-            this->deviceAddress = I2C_ADDRESS_TMP11__ADDR_2;
-            break;
-        case EC_ADDR_3:
-            this->deviceAddress = I2C_ADDRESS_TMP11__ADDR_3;
-            break;
-        case EC_ADDR_4:
-            this->deviceAddress = I2C_ADDRESS_TMP11__ADDR_4;
-            break;
-            
-        default:
-            this->setError(TMP11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
-            break;
+        this->deviceAddress = TMP11_I2C_ADDRESSES[ADDR];             
     }
+    else
+    {
+        this->setError(TMP11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
+    } 
 
     for(uint8_t CH =0; CH < TMP11_CHANNEL_COUNT; CH++)
     {
@@ -35,7 +24,7 @@ void HAL_TMP11::init(const e_EC_ADDR_t ADDR)
        this->setError(TMP11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
     //Applikationsparameter initialisieren         
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {   
         this->printLog("TMP11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
@@ -81,7 +70,13 @@ void HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 }
 void HAL_TMP11::tick()
 {   
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    //I2C Verbindung zyklisch prüfen
+    if(!this->requestHeartbeat())
+    {
+        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+    }
+    //Hal ticken
+    if(this->noErrorSet())
     {          
         for(uint8_t CH = 0; CH < TMP11_CHANNEL_COUNT; CH++)
         {            
@@ -100,7 +95,7 @@ void HAL_TMP11::tick()
                         break;
                            
                         case IO_TYPE__PT1000:    
-                            tempBuffer.analogIoData.value = this->ADC.readADC_SingleEnded(this->channels.PIN[CH]);
+                            //tempBuffer.analogIoData.value = readMCP();
                             if(tempBuffer.analogIoData.value >= 0)
                             {
                                 this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                        
@@ -121,13 +116,4 @@ void HAL_TMP11::tick()
             }
         }  
     }
-}
-e_BPLC_ERROR_t HAL_TMP11::getModulError()
-{
-    //I2C Verbindung zyklisch prüfen
-    if(!this->requestHeartbeat())
-    {
-        this->setError(TMP11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
-    }
-    return this->getError();
 }

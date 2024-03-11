@@ -33,7 +33,7 @@ void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
     //oen
     pinMode(this->PIN.OEN, OUTPUT);
     //INT
-    pinMode(this->PIN.INT, INPUT_PULLUP);
+    pinMode(this->PIN.INT, INPUT);
     attachInterrupt(this->PIN.INT, INT_ISR, FALLING);       
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
@@ -101,7 +101,7 @@ void HAL_MCU11_revB::tick()
     //Hier prüfen bevor Pointer ins nichts zeigen
     this->tickSafety();
 
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {
         //encoder
         u_HAL_DATA_t tempbuffer;
