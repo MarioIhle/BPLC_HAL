@@ -4,14 +4,13 @@ void BPLC_APP::setupParameterFlash()
 {
    if(this->APP_APP.setup.f_setupParameterFlash == false)
    {
-      const bool PARAMETER_PARTITION_AVAILABLE = this->parameterFlash.begin("deviceSettings");
+      const bool PARAMETER_PARTITION_AVAILABLE = this->parameterFlash.begin("parameterFlash");
       if(!PARAMETER_PARTITION_AVAILABLE)//Partitioin anlegen, wenn nicht vorhanden
       {
          this->printLog("FLASH PARAMETER PARTITION CREATED!", __FILENAME__, __LINE__);
          memset(this->APP_APP.settings.flashData, 0, sizeof(this->APP_APP.settings.flashData));
          this->parameterFlash.putBytes("deviceSettings", this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData));
       }    
-
       this->APP_APP.setup.f_setupParameterFlash = true;  
    }
 }

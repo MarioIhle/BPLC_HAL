@@ -112,11 +112,11 @@ void BPLC_APP::tickControlPanel()
                 this->parameterFlash.clear();
                 this->setupParameterFlash();
                 Serial.println("RESET DEVICE TO CLEAR FLASH");
-                abort();
+                ESP.restart();
                 break;
 
             case BPLC_PLI_KEY__SOFT_RESET:
-                abort();
+                ESP.restart();
                 break;
 
             case BPLC_PLI_KEY__INVERT_ENCODER:
