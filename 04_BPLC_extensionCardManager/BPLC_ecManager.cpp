@@ -3,6 +3,7 @@
 BPLC_extensionCardManager::BPLC_extensionCardManager()
 {
     this->isrCount = 0;
+    this->to_I2cScan.setInterval(10000);
 }
 void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const e_EC_ADDR_t ADDR, const uint8_t CHANNEL)                                
 {
@@ -150,5 +151,103 @@ void BPLC_extensionCardManager::tick()
         {                  
             this->isrCount--;
         }  
+    }
+    if(this->to_I2cScan.checkAndReset())
+    {
+        this->scanForUnkonwnI2CDevices();
     }      
+}
+void BPLC_extensionCardManager::scanForUnkonwnI2CDevices()
+{         
+    //AIN11revA Cards suchen
+    const bool THERE_IS_A_UNDEFINED_AIN11revA = this->scanCardAddresses(&AIN11_I2C_ADDRESSES[0], AIN11_ADDRESS_COUNT);
+
+    if(THERE_IS_A_UNDEFINED_AIN11revA)
+    {
+        this->setError(AIN11_ERROR__UNDEFINED_AIN11_FOUND, __FILENAME__, __LINE__);
+    }
+    //DIN11revA Cards suchen
+    const bool THERE_IS_A_UNDEFINED_DIN11revA = this->scanCardAddresses(&DIN11_I2C_ADDRESSES[0], DIN11_ADDRESS_COUNT);
+
+    if(THERE_IS_A_UNDEFINED_DIN11revA)
+    {
+        this->setError(DIN11_ERROR__UNDEFINED_DIN11_FOUND, __FILENAME__, __LINE__);
+    }
+    //DO11revA Cards suchen
+    const bool THERE_IS_A_UNDEFINED_DO11revA = this->scanCardAddresses(&DO11_I2C_ADDRESSES[0], DO11_ADDRESS_COUNT);
+
+    if(THERE_IS_A_UNDEFINED_DO11revA)
+    {
+        this->setError(DO11_ERROR__UNDEFINED_DO11_FOUND, __FILENAME__, __LINE__);
+    }
+    //REL11revA Cards suchen
+    const bool THERE_IS_A_UNDEFINED_REL11revA = this->scanCardAddresses(&REL11_I2C_ADDRESSES[0], REL11_ADDRESS_COUNT);
+
+    if(THERE_IS_A_UNDEFINED_REL11revA)
+    {
+        this->setError(REL11_ERROR__UNDEFINED_REL11_FOUND, __FILENAME__, __LINE__);
+    }    
+    //MOT11revA Cards suchen
+    const bool THERE_IS_A_UNDEFINED_MOT11revA = this->scanCardAddresses(&MOT11_I2C_ADDRESSES[0], MOT11_ADDRESS_COUNT);
+
+    if(THERE_IS_A_UNDEFINED_MOT11revA)
+    {
+        this->setError(MOT11_ERROR__UNDEFINED_MOT11_FOUND, __FILENAME__, __LINE__);
+    }
+    //TMP11revA Cards suchen
+    const bool THERE_IS_A_UNDEFINED_TMP11revA = this->scanCardAddresses(&TMP11_I2C_ADDRESSES[0], TMP11_ADDRESS_COUNT);
+
+    if(THERE_IS_A_UNDEFINED_TMP11revA)
+    {
+        this->setError(TMP11_ERROR__UNDEFINED_TMP11_FOUND, __FILENAME__, __LINE__);
+    }   
+    //PPO11revA Cards suchen
+    const bool THERE_IS_A_UNDEFINED_PPO11revA = this->scanCardAddresses(&PPO11_I2C_ADDRESSES[0], PPO11_ADDRESS_COUNT);
+
+    if(THERE_IS_A_UNDEFINED_PPO11revA)
+    {
+        this->setError(PPO11_ERROR__UNDEFINED_PPO11_FOUND, __FILENAME__, __LINE__);
+    }
+    //NANOrevA Cards suchen
+    const bool THERE_IS_A_UNDEFINED_NANOrevA = this->scanCardAddresses(&NANO11_I2C_ADDRESSES[0], NANO11_ADDRESS_COUNT);
+
+    if(THERE_IS_A_UNDEFINED_NANOrevA)
+    {
+        this->setError(NANO11_ERROR__UNDEFINED_NANO11_FOUND, __FILENAME__, __LINE__);
+    }
+    //FUSE12revA Cards suchen
+    const bool THERE_IS_A_UNDEFINED_FUSE12revA = this->scanCardAddresses(&FUSE12_I2C_ADDRESSES[0], FUSE12_ADDRESS_COUNT);
+
+    if(THERE_IS_A_UNDEFINED_FUSE12revA)
+    {
+        this->setError(FUSE12_ERROR__UNDEFINED_FUSE12_FOUND, __FILENAME__, __LINE__);
+    }
+    
+}
+bool BPLC_extensionCardManager::scanCardAddresses(const uint8_t* P_ADDRESSES_TO_SCAN, const uint8_t ADDRESS_COUNT)
+{
+    bool unkownCardFound = false;
+
+    for(uint8_t CARD_ADDR = 0; CARD_ADDR < ADDRESS_COUNT; CARD_ADDR++)
+    {
+        const uint8_t EC_I2C_ADDRESS = P_ADDRESSES_TO_SCAN[CARD_ADDR];
+        //Prüfen ob Karte normal in Nutzung und Definiert
+        const bool EC_IS_DEFINED = this->searchExtensionCard(BPLC_CARD__AIN11revA, (e_EC_ADDR_t)CARD_ADDR);
+        
+        if(EC_IS_DEFINED)
+        {//KeepAlive wird von Hal ausgeführt, hier wird nur nach undefinierten Karten gesucht
+            continue;
+        }
+        else
+        {       
+            Wire.beginTransmission(EC_I2C_ADDRESS);
+            const bool DEVICE_FOUND = (bool)(Wire.endTransmission() == 0); 
+            //Undefinierte EC gefunden
+            if(DEVICE_FOUND)
+            {
+                unkownCardFound = true;
+            }            
+        }
+    }
+    return unkownCardFound;
 }

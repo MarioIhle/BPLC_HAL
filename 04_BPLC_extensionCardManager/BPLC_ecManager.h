@@ -69,16 +69,22 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     void                mapObjectToExtensionCard            (IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const e_EC_ADDR_t ADDR, const uint8_t CHANNEL);
     bool                addNewExtensionCard                 (const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR);
     //Modul Error Interface   
-    uint8_t             getModuleErrorCount     ()                                                      {return this->getErrorCount();}
-    e_BPLC_ERROR_t      getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
-    void                resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
-    void                setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
+    uint8_t             getModuleErrorCount                 ()                                                      {return this->getErrorCount();}
+    e_BPLC_ERROR_t      getModuleErrorCode                  (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void                resetAllModuleErrors                (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void                setSuperiorErrorManager             (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
 
 
     private:        
+    //Bus Scan
+    void                scanForUnkonwnI2CDevices            ();
+    bool                scanCardAddresses                   (const uint8_t* P_ADDRESSES_TO_SCAN, const uint8_t ADDRESS_COUNT);
+    Timeout             to_I2cScan;
+    //ExtensionCard List
+    extensionCard*      p_firstExtensionCard;    
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
     extensionCard*      searchExtensionCard                 (const e_BPLC_CARD_TYPE_t  SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR);
-    extensionCard*      p_firstExtensionCard;    
+    //Input Interrupt count
     volatile uint64_t   isrCount;
 };
 #endif
