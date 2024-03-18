@@ -87,7 +87,7 @@ void BPLC_APP::tick()
 
       case APP_MODE__SAFE_STATE:
          this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 100, 100);     
-         //this->APP_HAL.LD3_ERROR_OUT.blinkContinious((uint8_t)this->systemErrorManager.getError()->errorCode , 500, 1500);    
+         this->APP_HAL.LD3_ERROR_OUT.blinkContinious((uint8_t)this->systemErrorManager.getError()->errorCode , 500, 1500);    
          this->APP_HAL.BUZZER.blinkContinious(3, 100, 30000);
          this->APP_HAL.OEN.reset();   
          this->tickHardware(); 

@@ -4,20 +4,44 @@ void BPLC_APP::setupParameterFlash()
 {
    if(this->APP_APP.setup.f_setupParameterFlash == false)
    {
-      const bool PARTITION_AVAILABLE = this->parameterFlash.begin("deviceSettings");
-      if(!PARTITION_AVAILABLE)//Partitioin anlegen, wenn nicht vorhanden
+      const bool PARAMETER_PARTITION_AVAILABLE = this->parameterFlash.begin("deviceSettings");
+      if(!PARAMETER_PARTITION_AVAILABLE)//Partitioin anlegen, wenn nicht vorhanden
       {
+         this->printLog("FLASH PARAMETER PARTITION CREATED!", __FILENAME__, __LINE__);
          memset(this->APP_APP.settings.flashData, 0, sizeof(this->APP_APP.settings.flashData));
          this->parameterFlash.putBytes("deviceSettings", this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData));
-      }
-      this->APP_APP.setup.f_setupParameterFlash = true;
+      }    
+
+      this->APP_APP.setup.f_setupParameterFlash = true;  
    }
 }
 void BPLC_APP::readDeviceSettings()
-{
+{      
+   //Device Settings aus Flash laden
    this->parameterFlash.getBytes("deviceSettings", this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData));   
+   //Checksumme berechenn
+   uint8_t loByteToCheck            = this->parameterFlash.getUChar("flashCRCLoByte");      
+   uint8_t hiByteToCheck            = this->parameterFlash.getUChar("flashCRCHiByte");     
+   uint8_t calculatedLoByte         = 0;
+   uint8_t calculatedHiByteToCheck  = 0;
+   //Berechnete und gespeicherte Checksumme vergleichen
+   this->calculateCrC16(this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData), &calculatedLoByte, &calculatedHiByteToCheck);
+
+   if(calculatedLoByte != loByteToCheck || calculatedHiByteToCheck != hiByteToCheck)
+   {
+      this->systemErrorManager.setError(BPLC_ERROR__FLASH_PARAMETER_CORUPT, __FILENAME__, __LINE__);
+   }
 }
 void BPLC_APP::saveDeviceSettings()
 {
+   this->printLog("DEVICE SETTING SAVED IN FLASH!", __FILENAME__, __LINE__);
    this->parameterFlash.putBytes("deviceSettings", this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData));  
+
+   uint8_t loByteToCheck = 0;      
+   uint8_t hiByteToCheck = 0;
+
+   this->calculateCrC16(this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData), &loByteToCheck, &hiByteToCheck);
+
+   this->parameterFlash.putUChar("flashCRCLoByte", loByteToCheck);      
+   this->parameterFlash.putUChar("flashCRCHiByte", hiByteToCheck);
 }

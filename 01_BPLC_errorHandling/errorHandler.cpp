@@ -60,7 +60,7 @@ void BPLC_moduleErrorHandler::resetError(const e_BPLC_ERROR_t ERROR_CODE, String
     if(p_errorToDelete != nullptr)
     {
         this->deleteErrorFromList(p_errorToDelete);
-        this->log.printErrorSet(ERROR_CODE, FILE, LINE);
+        this->log.printErrorReset(ERROR_CODE, FILE, LINE);
 
         if(this->p_superiorErrorManager != nullptr)
         {
@@ -71,7 +71,7 @@ void BPLC_moduleErrorHandler::resetError(const e_BPLC_ERROR_t ERROR_CODE, String
 }
 void BPLC_moduleErrorHandler::resetAllErrors(String FILE, const uint16_t LINE)
 {
-    this->log.printLog("reset all module errors !", FILE, LINE);    
+    this->log.printLog("RESET ALL ERRORS!", FILE, LINE);    
     
     while (this->getErrorCount() > 0)
     {   

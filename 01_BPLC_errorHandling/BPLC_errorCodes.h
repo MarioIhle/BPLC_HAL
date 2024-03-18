@@ -14,6 +14,7 @@ typedef enum
     BPLC_ERROR__COMMUNICATION_FAILED,
     BPLC_ERROR__NETWORK_ADDRESS_NOT_DEFINED,
     BPLC_ERROR__UNDEFINED_I2C_DEVICE_FOUND,
+    BPLC_ERROR__FLASH_PARAMETER_CORUPT,
     //ExtensonCardManager Errors    
     ECM_ERROR__EC_NOT_DEFINED,
     ECM_ERROR__EC_ALREADY_DEFINED,
@@ -130,6 +131,7 @@ class ERROR_errorText
         {"BPLC_ERROR__COMMUNICATION_FAILED"},
         {"BPLC_ERROR__NETWORK_ADDRESS_NOT_DEFINED"},
         {"BPLC_ERROR__UNDEFINED_I2C_DEVICE_FOUND"},
+        {"BPLC_ERROR__FLASH_PARAMETER_CORUPT"},
         //ExtensonCardManager Errors    
         {"ECM_ERROR__EC_NOT_DEFINED"},
         {"ECM_ERROR__EC_ALREADY_DEFINED"},
@@ -228,7 +230,7 @@ class ERROR_errorText
 
     String getErrorCodeText(const e_BPLC_ERROR_t ERROR_CODE)
     {      
-        if(BPLC_ERROR__COUNT != 91)
+        if(BPLC_ERROR__COUNT != 92)
         {
             return("ERROR_TEXTS_NEED_UPDATE!");
         }

@@ -62,7 +62,7 @@ typedef enum
 #define RUNTIME_ERRORS_MAX 3
 #define RUNNTIME 1000
 
-class BPLC_APP: BPLC_logPrint
+class BPLC_APP: BPLC_logPrint, CRC16Calculator
 {
     public:
     //Setup des BPLC Systems

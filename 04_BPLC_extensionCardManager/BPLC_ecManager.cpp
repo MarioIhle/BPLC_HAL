@@ -1,5 +1,5 @@
 #include "BPLC_ecManager.h"
-
+//Public Interface
 BPLC_extensionCardManager::BPLC_extensionCardManager()
 {
     this->isrCount = 0;
@@ -71,9 +71,9 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
         p_newHalInterface->setSuperiorErrorManager(this->p_superiorErrorManager);
         //Hal mit entsprechender ADDR(wird in Hal zu entsprechender i2c addresse gemappt)initialisieren
         p_newHalInterface->init(ADDR);          
-        const bool NO_HAL_ERROR = (bool)(p_newHalInterface->getModuleErrorCount() == 0);
+        const bool HAL_SUCCESSFUL_INITIALIZED = (bool)(p_newHalInterface->getModuleErrorCount() == 0);
 
-        if(NO_HAL_ERROR)
+        if(HAL_SUCCESSFUL_INITIALIZED)
         {            
             //Neues extensionCard Objekt erzeugen und in Liste aufnehmen
             extensionCard* p_extensionCard = new extensionCard();
@@ -91,33 +91,6 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
     }    
     return newEcAdded;
 }
-extensionCard* BPLC_extensionCardManager::searchExtensionCard(const e_BPLC_CARD_TYPE_t SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR)
-{
-    extensionCard* p_searchedCard = this->p_firstExtensionCard;
-
-    while (p_searchedCard != nullptr)
-    {
-        if(p_searchedCard->getCardType() == SEARCHED_EXTENSION_CARD && p_searchedCard->getAddr() == ADDR)
-        {
-            return p_searchedCard;
-        }
-        p_searchedCard = p_searchedCard->getNext();
-    }
-
-    return nullptr;
-}
-void BPLC_extensionCardManager::addExtensionCardToList(extensionCard* CARD_TO_ADD)
-{    
-    if(this->p_firstExtensionCard == nullptr)
-    {
-        this->p_firstExtensionCard = CARD_TO_ADD;
-    }
-    else
-    {
-        CARD_TO_ADD->setNext(this->p_firstExtensionCard);
-        this->p_firstExtensionCard = CARD_TO_ADD;
-    }  
-}
 void BPLC_extensionCardManager::tick()
 {
     if(this->p_firstExtensionCard!= nullptr)
@@ -126,9 +99,9 @@ void BPLC_extensionCardManager::tick()
     
         while(p_extensionCardToTick != nullptr)
         {
-            const bool NO_HAL_ERROR = (bool)(p_extensionCardToTick->getHalInterface()->getModuleErrorCount() == 0);
+            const bool HAL_SUCCESSFUL_INITIALIZED = (bool)(p_extensionCardToTick->getHalInterface()->getModuleErrorCount() == 0);
 
-            if(NO_HAL_ERROR)
+            if(HAL_SUCCESSFUL_INITIALIZED)
             {
                 switch(p_extensionCardToTick->getCardType())            
                 {
@@ -157,6 +130,7 @@ void BPLC_extensionCardManager::tick()
         this->scanForUnkonwnI2CDevices();
     }      
 }
+//I2C Scan
 void BPLC_extensionCardManager::scanForUnkonwnI2CDevices()
 {         
     //AIN11revA Cards suchen
@@ -250,4 +224,32 @@ bool BPLC_extensionCardManager::scanCardAddresses(const uint8_t* P_ADDRESSES_TO_
         }
     }
     return unkownCardFound;
+}
+//Listen Handling
+extensionCard* BPLC_extensionCardManager::searchExtensionCard(const e_BPLC_CARD_TYPE_t SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR)
+{
+    extensionCard* p_searchedCard = this->p_firstExtensionCard;
+
+    while (p_searchedCard != nullptr)
+    {
+        if(p_searchedCard->getCardType() == SEARCHED_EXTENSION_CARD && p_searchedCard->getAddr() == ADDR)
+        {
+            return p_searchedCard;
+        }
+        p_searchedCard = p_searchedCard->getNext();
+    }
+
+    return nullptr;
+}
+void BPLC_extensionCardManager::addExtensionCardToList(extensionCard* CARD_TO_ADD)
+{    
+    if(this->p_firstExtensionCard == nullptr)
+    {
+        this->p_firstExtensionCard = CARD_TO_ADD;
+    }
+    else
+    {
+        CARD_TO_ADD->setNext(this->p_firstExtensionCard);
+        this->p_firstExtensionCard = CARD_TO_ADD;
+    }  
 }
