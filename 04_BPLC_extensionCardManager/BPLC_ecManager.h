@@ -78,7 +78,7 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     private:        
     //Bus Scan
     void                scanForUnkonwnI2CDevices            ();
-    bool                scanCardAddresses                   (const uint8_t* P_ADDRESSES_TO_SCAN, const uint8_t ADDRESS_COUNT);
+    bool                scanCardAddresses                   (const e_BPLC_CARD_TYPE_t CARD_TYPE, const uint8_t* P_ADDRESSES_TO_SCAN, const uint8_t ADDRESS_COUNT);
     Timeout             to_I2cScan;
     //ExtensionCard List
     extensionCard*      p_firstExtensionCard;    
