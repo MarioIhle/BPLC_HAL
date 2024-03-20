@@ -7,9 +7,9 @@
 
 //-------------------------------------------------------------
 //Card definition
-#define FUSE12_ADDRESS_COUNT 10
+#define FUSE12_ADDRESS_COUNT 4
 #define FUSE12_CHANNEL_COUNT 4
-const uint8_t FUSE12_I2C_ADDRESSES[FUSE12_ADDRESS_COUNT] = {0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9};
+const uint8_t FUSE12_I2C_ADDRESSES[FUSE12_ADDRESS_COUNT] = {0xC0, 0xC1, 0xC2, 0xC4};
 
 //-------------------------------------------------------------
 class HAL_FUSE12: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check

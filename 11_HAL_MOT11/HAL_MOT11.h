@@ -7,9 +7,9 @@
 
 //-------------------------------------------------------------
 //Card definition
-#define MOT11_ADDRESS_COUNT 10
+#define MOT11_ADDRESS_COUNT 4
 #define MOT11_CHANNEL_COUNT 1
-const uint8_t MOT11_I2C_ADDRESSES[MOT11_ADDRESS_COUNT] = {0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9};
+const uint8_t MOT11_I2C_ADDRESSES[MOT11_ADDRESS_COUNT] = {0xA1, 0xA1, 0xA1, 0xA1};
 
 //-------------------------------------------------------------
 //APPLIKATION
