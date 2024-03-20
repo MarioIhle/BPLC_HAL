@@ -87,7 +87,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
     }
     else
     {
-        this->printLog("EC ALREADY DEFINDED", __FILENAME__, __LINE__);
+        //this->printLog("EC ALREADY DEFINDED", __FILENAME__, __LINE__);
     }    
     return newEcAdded;
 }

@@ -40,14 +40,17 @@ void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String F
         {
             errorListElement* p_newError = new errorListElement;        
             p_newError->setErrorData(ERROR_DATA);
-
+            //Lokalen Error setzen
             this->addErrorToList(p_newError);
-            this->log.printErrorSet(ERROR_CODE, FILE, LINE);
 
             if(this->p_superiorErrorManager != nullptr)
             {
-                this->log.printLog("SET ERROR AT SUPERIOR ERROR HANDLER", __FILENAME__, __LINE__);
+                //Log eintrag wird in superiorErrorManager ausgegeben
                 p_superiorErrorManager->setError(ERROR_CODE, FILE, LINE);
+            }
+            else
+            {
+                this->log.printErrorSet(ERROR_CODE, FILE, LINE);
             }
             this->errorCount++;
         }
@@ -59,12 +62,17 @@ void BPLC_moduleErrorHandler::resetError(const e_BPLC_ERROR_t ERROR_CODE, String
 
     if(p_errorToDelete != nullptr)
     {
-        this->deleteErrorFromList(p_errorToDelete);
-        this->log.printErrorReset(ERROR_CODE, FILE, LINE);
+        //Lokalen Error rücksetzen
+        this->deleteErrorFromList(p_errorToDelete);        
 
         if(this->p_superiorErrorManager != nullptr)
         {
+            //Log eintrag wird in superiorErrorManager ausgegeben
             p_superiorErrorManager->resetError(ERROR_CODE, FILE, LINE);
+        }
+        else
+        {
+            this->log.printErrorReset(ERROR_CODE, FILE, LINE);
         }
         this->errorCount--;
     }    
