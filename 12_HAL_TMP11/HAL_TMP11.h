@@ -2,48 +2,35 @@
 #define HAL_TMP11_h
 //-------------------------------------------------------------
 //INCLUDES
-//-------------------------------------------------------------
-#include "Arduino.h"
-#include "SpecialFunctions.h"
-
-#include "BPLC_ioBaseTypes.h"
 #include "HAL_interface.h"
-#include "BPLC_ERRORS.h"
-#include "BPLC_LOG.h"
-#include "I2C_check.h"
 
 //-------------------------------------------------------------
-//HARDWARE SPEZIFISCHE TYPES
-//-------------------------------------------------------------
-typedef enum
-{
-    TMP11_CARD_1_ADDRESS = 0x48,
-    TMP11_CARD_2_ADDRESS = 0x49,
-    TMP11_CARD_3_ADDRESS = 0x4A,
-    TMP11_CARD_4_ADDRESS = 0x4B,
-    
-    TMP11_CARD_ADDRESS__COUNT = 4,
-}e_TMP11_ADDRESS_t;
-
+//Card definition
+#define TMP11_ADDRESS_COUNT 4
 #define TMP11_CHANNEL_COUNT 4
+const uint8_t TMP11_I2C_ADDRESSES[TMP11_ADDRESS_COUNT] = {0x68, 0x6A, 0x6C, 0x6E};
+
 //-------------------------------------------------------------
-//HAL_AIN11 KLASSE
-//-------------------------------------------------------------
-class HAL_TMP11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_TMP11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
-                    HAL_TMP11           (const e_TMP11_ADDRESS_t I2C_ADDRESS);
-    void            init                ();
-    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
-    void            tick                ();        
-    e_BPLC_ERROR_t  getErrorCode        ();
+                    HAL_TMP11               ();
+    ///Hal interface 
+    void            init                    (const e_EC_ADDR_t ADDR);
+    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                    ();        
+    //Modul Error Interface   
+    uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
+
 
   
     private:          
     //Settings
-    Adafruit_ADS1115    ADC;
-    e_TMP11_ADDRESS_t   deviceAddress;
-    adsGain_t           adcGain;
+    uint8_t   deviceAddress;
+    adsGain_t adcGain;
   
     //Object handling
     struct

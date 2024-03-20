@@ -51,14 +51,8 @@ void OLED_MCU11::begin()
 
     this->to_parmeter.setInterval(500);
 
-    this->menu.activeMenu = menu_mainMenu;
-    
-    this->printLog("MCU OLED DISPLAY (" + String(0x3C) + ") INIT SUCCESSFUL");       
-  }
-  else
-  {
-    this->printLog("MCU OLED DISPLAY (" + String(0x3C) + ") INIT FAILED");    
-  }    
+    this->menu.activeMenu = menu_mainMenu;    
+  }  
 }
 
 //---------------------------------------------------

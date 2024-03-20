@@ -17,10 +17,6 @@
 //---------------------------------------------------
 
 #include "Arduino.h"
-#include "Wire.h"
-#include "SpecialFunctions.h"
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_LOG.h"
 #include "HAL_interface.h"
 
 
@@ -41,15 +37,21 @@ enum
 //--------------------------------------------------------------------
 //HAL KLASSE
 //--------------------------------------------------------------------
-class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_LOG
+class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint
 {
     public:
-                    HAL_MCU11_revA      (volatile uint64_t* P_ISR_COUNT);
-    void            init                ();
-    void            tick                ();
-    e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}
-    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);
-   
+    //Hal constructor
+                    HAL_MCU11_revA          (volatile uint64_t* P_ISR_COUNT);    
+    //Hal interface 
+    void            init                    (const e_EC_ADDR_t ADDR);
+    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                    ();        
+    //Modulerror Interface   
+    uint8_t         getModuleErrorCount           ()                                                {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
+
 
     private:   
     void            tickSafety          ();
@@ -93,14 +95,21 @@ class HAL_MCU11_revA: public halInterface, BPLC_errorHandler, BPLC_LOG
     }PIN;   
 };
 
-class HAL_MCU11_revB: public halInterface, BPLC_errorHandler, BPLC_LOG
+class HAL_MCU11_revB: public halInterface, protected BPLC_moduleErrorHandler, private BPLC_logPrint
 {
     public:
+    //Hal constructor
                     HAL_MCU11_revB      (volatile uint64_t* P_ISR_COUNT);    
-    void            init                ();
-    void            tick                ();
-    e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}
-    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);
+    //Hal interface 
+    void            init                    (const e_EC_ADDR_t ADDR);
+    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                    ();        
+    //Modulerror Interface   
+    uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
+
 
     private:
     void            tickSafety();

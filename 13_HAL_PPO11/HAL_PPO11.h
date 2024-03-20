@@ -1,44 +1,44 @@
 #ifndef HAL_PPO11_h
 #define HAL_PPO11_h
-#include "Arduino.h"
-#include "SpecialFunctions.h"
-#include "PCA9685.h"
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_LOG.h"
-#include "I2C_check.h"
+
+//-------------------------------------------------------------
+//INCLUDES
 #include "HAL_interface.h"
-#include "BPLC_ERRORS.h"
+#include "PCA9685.h"
 
-typedef enum
-{
-   PPO11_CARD_1_ADDRESS = 0x47,
-   PPO11_CARD_2_ADDRESS = 0x46,
-   PPO11_CARD_3_ADDRESS = 0x45,
-   PPO11_CARD_4_ADDRESS = 0x44,
-    
-   PPO11_CARD_ADDRESS_COUNT = 4,
+//-------------------------------------------------------------
+//Card definition
+#define PPO11_ADDRESS_COUNT 4
+#define PPO11_CHANNEL_COUNT 8
+const uint8_t PPO11_I2C_ADDRESSES[PPO11_ADDRESS_COUNT] = {0x47, 0x46, 0x45, 0x44};
 
-}e_PPO11_ADDRESS_t;
-
+//-------------------------------------------------------------
+//Interne 
 #define DEAD_TIME 100 //besser geht nicht, ohne kurzeitigen Kurzschluss bei PWM änderung
 #define LS_MOSFET 0
 #define HS_MOSFET 1
-#define PPO11_CHANNEL_COUNT 8
 
-class HAL_PPO11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+//-------------------------------------------------------------
+class HAL_PPO11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
-                    HAL_PPO11           (const e_PPO11_ADDRESS_t I2C_ADDRESS);
-    void            init                ();
-    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
-    void            tick                ();        
-    e_BPLC_ERROR_t  getErrorCode        (); 
+    //Hal constructor
+                    HAL_PPO11               ();
+    //Hal interface 
+    void            init                    (const e_EC_ADDR_t ADDR);
+    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                    ();        
+    //Modul Error Interface   
+    uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
 
     
     private:
     //Settings          
-    PCA9685                 PCA;
-    e_PPO11_ADDRESS_t       deviceAddress;
+    PCA9685 PCA;
+    uint8_t deviceAddress;
     
     struct
     {

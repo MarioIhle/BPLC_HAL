@@ -1,11 +1,18 @@
 #include "HAL_AIN11.h"
 
-HAL_AIN11::HAL_AIN11(const e_AIN11_ADDRESS_t I2C_ADDRESS)
-{
-    this->deviceAddress = I2C_ADDRESS;
-}
-void HAL_AIN11::init()
+HAL_AIN11::HAL_AIN11()
+{}
+void HAL_AIN11::init(const e_EC_ADDR_t ADDR)
 {    
+    if(ADDR < AIN11_ADDRESS_COUNT)
+    {
+        this->deviceAddress = AIN11_I2C_ADDRESSES[ADDR];             
+    }
+    else
+    {
+        this->setError(AIN11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
+    }   
+
     for(uint8_t CH =0; CH < AIN11_CHANNEL_COUNT; CH++)
     {
         this->channels.p_ioObject[CH] = nullptr;
@@ -14,10 +21,10 @@ void HAL_AIN11::init()
     //I2C Verbindung prüfen
     if(!I2C_check::begin(this->deviceAddress))
     {
-       this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED);        
+       this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
     //Applikationsparameter initialisieren         
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {   
         // The ADC input range (or gain) can be changed via the following
         // functions, but be careful never to exceed VDD +0.3V max, or to
@@ -34,11 +41,11 @@ void HAL_AIN11::init()
         
         this->ADC.setGain(this->adcGain);
         this->ADC.begin(this->deviceAddress);
-        this->printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");      
+        this->printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
     {
-        this->printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");    
+        this->printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
 }
 void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
@@ -47,15 +54,15 @@ void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 
     if(CHANNEL < 1 || CHANNEL > AIN11_CHANNEL_COUNT)
     {
-        this->setError(AIN11_ERROR__CHANNEL_OUT_OF_RANGE);
+        this->setError(AIN11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == AIN11_CHANNEL_COUNT)
     {
-        this->setError(AIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
+        this->setError(AIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
     {
-        this->setError(AIN11_ERROR__CHANNEL_ALREADY_IN_USE);       
+        this->setError(AIN11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
     else
     {
@@ -64,7 +71,13 @@ void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 }
 void HAL_AIN11::tick()
 {   
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    //I2C Verbindung zyklisch prüfen
+    if(!this->requestHeartbeat())
+    {
+        this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+    }
+    //Hal ticken
+    if(this->noErrorSet())
     {          
         for(uint8_t CH = 0; CH < AIN11_CHANNEL_COUNT; CH++)
         {            
@@ -94,20 +107,11 @@ void HAL_AIN11::tick()
                         
                         default:
                         case IO_TYPE__NOT_DEFINED:
-                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE);
+                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
                         break;               
                     }
                 }       
             }
         }  
     }
-}
-e_BPLC_ERROR_t HAL_AIN11::getErrorCode()
-{
-    //I2C Verbindung zyklisch prüfen
-    if(!this->requestHeartbeat())
-    {
-        this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED);
-    }
-    return this->getError();
 }

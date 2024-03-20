@@ -1,54 +1,38 @@
 #ifndef HAL_DIN11_h
 #define HAL_DIN11_h
-
 //-------------------------------------------------------------
 //INCLUDES
-//-------------------------------------------------------------
-#include "Arduino.h"
+#include "HAL_interface.h"
+#include "PCA9685.h"
 #include "PCF8574.h"
 
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_LOG.h"
-#include "I2C_check.h"
-#include "HAL_interface.h"
-#include "BPLC_ERRORS.h"
 //-------------------------------------------------------------
-//HARDWARE SPEZIFISCHE TYPES
-//-------------------------------------------------------------
-typedef enum
-{
-    DIN11_CARD_1_ADDRESS = 0x20,
-    DIN11_CARD_2_ADDRESS = 0x22,
-    DIN11_CARD_3_ADDRESS = 0x21,
-    DIN11_CARD_4_ADDRESS = 0x23,
-    
-    DIN11_CARD_ADDRESS_COUNT = 4,
-
-}e_DIN11_ADDRESS_t;
-
+//Card definition
+#define DIN11_ADDRESS_COUNT 4
 #define DIN11_CHANNEL_COUNT 8
-
+const uint8_t DIN11_I2C_ADDRESSES[DIN11_ADDRESS_COUNT] = {0x20, 0x22, 0x21, 0x23};
 
 //-------------------------------------------------------------
-//HAL_DIN11 KLASSE
-//-------------------------------------------------------------
-#define READ_TWO_TIMES 2
-
-class HAL_DIN11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_DIN11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
     //Hal Interface
-                    HAL_DIN11           (const e_DIN11_ADDRESS_t I2C_ADDRESS);
-    void            init                ();
-    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
-    void            tick                ();        
-    e_BPLC_ERROR_t  getErrorCode        (); 
-        
+                    HAL_DIN11               ();
+    //Hal interface 
+    void            init                    (const e_EC_ADDR_t ADDR);
+    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                    ();        
+    //Modul Error Interface   
+    uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
+   
     
     private:    
     //Settings
-    PCF8574           PCF;
-    e_DIN11_ADDRESS_t deviceAddress;
+    PCF8574 PCF;
+    uint8_t deviceAddress;
 
     struct
     {

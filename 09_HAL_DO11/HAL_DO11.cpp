@@ -1,11 +1,18 @@
 #include "HAL_DO11.h"
 
-HAL_DO11::HAL_DO11(const e_DO11_ADDRESS_t I2C_ADDRESS)
+HAL_DO11::HAL_DO11()
+{}
+void HAL_DO11::init(const e_EC_ADDR_t ADDR)
 {
-    this->deviceAddress = I2C_ADDRESS;
-}
-void HAL_DO11::init()
-{
+    if(ADDR < DO11_ADDRESS_COUNT)
+    {
+        this->deviceAddress = DO11_I2C_ADDRESSES[ADDR];             
+    }
+    else
+    {
+        this->setError(DO11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
+    } 
+
     for(uint8_t CH =0; CH < DO11_CHANNEL_COUNT; CH++)
     {
         this->channels.p_ioObject[CH] = nullptr;
@@ -14,21 +21,21 @@ void HAL_DO11::init()
     //I2C verbindung prüfen
     if(!I2C_check::begin(this->deviceAddress))
     {
-        this->setError(DO11_ERROR__I2C_CONNECTION_FAILED);     
+        this->setError(DO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);     
     }
     
     //Applikationsparameter initialisieren
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {        
         PCA.setI2CAddress(this->deviceAddress);
         PCA.init();
         PCA.setPWMFrequency(200);   //Falls Servos verwendet werden, wird automatisch PWM freuenz auf 25Hz gesenkt!
         PCA.setAllChannelsPWM(0);
-        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");      
+        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
     {
-        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");    
+        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
 }
 void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
@@ -37,15 +44,15 @@ void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANN
 
     if(CHANNEL < 1 || CHANNEL > DO11_CHANNEL_COUNT)
     {
-        this->setError(DO11_ERROR__CHANNEL_OUT_OF_RANGE);
+        this->setError(DO11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == DO11_CHANNEL_COUNT)
     {
-        this->setError(DO11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
+        this->setError(DO11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
     {
-        this->setError(DO11_ERROR__CHANNEL_ALREADY_IN_USE);       
+        this->setError(DO11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
     else
     {
@@ -64,14 +71,20 @@ void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANN
             break;
 
             default:
-                this->setError(DO11_ERROR__IO_OBJECT_NOT_SUITABLE);
+                this->setError(DO11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
             break;
         }
     }
 }
 void HAL_DO11::tick()
 {
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    //I2C Verbindung zyklisch prüfen
+    if(!this->requestHeartbeat())
+    {
+        this->setError(DO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+    }
+    //Hal ticken    
+    if(this->noErrorSet())
     {  
         for(uint8_t CH = 0; CH < DO11_CHANNEL_COUNT; CH++)
         {       
@@ -87,12 +100,12 @@ void HAL_DO11::tick()
                         case IO_TYPE__OUTPUT_PULL:
                             PCA.setChannelPWM(this->channels.PIN[CH][LS_MOSFET], 0, TARGET_PWM_VALUE);        //lowSide
                             PCA.setChannelOff(this->channels.PIN[CH][HS_MOSFET]);                             //highside 
-                        break;
+                            break;
                         
                         case IO_TYPE__OUTPUT_PUSH:
                             PCA.setChannelOff(this->channels.PIN[CH][LS_MOSFET]);                             //lowSide
                             PCA.setChannelPWM(this->channels.PIN[CH][HS_MOSFET], 0, TARGET_PWM_VALUE);        //highside
-                        break;
+                            break;
 
                         case IO_TYPE__OUTPUT_PUSH_PULL:                            
                             //Um überschneidung bei umschalten der PWM zu vermeiden, sonst FETS = rauch :C
@@ -118,7 +131,7 @@ void HAL_DO11::tick()
                                 PCA.setChannelPWM(this->channels.PIN[CH][LS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
                                 PCA.setChannelPWM(this->channels.PIN[CH][HS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
                             }
-                        break;
+                            break;
 
                         case IO_TYPE__OUTPUT_PUSH_PULL_INVERT:                            
                             //Um überschneidung bei umschalten der PWM zu vermeiden, sonst FETS = rauch :C
@@ -144,7 +157,7 @@ void HAL_DO11::tick()
                                 PCA.setChannelPWM(this->channels.PIN[CH][HS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
                                 PCA.setChannelPWM(this->channels.PIN[CH][LS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
                             }
-                        break;
+                            break;
 
                         case IO_TYPE__SERVO:
                             //Direkt 16bit wert von Servo Klasse berechent
@@ -172,24 +185,15 @@ void HAL_DO11::tick()
                                 PCA.setChannelPWM(this->channels.PIN[CH][LS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
                                 PCA.setChannelPWM(this->channels.PIN[CH][HS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
                             }
-                        break;
+                            break;
 
                         default:
                         case IO_TYPE__NOT_DEFINED:
-                            this->setError(DO11_ERROR__IO_OBJECT_NOT_SUITABLE);
-                        break;               
+                            this->setError(DO11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                            break;               
                     }
                 }
             }   
         }    
     }
-}
-e_BPLC_ERROR_t HAL_DO11::getErrorCode()
-{
-    //I2C Verbindung zyklisch prüfen
-    if(!this->requestHeartbeat())
-    {
-        this->setError(DO11_ERROR__I2C_CONNECTION_FAILED);
-    }
-    return this->getError();
 }

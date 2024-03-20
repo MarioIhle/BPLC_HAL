@@ -1,32 +1,39 @@
 #include "HAL_DIN11.h"
 
-HAL_DIN11::HAL_DIN11(const e_DIN11_ADDRESS_t I2C_ADDRESS)
-{
-    this->deviceAddress = I2C_ADDRESS;
-}
-void HAL_DIN11::init()
-{  
+HAL_DIN11::HAL_DIN11()
+{}
+void HAL_DIN11::init(const e_EC_ADDR_t ADDR)
+{ 
+    if(ADDR < DIN11_ADDRESS_COUNT)
+    {
+        this->deviceAddress = DIN11_I2C_ADDRESSES[ADDR];             
+    }
+    else
+    {
+        this->setError(DIN11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
+    } 
+
     for(uint8_t CH =0; CH < DIN11_CHANNEL_COUNT; CH++)
     {
         this->channels.p_ioObject[CH] = nullptr;
     }       
 
-    //I2C Verbindung prüfen
-    if(I2C_check::begin(this->deviceAddress) == false)
+    //I2C verbindung prüfen
+    if(!I2C_check::begin(this->deviceAddress))
     {
-        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED);        
+        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);     
     }
 
     //Applikationsparameter initialisieren
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    if(this->noErrorSet())
     {   
         PCF.setAddress(this->deviceAddress);   
         PCF.begin();      
-        this->printLog("DIN11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL");      
+        this->printLog("DIN11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
     {
-        this->printLog("DIN11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED");
+        this->printLog("DIN11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);
     }
 }
 void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
@@ -35,15 +42,15 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 
     if(CHANNEL < 1 || CHANNEL > DIN11_CHANNEL_COUNT)
     {
-        this->setError(DIN11_ERROR__CHANNEL_OUT_OF_RANGE);
+        this->setError(DIN11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == DIN11_CHANNEL_COUNT)
     {
-        this->setError(DIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE);
+        this->setError(DIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
     {
-        this->setError(DIN11_ERROR__CHANNEL_ALREADY_IN_USE);       
+        this->setError(DIN11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
     else
     {
@@ -65,14 +72,20 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHAN
 
             default:
             case IO_TYPE__NOT_DEFINED:
-                this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE);
+                this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
                 break;               
         }
     }
 }
 void HAL_DIN11::tick()
 {   
-    if(this->getError() == BPLC_ERROR__NO_ERROR)
+    //I2C Verbindung zyklisch prüfen
+    if(!this->requestHeartbeat())
+    {
+        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+    }
+    //Hal ticken
+    if(this->noErrorSet())
     {         
         for(uint8_t READ = 0; READ < 2; READ++)//2x lesen um Flankenauswertung zu ermöglichen
         {
@@ -104,20 +117,11 @@ void HAL_DIN11::tick()
 
                         default:
                         case IO_TYPE__NOT_DEFINED:
-                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE);
+                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
                         break;               
                     }
                 }                                              
             }    
         }         
     }
-}
-e_BPLC_ERROR_t HAL_DIN11::getErrorCode()
-{
-    //I2C Verbindung zyklisch prüfen
-    if(!this->requestHeartbeat())
-    {
-        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED);
-    }
-    return this->getError();
 }

@@ -1,28 +1,15 @@
 #ifndef HAL_MOT11_h
 #define HAL_MOT11_h
-
 //-------------------------------------------------------------
 //INCLUDES
-//-------------------------------------------------------------
-#include "Arduino.h"
-#include "Wire.h"
-#include "I2C_check.h"
-#include "BPLC_ioBaseTypes.h"
-#include "BPLC_ERRORS.h"
-#include "BPLC_LOG.h"
 #include "HAL_interface.h"
+#include "PCA9685.h"
+
 //-------------------------------------------------------------
-//HARDWARE SPEZIFISCHE TYPES
-//-------------------------------------------------------------
-typedef enum
-{
-  MOT11_CARD_1_ADDRESS = 0x10,
-  MOT11_CARD_2_ADDRESS = 0x11,
-  MOT11_CARD_3_ADDRESS = 0x12,
-  MOT11_CARD_4_ADDRESS = 0x13,
-  
-  MOT11_CARD_ADDRESS_COUNT = 4,
-}e_MOT11_ADDRESS_t;
+//Card definition
+#define MOT11_ADDRESS_COUNT 4
+#define MOT11_CHANNEL_COUNT 1
+const uint8_t MOT11_I2C_ADDRESSES[MOT11_ADDRESS_COUNT] = {0xA1, 0xA1, 0xA1, 0xA1};
 
 //-------------------------------------------------------------
 //APPLIKATION
@@ -75,23 +62,29 @@ typedef union
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
-class HAL_MOT11:BPLC_LOG, I2C_check, public halInterface, BPLC_errorHandler
+class HAL_MOT11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
-    //setup
-                    HAL_MOT11           (const e_MOT11_ADDRESS_t I2C_ADDRESS);
-    void            init                ();
-    void            mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
-    void            tick                ();        
-    e_BPLC_ERROR_t  getErrorCode        (){return this->getError();}  
+    //Hal Constructor
+                    HAL_MOT11           ();
+    //Hal interface 
+    void            init                    (const e_EC_ADDR_t ADDR);
+    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            tick                    ();        
+    //Modul Error Interface   
+    uint8_t         getModuleErrorCount           ()                                                      {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
 
+    //Spezifisch
     void            startCurrentAutotuning();  
     
   
     private:
     //Settings    
-    e_MOT11_ADDRESS_t   deviceAddress;
-    e_deviceState_t     deviceState;
+    uint8_t   deviceAddress;
+    e_deviceState_t         deviceState;
 
     //I2C Kommunikation
     void sendDriveCommand     (const u_HAL_DATA_t DRIVE_PARAMETER);
