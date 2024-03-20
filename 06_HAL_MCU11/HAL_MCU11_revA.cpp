@@ -105,6 +105,7 @@ void HAL_MCU11_revA::tick()
     {
         //encoder
         u_HAL_DATA_t tempbuffer;
+        memset(&tempbuffer, 0, sizeof(u_HAL_DATA_t));
         tempbuffer.encoderData.stateA    = digitalRead(this->PIN.ENCODER_A);
         tempbuffer.encoderData.stateB    = digitalRead(this->PIN.ENCODER_B);
         tempbuffer.encoderData.stateZ    = digitalRead(this->PIN.ENCODER_BUTTON);

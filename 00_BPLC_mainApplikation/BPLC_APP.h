@@ -166,7 +166,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
 
     void            setupSafety             ();
     void            tickSafety              ();
-    void            scanForUnkonwnI2CDevices();
+
    
     struct  
     {   
