@@ -52,17 +52,17 @@ class hmiEncoder:public IO_Interface
     e_IO_TYPE_t         getIoType               (){return this->ioType;}
     bool                newDataAvailable        (){return false;}
     u_HAL_DATA_t        halCallback             (u_HAL_DATA_t* P_DATA = nullptr)
-    {   
-        /*
-        u_HAL_DATA_t tempHalData;
-        memset(&tempHalData, 0, sizeof(u_HAL_DATA_t));
-        
-        tempHalData.digitalIoData.state = P_DATA->encoderData.stateA;
-        this->A.halCallback(&tempHalData);
-        tempHalData.digitalIoData.state = P_DATA->encoderData.stateB;
-        this->B.halCallback(&tempHalData);
-        tempHalData.digitalIoData.state = P_DATA->encoderData.stateZ;
-        this->PB.halCallback(&tempHalData);  */     
+    {              
+        u_HAL_DATA_t EXTRACTED_HAL_DATA__A;
+        EXTRACTED_HAL_DATA__A.digitalIoData.state = P_DATA->encoderData.stateA;
+        u_HAL_DATA_t EXTRACTED_HAL_DATA__B ;
+        EXTRACTED_HAL_DATA__B.digitalIoData.state = P_DATA->encoderData.stateB;
+        u_HAL_DATA_t EXTRACTED_HAL_DATA__Z;
+        EXTRACTED_HAL_DATA__Z.digitalIoData.state = P_DATA->encoderData.stateZ;
+
+        this->A.halCallback(&EXTRACTED_HAL_DATA__A);   
+        this->B.halCallback(&EXTRACTED_HAL_DATA__B);   
+        this->PB.halCallback(&EXTRACTED_HAL_DATA__Z);     
         return *P_DATA;
     }
     

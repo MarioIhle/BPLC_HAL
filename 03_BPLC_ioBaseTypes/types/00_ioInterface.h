@@ -47,6 +47,8 @@ typedef union
         bool stateZ;
     }encoderData;
     
+    uint8_t data[12];
+    
 }u_HAL_DATA_t;
 //--------------------------------------------------------------------
 //IO TYPE

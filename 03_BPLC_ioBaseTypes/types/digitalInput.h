@@ -11,7 +11,7 @@ class digitalInput: public IO_Interface
                         digitalInput    (){this->ioType = IO_TYPE__DIGITAL_INPUT; this->state = false; this->previousState = false;}
     //Applikation
 
-    bool 	            ishigh          (){return (bool)(this->state == true && this->previousState == true);}
+    bool 	            ishigh          (){return (bool)(this->state == true  && this->previousState == true);}
     bool	            islow           (){return (bool)(this->state == false && this->previousState == false);}
 	bool 	            risingEdge      ()
     {
@@ -49,7 +49,6 @@ class digitalInput: public IO_Interface
         }
         return *P_DATA;
     }
-
 
     private:
     bool                f_fallingEdgeOccoured;

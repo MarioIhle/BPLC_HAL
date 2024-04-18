@@ -38,7 +38,7 @@ void HAL_MCU11_revA::init(const e_EC_ADDR_t ADDR)
     attachInterrupt(this->PIN.INT, INT_ISR, FALLING);       
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
-    Serial1.begin(this->baudrate.RS232);    //RS232
+    //Serial1.begin(this->baudrate.RS232);    //RS232
     Serial2.begin(this->baudrate.RS485);    //RS485
     //I2C
     Wire.begin();
@@ -104,12 +104,12 @@ void HAL_MCU11_revA::tick()
     if(this->noErrorSet())
     {
         //encoder
-        u_HAL_DATA_t tempbuffer;
-        memset(&tempbuffer, 0, sizeof(u_HAL_DATA_t));
-        tempbuffer.encoderData.stateA    = digitalRead(this->PIN.ENCODER_A);
-        tempbuffer.encoderData.stateB    = digitalRead(this->PIN.ENCODER_B);
-        tempbuffer.encoderData.stateZ    = digitalRead(this->PIN.ENCODER_BUTTON);
-        this->p_encoder->halCallback(&tempbuffer);
+        u_HAL_DATA_t encoderInput;
+        memset(&encoderInput, 0, sizeof(u_HAL_DATA_t));
+        encoderInput.encoderData.stateA    = digitalRead(this->PIN.ENCODER_A);
+        encoderInput.encoderData.stateB    = digitalRead(this->PIN.ENCODER_B);
+        encoderInput.encoderData.stateZ    = digitalRead(this->PIN.ENCODER_BUTTON);
+        this->p_encoder->halCallback(&encoderInput);
         //p_oen schreiben
         if(this->p_oen->newDataAvailable())
         {
