@@ -108,7 +108,7 @@ void HAL_MCU11_revA::tick()
         memset(&encoderInput, 0, sizeof(u_HAL_DATA_t));
         encoderInput.encoderData.stateA    = digitalRead(this->PIN.ENCODER_A);
         encoderInput.encoderData.stateB    = digitalRead(this->PIN.ENCODER_B);
-        encoderInput.encoderData.stateZ    = digitalRead(this->PIN.ENCODER_BUTTON);
+        encoderInput.encoderData.stateZ    = digitalRead(this->PIN.ENCODER_BUTTON);        
         this->p_encoder->halCallback(&encoderInput);
         //p_oen schreiben
         if(this->p_oen->newDataAvailable())
