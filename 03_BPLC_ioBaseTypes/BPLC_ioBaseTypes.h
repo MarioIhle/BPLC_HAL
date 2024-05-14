@@ -10,5 +10,6 @@
 #include "types/positionEncoder.h"
 #include "types/rpmSens.h"
 #include "types/servoDrive.h"
+#include "types/tempSens.h"
 
 #endif

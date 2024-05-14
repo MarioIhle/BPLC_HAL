@@ -81,6 +81,9 @@ class output: public IO_Interface, blink
 			this->f_newDataAvailable 	= true;
 		}	
 	}
+	bool	 			getState		(){return (bool)this->value;}
+	uint8_t 			getValue		(){return this->value;}
+   
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable()
