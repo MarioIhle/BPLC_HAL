@@ -14,11 +14,11 @@ class PT100: public IO_Interface
 
     //Hal handling                 
     e_IO_TYPE_t         getIoType           (){return this->ioType;} 
-    bool                newDataAvailable    (){return this->to_sampleTime.checkAndReset()};
+    bool                newDataAvailable    (){return this->to_sampleTime.checkAndReset();}
     u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* DATA = nullptr)
     {
         this->temperature = DATA->tempSensData.temperatur;
-        return DATA;
+        return *DATA;
     }
 
 
