@@ -89,9 +89,29 @@ void HAL_TMP11::tick()
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {         
                         case IO_TYPE__PTC:
+                            //tempBuffer.analogIoData.value = readMCP();
+                            if(tempBuffer.analogIoData.value >= 0)
+                            {
+                                this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                        
+                            }     
+                            else
+                            {
+                                tempBuffer.analogIoData.value = 0;
+                                this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
+                            } 
                         break;
 
-                        case IO_TYPE__PT100:        
+                        case IO_TYPE__PT100:  
+                            //tempBuffer.analogIoData.value = readMCP();
+                            if(tempBuffer.analogIoData.value >= 0)
+                            {
+                                this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                        
+                            }     
+                            else
+                            {
+                                tempBuffer.analogIoData.value = 0;
+                                this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
+                            }       
                         break;
                            
                         case IO_TYPE__PT1000:    
