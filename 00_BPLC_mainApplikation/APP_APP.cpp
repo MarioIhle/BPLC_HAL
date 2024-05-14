@@ -10,7 +10,7 @@ void BPLC_APP::begin()
    this->printLog("SETUP BPLC SYSTEM", __FILENAME__, __LINE__);
    //Device Parameter aus Flash laden
    this->setupParameterFlash();
-   this->readDeviceSettings();
+   this->loadDeviceSettings();
    //Module initialisieren
    this->setupSafety();
    this->setupApplication();      

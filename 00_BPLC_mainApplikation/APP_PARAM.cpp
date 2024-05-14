@@ -14,7 +14,7 @@ void BPLC_APP::setupParameterFlash()
       this->APP_APP.setup.f_setupParameterFlash = true;  
    }
 }
-void BPLC_APP::readDeviceSettings()
+void BPLC_APP::loadDeviceSettings()
 {      
    //Device Settings aus Flash laden
    this->parameterFlash.getBytes("deviceSettings", this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData));   

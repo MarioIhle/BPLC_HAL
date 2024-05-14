@@ -93,7 +93,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     Preferences     parameterFlash;
     void            setupParameterFlash ();
     void            saveDeviceSettings  ();
-    void            readDeviceSettings  ();
+    void            loadDeviceSettings  ();
     //Device Mode
     e_APP_MODE_t    getDeviceMode   ();    
     void            setDeviceMode   (const e_APP_MODE_t MODE);
@@ -166,7 +166,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
 
     void            setupSafety             ();
     void            tickSafety              ();
-    void            scanForUnkonwnI2CDevices();
+
    
     struct  
     {   

@@ -78,5 +78,4 @@ class positionEncoder:public IO_Interface
     digitalInput        Z;   	   
     bool                f_zIndexIsKnown;
 };
-
 #endif

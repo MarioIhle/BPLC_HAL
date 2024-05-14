@@ -20,7 +20,7 @@
 #include "HAL_interface.h"
 
 
-//#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
+#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
 
 enum
 {
@@ -54,7 +54,7 @@ class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, priv
 
 
     private:   
-    void            tickSafety          ();
+    void            tickSafety              ();
     IO_Interface*   p_encoder;
     IO_Interface*   p_buzzer;
     IO_Interface*   p_ld1;
@@ -87,7 +87,7 @@ class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, priv
         #endif
         const uint8_t INT       = 35;
         #ifdef DEBUGGING_MCU11_revA
-        const uint8_t BUZZER    = 25;
+        const uint8_t BUZZER    = 25; // LD3 leuchtet dauerhaft in Debug mode
         #endif
         #ifndef DEBUGGING_MCU11_revA
         const uint8_t BUZZER    = 15;
@@ -99,7 +99,7 @@ class HAL_MCU11_revB: public halInterface, protected BPLC_moduleErrorHandler, pr
 {
     public:
     //Hal constructor
-                    HAL_MCU11_revB      (volatile uint64_t* P_ISR_COUNT);    
+                    HAL_MCU11_revB          (volatile uint64_t* P_ISR_COUNT);    
     //Hal interface 
     void            init                    (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
