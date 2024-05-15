@@ -192,13 +192,13 @@ void BPLC_APP::tickControlPanel()
                 switch (COMMAND.command.paramValue)
                 {
                     case 0:
-                        this->APP_APP.settings.device.hardware.mcuCard = BPLC_CARD__MCU11revA;                
+                        this->APP_APP.settings.device.hardware.mcuCard = EC__MCU11revA;                
                         break;
                     case 1:
-                        this->APP_APP.settings.device.hardware.mcuCard = BPLC_CARD__MCU11revB;                
+                        this->APP_APP.settings.device.hardware.mcuCard = EC__MCU11revB;                
                         break;
                     case 2:
-                        this->APP_APP.settings.device.hardware.mcuCard = BPLC_CARD__MCU11revC;                
+                        this->APP_APP.settings.device.hardware.mcuCard = EC__MCU11revC;                
                         break;
                     
                     default:

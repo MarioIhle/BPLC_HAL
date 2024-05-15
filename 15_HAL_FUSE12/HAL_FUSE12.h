@@ -19,7 +19,7 @@ class HAL_FUSE12: public halInterface, private BPLC_moduleErrorHandler, private 
                     HAL_FUSE12              ();
     //Hal interface 
     void            init                    (const e_EC_ADDR_t ADDR);
-    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL);        
+    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
     void            tick                    ();        
     //Modul Error Interface   
     uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}

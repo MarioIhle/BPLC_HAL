@@ -5,7 +5,7 @@ BPLC_extensionCardManager::BPLC_extensionCardManager()
     this->isrCount = 0;
     this->to_I2cScan.setInterval(10000);
 }
-void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const e_EC_ADDR_t ADDR, const uint8_t CHANNEL)                                
+void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)                                
 {
     extensionCard* p_cardToMapChannelTo = this->searchExtensionCard(CARD, ADDR);
 
@@ -18,7 +18,7 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
         this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);       
     }      
 }  
-bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR)
+bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR)
 {
     bool newEcAdded = false;   
     if(this->searchExtensionCard(EXTENSION_CARD_TYPE, ADDR) == nullptr)
@@ -27,41 +27,41 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_BPLC_CARD_TYPE_t EXT
         
         switch (EXTENSION_CARD_TYPE)
         {
-            case BPLC_CARD__MCU11revA:    
+            case EC__MCU11revA:    
                 p_newHalInterface = new HAL_MCU11_revA(&this->isrCount);  
                 break;
 
-            case BPLC_CARD__MCU11revB:    
-            case BPLC_CARD__MCU11revC://Gleiches pinning, nur änderungen im Layout 
+            case EC__MCU11revB:    
+            case EC__MCU11revC://Gleiches pinning, nur änderungen im Layout 
                 p_newHalInterface = new HAL_MCU11_revB(&this->isrCount);      
                 break;   
 
-            case BPLC_CARD__AIN11revA:          
+            case EC__AIN11revA:          
                 p_newHalInterface = new HAL_AIN11();    
                 break; 
        
-            case BPLC_CARD__DIN11revA:              
+            case EC__DIN11revA:              
                 p_newHalInterface = new HAL_DIN11();
                 break;                         
   
-            case BPLC_CARD__DO11revA:        
+            case EC__DO11revA:        
                 p_newHalInterface = new HAL_DO11();    
                 break;                 
 
-            case BPLC_CARD__REL11revA:                
+            case EC__REL11revA:                
                 p_newHalInterface = new HAL_REL11();
                 break;
 
-            case BPLC_CARD__MOT11revA:                
+            case EC__MOT11revA:                
                 p_newHalInterface = new HAL_MOT11();                                                        
                 break;
    
-            case BPLC_CARD__TMP11revA:                
+            case EC__TMP11revA:                
                 p_newHalInterface = new HAL_TMP11();                                                                         
                 break;
                 
             default:
-            case BPLC_CARD__NO_CARD_DEFINED:
+            case EC__NO_TYPE_DEFINED:
                 this->printResetReason("CARD NOT KNOWN", __FILENAME__, __LINE__);
                 abort();
                 break;
@@ -105,7 +105,7 @@ void BPLC_extensionCardManager::tick()
             {
                 switch(p_extensionCardToTick->getCardType())            
                 {
-                    case BPLC_CARD__DIN11revA:
+                    case EC__DIN11revA:
                         if(this->isrCount > 0)
                         {
                             p_extensionCardToTick->getHalInterface()->tick();                           
@@ -134,70 +134,70 @@ void BPLC_extensionCardManager::tick()
 void BPLC_extensionCardManager::scanForUnkonwnI2CDevices()
 {         
     //AIN11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_AIN11revA = this->scanCardAddresses(BPLC_CARD__AIN11revA, &AIN11_I2C_ADDRESSES[0], AIN11_ADDRESS_COUNT);
+    const bool THERE_IS_A_UNDEFINED_AIN11revA = this->scanCardAddresses(EC__AIN11revA, &AIN11_I2C_ADDRESSES[0], AIN11_ADDRESS_COUNT);
     
     if(THERE_IS_A_UNDEFINED_AIN11revA)
     {
         this->setError(AIN11_ERROR__UNDEFINED_AIN11_FOUND, __FILENAME__, __LINE__);
     }
     //DIN11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_DIN11revA = this->scanCardAddresses(BPLC_CARD__DIN11revA, &DIN11_I2C_ADDRESSES[0], DIN11_ADDRESS_COUNT);
+    const bool THERE_IS_A_UNDEFINED_DIN11revA = this->scanCardAddresses(EC__DIN11revA, &DIN11_I2C_ADDRESSES[0], DIN11_ADDRESS_COUNT);
 
     if(THERE_IS_A_UNDEFINED_DIN11revA)
     {
         this->setError(DIN11_ERROR__UNDEFINED_DIN11_FOUND, __FILENAME__, __LINE__);
     }
     //DO11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_DO11revA = this->scanCardAddresses(BPLC_CARD__DO11revA, &DO11_I2C_ADDRESSES[0], DO11_ADDRESS_COUNT);
+    const bool THERE_IS_A_UNDEFINED_DO11revA = this->scanCardAddresses(EC__DO11revA, &DO11_I2C_ADDRESSES[0], DO11_ADDRESS_COUNT);
 
     if(THERE_IS_A_UNDEFINED_DO11revA)
     {
         this->setError(DO11_ERROR__UNDEFINED_DO11_FOUND, __FILENAME__, __LINE__);
     }
     //REL11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_REL11revA = this->scanCardAddresses(BPLC_CARD__REL11revA, &REL11_I2C_ADDRESSES[0], REL11_ADDRESS_COUNT);
+    const bool THERE_IS_A_UNDEFINED_REL11revA = this->scanCardAddresses(EC__REL11revA, &REL11_I2C_ADDRESSES[0], REL11_ADDRESS_COUNT);
 
     if(THERE_IS_A_UNDEFINED_REL11revA)
     {
         this->setError(REL11_ERROR__UNDEFINED_REL11_FOUND, __FILENAME__, __LINE__);
     }    
     //MOT11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_MOT11revA = this->scanCardAddresses(BPLC_CARD__MOT11revA, &MOT11_I2C_ADDRESSES[0], MOT11_ADDRESS_COUNT);
+    const bool THERE_IS_A_UNDEFINED_MOT11revA = this->scanCardAddresses(EC__MOT11revA, &MOT11_I2C_ADDRESSES[0], MOT11_ADDRESS_COUNT);
 
     if(THERE_IS_A_UNDEFINED_MOT11revA)
     {
         this->setError(MOT11_ERROR__UNDEFINED_MOT11_FOUND, __FILENAME__, __LINE__);
     }
     //TMP11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_TMP11revA = this->scanCardAddresses(BPLC_CARD__TMP11revA, &TMP11_I2C_ADDRESSES[0], TMP11_ADDRESS_COUNT);
+    const bool THERE_IS_A_UNDEFINED_TMP11revA = this->scanCardAddresses(EC__TMP11revA, &TMP11_I2C_ADDRESSES[0], TMP11_ADDRESS_COUNT);
 
     if(THERE_IS_A_UNDEFINED_TMP11revA)
     {
         this->setError(TMP11_ERROR__UNDEFINED_TMP11_FOUND, __FILENAME__, __LINE__);
     }   
     //PPO11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_PPO11revA = this->scanCardAddresses(BPLC_CARD__PPO11revA, &PPO11_I2C_ADDRESSES[0], PPO11_ADDRESS_COUNT);
+    const bool THERE_IS_A_UNDEFINED_PPO11revA = this->scanCardAddresses(EC__PPO11revA, &PPO11_I2C_ADDRESSES[0], PPO11_ADDRESS_COUNT);
 
     if(THERE_IS_A_UNDEFINED_PPO11revA)
     {
         this->setError(PPO11_ERROR__UNDEFINED_PPO11_FOUND, __FILENAME__, __LINE__);
     }
     //NANOrevA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_NANOrevA = this->scanCardAddresses(BPLC_CARD__NANO11revA, &NANO11_I2C_ADDRESSES[0], NANO11_ADDRESS_COUNT);
+    const bool THERE_IS_A_UNDEFINED_NANOrevA = this->scanCardAddresses(EC__NANO11revA, &NANO11_I2C_ADDRESSES[0], NANO11_ADDRESS_COUNT);
 
     if(THERE_IS_A_UNDEFINED_NANOrevA)
     {
         this->setError(NANO11_ERROR__UNDEFINED_NANO11_FOUND, __FILENAME__, __LINE__);
     }
     //FUSE12revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_FUSE12revA = this->scanCardAddresses(BPLC_CARD__FUSE12revA, &FUSE12_I2C_ADDRESSES[0], FUSE12_ADDRESS_COUNT);
+    const bool THERE_IS_A_UNDEFINED_FUSE12revA = this->scanCardAddresses(EC__FUSE12revA, &FUSE12_I2C_ADDRESSES[0], FUSE12_ADDRESS_COUNT);
 
     if(THERE_IS_A_UNDEFINED_FUSE12revA)
     {
         this->setError(FUSE12_ERROR__UNDEFINED_FUSE12_FOUND, __FILENAME__, __LINE__);
     }    
 }
-bool BPLC_extensionCardManager::scanCardAddresses(const e_BPLC_CARD_TYPE_t CARD_TYPE, const uint8_t* P_ADDRESSES_TO_SCAN, const uint8_t ADDRESS_COUNT)
+bool BPLC_extensionCardManager::scanCardAddresses(const e_EC_TYPE_t CARD_TYPE, const uint8_t* P_ADDRESSES_TO_SCAN, const uint8_t ADDRESS_COUNT)
 {
     bool unkownCardFound = false;
 
@@ -227,7 +227,7 @@ bool BPLC_extensionCardManager::scanCardAddresses(const e_BPLC_CARD_TYPE_t CARD_
     return unkownCardFound;
 }
 //Listen Handling
-extensionCard* BPLC_extensionCardManager::searchExtensionCard(const e_BPLC_CARD_TYPE_t SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR)
+extensionCard* BPLC_extensionCardManager::searchExtensionCard(const e_EC_TYPE_t SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR)
 {
     extensionCard* p_searchedCard = this->p_firstExtensionCard;
 

@@ -44,7 +44,7 @@ void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
 
     this->printLog("MCU11revB INIT SUCCESSFUL", __FILENAME__, __LINE__);  
 }
-void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
+void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
     switch(CHANNEL)
     {

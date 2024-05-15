@@ -38,9 +38,9 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
         this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
 }
-void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const uint8_t CHANNEL)
+void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
-    if(CHANNEL < 1 || CHANNEL > MOT11_CHANNEL_COUNT)
+    if(CHANNEL < EC_CHANNEL_1 || CHANNEL > MOT11_CHANNEL_COUNT)
     {
         this->setError(DIN11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }

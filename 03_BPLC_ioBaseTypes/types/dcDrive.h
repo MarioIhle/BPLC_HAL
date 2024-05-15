@@ -19,7 +19,7 @@ typedef enum
 class dcDrive: public IO_Interface
 {
     public: 
-                        dcDrive                 ();
+                        dcDrive                 (){};
     //Drive Commands
     void                stop                    ()
 	{

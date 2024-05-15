@@ -71,7 +71,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     //Network PORT
     void    mapPortToNetwork        (portInterface_APP* P_PORT);
     //IO PORT
-    void    mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_BPLC_CARD_TYPE_t CARD, const e_EC_ADDR_t ADDR, const uint8_t CHANNEL);
+    void    mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL);
     //Rountine aufruf
     void    tick                    ();    
     //Buzzer aus Applikation heraus nutzen
@@ -127,7 +127,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
 
                 struct 
                 {            
-                    e_BPLC_CARD_TYPE_t  mcuCard;
+                    e_EC_TYPE_t  mcuCard;
                     bool                oledAvailable;
                     bool                ain11revACards [AIN11_ADDRESS_COUNT];
                     bool                din11revACards [DIN11_ADDRESS_COUNT];                
