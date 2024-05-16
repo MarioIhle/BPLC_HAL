@@ -26,6 +26,9 @@ void HAL_TMP11::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren         
     if(this->noErrorSet())
     {   
+        this->adc.setAddress(this->deviceAddress);
+        this->adc.begin(0);
+        
         this->printLog("TMP11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
@@ -59,7 +62,8 @@ void HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__PTC:
             case IO_TYPE__PT100:       
             case IO_TYPE__PT1000:    
-                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;        
+                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;       
+                this->adc.setConfiguration((uint8_t)CHANNEL, RESOLUTION_18_BITS,CONTINUOUS_MODE, PGA_X8);         
             break;
             
             default:
@@ -85,11 +89,11 @@ void HAL_TMP11::tick()
                 if(this->channels.p_ioObject[CH]->newDataAvailable())
                 {
                     u_HAL_DATA_t tempBuffer;
+                    tempBuffer.analogIoData.value = adc.measure();
 
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {         
-                        case IO_TYPE__PTC:
-                            //tempBuffer.analogIoData.value = readMCP();
+                        case IO_TYPE__PTC:                                     
                             if(tempBuffer.analogIoData.value >= 0)
                             {
                                 this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                        
@@ -102,7 +106,6 @@ void HAL_TMP11::tick()
                         break;
 
                         case IO_TYPE__PT100:  
-                            //tempBuffer.analogIoData.value = readMCP();
                             if(tempBuffer.analogIoData.value >= 0)
                             {
                                 this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                        
@@ -115,7 +118,6 @@ void HAL_TMP11::tick()
                         break;
                            
                         case IO_TYPE__PT1000:    
-                            //tempBuffer.analogIoData.value = readMCP();
                             if(tempBuffer.analogIoData.value >= 0)
                             {
                                 this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                        

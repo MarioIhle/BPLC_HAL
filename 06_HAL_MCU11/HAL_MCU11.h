@@ -20,7 +20,7 @@
 #include "HAL_interface.h"
 
 
-#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
+//#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
 
 enum
 {

@@ -3,6 +3,7 @@
 //-------------------------------------------------------------
 //INCLUDES
 #include "HAL_interface.h"
+#include "MCP342x.h"
 
 //-------------------------------------------------------------
 //Card definition
@@ -29,8 +30,8 @@ class HAL_TMP11: public halInterface, private BPLC_moduleErrorHandler, private B
   
     private:          
     //Settings
-    uint8_t   deviceAddress;
-    adsGain_t adcGain;
+    uint8_t     deviceAddress;
+    MCP342x     adc;
   
     //Object handling
     struct
