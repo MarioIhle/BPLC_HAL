@@ -5,6 +5,8 @@
 #include "HAL_interface.h"
 #include "MCP342x.h"
 
+#define nVperDegreePT100    177187
+#define nVperDegreePT1000   177187
 //-------------------------------------------------------------
 //Card definition
 #define TMP11_ADDRESS_COUNT 4
@@ -37,7 +39,7 @@ class HAL_TMP11: public halInterface, private BPLC_moduleErrorHandler, private B
     struct
     {
         IO_Interface* p_ioObject  [TMP11_CHANNEL_COUNT];   
-        const uint8_t PIN         [TMP11_CHANNEL_COUNT] = {2, 3, 1, 0};   
+        const uint8_t PIN         [TMP11_CHANNEL_COUNT] = {0, 1, 3, 2};   
     }channels;         
  };
 #endif

@@ -6,10 +6,10 @@
 #include "SpecialFunctions.h"
 
 
-class PT100: public IO_Interface
+class TempSens: public IO_Interface
 {
     public:
-                        PT100               (const unsigned long SAMPLE_TIME){this->ioType = IO_TYPE__PT100; this->to_sampleTime.setInterval(SAMPLE_TIME);}
+                        TempSens            (const e_IO_TYPE_t SENS_TYPE, const unsigned long SAMPLE_TIME){this->ioType = SENS_TYPE; this->to_sampleTime.setInterval(SAMPLE_TIME);}
     float               getTemperature      (){return this->temperature;}
 
     //Hal handling                 
