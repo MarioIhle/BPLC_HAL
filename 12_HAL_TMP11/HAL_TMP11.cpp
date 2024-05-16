@@ -61,8 +61,7 @@ void HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__PTC:
             case IO_TYPE__PT100:       
             case IO_TYPE__PT1000:    
-                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;       
-                this->adc.setConfiguration((uint8_t)CHANNEL, RESOLUTION_18_BITS, ONE_SHOT_MODE, PGA_X8);         
+                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;              
             break;
             
             default:

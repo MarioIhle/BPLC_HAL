@@ -5,7 +5,7 @@
 #include "HAL_interface.h"
 #include "MCP342x.h"
 
-#define nVperDegreePT100    177187
+#define nVperDegreePT100    187990000
 #define nVperDegreePT1000   177187
 //-------------------------------------------------------------
 //Card definition
