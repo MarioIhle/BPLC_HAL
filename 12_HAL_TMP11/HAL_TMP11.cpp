@@ -6,7 +6,8 @@ void HAL_TMP11::init(const e_EC_ADDR_t ADDR)
 {    
     if(ADDR < TMP11_ADDRESS_COUNT)
     {
-        this->deviceAddress = TMP11_I2C_ADDRESSES[ADDR];          
+        this->deviceAddress = TMP11_I2C_ADDRESSES[ADDR];    
+        this->adc.setAddress(this->deviceAddress);     
     }
     else
     {
@@ -25,10 +26,10 @@ void HAL_TMP11::init(const e_EC_ADDR_t ADDR)
     }
     //Applikationsparameter initialisieren         
     if(this->noErrorSet())
-    {              
-        this->adc.setAddress(this->deviceAddress);  
-        this->adc.begin(0);     
-        this->printLog("TMP11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
+    {           
+
+        this->adc.begin(0);   
+        this->printLog("TMP11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);   
     }    
     else
     {
@@ -87,7 +88,7 @@ void HAL_TMP11::tick()
                 if(this->channels.p_ioObject[CH]->newDataAvailable())
                 {                     
                     this->adc.setConfiguration(this->channels.PIN[CH], RESOLUTION_18_BITS, CONTINUOUS_MODE, PGA_X1);  
-                    int32_t nanoVolt = this->adc.measure();    
+                    int32_t Uab_nV = this->adc.measure();    
 
                     u_HAL_DATA_t tempBuffer;              
                     
@@ -97,12 +98,13 @@ void HAL_TMP11::tick()
                         break;
 
                         case IO_TYPE__PT100:  
-                            tempBuffer.tempSensData.temperatur = (float)nanoVolt/nVperDegreePT100;
+                            Uab_nV = UabAtZeroDegrePT100_nV - Uab_nV;
+                            tempBuffer.tempSensData.temperatur = (float)(Uab_nV/nVperDegreePT100);
                             this->channels.p_ioObject[CH]->halCallback(&tempBuffer);      
                         break;
                            
                         case IO_TYPE__PT1000:    
-                            tempBuffer.tempSensData.temperatur = (float)nanoVolt/nVperDegreePT1000;
+                            tempBuffer.tempSensData.temperatur = (float)(Uab_nV/nVperDegreePT1000);
                             this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                       
                         break;
                         
