@@ -29,12 +29,12 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {   
-        this->deviceState = deviceState_running;  
+        this->deviceState = MOT11_DEVICE_STATE__RUNNING;  
         this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
     {
-        this->deviceState = deviceState_safeState;
+        this->deviceState = MOT11_DEVICE_STATE__SAFE_STATE;
         this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
 }
@@ -70,23 +70,22 @@ void HAL_MOT11::tick()
         //Error behandlung
         if(this->getError()->errorCode != BPLC_ERROR__NO_ERROR)
         {
-            this->deviceState = deviceState_safeState;
+            this->deviceState = MOT11_DEVICE_STATE__SAFE_STATE;
         }
             
         switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
         {
             default:
-            case deviceState_init:    
-            case deviceState_safeState:    
+            case MOT11_DEVICE_STATE__INIT:    
+            case MOT11_DEVICE_STATE__SAFE_STATE:    
                 //Über Request wird zyklisch alle live Parameter abgefragt
-                if(this->to_parameterPoll.check())
+                if(this->to_parameterPoll.checkAndReset())
                 {
-                    this->requestDriveParameter(); 
-                    this->to_parameterPoll.reset();
+                    this->requestDriveParameter();                    
                 } 
             break;
 
-            case deviceState_running:   //Normalbetreb
+            case MOT11_DEVICE_STATE__RUNNING:   //Normalbetreb
                 if(this->channels.p_ioObject->newDataAvailable())
                 {
                     this->sendDriveCommand(this->channels.p_ioObject->halCallback());
@@ -99,7 +98,7 @@ void HAL_MOT11::tick()
                 }  
             break;
 
-            case deviceState_autotuning:
+            case MOT11_DEVICE_STATE__AUTOTUNING:
                 //Status abfragen, solange Autotuning aktiv nix tun
                 if(this->to_parameterPoll.check())
                 {
@@ -115,7 +114,7 @@ void HAL_MOT11::startCurrentAutotuning()
     u_mot11_i2c_payload_t COMMAND;
     memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
     
-    COMMAND.extract.key = (uint8_t)mot11_i2c_key__startCurrentAutotuning;
+    COMMAND.extract.key = (uint8_t)MOT11_I2C_KEY__START_CURRENT_AUTOTUNING;
 
     this->sendFrame(COMMAND);
 
@@ -141,7 +140,7 @@ void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
     u_mot11_i2c_payload_t COMMAND;
     memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
 
-    COMMAND.extract.key         = (uint8_t)mot11_i2c_key__driveCommand;
+    COMMAND.extract.key         = (uint8_t)MOT11_I2C_KEY__DRIVE_COMMAND;
     COMMAND.extract.direction   = (uint8_t)DRIVE_PARAMETER.dcDriveData.direction;
     COMMAND.extract.speed       = DRIVE_PARAMETER.dcDriveData.speed;
     this->sendFrame(COMMAND);    
@@ -222,7 +221,7 @@ bool HAL_MOT11::waitForACK()
 bool HAL_MOT11::waitForDriveParameter()
 {
     u_mot11_i2c_payload_t inCommand;
-    inCommand.extract.key = mot11_i2c_key__count;
+    inCommand.extract.key = MOT11_I2C_KEY__COUNT;
 
     this->to_I2C.reset();      
 
@@ -236,8 +235,8 @@ bool HAL_MOT11::waitForDriveParameter()
                 inCommand.data[i] = Wire.read();   
             }   
         } 
-        //Fast exit wenn Kommando empfangen  
-        if(inCommand.extract.key == mot11_i2c_key__getDriveState)
+        //exit wenn Kommando empfangen  
+        if(inCommand.extract.key == MOT11_I2C_KEY__GET_DRIVE_STATE)
         {
             break;
         }     
@@ -246,9 +245,9 @@ bool HAL_MOT11::waitForDriveParameter()
     //Empfangenen Errorcode auswerten, wenn plausibel
     const bool RECEIVED_ERROR_CODE_PLAUSIBLE = (bool)(inCommand.extract.error < BPLC_ERROR__COUNT);
     //Empfangene Parameter übernehemen
-    if(RECEIVED_ERROR_CODE_PLAUSIBLE && inCommand.extract.key == mot11_i2c_key__getDriveState)
+    if(RECEIVED_ERROR_CODE_PLAUSIBLE && inCommand.extract.key == MOT11_I2C_KEY__GET_DRIVE_STATE)
     {
-        this->deviceState = (e_deviceState_t)inCommand.extract.deviceState;
+        this->deviceState = (e_MOT11_DEVICE_STATE_t)inCommand.extract.deviceState;
         u_HAL_DATA_t tempBuffer;
         tempBuffer.dcDriveData.current = inCommand.extract.current;
         this->channels.p_ioObject->halCallback(&tempBuffer);
@@ -269,5 +268,5 @@ Serial.print("ERROR: ");      Serial.println(inCommand.extract.errordetection);
 Serial.print("CURRENT: ");    Serial.println(inCommand.extract.current);
 Serial.println("");
 #endif
-    return (bool)(inCommand.extract.key == mot11_i2c_key__getDriveState);
+    return (bool)(inCommand.extract.key == MOT11_I2C_KEY__GET_DRIVE_STATE);
 }
