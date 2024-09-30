@@ -37,7 +37,7 @@ class hmiEncoder:public IO_Interface
         //Richtungsauswertung
         if(this->A.fallingEdge() || this->B.fallingEdge())
         {
-            if(this->A.ishigh() && this->f_invertedDirection == false || this->B.ishigh() && this->f_invertedDirection == true)
+            if((this->A.ishigh() && this->f_invertedDirection == false) || (this->B.ishigh() && this->f_invertedDirection == true))
             {          
                 this->direction = MOVEMENT__LEFT;
             }
