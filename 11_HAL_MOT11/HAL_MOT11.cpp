@@ -29,7 +29,7 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {   
-        this->deviceState = MOT11_DEVICE_STATE__RUNNING;  
+        this->deviceState = MOT11_DEVICE_STATE__INIT;  
         this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
@@ -54,7 +54,12 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
     }
 }
 void HAL_MOT11::tick()
-{
+{    
+    if(this->channels.p_ioObject == nullptr)
+    {
+        this->setError(MOT11_ERROR__NO_CHANNEL_IN_USE, __FILENAME__, __LINE__);
+    }
+
     if(this->noErrorSet())
     {  
         //I2C Error check
@@ -66,13 +71,8 @@ void HAL_MOT11::tick()
             #ifdef DEBUG_HAL_MOT11
             Serial.println("errordetection count limit reachded");
             #endif
-        }
-        //Error behandlung
-        if(this->getError()->errorCode != BPLC_ERROR__NO_ERROR)
-        {
-            this->deviceState = MOT11_DEVICE_STATE__SAFE_STATE;
-        }
-            
+        }            
+
         switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
         {
             default:
@@ -91,10 +91,9 @@ void HAL_MOT11::tick()
                     this->sendDriveCommand(this->channels.p_ioObject->halCallback());
                 }
                 //Über Request wird zyklisch alle live Parameter abgefragt
-                if(this->to_parameterPoll.check())
+                if(this->to_parameterPoll.checkAndReset())
                 {
-                    this->requestDriveParameter(); 
-                    this->to_parameterPoll.reset();
+                    this->requestDriveParameter();                     
                 }  
             break;
 

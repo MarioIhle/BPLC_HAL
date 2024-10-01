@@ -35,8 +35,8 @@ class HAL_FUSE12: public halInterface, private BPLC_moduleErrorHandler, private 
     //Object handling
     struct
     {
-        IO_Interface* p_ioObject  [TMP12_CHANNEL_COUNT];   
-        const uint8_t PIN         [TMP12_CHANNEL_COUNT] = {2, 3, 1, 0};   
+        IO_Interface* p_ioObject  [FUSE12_CHANNEL_COUNT];   
+        const uint8_t PIN         [FUSE12_CHANNEL_COUNT] = {2, 3, 1, 0};   
     }channels;         
  };
 #endif

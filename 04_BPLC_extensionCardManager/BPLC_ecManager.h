@@ -31,7 +31,7 @@ typedef enum
     EC__TMP11revA,
     EC__PPO11revA,
     EC__NANO11revA,  
-    ECD__FUSE11revA,  
+    EC__FUSE11revA,  
     EC__FUSE12revA,
 
     EC__TYPE_COUNT,
