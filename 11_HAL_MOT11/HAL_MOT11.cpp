@@ -14,7 +14,7 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     } 
 
     this->channels.p_ioObject                   = nullptr;    
-    this->to_parameterPoll.setInterval(1000);
+    this->to_parameterPoll.setInterval(2500);
      
     //I2C Verbindung prüfen
     if(I2C_check::begin(this->deviceAddress) == false)
@@ -25,6 +25,7 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {   
+        this->i2c.begin();
         this->deviceState = MOT11_DEVICE_STATE__INIT;  
         this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
@@ -116,7 +117,7 @@ void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
 void HAL_MOT11::requestDriveParameter()
 {
     u_MOT11_DATA_FRAME_t BUFFER;
-    this->i2c.getSlaveData(this->deviceAddress, BUFFER.data);
+    this->i2c.getSlaveData(this->deviceAddress, BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));
 
 #ifdef DEBUG_HAL_MOT11 
 Serial.println("Drive Parameter:");

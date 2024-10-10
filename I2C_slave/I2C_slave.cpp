@@ -14,11 +14,11 @@ bool I2C_BPLC_Slave::newCommandAvailable()
     {
         case I2C_BPLC_KEY__SLAVE_COMMAND:
             NEW_COMMAND_TO_PROCESS = true;
-            this->comNode.sendACK();
+            this->comNode.sendACK(0);
             break;
         
         case I2C_BPLC_KEY__REQUEST_SLAVE_DATA:
-            this->sendSlaveData();
+            this->sendSlaveData();            
             break;  
 
         default:
@@ -27,6 +27,7 @@ bool I2C_BPLC_Slave::newCommandAvailable()
         case I2C_BPLC_KEY__SLAVE_DATA: 
             break;
     }
+
     return NEW_COMMAND_TO_PROCESS;
 }
 uint8_t I2C_BPLC_Slave::getCommand(uint8_t* P_PAYLOADBUFFER)
@@ -49,5 +50,20 @@ void I2C_BPLC_Slave::setSlaveData(uint8_t* BUFFER, const uint8_t SIZE)
 }
 void I2C_BPLC_Slave::sendSlaveData()
 {    
-    this->comNode.sendFrame(I2C_BPLC_KEY__SLAVE_DATA, this->slaveDataBuffer, this->sizeOfSlaveData); 
+    Timeout to_waitForMaster(150);
+
+    while (!to_waitForMaster.check())
+    {
+        if(this->comNode.masterOnRevceive())
+        {
+            Serial.println("sendSlaveData");            
+            this->comNode.sendFrame(0, I2C_BPLC_KEY__SLAVE_DATA, this->slaveDataBuffer, this->sizeOfSlaveData); 
+            this->comNode.getFrame(); //Damit wird der letzte Frame gelöscht und nicht dauerhaft Slave Daten verschickt...
+            break;
+        }
+        else
+        {
+            Serial.println("waitForMaster");
+        }       
+    }   
 }

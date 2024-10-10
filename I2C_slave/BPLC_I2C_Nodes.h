@@ -51,15 +51,17 @@ class BPLC_I2C_NODE
     e_I2C_BPLC_KEY_t        newFrameReceived        ();
     s_I2C_BPLC_NODE_FRAME_t getFrame                ();
     
-    void    sendFrame                               (const e_I2C_BPLC_KEY_t KEY, const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT);  
-    void    sendACK                                 ();
-    void    sendNAK                                 ();
+    void    sendFrame                               (const uint8_t DESTINATION_ADDRESS, const e_I2C_BPLC_KEY_t KEY, const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT);  
+    void    sendACK                                 (const uint8_t DESTINATION_ADDRESS);
+    void    sendNAK                                 (const uint8_t DESTINATION_ADDRESS);
   
+    bool    masterOnRevceive                        ();
 
+    
   private:
 
-  bool f_ACKreceived;
-  bool f_slaveDataRequested;
+  bool    f_ACKreceived;
+  bool    f_slaveDataRequested;
 };
 
 
@@ -69,7 +71,7 @@ class I2C_BPLC_Master
             I2C_BPLC_Master   (){};
   void      begin             ();
 
-  uint8_t   getSlaveData      (const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER); 
+  uint8_t   getSlaveData      (const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t BYTE_COUNT); 
   bool      sendCommand       (const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t BYTE_COUNT);
   
 
