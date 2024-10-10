@@ -1,37 +1,53 @@
 #include "BPLC_I2C_Nodes.h"
 
-
-
 I2C_BPLC_Slave::I2C_BPLC_Slave()
 {}
-
-void I2C_BPLC_Slave::begin(const uint8_t ADDRESS, void (*p_requestCallback)(void))
+void I2C_BPLC_Slave::begin(const uint8_t ADDRESS)
 {
-    this->comNode.begin(ADDRESS, p_requestCallback);
+    this->comNode.begin(ADDRESS);
 }
-
-bool I2C_BPLC_Slave::thereIsANewMessage()
+bool I2C_BPLC_Slave::newCommandAvailable()
 {
-    return this->comNode.newFrameAvailable();
-}
+    bool NEW_COMMAND_TO_PROCESS = false;
 
-uint8_t I2C_BPLC_Slave::getLastCommand(uint8_t* P_PAYLOADBUFFER)
+    switch (this->comNode.newFrameReceived())
+    {
+        case I2C_BPLC_KEY__SLAVE_COMMAND:
+            NEW_COMMAND_TO_PROCESS = true;
+            this->comNode.sendACK();
+            break;
+        
+        case I2C_BPLC_KEY__REQUEST_SLAVE_DATA:
+            this->sendSlaveData();
+            break;  
+
+        default:
+        case I2C_BPLC_KEY__ACK:
+        case I2C_BPLC_KEY__NAK:
+        case I2C_BPLC_KEY__SLAVE_DATA: 
+            break;
+    }
+    return NEW_COMMAND_TO_PROCESS;
+}
+uint8_t I2C_BPLC_Slave::getCommand(uint8_t* P_PAYLOADBUFFER)
 {         
-    return this->comNode.getFrame(P_PAYLOADBUFFER);    
-}
+    s_I2C_BPLC_NODE_FRAME_t NEW_FRAME = this->comNode.getFrame();  
+    memcpy(P_PAYLOADBUFFER, NEW_FRAME.frame.data, NEW_FRAME.frameSize);
 
-void I2C_BPLC_Slave::setResponsePayload(const uint8_t* PAYLOAD_BUFFER, const uint8_t SIZE)
+    return NEW_FRAME.frameSize;
+}
+void I2C_BPLC_Slave::setSlaveData(uint8_t* BUFFER, const uint8_t SIZE)
 {
-    if(SIZE < sizeof(this->requestResponseBuffer))
+    if(SIZE < sizeof(this->slaveDataBuffer))
     {
         for(int i=0; i<SIZE; i++)
         {
-            this->requestResponseBuffer[i] = PAYLOAD_BUFFER[i];
+            this->slaveDataBuffer[i] = BUFFER[i];
         }
+        this->sizeOfSlaveData = SIZE;
     } 
 }
-
-void I2C_BPLC_Slave::sendAckData()
-{
-    this->comNode.sendFrame(this->requestResponseBuffer, )
+void I2C_BPLC_Slave::sendSlaveData()
+{    
+    this->comNode.sendFrame(I2C_BPLC_KEY__SLAVE_DATA, this->slaveDataBuffer, this->sizeOfSlaveData); 
 }

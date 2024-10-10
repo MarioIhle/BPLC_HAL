@@ -47,7 +47,7 @@ typedef union
 
   uint8_t data[9];
 
-}u_mot11_i2c_payload_t;
+}u_MOT11_DATA_FRAME_t;
 #pragma pack (pop)
 
 

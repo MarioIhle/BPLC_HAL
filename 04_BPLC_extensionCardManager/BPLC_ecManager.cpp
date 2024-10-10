@@ -131,7 +131,7 @@ void BPLC_extensionCardManager::tick()
     }
     if(this->to_I2cScan.checkAndReset())
     {
-        this->scanForUnkonwnI2CDevices();
+        //this->scanForUnkonwnI2CDevices();
     }      
 }
 //I2C Scan

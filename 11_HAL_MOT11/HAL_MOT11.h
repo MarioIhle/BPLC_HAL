@@ -4,6 +4,7 @@
 //INCLUDES
 #include "HAL_interface.h"
 #include "MOT11_I2C_COMMON_TYPES.h"
+#include "BPLC_I2C_Nodes.h"
 //-------------------------------------------------------------
 //Card definition
 #define MOT11_ADDRESS_COUNT 4
@@ -39,26 +40,16 @@ class HAL_MOT11: public halInterface, private BPLC_moduleErrorHandler, private B
     //I2C Kommunikation
     void sendDriveCommand     (const u_HAL_DATA_t DRIVE_PARAMETER);
     void requestDriveParameter();
-    void sendFrame            (const u_mot11_i2c_payload_t COMMAND);
-    bool waitForACK           ();
-    bool waitForDriveParameter();
+    void sendFrame            (const u_MOT11_DATA_FRAME_t COMMAND);
 
-    Timeout to_parameterPoll; //ping timer
-    Timeout to_I2C;           //max Wartezeit auf Antwort
-   
-    //Safety
-    struct 
-    {
-      struct 
-      {
-        uint8_t count;      //counter bis error ausgegeben wird
-        uint8_t countLimit; //Limit ab wann error ausgegeben wird
-      }i2cError;    
-    }errordetection;
+    Timeout to_parameterPoll;    
+  
     //Object handling
     struct 
     {
       IO_Interface*           p_ioObject;   
     }channels;
+
+    I2C_BPLC_Master i2c;
 };
 #endif

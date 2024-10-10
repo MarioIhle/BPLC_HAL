@@ -3,70 +3,98 @@
 
 #include "Arduino.h"
 #include "Wire.h"
+#include "SpecialFunctions.h"
 
-
-//I2C 
-#define I2C_MASTER_ADDRESS 0x00
 //I2C Commands
 #define ACK 0x06
 #define NAK 0x15
 
+typedef enum
+{
+  I2C_BPLC_KEY__NO_KEY,
+
+  I2C_BPLC_KEY__REQUEST_SLAVE_DATA,
+  I2C_BPLC_KEY__SLAVE_DATA,
+
+  I2C_BPLC_KEY__SLAVE_COMMAND,  
+  I2C_BPLC_KEY__ACK,
+  I2C_BPLC_KEY__NAK,
+
+}e_I2C_BPLC_KEY_t;
+
+#pragma pack (push, 1)
+typedef struct 
+{   
+  union 
+  {
+    struct 
+    {
+      uint8_t key;          
+      uint8_t payload[31];
+    }extract; 
+
+    uint8_t data[32];
+  }frame;
+  
+  uint8_t frameSize;
+
+}s_I2C_BPLC_NODE_FRAME_t;
+#pragma pack (pop)
+
+
 class BPLC_I2C_NODE
 {
   public:
-          BPLC_I2C_NODE       ();
-    void  setAddress          (const uint8_t ADDRESS)             {this->address = ADDRESS;}
-    void  setReceiveCallback  (void (*P_RECEIVE_CALLBACK)(void))  {this->p_receiveCallback = P_RECEIVE_CALLBACK;}
-
-    bool    newFrameAvailable     ();
-    void    getFrame              (uint8_t* P_BUFFER);
-
-    void    requestPayload             ();
-    void    sendFrame                (const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT);  
-    void    sendACK                    ();
-    void    sendNAK                    ();
+            BPLC_I2C_NODE                           ();
+    void    begin                                   (const uint8_t ADDRESS = 0);  
+   
+    e_I2C_BPLC_KEY_t        newFrameReceived        ();
+    s_I2C_BPLC_NODE_FRAME_t getFrame                ();
+    
+    void    sendFrame                               (const e_I2C_BPLC_KEY_t KEY, const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT);  
+    void    sendACK                                 ();
+    void    sendNAK                                 ();
   
-  
+
   private:
-  uint8_t address;
-  void*   p_receiveCallback;
+
+  bool f_ACKreceived;
+  bool f_slaveDataRequested;
 };
 
 
 class I2C_BPLC_Master
 {
   public:
-        I2C_BPLC_Master ();
-  void  begin           ();
-  bool  requestACK      ();
-  void  sendCommand     ();
+            I2C_BPLC_Master   (){};
+  void      begin             ();
+
+  uint8_t   getSlaveData      (const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER); 
+  bool      sendCommand       (const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t BYTE_COUNT);
   
 
   private:
-  BPLC_I2C_NODE comNode;
 
+  BPLC_I2C_NODE comNode;
 };
 
 class I2C_BPLC_Slave
 {
   public:
           I2C_BPLC_Slave          ();
-  void    begin                   (const uint8_t ADDRESS, void (*p_requestCallback)(void));
-
-  bool    thereIsANewMessage      (); 
-  void    setResponsePayload      (const uint8_t* PAYLOAD_BUFFER, const uint8_t SIZE);
-  uint8_t getLastCommand          (uint8_t* P_BUFFER);
+  void    begin                   (const uint8_t ADDRESS);
+ 
+  void    setSlaveData            (uint8_t* BUFFER, const uint8_t SIZE);
   
-  void    setSizeOfResponse       (const uint8_t RESPONSE_SIZE){this->sizeOfResponse = RESPONSE_SIZE;}
+  bool    newCommandAvailable     (); //Wie tick, muss zyklisch aufgerufen werden
+  uint8_t getCommand              (uint8_t* P_BUFFER);
 
   private:
-  void    sendAckData             ();
+  void    sendSlaveData           ();  
+
+  uint8_t slaveDataBuffer[32];  
+  uint8_t sizeOfSlaveData;
+
   BPLC_I2C_NODE comNode;
-
-  uint8_t requestResponseBuffer[32];  //Antwort die bei nächster eingehender Request versendet wird
-  uint8_t sizeOfResponse;
-
-  uint8_t inBuffer[32];
-  bool    f_thereIsANewMessage;
 };
 #endif

@@ -13,13 +13,9 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
         this->setError(MOT11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
     } 
 
-    this->errordetection.i2cError.countLimit    = 3;
-    this->errordetection.i2cError.count         = 0;
-    this->channels.p_ioObject                   = nullptr;
-    
+    this->channels.p_ioObject                   = nullptr;    
     this->to_parameterPoll.setInterval(1000);
-    this->to_I2C.setInterval(50);                 
-    
+     
     //I2C Verbindung prüfen
     if(I2C_check::begin(this->deviceAddress) == false)
     {
@@ -61,18 +57,7 @@ void HAL_MOT11::tick()
     }
 
     if(this->noErrorSet())
-    {  
-        //I2C Error check
-        const bool I2C_ERROR_COUNT_LIMIT_REACHED = (bool)(this->errordetection.i2cError.count >= this->errordetection.i2cError.countLimit);
-        if(I2C_ERROR_COUNT_LIMIT_REACHED)
-        {
-            this->setError(MOT11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
-
-            #ifdef DEBUG_HAL_MOT11
-            Serial.println("errordetection count limit reachded");
-            #endif
-        }            
-
+    {                  
         switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
         {
             default:
@@ -110,162 +95,37 @@ void HAL_MOT11::tick()
 }
 void HAL_MOT11::startCurrentAutotuning()
 {
-    u_mot11_i2c_payload_t COMMAND;
-    memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
+    u_MOT11_DATA_FRAME_t COMMAND;
+    memset(&COMMAND, 0, sizeof(u_MOT11_DATA_FRAME_t));
     
     COMMAND.extract.key = (uint8_t)MOT11_I2C_KEY__START_CURRENT_AUTOTUNING;
 
-    this->sendFrame(COMMAND);
-
-    if(this->waitForACK())
-    {
-        this->errordetection.i2cError.count = 0;
-
-#ifdef DEBUG_HAL_MOT11
-Serial.println("ACK empfangen");
-#endif    
-    }   
-    else
-    {
-        this->errordetection.i2cError.count++;
-
-#ifdef DEBUG_HAL_MOT11
-Serial.println("kein ACK empfangen");
-#endif 
-    } 
+    this->i2c.sendCommand(this->deviceAddress, COMMAND.data, sizeof(COMMAND));
 }
 void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
 {  
-    u_mot11_i2c_payload_t COMMAND;
-    memset(&COMMAND, 0, sizeof(u_mot11_i2c_payload_t));
+    u_MOT11_DATA_FRAME_t COMMAND;
+    memset(&COMMAND, 0, sizeof(u_MOT11_DATA_FRAME_t));
 
     COMMAND.extract.key         = (uint8_t)MOT11_I2C_KEY__DRIVE_COMMAND;
     COMMAND.extract.direction   = (uint8_t)DRIVE_PARAMETER.dcDriveData.direction;
     COMMAND.extract.speed       = DRIVE_PARAMETER.dcDriveData.speed;
-    this->sendFrame(COMMAND);    
-
-    if(this->waitForACK())
-    {
-        this->errordetection.i2cError.count = 0;
-
-#ifdef DEBUG_HAL_MOT11
-Serial.println("ACK empfangen");
-#endif    
-    }   
-    else
-    {
-        this->errordetection.i2cError.count++;
-
-#ifdef DEBUG_HAL_MOT11
-Serial.println("kein ACK empfangen");
-#endif 
-    } 
+    
+    this->i2c.sendCommand(this->deviceAddress, COMMAND.data, sizeof(COMMAND));
 }
 void HAL_MOT11::requestDriveParameter()
 {
-    Wire.requestFrom(this->deviceAddress, sizeof(u_mot11_i2c_payload_t));
-    
-    if(this->waitForDriveParameter())
-    {
-        this->errordetection.i2cError.count = 0;
-
-#ifdef DEBUG_HAL_MOT11
-Serial.println("Drive Parameter empfangen");
-#endif
-    }   
-    else
-    {
-        this->errordetection.i2cError.count++;
-
-#ifdef DEBUG_HAL_MOT11
-Serial.println("keine Drive Parameter empfangen");
-#endif
-    } 
-}
-void HAL_MOT11::sendFrame(const u_mot11_i2c_payload_t COMMAND)
-{
-    Wire.beginTransmission(this->deviceAddress);   
-
-    for(uint8_t bytes; bytes < sizeof(u_mot11_i2c_payload_t); bytes++)
-    {
-        //Serial.println(COMMAND.data[bytes]);
-        Wire.write(COMMAND.data[bytes]);
-    }                
-
-    Wire.endTransmission();    
-}
-bool HAL_MOT11::waitForACK()
-{
-    uint8_t inByte = NAK;
-    
-    Wire.requestFrom(this->deviceAddress, 1); 
-
-    this->to_I2C.reset();  
-
-    while(this->to_I2C.check() == false)
-    {   
-        while(Wire.available()) 
-        {       
-            inByte = Wire.read();    
-        }
-    	//Fast exit wenn Kommando empfangen 
-        if(inByte == ACK)
-        {
-            break;
-        }  
-    }
-
-    return (bool)(inByte == ACK);
-}
-bool HAL_MOT11::waitForDriveParameter()
-{
-    u_mot11_i2c_payload_t inCommand;
-    inCommand.extract.key = MOT11_I2C_KEY__COUNT;
-
-    this->to_I2C.reset();      
-
-    while(this->to_I2C.check() == false)  
-    {     
-        while(Wire.available()) 
-        {  
-            for(uint8_t i=0; i<sizeof(u_mot11_i2c_payload_t); i++)
-            {     
-                //Serial.print(Wire.peek());
-                inCommand.data[i] = Wire.read();   
-            }   
-        } 
-        //exit wenn Kommando empfangen  
-        if(inCommand.extract.key == MOT11_I2C_KEY__GET_DRIVE_STATE)
-        {
-            break;
-        }     
-    }
-    
-    //Empfangenen Errorcode auswerten, wenn plausibel
-    const bool RECEIVED_ERROR_CODE_PLAUSIBLE = (bool)(inCommand.extract.error < BPLC_ERROR__COUNT);
-    //Empfangene Parameter übernehemen
-    if(RECEIVED_ERROR_CODE_PLAUSIBLE && inCommand.extract.key == MOT11_I2C_KEY__GET_DRIVE_STATE)
-    {
-        this->deviceState = (e_MOT11_DEVICE_STATE_t)inCommand.extract.deviceState;
-        u_HAL_DATA_t tempBuffer;
-        tempBuffer.dcDriveData.current = inCommand.extract.current;
-        this->channels.p_ioObject->halCallback(&tempBuffer);
-        this->setError((e_BPLC_ERROR_t)inCommand.extract.error, __FILENAME__, __LINE__);
-    }
-    else
-    {        
-        this->setError(MOT11_ERROR__RECEIVED_DRIVE_PARAMETER_NOT_PLAUSIBLE, __FILENAME__, __LINE__);
-    }
+    u_MOT11_DATA_FRAME_t BUFFER;
+    this->i2c.getSlaveData(this->deviceAddress, BUFFER.data);
 
 #ifdef DEBUG_HAL_MOT11 
 Serial.println("Drive Parameter:");
-Serial.print("KEY: ");        Serial.println(inCommand.extract.key);
-Serial.print("DEVICESTATE: ");Serial.println(inCommand.extract.deviceState);
-Serial.print("DIRECTION: ");  Serial.println(inCommand.extract.direction);
-Serial.print("SPEED: ");      Serial.println(inCommand.extract.speed);
-Serial.print("ERROR: ");      Serial.println(inCommand.extract.errordetection);
-Serial.print("CURRENT: ");    Serial.println(inCommand.extract.current);
+Serial.print("KEY: ");        Serial.println(BUFFER.extract.key);
+Serial.print("DEVICESTATE: ");Serial.println(BUFFER.extract.deviceState);
+Serial.print("DIRECTION: ");  Serial.println(BUFFER.extract.direction);
+Serial.print("SPEED: ");      Serial.println(BUFFER.extract.speed);
+Serial.print("ERROR: ");      Serial.println(BUFFER.extract.errordetection);
+Serial.print("CURRENT: ");    Serial.println(BUFFER.extract.current);
 Serial.println("");
 #endif
-    return (bool)(inCommand.extract.key == MOT11_I2C_KEY__GET_DRIVE_STATE);
 }
