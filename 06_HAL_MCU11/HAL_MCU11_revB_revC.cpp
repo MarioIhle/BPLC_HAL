@@ -110,10 +110,20 @@ void HAL_MCU11_revB::tick()
         tempbuffer.encoderData.stateB = digitalRead(this->PIN.ENCODER_B);
         tempbuffer.encoderData.stateZ = digitalRead(this->PIN.ENCODER_BUTTON);
         this->p_encoder->halCallback(&tempbuffer);
-        //p_oen schreiben
+        //p_oen schreiben       
         if(this->p_oen->newDataAvailable())
-        {           
-            digitalWrite(this->PIN.OEN, this->p_oen->halCallback().digitalIoData.state);
+        {         
+            const bool OEN_STATE = this->p_oen->halCallback().digitalIoData.state;  
+            //NPN PullUp schaltung, ausgang also invertieren
+            if(OEN_STATE > 0)
+            {
+                digitalWrite(this->PIN.OEN, LOW);
+            }
+            else
+            {
+                digitalWrite(this->PIN.OEN, HIGH);
+            }
+            
         }
         //BUZZER
         if(this->p_buzzer->newDataAvailable())
