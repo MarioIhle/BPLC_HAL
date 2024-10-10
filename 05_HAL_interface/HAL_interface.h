@@ -19,6 +19,14 @@ typedef enum
     EC_ADDR_6,
     EC_ADDR_7,
     EC_ADDR_8,
+    EC_ADDR_9,
+    EC_ADDR_10,
+    EC_ADDR_11,
+    EC_ADDR_12,
+    EC_ADDR_13,
+    EC_ADDR_14,
+    EC_ADDR_15,
+    EC_ADDR_16,
 
     EC_ADDR_NOT_DEFINED,
 }e_EC_ADDR_t;

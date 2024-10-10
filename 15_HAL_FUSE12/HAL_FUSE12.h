@@ -3,13 +3,13 @@
 //-------------------------------------------------------------
 //INCLUDES
 #include "HAL_interface.h"
-
+#include "FUSE12_I2C_COMMON_TYPES.h"
 
 //-------------------------------------------------------------
 //Card definition
-#define FUSE12_ADDRESS_COUNT 4
+#define FUSE12_ADDRESS_COUNT 16
 #define FUSE12_CHANNEL_COUNT 4
-const uint8_t FUSE12_I2C_ADDRESSES[FUSE12_ADDRESS_COUNT] = {0xC0, 0xC1, 0xC2, 0xC4};
+const uint8_t FUSE12_I2C_ADDRESSES[FUSE12_ADDRESS_COUNT] = {0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF};
 
 //-------------------------------------------------------------
 class HAL_FUSE12: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
@@ -35,8 +35,8 @@ class HAL_FUSE12: public halInterface, private BPLC_moduleErrorHandler, private 
     //Object handling
     struct
     {
-        IO_Interface* p_ioObject  [FUSE12_CHANNEL_COUNT];   
-        const uint8_t PIN         [FUSE12_CHANNEL_COUNT] = {2, 3, 1, 0};   
+        IO_Interface* p_inObject  [FUSE12_CHANNEL_COUNT];   
+        IO_Interface* p_outObject [FUSE12_CHANNEL_COUNT];  
     }channels;         
  };
 #endif
