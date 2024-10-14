@@ -6,9 +6,9 @@ void I2C_BPLC_Master::begin()
 }
 uint8_t I2C_BPLC_Master::getSlaveData(const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t BYTE_COUNT)
 {    
-    Timeout to_receiveTimeout(50);
+    Timeout to_receiveTimeout(500);
 
-    //Key senden,, damit Slave Daten sendet
+    //Key senden, damit Slave Daten sendet
     this->comNode.sendFrame(SLAVE_ADDRESS, I2C_BPLC_KEY__REQUEST_SLAVE_DATA, nullptr, 0);     
     //Auf Daten warten
     Wire.requestFrom(SLAVE_ADDRESS, BYTE_COUNT);

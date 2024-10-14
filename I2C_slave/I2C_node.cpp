@@ -16,7 +16,6 @@ void receiveCallback(int howMany)
 bool f_dataRequested;
 void requestCallback()
 {
-    Wire.write(5);
     f_dataRequested = true;
 }
 bool BPLC_I2C_NODE::masterOnRevceive()
@@ -59,10 +58,29 @@ void BPLC_I2C_NODE::sendFrame(const uint8_t DESTINATION_ADDRESS, const e_I2C_BPL
     if(PAYLOAD != nullptr)
     {        
         memcpy(OUT_FRAME.frame.extract.payload, PAYLOAD, BYTE_COUNT);
-    }      
-    Wire.beginTransmission(DESTINATION_ADDRESS);
-    Wire.write(OUT_FRAME.frame.data, 1+BYTE_COUNT);
-    Wire.endTransmission(true);          
+    }   
+
+    //Anwort Frame darf kein Wire.begin() haben
+    switch (KEY)
+    {   
+        default:
+        case I2C_BPLC_KEY__NO_KEY:
+            //error
+            break;
+
+        case I2C_BPLC_KEY__REQUEST_SLAVE_DATA:
+        case I2C_BPLC_KEY__SLAVE_COMMAND:
+            Wire.beginTransmission(DESTINATION_ADDRESS);
+            Wire.write(OUT_FRAME.frame.data, 1+BYTE_COUNT);
+            Wire.endTransmission(true); 
+            break;
+
+        case I2C_BPLC_KEY__ACK:
+        case I2C_BPLC_KEY__NAK:
+        case I2C_BPLC_KEY__SLAVE_DATA:
+            Wire.write(OUT_FRAME.frame.data, 1+BYTE_COUNT);
+            break;
+    }            
 }
 e_I2C_BPLC_KEY_t BPLC_I2C_NODE::newFrameReceived()
 {

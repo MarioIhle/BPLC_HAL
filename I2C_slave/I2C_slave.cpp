@@ -38,13 +38,10 @@ uint8_t I2C_BPLC_Slave::getCommand(uint8_t* P_PAYLOADBUFFER)
     return NEW_FRAME.frameSize;
 }
 void I2C_BPLC_Slave::setSlaveData(uint8_t* BUFFER, const uint8_t SIZE)
-{
+{    
     if(SIZE < sizeof(this->slaveDataBuffer))
     {
-        for(int i=0; i<SIZE; i++)
-        {
-            this->slaveDataBuffer[i] = BUFFER[i];
-        }
+        memcpy(this->slaveDataBuffer.payload, BUFFER, SIZE);
         this->sizeOfSlaveData = SIZE;
     } 
 }
@@ -56,7 +53,7 @@ void I2C_BPLC_Slave::sendSlaveData()
     {
         if(this->comNode.masterOnRevceive())
         {
-            Serial.println("sendSlaveData");            
+            Serial.println("sendSlaveData");        
             this->comNode.sendFrame(0, I2C_BPLC_KEY__SLAVE_DATA, this->slaveDataBuffer, this->sizeOfSlaveData); 
             this->comNode.getFrame(); //Damit wird der letzte Frame gelöscht und nicht dauerhaft Slave Daten verschickt...
             break;
