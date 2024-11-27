@@ -1,14 +1,14 @@
 #include "HAL_MCU11.h"
 
 //Callback für Hardware Interrupt 
-volatile uint64_t* p_ISR_COUNT_MCU_REVB;
+volatile bool*  p_f_INT_MCU_REVB;
 static void INT_ISR()
 {
-   *p_ISR_COUNT_MCU_REVB = *p_ISR_COUNT_MCU_REVB + 1;
+   *p_f_INT_MCU_REVB = true;
 }
-HAL_MCU11_revB::HAL_MCU11_revB(volatile uint64_t* P_ISR_COUNT)
+HAL_MCU11_revB::HAL_MCU11_revB(volatile bool* p_f_INT)
 {
-    p_ISR_COUNT_MCU_REVB = P_ISR_COUNT;
+    p_f_INT_MCU_REVB = p_f_INT;
 }
 void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
 {
