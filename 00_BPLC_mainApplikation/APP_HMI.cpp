@@ -2,11 +2,12 @@
 
 void BPLC_APP::handleDisplay()
 {  
-   const bool           ENCODER_BUTTON_PRESSED  = this->APP_HAL.ENCODER.isButtonPressed();
+   const bool           ENCODER_BUTTON_PRESSED  = this->APP_HAL.ENCODER.buttonPressed();
    const e_MOVEMENT_t   ENCODER_DIRETION        = this->APP_HAL.ENCODER.getTurningDirection();   
    const bool           BEEP_ON_ENCODER_INPUT   = this->APP_APP.settings.device.application.f_beepOnEncoderInput;
+
    if((BEEP_ON_ENCODER_INPUT && (ENCODER_DIRETION != MOVEMENT__IDLE)) //bei drehen kann das beepen abgeschaltet werden
-   || ENCODER_BUTTON_PRESSED)
+   || this->APP_HAL.ENCODER.buttonReleased())
    {
       this->beep(1, 50);
    }

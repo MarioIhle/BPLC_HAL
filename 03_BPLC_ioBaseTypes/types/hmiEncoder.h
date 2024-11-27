@@ -16,8 +16,8 @@ class hmiEncoder:public IO_Interface
 
     void                invertTurningDirection  (){this->f_invertedDirection = !this->f_invertedDirection;}
     e_MOVEMENT_t        getTurningDirection     (){return this->direction;}
-    bool                isButtonPressed         (){return this->PB.fallingEdge();}
-
+    bool                buttonPressed           (){return this->PB.fallingEdge();}
+    bool                buttonReleased          (){return this->PB.risingEdge();}
     //Hal handling
     e_IO_TYPE_t         getIoType               (){return this->ioType;}
     bool                newDataAvailable        (){return false;}
