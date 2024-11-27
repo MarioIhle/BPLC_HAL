@@ -2,7 +2,7 @@
 //Public Interface
 BPLC_extensionCardManager::BPLC_extensionCardManager()
 {
-    this->isrCount = 0;
+    this->intIsrOccoured = true;            //Falls DIN EC vorhanden, wird im ersten tick das Flag erkannt und einmal alle Karten gelesen
     this->to_I2cScan.setInterval(10000);
     this->to_readInputs.setInterval(50);
 }
@@ -88,7 +88,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
             p_extensionCard->setAddr(ADDR); 
             this->addExtensionCardToList(p_extensionCard);  
             newEcAdded = true;
-        }        
+        }       
     }
     else
     {

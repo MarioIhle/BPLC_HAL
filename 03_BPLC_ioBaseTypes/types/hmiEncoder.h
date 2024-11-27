@@ -35,17 +35,14 @@ class hmiEncoder:public IO_Interface
         this->PB.halCallback(&EXTRACTED_HAL_DATA__Z);  
 
         //Richtungsauswertung
-        if(this->A.fallingEdge() || this->B.fallingEdge())
-        {
-            if((this->A.ishigh() && this->f_invertedDirection == false) || (this->B.ishigh() && this->f_invertedDirection == true))
-            {          
-                this->direction = MOVEMENT__LEFT;
-            }
-            else
-            {
-                this->direction = MOVEMENT__RIGHT;
-            }                                 
+        if(this->A.risingEdge() && this->B.ishigh())                   
+        {     
+            this->direction = MOVEMENT__RIGHT;
         }
+        else if (this->A.ishigh() && this->B.risingEdge())
+        {
+            this->direction = MOVEMENT__LEFT;
+        }                                
         else
         {
             this->direction = MOVEMENT__IDLE;

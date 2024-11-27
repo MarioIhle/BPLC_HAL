@@ -163,7 +163,7 @@ void HAL_MCU11_revA::tickSafety()
     {
         this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }
-    if(p_ISR_COUNT_MCU_REVA == nullptr)
+    if(p_f_INT_MCU_REVA == nullptr)
     {
         this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }
