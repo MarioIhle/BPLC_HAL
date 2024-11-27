@@ -41,7 +41,7 @@ void I2C_BPLC_Slave::setSlaveData(uint8_t* BUFFER, const uint8_t SIZE)
 {    
     if(SIZE < sizeof(this->slaveDataBuffer))
     {
-        memcpy(this->slaveDataBuffer.payload, BUFFER, SIZE);
+        memcpy(this->slaveDataBuffer, BUFFER, SIZE);
         this->sizeOfSlaveData = SIZE;
     } 
 }
