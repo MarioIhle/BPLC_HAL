@@ -92,14 +92,17 @@ class output: public IO_Interface, blink
 		{
 			case OUTPUTMODE__OFF:
 				this->value = false;	
+				this->resetBlink();
 			break;
 
 			case OUTPUTMODE__ON:
 				this->value = this->setting.onValue;
+				this->resetBlink();
 			break;
 
 			case OUTPUTMODE__VALUE:
 				//keine Änderung, einfach gesetzten Wert halten 
+				this->resetBlink();
 			break;
 
 			case OUTPUTMODE__BLINK_ONCE:	 

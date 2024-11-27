@@ -155,10 +155,10 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     //APP_HMI
     void setupHMI           ();
     void handleDisplay      ();
-    void editDeviceMode     ();
-    void hardwareErrorOut   ();
-    void displaySettings    ();
-    void handle_vDip        ();
+    void editDeviceMode     (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
+    void hardwareErrorOut   (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
+    void displaySettings    (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
+    void handle_vDip        (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
 
     struct
     {        
@@ -169,9 +169,9 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     //Externer aufruf, wenn HAL Objekt ein Error meldet
     BPLC_moduleErrorHandler systemErrorManager;
 
-    void            setupSafety             ();
-    void            tickSafety              ();
-
+    void setupSafety             ();
+    void tickSafety              ();
+  
    
     struct  
     {   

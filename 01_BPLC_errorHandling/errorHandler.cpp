@@ -14,12 +14,28 @@ s_error_t* BPLC_moduleErrorHandler::getError(uint8_t ERROR_NUMBER)
 {
     errorListElement* p_searchedError = this->p_firstError;
 
-    if(ERROR_NUMBER < this->errorCount)
+    if(this->p_firstError != nullptr)
     {
-        for(uint8_t errorNumber = 0; errorNumber < ERROR_NUMBER; errorNumber++)
-        {          
-            p_searchedError = p_searchedError->getNextError();     
+
+        if(ERROR_NUMBER < this->errorCount)
+        {
+            for(uint8_t errorNumber = 0; errorNumber < ERROR_NUMBER; errorNumber++)
+            {          
+                p_searchedError = p_searchedError->getNextError();     
+            }
         }
+    }
+    else
+    {//Fiktive ErrorObjekt erzeugen
+        s_error_t errorData;
+        errorData.errorCode = BPLC_ERROR__NO_ERROR;
+        errorData.timestamp = 0;
+        errorData.file      = __FILENAME__;
+        errorData.line      = __LINE__;
+
+        errorListElement    noError;
+        noError.setErrorData(errorData);
+        p_searchedError = &noError;
     }
         
     return p_searchedError->getErrorData();      

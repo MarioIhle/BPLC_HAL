@@ -9,10 +9,7 @@ void BPLC_APP::tickControlPanel()
     if(this->hostPc.commandAvailable())
     {      
         //Beep on Event
-        if(this->APP_APP.settings.device.application.f_useBuzzer)
-        {
-            this->beep(1, 50);
-        }
+        this->beep(1, 50);        
 
         const u_BPLC_PLI_COMMAND_t COMMAND = this->hostPc.getCommand();
 
@@ -28,7 +25,7 @@ void BPLC_APP::tickControlPanel()
                 break;
 
             case BPLC_PLI_KEY__RESET_ALL_ERRORS:               
-                this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);                
+                this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);                 
                 break;
 
             case BPLC_PLI_KEY__GET_DEVICE_SETTINGS:
@@ -133,11 +130,13 @@ void BPLC_APP::tickControlPanel()
 
                 if(this->APP_APP.settings.device.application.f_useBuzzer)                
                 {
-                    Serial.println("BUZZER USED!");
+                    Serial.println("BUZZER IS USED!");
+                    this->APP_HAL.BUZZER.setOnValue(150);
                 }
                 else
                 {
                     Serial.println("BUZZER NOT USED!");
+                    this->APP_HAL.BUZZER.setOnValue(0);
                 }
                 break;
 
