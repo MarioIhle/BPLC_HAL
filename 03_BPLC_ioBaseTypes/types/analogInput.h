@@ -11,7 +11,7 @@
 class analogInput: public IO_Interface
 {
     public:
-                        analogInput         (const float MAX_VOLTAGE = 5.00, const uint64_t SAMPLE_TIME = 1000)
+                        analogInput         (const float MAX_VOLTAGE = 5.00, const uint64_t SAMPLE_TIME = 5000)
     {
         this->maxVoltage 	= MAX_VOLTAGE;	
         this->ioType	 	= IO_TYPE__ANALOG_INPUT;
@@ -74,7 +74,7 @@ class analogInput: public IO_Interface
     
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
-    bool                newDataAvailable    (){return (bool)(this->to_sampleTime.checkAndReset());}
+    bool                newDataAvailable    (){return this->to_sampleTime.checkAndReset();}
     u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* P_DATA){this->value = P_DATA->analogIoData.value; return *P_DATA;}
 
 

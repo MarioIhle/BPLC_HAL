@@ -78,7 +78,12 @@ void BPLC_I2C_NODE::sendFrame(const uint8_t DESTINATION_ADDRESS, const e_I2C_BPL
         case I2C_BPLC_KEY__ACK:
         case I2C_BPLC_KEY__NAK:
         case I2C_BPLC_KEY__SLAVE_DATA:
-            Wire.write(OUT_FRAME.frame.data, 1+BYTE_COUNT);
+            for(uint8_t i = 0; i<9; i++)
+            {
+                Serial.print(OUT_FRAME.frame.data[i]);
+                Wire.write(i);
+            }
+            Serial.println();            
             break;
     }            
 }

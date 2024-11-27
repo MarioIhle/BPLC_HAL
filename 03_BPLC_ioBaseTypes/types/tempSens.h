@@ -9,7 +9,7 @@
 class TempSens: public IO_Interface
 {
     public:
-                        TempSens            (const e_IO_TYPE_t SENS_TYPE, const unsigned long SAMPLE_TIME){this->ioType = SENS_TYPE; this->to_sampleTime.setInterval(SAMPLE_TIME);}
+                        TempSens            (const e_IO_TYPE_t SENS_TYPE, const unsigned long SAMPLE_TIME = 5000){this->ioType = SENS_TYPE; this->to_sampleTime.setInterval(SAMPLE_TIME);}
     float               getTemperature      (){return this->temperature;}
     bool                temeratureChanged   (){bool TEMP_CHANGED = (bool)(this->f_tempChanged == true); this->f_tempChanged = false; return TEMP_CHANGED;}
 
