@@ -26,9 +26,6 @@
 #include "Adafruit_SSD1306.h"
 #include "I2C_check.h"
 
-//#define DEBUG_OLED_DISPLAY
-
-
 //---------------------------------------------------
 //DISPLAY PARAMETER
 #define SCREEN_WIDTH    128
@@ -38,98 +35,55 @@
 //MENÜS
 typedef enum
 {        
-    menu_mainMenu,
-    menu_deviceMode,
-    menu_errorCodes,
-    menu_dipSwitch,
-    menu_settings,
+    OLED_STATE__SCREENSAVER,
+    OLED_STATE__SHOW_PAGE,
+    OLED_STATE__ERROR,
+    
+}e_OLED_STATE_t;
 
-    menu_screenSaver,
-
-    menu_count,
-}e_oledMenu_t;
-
-typedef struct
+typedef struct 
 {
-  e_oledMenu_t      activeMenu;
-  e_oledMenu_t      previousActiveMenu;
-
-  int               activeText;             
-}s_menu_t;
-
-typedef struct
-{     
-    int             cursorPos;    
-}s_display_t;
-//---------------------------------------------------
-//DEVICE SETTINGS
-typedef struct{
-    uint32_t    sleepTime;
-    bool        screenSaverIsEnbaled;
-}s_deviceSettingsParameter_t;
-//---------------------------------------------------
-//SCREENSAVER
-typedef struct{          
-    Timeout         to_sleep;
-}s_screenSaverParameter_t;
-
+    struct 
+    {
+        String text;
+        bool f_blink;
+    }line[2];
+    
+}s_oledStandartMenuPage_t;
 
 //---------------------------------------------------
-//MCU11 KLASSE
+//OLED KLASSE
 //---------------------------------------------------
-class OLED_MCU11: I2C_check
+class OLED_STANDART_MENU:I2C_check
 {
     public:
-            OLED_MCU11  ();
-    void    begin       ();
-    void    tick        ();
+            OLED_STANDART_MENU  ();
+    void    begin               ();
+    void    tick                ();        
+    void    setPage             (const s_oledStandartMenuPage_t PAGE); 
+    void    resetScreenSaver    ();
+    
+    e_BPLC_ERROR_t  getError    (){return this->errorCode;}
 
-    //Menüsteuernug
-    void            showNextTextOfThisMenu      ();
-    void            showPrevioursTextOfThisMenu ();
-    void            enterMenu                   ();
-    e_oledMenu_t    getActiveMenu               ();      
-    uint8_t         getActiveMenuTextNum        ();
-    void            setMenu                     (const e_oledMenu_t MENU);
-    bool            readyToExitMenu             ();
-    //Parametereingabe
-    void            enterParameter              ();
-    void            exitParameter               ();
-    bool            parameterEntered            ();
-    void            setParamValueToShow         (const uint8_t VALUE);    
-    e_BPLC_ERROR_t  getError                    ();
-
+    
     private:
-    Adafruit_SSD1306 oled;
+    e_OLED_STATE_t state;
+    
+    void        showPage        ();
+    void        showText        (const String TEXT, const bool ROW);
+       
+    //Textausgabe
+    bool                        f_refreshPage;
+    uint8_t                     cursorPos;
+    s_oledStandartMenuPage_t    menuPage;    
+    bool                        f_blinkState;
+    blink                       blinkState;
+    Timeout                     to_sleep;    
 
-    void        showHeadlineText();       
-    void        showMenuText    (const String TEXT, const bool ROW);
-    uint8_t     getMenuText     (const uint8_t LAST_AVAILABLE_TEXT, const uint8_t ACTIVE_TEXT);
-  
-    void        showScreenSaver      ();
-    void        showMainMenu         ();
-    void        showDeviceMode       ();
-    void        showHardwareErrorCode();
-    void        showSettings         ();
-    void        showDipswitches      ();    
+    ERROR_errorText             errorOut;
+    e_BPLC_ERROR_t              errorCode; 
 
-    s_display_t display;
-    s_menu_t    menu;
-    bool        f_refresh;
-
-    int16_t         paramValue;
-    bool            f_parmParameter;
-    Timeout         to_parmeter;
-    bool            f_parameterBlink;
- 
-    String          TEXT_OUTPUT[2];
-
-    ERROR_errorText errorOut;
-
-    s_screenSaverParameter_t    screenSaverParameter;
-    s_deviceSettingsParameter_t deviceSettings;      
-
-    e_BPLC_ERROR_t  errorCode; 
+    Adafruit_SSD1306            oled;
 };
 
 #endif

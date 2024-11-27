@@ -193,7 +193,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     struct 
     {
         //Hal objecte zu allen möglichen Erweiterungskarten     
-        OLED_MCU11      oled;     
+        OLED_STANDART_MENU      oled;     
         
         hmiEncoder      ENCODER; 
         output          BUZZER;

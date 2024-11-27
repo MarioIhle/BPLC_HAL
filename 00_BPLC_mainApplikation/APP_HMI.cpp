@@ -32,7 +32,7 @@ void BPLC_APP::handleDisplay()
             {
                this->APP_HAL.oled.showPrevioursTextOfThisMenu();
             }           
-            this->APP_HAL.oled.setParamValueToShow(this->APP_APP.deviceMode);
+            this->APP_HAL.oled.showPage(this->APP_APP.deviceMode);
          break;
 
          case menu_deviceMode:
@@ -122,11 +122,11 @@ void BPLC_APP::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMEN
 
    if(this->APP_HAL.oled.parameterEntered())
    {
-      this->APP_HAL.oled.setParamValueToShow(this->APP_HMI.temp_ParameterStorage);
+      this->APP_HAL.oled.showPage(this->APP_HMI.temp_ParameterStorage);
    }
    else
    {
-      this->APP_HAL.oled.setParamValueToShow(this->APP_APP.deviceMode);
+      this->APP_HAL.oled.showPage(this->APP_APP.deviceMode);
    }   
 }
 
@@ -148,7 +148,7 @@ void BPLC_APP::hardwareErrorOut(const bool ENCODER_BUTTON_PRESSED, const e_MOVEM
    }
    uint8_t ERROR_CODE = (uint8_t)this->systemErrorManager.getError()->errorCode;
 
-   this->APP_HAL.oled.setParamValueToShow(ERROR_CODE);
+   this->APP_HAL.oled.showPage(ERROR_CODE);
    
    if(ENCODER_DIRETION == MOVEMENT__RIGHT)
    {
@@ -183,7 +183,7 @@ void BPLC_APP::displaySettings(const bool ENCODER_BUTTON_PRESSED, const e_MOVEME
 
    if (DISPLAYED_SETTING == 0)
    {
-      this->APP_HAL.oled.setParamValueToShow(this->APP_APP.settings.device.application.f_useBuzzer);
+      this->APP_HAL.oled.showPage(this->APP_APP.settings.device.application.f_useBuzzer);
    }
 
    if(ENCODER_DIRETION == MOVEMENT__RIGHT)
@@ -248,11 +248,11 @@ void BPLC_APP::handle_vDip(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t
 
    if(PARARMETER_IS_ENTERED)
    {
-      this->APP_HAL.oled.setParamValueToShow(this->APP_HMI.temp_ParameterStorage);
+      this->APP_HAL.oled.showPage(this->APP_HMI.temp_ParameterStorage);
    }
    else
    {
-      this->APP_HAL.oled.setParamValueToShow(this->getVDip(SELECTED_DIP));
+      this->APP_HAL.oled.showPage(this->getVDip(SELECTED_DIP));
    }
 
 #ifdef DEBUG_APP_MCU11_APP_HMI
@@ -262,4 +262,118 @@ for(int i = 0; i< vDIP_COUNT; i++)
 }
 Serial.println("");
 #endif
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//old 
+
+//---------------------------------------------------
+// MENU AUSGABE
+// Texte 2. Zeile
+String DEVICE_MODE[] = {{"stop"}, {"start"}, {"safestate"}, {"running"}, {"running no safety"}, {"running no HAL"}, {"running no COM"}};
+
+void OLED_STANDART_MENU::showScreenSaver()
+{
+  // Nichts anzeigen, vielleicht ein Logo?
+}
+
+void OLED_STANDART_MENU::showMainMenu()
+{
+  if (this->menu.activeText == 0)
+  {
+    this->showMenuText(DEVICE_MODE[this->paramValue], 1);
+  }
+  else
+  {
+    this->showMenuText("", 1);
+  }
+}
+
+void OLED_STANDART_MENU::showHardwareErrorCode()
+{
+  if (this->menu.activeText == 0)
+  {
+    this->showMenuText(String(this->paramValue, DEC), 1);
+  }
+  else
+  {
+    this->showMenuText("", 1);
+  }  
+}
+
+void OLED_STANDART_MENU::showSettings()
+{
+  if (this->menu.activeText == 0)
+  {
+    this->showMenuText(String(this->paramValue, DEC), 1);
+  }
+  else
+  {
+    this->showMenuText("", 1);
+  }  
+}
+
+void OLED_STANDART_MENU::showDipswitches()
+{
+  if (this->menu.activeText < 8)
+  {
+    this->showMenuText(String(this->paramValue, DEC), 1);
+  }
+}
+
+void OLED_STANDART_MENU::showDeviceMode()
+{
+  this->showMenuText(DEVICE_MODE[this->paramValue], 1);
+}
+
+//---------------------------------------------------
+// Parametermode
+void OLED_STANDART_MENU::enterParameter()
+{
+  // Nur bei Parameter in Parametriermode
+  if (HEADLINE_TEXT[this->menu.activeMenu][this->menu.activeText] != EXIT)
+  {
+    this->f_parmParameter = true;
+  }
+}
+
+void OLED_STANDART_MENU::showPage(const uint8_t VALUE)
+{
+  this->paramValue = VALUE;
+}
+
+void OLED_STANDART_MENU::exitParameter()
+{
+  this->f_parmParameter = false;
+  this->f_refresh = true;
+}
+
+bool OLED_STANDART_MENU::parameterEntered()
+{
+  return this->f_parmParameter;
+}
+
+e_BPLC_ERROR_t  OLED_STANDART_MENU::getError()
+{
+  return this->errorCode;
 }
