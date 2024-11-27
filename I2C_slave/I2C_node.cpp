@@ -1,68 +1,95 @@
 #include "BPLC_I2C_Nodes.h"
 
-
 //receiveCallback
-uint8_t callback_inBuffer[32];
-uint8_t callback_sizeOfLastMessage;
-
+s_I2C_BPLC_NODE_FRAME_t callback_inBuffer;
 void receiveCallback(int howMany)
 {
-    for(uint8_t BYTE = 0; BYTE < howMany; BYTE++)
-    {    
-        callback_inBuffer[BYTE] = Wire.read();    
-    }
-    //bei >1 war es ein HB ping ohne payload
-    if(howMany>1)
+    while(Wire.available())
     {
-        callback_sizeOfLastMessage     = howMany;
-    }
+        for(uint8_t BYTE = 0; BYTE < howMany; BYTE++)
+        {    
+            callback_inBuffer.frame.data[BYTE] = Wire.read();    
+        }
+    }    
+    callback_inBuffer.frameSize = (uint8_t)howMany; 
 }
-
-BPLC_I2C_NODE::begin(const uint8_t ADDRESS, void (*p_requestCallback)(void))
+bool f_dataRequested;
+void requestCallback()
+{
+    f_dataRequested = true;
+}
+bool BPLC_I2C_NODE::masterOnRevceive()
+{
+    bool MASTER_IS_READY = f_dataRequested;
+    f_dataRequested = false;
+    return MASTER_IS_READY;
+}
+BPLC_I2C_NODE::BPLC_I2C_NODE()
+{}
+void BPLC_I2C_NODE::begin(const uint8_t ADDRESS)
 {
     //I2C Kommunikation aufbauen
-    this->i2cAddress = ADDRESS;
-    Wire.begin(ADDRESS);
-    Wire.onReceive(receiveCallback);    //Kommando das keine Antwort erwartet
-    Wire.onRequest(p_requestCallback);  //Applikationsspezifische anfrage, die Antwort erwartet
-}
-
-void BPLC_I2C_NODE::sendACK()
-{
-    Wire.write(ACK);
-}
-
-void BPLC_I2C_NODE::sendNAK()
-{
-    Wire.write(NAK);
-}
-
-void BPLC_I2C_NODE::sendFrame(const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT)
-{
-  for(uint8_t byte = 0; byte < BYTE_COUNT; byte++)
-  {
-    Wire.write(PAYLOAD[byte]);
-  } 
-}
-
-bool BPLC_I2C_NODE::newFrameAvailable()
-{
-    return (callback_sizeOfLastMessage > 0)
-}
-
-uint8_t BPLC_I2C_NODE::getSizeOfLastMessage()
-{       
-    return callback_sizeOfLastMessage;
-}
-
-uint8_t BPLC_I2C_NODE::getLastCommand(uint8_t* P_BUFFER)
-{
-    const uint8_t BYTE_COUNT    = callback_sizeOfLastMessage;
-    callback_sizeOfLastMessage  = 0;
-
-    for(uint8_t BYTE =0; BYTE< callback_sizeOfLastMessage; BYTE++)
+    if(ADDRESS != 0)
     {
-        P_BUFFER[BYTE] = this->callback_inBuffer[BYTE];
+        Wire.begin(ADDRESS);
+    }
+    else
+    {
+        Wire.begin();
     }    
-    return BYTE_COUNT
+    Wire.onReceive(receiveCallback);
+    Wire.onRequest(requestCallback);
+}
+void BPLC_I2C_NODE::sendACK(const uint8_t DESTINATION_ADDRESS)
+{
+    this->sendFrame(DESTINATION_ADDRESS, I2C_BPLC_KEY__ACK, nullptr, 1);
+}
+void BPLC_I2C_NODE::sendNAK(const uint8_t DESTINATION_ADDRESS)
+{
+    this->sendFrame(DESTINATION_ADDRESS, I2C_BPLC_KEY__NAK, nullptr, 1);
+}
+void BPLC_I2C_NODE::sendFrame(const uint8_t DESTINATION_ADDRESS, const e_I2C_BPLC_KEY_t KEY, const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT)
+{
+    s_I2C_BPLC_NODE_FRAME_t OUT_FRAME;
+    memset(&OUT_FRAME, 0, sizeof(OUT_FRAME));
+
+    OUT_FRAME.frame.extract.key = KEY;
+
+    if(PAYLOAD != nullptr)
+    {        
+        memcpy(OUT_FRAME.frame.extract.payload, PAYLOAD, BYTE_COUNT);
+    }   
+
+    //Anwort Frame darf kein Wire.begin() haben
+    switch (KEY)
+    {   
+        default:
+        case I2C_BPLC_KEY__NO_KEY:
+            //error
+            break;
+
+        case I2C_BPLC_KEY__REQUEST_SLAVE_DATA:
+        case I2C_BPLC_KEY__SLAVE_COMMAND:
+            Wire.beginTransmission(DESTINATION_ADDRESS);
+            Wire.write(OUT_FRAME.frame.data, 1+BYTE_COUNT);
+            Wire.endTransmission(true); 
+            break;
+
+        case I2C_BPLC_KEY__ACK:
+        case I2C_BPLC_KEY__NAK:
+        case I2C_BPLC_KEY__SLAVE_DATA:
+            Wire.write(OUT_FRAME.frame.data, 1+BYTE_COUNT);
+            break;
+    }            
+}
+e_I2C_BPLC_KEY_t BPLC_I2C_NODE::newFrameReceived()
+{
+     return (e_I2C_BPLC_KEY_t)callback_inBuffer.frame.extract.key;
+}
+s_I2C_BPLC_NODE_FRAME_t BPLC_I2C_NODE::getFrame()
+{
+    s_I2C_BPLC_NODE_FRAME_t NEW_FRAME = callback_inBuffer;
+    memset(&callback_inBuffer, 0, sizeof(callback_inBuffer));
+
+    return NEW_FRAME;
 }

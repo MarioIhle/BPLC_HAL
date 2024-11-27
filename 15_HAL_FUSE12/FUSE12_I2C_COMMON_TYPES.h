@@ -3,7 +3,7 @@
 
 
 #include "Arduino.h"
-#include "I2C_slave.h"
+#include "BPLC_I2C_Nodes.h"
 //-------------------------------------------------------------
 //APPLIKATION
 //-------------------------------------------------------------
@@ -13,7 +13,7 @@ typedef enum
   FUSE12_I2C_KEY__GET_FUSE_STATES_AND_CURRENT,
 
   FUSE12_I2C_KEY__COUNT,
-}e_FUSE11_I2C_KEY_t;
+}e_FUSE12_I2C_KEY_t;
 
 
 #pragma pack (push, 1)

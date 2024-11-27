@@ -2,8 +2,9 @@
 //Public Interface
 BPLC_extensionCardManager::BPLC_extensionCardManager()
 {
-    this->isrCount = 0;
+    this->intIsrOccoured = true;            //Falls DIN EC vorhanden, wird im ersten tick das Flag erkannt und einmal alle Karten gelesen
     this->to_I2cScan.setInterval(10000);
+    this->to_readInputs.setInterval(50);
 }
 void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)                                
 {
@@ -28,12 +29,12 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
         switch (EXTENSION_CARD_TYPE)
         {
             case EC__MCU11revA:    
-                p_newHalInterface = new HAL_MCU11_revA(&this->isrCount);  
+                p_newHalInterface = new HAL_MCU11_revA(&this->intIsrOccoured);  
                 break;
 
             case EC__MCU11revB:    
             case EC__MCU11revC://Gleiches pinning, nur änderungen im Layout 
-                p_newHalInterface = new HAL_MCU11_revB(&this->isrCount);      
+                p_newHalInterface = new HAL_MCU11_revB(&this->intIsrOccoured);      
                 break;   
 
             case EC__AIN11revA:          
@@ -87,7 +88,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
             p_extensionCard->setAddr(ADDR); 
             this->addExtensionCardToList(p_extensionCard);  
             newEcAdded = true;
-        }        
+        }       
     }
     else
     {
@@ -110,9 +111,16 @@ void BPLC_extensionCardManager::tick()
                 switch(p_extensionCardToTick->getCardType())            
                 {
                     case EC__DIN11revA:
-                        if(this->isrCount > 0)
+                        //INT ist callback
+                        if(this->intIsrOccoured)
                         {
-                            p_extensionCardToTick->getHalInterface()->tick();                           
+                            this->to_readInputs.reset();
+                            this->intIsrOccoured = false;                                                       
+                        }
+                        //Wenn INT isr callback, 50ms lang Inputs über I2C lesen
+                        if(!this->to_readInputs.check())
+                        {
+                            p_extensionCardToTick->getHalInterface()->tick();
                         }
                     break;
 
@@ -122,16 +130,11 @@ void BPLC_extensionCardManager::tick()
                 }      
             }      
             p_extensionCardToTick = p_extensionCardToTick->getNext();      
-        }
-        //nach lesen ALLER (DIN) Karten count verringern
-        if(this->isrCount > 0)
-        {                  
-            this->isrCount--;
-        }  
+        }       
     }
     if(this->to_I2cScan.checkAndReset())
     {
-        this->scanForUnkonwnI2CDevices();
+        //this->scanForUnkonwnI2CDevices();
     }      
 }
 //I2C Scan

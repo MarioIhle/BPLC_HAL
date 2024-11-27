@@ -31,7 +31,7 @@ typedef enum
     EC__TMP11revA,
     EC__PPO11revA,
     EC__NANO11revA,  
-    ECD__FUSE11revA,  
+    EC__FUSE11revA,  
     EC__FUSE12revA,
 
     EC__TYPE_COUNT,
@@ -85,6 +85,7 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
     extensionCard*      searchExtensionCard                 (const e_EC_TYPE_t  SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR);
     //Input Interrupt count
-    volatile uint64_t   isrCount;
+    volatile bool       intIsrOccoured;
+    Timeout             to_readInputs;
 };
 #endif

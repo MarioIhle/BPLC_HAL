@@ -3,6 +3,10 @@
 
 #include "BPLC_errorCodes.h"
 
+#ifdef ARDUINO_AVR_NANO
+#define __FILENAME__ (__builtin_strrchr( "/" __FILE__, '/') + 1)
+#endif
+
 class BPLC_logPrint: ERROR_errorText
 {
     public:

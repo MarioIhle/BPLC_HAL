@@ -13,17 +13,22 @@
 //-------------------------------------------------------------
 #include "Arduino.h"
 #include "SpecialFunctions.h"
+#ifndef ARDUINO_AVR_NANO
 #include <Preferences.h>
+
 //BPLC
 #include "BPLC_errorHandler.h"
 #include "BPLC_controlInterface.h"
+
 //Hardware
 #include "BPLC_ecManager.h"
 #include "OLED_DISPLAY.h" 
 //Network
+
 #include "BertaNetNode.h"
 #include "BertaPorts.h"
 #include "BertaNetwork.h"
+#endif
 //-------------------------------------------------------------
 //HARDWARE SPEZIFISCHE TYPES
 //-------------------------------------------------------------
