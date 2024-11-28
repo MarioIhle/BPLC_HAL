@@ -31,6 +31,9 @@
 #define SCREEN_WIDTH    128
 #define SCREEN_HEIGHT   64
 #define OLED_RESET      4
+
+#define ROW_1 0
+#define ROW_2 1
 //---------------------------------------------------
 //MENÜS
 typedef enum
