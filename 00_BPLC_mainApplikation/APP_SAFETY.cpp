@@ -33,6 +33,6 @@ void BPLC_APP::tickSafety()
    //Auf gesetzte Errors prüfen
    if(!this->systemErrorManager.noErrorSet())
    {
-      this->setDeviceMode(APP_MODE__SAFE_STATE);
+      this->setDeviceMode(BPLC_DEVICE_MODE__SAFE_STATE);
    }
 }

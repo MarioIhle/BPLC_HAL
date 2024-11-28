@@ -1,71 +1,84 @@
-#include"BPLC_APP.h"
+#include "APP_HMI.h"
 
-void BPLC_APP::handleDisplay()
+BPLC::BPLC()
+{}
+
+void BPLC_HMI::begin(hmiEncoder* P_HMI_ENCODER, output* P_BUZZER)
+{
+   this->p_mcuHmiEncoder = P_HMI_ENCODER;
+   this->p_buzzer        = P_BUZZER;      
+}
+void BPLC_HMI::tick()
 {  
-   const bool           ENCODER_BUTTON_PRESSED  = this->APP_HAL.ENCODER.buttonPressed();
-   const e_MOVEMENT_t   ENCODER_DIRETION        = this->APP_HAL.ENCODER.getTurningDirection();   
-   const bool           BEEP_ON_ENCODER_INPUT   = this->APP_APP.settings.device.application.f_beepOnEncoderInput;
+   const bool           ENCODER_BUTTON_PRESSED  = this->p_mcuHmiEncoder->buttonPressed();
+   const bool           ENOCDER_BUTTON_RELEASED = this->p_mcuHmiEncoder->buttonReleased();
+   const e_MOVEMENT_t   ENCODER_DIRETION        = this->p_mcuHmiEncoder->getTurningDirection();   
+   const bool           BEEP_ON_ENCODER_INPUT   = this->settings.f_beepOnEncoderInput;
 
-   if((BEEP_ON_ENCODER_INPUT && (ENCODER_DIRETION != MOVEMENT__IDLE)) //bei drehen kann das beepen abgeschaltet werden
-   || this->APP_HAL.ENCODER.buttonReleased())
+   if((BEEP_ON_ENCODER_INPUT && (ENCODER_DIRETION != MOVEMENT__IDLE)) 
+   || ENOCDER_BUTTON_RELEASED)
    {
-      this->beep(1, 50);
+      this->p_buzzer->blinkOnce(1, 50);
    }
 
-   if(this->APP_HAL.oled.getError() == BPLC_ERROR__NO_ERROR && this->APP_APP.settings.device.hardware.oledAvailable == true)
+   this->oledDisplay.tick();
+
+   if(this->oledDisplay.getError() == BPLC_ERROR__NO_ERROR)
    {
-      this->APP_HAL.oled.tick();
-
-      switch(this->APP_HAL.oled.getActiveMenu())
+      switch(this->menu.activeMenu)
       {      
-         case menu_mainMenu:
-            if(ENCODER_BUTTON_PRESSED)
-            {            
-               this->APP_HAL.oled.enterMenu();            
-            }
+         case HMI_MENU__MAIN_MENU:
+            this->showMainMenu(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION)        
+            break;
 
-            if(ENCODER_DIRETION == MOVEMENT__RIGHT)
-            {
-               this->APP_HAL.oled.showNextTextOfThisMenu();
-            }
-            else if(ENCODER_DIRETION == MOVEMENT__LEFT)
-            {
-               this->APP_HAL.oled.showPrevioursTextOfThisMenu();
-            }           
-            this->APP_HAL.oled.showPage(this->APP_APP.deviceMode);
-         break;
+         case HMI_MENU__EDIT_DEVICE_MODE:
+            this->editDeviceMode(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);
+            break;
 
-         case menu_deviceMode:
-            editDeviceMode(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);
-         break;
+         case HMI_MENU__EDIT_SETTING:
+            this->hardwareErrorOut(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);
+            break;
 
-         case menu_errorCodes:
-            hardwareErrorOut(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);
-         break;
-
-         case menu_settings:
-            displaySettings(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);        
-         break;
-
-         case menu_dipSwitch:
-            handle_vDip(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);
-         break;
-
-         case menu_screenSaver: 
-            if(ENCODER_BUTTON_PRESSED || ENCODER_DIRETION != MOVEMENT__IDLE)
-            {
-               this->APP_HAL.oled.setMenu(menu_mainMenu);
-            }
-         break;
+         case HMI_MENU__EDIT_V_DIP:
+            this->displaySettings(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);        
+            break;
       }
    }   
 }
-
-void BPLC_APP::setupHMI()
-{}
-
 //Display handling
-void BPLC_APP::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
+static String MAIN_MENU_TEXTS[] = {{"DEV MODE"}, {"EDIT MODE"}, {"ERROR"}, {"VDIP"}, {"SETTINGS"}, {"EXIT"}};
+
+void BPLC_HMI::showMainMenu(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
+{
+   s_oledStandartMenuPage_t pageToShow;
+   pageToShow.line[0] = MAIN_MENU_TEXTS[this->menu.activeHeadlineTextOfMenu];
+   if(this->menu.activeHeadlineTextOfMenu == 0)
+   {
+      pageToShow.line[1] = String(this->data.deviceMode);
+   }
+   else
+   {
+      pageToShow.line[1] = "press";
+   }
+   pageToShow.line[1] = 
+   this->oledDisplay.setPage();
+   //enterSubmenu
+   if(ENCODER_BUTTON_PRESSED)
+   {            
+      this->menu.activeMenu = (e_HMI_MENU_t)this->menu.activeHeadlineTextOfMenu;
+   }
+
+   if(ENCODER_DIRETION == MOVEMENT__RIGHT)
+   {
+      this->menu.activeHeadlineTextOfMenu++;
+   }
+   else if(ENCODER_DIRETION == MOVEMENT__LEFT)
+   {
+      this->menu.activeHeadlineTextOfMenu--;
+   }  
+  
+}
+void BPLC_HMI::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
 {
    if(ENCODER_BUTTON_PRESSED)
    {                 
@@ -77,7 +90,7 @@ void BPLC_APP::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMEN
       }
       else
       {
-         this->setDeviceMode((e_APP_MODE_t)this->APP_HMI.temp_ParameterStorage);
+         this->setDeviceMode((e_BPLC_DEVICE_MODE_t)this->APP_HMI.temp_ParameterStorage);
          this->APP_HAL.oled.exitParameter();
       }
       //Cursor on "exit"
@@ -111,13 +124,13 @@ void BPLC_APP::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMEN
    }  
 
    //Bereichberenzung
-   if(this->APP_HMI.temp_ParameterStorage < APP_MODE__STOP)
+   if(this->APP_HMI.temp_ParameterStorage < BPLC_DEVICE_MODE__STOP)
    {
-      APP_HMI.temp_ParameterStorage = APP_MODE__STOP;
+      APP_HMI.temp_ParameterStorage = BPLC_DEVICE_MODE__STOP;
    }
-   if(this->APP_HMI.temp_ParameterStorage >= APP_MODE__COUNT)
+   if(this->APP_HMI.temp_ParameterStorage >= BPLC_DEVICE_MODE__COUNT)
    {
-      this->APP_HMI.temp_ParameterStorage = APP_MODE__COUNT-1;
+      this->APP_HMI.temp_ParameterStorage = BPLC_DEVICE_MODE__COUNT-1;
    }
 
    if(this->APP_HAL.oled.parameterEntered())
@@ -129,8 +142,7 @@ void BPLC_APP::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMEN
       this->APP_HAL.oled.showPage(this->APP_APP.deviceMode);
    }   
 }
-
-void BPLC_APP::hardwareErrorOut(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
+void BPLC_HMI::hardwareErrorOut(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
 {
    const uint8_t ERROR_CODE_DISPLAYED = (this->APP_HAL.oled.getActiveMenuTextNum() == 0);
 
@@ -159,8 +171,7 @@ void BPLC_APP::hardwareErrorOut(const bool ENCODER_BUTTON_PRESSED, const e_MOVEM
       this->APP_HAL.oled.showPrevioursTextOfThisMenu();
    }    
 }
-
-void BPLC_APP::displaySettings(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
+void BPLC_HMI::displaySettings(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
 {
    const uint8_t DISPLAYED_SETTING = this->APP_HAL.oled.getActiveMenuTextNum();
 
@@ -195,8 +206,7 @@ void BPLC_APP::displaySettings(const bool ENCODER_BUTTON_PRESSED, const e_MOVEME
       this->APP_HAL.oled.showPrevioursTextOfThisMenu();
    } 
 }
-
-void BPLC_APP::handle_vDip(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
+void BPLC_HMI::handle_vDip(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
 {  
    const bool           IS_ENCODER_BUTTON_PRESSED  = ENCODER_BUTTON_PRESSED;
    const e_MOVEMENT_t   TURNING_DIRECTION          = ENCODER_DIRETION;

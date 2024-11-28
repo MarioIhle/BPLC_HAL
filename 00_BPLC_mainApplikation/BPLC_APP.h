@@ -17,48 +17,21 @@
 #include <Preferences.h>
 
 //BPLC
+#include "BPLC_types.h"
 #include "BPLC_errorHandler.h"
 #include "BPLC_controlInterface.h"
 
 //Hardware
-#include "BPLC_ecManager.h"
-#include "OLED_DISPLAY.h" 
-//Network
+#include "04_BPLC_extensionCardManager/BPLC_ecManager.h"
 
+//MCU HMI
+#include "00_BPLC_mainApplikation/APP_HMI/APP_HMI.h"
+
+//Network
 #include "BertaNetNode.h"
 #include "BertaPorts.h"
 #include "BertaNetwork.h"
 #endif
-//-------------------------------------------------------------
-//HARDWARE SPEZIFISCHE TYPES
-//-------------------------------------------------------------
-typedef enum
-{
-    vDIP_1,
-    vDIP_2,
-    vDIP_3,
-    vDIP_4,
-    vDIP_5,
-    vDIP_6,
-    vDIP_7,
-    vDIP_8,
-
-    vDIP_COUNT,
-}e_V_DIP_t;
-
-typedef enum
-{
-    APP_MODE__STOP,    
-    APP_MODE__START,
-    APP_MODE__SAFE_STATE,
-    APP_MODE__RUN,
-    APP_MODE__RUN_WITHOUT_SAFETY,
-    APP_MODE__RUN_WITHOUT_EC_CARDS,
-    APP_MODE__RUN_WITHOUT_COM,
-
-    APP_MODE__COUNT,
-}e_APP_MODE_t;
-
 
 //-------------------------------------------------------------
 //BPLC_APP KLASSE
@@ -100,12 +73,12 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     void            saveDeviceSettings  ();
     void            loadDeviceSettings  ();
     //Device Mode
-    e_APP_MODE_t    getDeviceMode   ();    
-    void            setDeviceMode   (const e_APP_MODE_t MODE);
+    e_BPLC_DEVICE_MODE_t    getDeviceMode   ();    
+    void            setDeviceMode   (const e_BPLC_DEVICE_MODE_t MODE);
 
     struct
     {
-        e_APP_MODE_t   deviceMode;
+        e_BPLC_DEVICE_MODE_t   deviceMode;
         int16_t        virtualDipSwitch[vDIP_COUNT]; 
 
         struct
@@ -119,11 +92,15 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
             struct 
             {
                 struct 
-                {
-                    bool f_beepOnEncoderInput;
-                    bool f_useBuzzer;
-                    bool f_encoderInverted;   
+                {                   
+                    bool f_useBuzzer;                       
                 }application;   
+
+                struct 
+                {
+                    bool f_encoderInverted;
+                    bool f_beepOnEncoderInput;
+                }hmi;
 
                 struct 
                 {
@@ -150,22 +127,8 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
             uint8_t flashData[sizeof(device)];
         }settings; 
 
-    }APP_APP;       
-    
-    //APP_HMI
-    void setupHMI           ();
-    void handleDisplay      ();
-    void editDeviceMode     (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
-    void hardwareErrorOut   (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
-    void displaySettings    (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
-    void handle_vDip        (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
-
-    struct
-    {        
-        int16_t     temp_ParameterStorage;         
-    }APP_HMI;    
+    }APP_APP;         
   
-
     //Externer aufruf, wenn HAL Objekt ein Error meldet
     BPLC_moduleErrorHandler systemErrorManager;
 
@@ -189,12 +152,10 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     BPLC_extensionCardManager   extensionCardManager; 
     void                        setupHardware   ();
     void                        tickHardware    ();
-     
+    
     struct 
-    {
-        //Hal objecte zu allen möglichen Erweiterungskarten     
-        OLED_STANDART_MENU      oled;     
-        
+    {        
+        BPLC_HMI*       p_hmi;    
         hmiEncoder      ENCODER; 
         output          BUZZER;
         output          LD1_DEVICE_STATE;
