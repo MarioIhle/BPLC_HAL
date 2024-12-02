@@ -27,8 +27,7 @@ void BPLC_APP::setupHardware()
          this->extensionCardManager.mapObjectToExtensionCard(&this->APP_HAL.LD1_DEVICE_STATE,            MCU_TYPE, EC_ADDR_1, (e_EC_CHANNEL_t)MCU_CHANNEL__LD1); 
          this->extensionCardManager.mapObjectToExtensionCard(&this->APP_HAL.LD2_COMMUNICATION_STATE,     MCU_TYPE, EC_ADDR_1, (e_EC_CHANNEL_t)MCU_CHANNEL__LD2); 
          this->extensionCardManager.mapObjectToExtensionCard(&this->APP_HAL.LD3_ERROR_OUT,               MCU_TYPE, EC_ADDR_1, (e_EC_CHANNEL_t)MCU_CHANNEL__LD3);  
-         //OnboardDisplay initialisieren
-         this->APP_HAL.oled.begin();     
+         //OnboardDisplay initialisieren    
          this->APP_APP.settings.device.hardware.oledAvailable = true;
       }
    }

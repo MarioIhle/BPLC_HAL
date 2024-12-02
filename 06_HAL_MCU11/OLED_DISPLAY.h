@@ -17,7 +17,6 @@
 #include "Arduino.h"
 
 //Lib includes
-#include "BPLC_ioBaseTypes.h"
 #include "BPLC_errorCodes.h"
 
 #include "SpecialFunctions.h"
@@ -25,6 +24,7 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
 #include "I2C_check.h"
+#include "BPLC_errorHandler.h"
 
 //---------------------------------------------------
 //DISPLAY PARAMETER
@@ -38,7 +38,6 @@
 //MENÜS
 typedef enum
 {        
-    OLED_STATE__SCREENSAVER,
     OLED_STATE__SHOW_PAGE,
     OLED_STATE__ERROR,
     
@@ -57,16 +56,19 @@ typedef struct
 //---------------------------------------------------
 //OLED KLASSE
 //---------------------------------------------------
-class OLED_STANDART_MENU:I2C_check
+class OLED_STANDART_MENU:I2C_check, private BPLC_moduleErrorHandler, public BPLC_moduleErrorInterface
 {
     public:
             OLED_STANDART_MENU  ();
     void    begin               ();
     void    tick                ();        
     void    setPage             (const s_oledStandartMenuPage_t PAGE); 
-    void    resetScreenSaver    ();
     
-    e_BPLC_ERROR_t  getError    (){return this->errorCode;}
+    //Modulerror Interface   
+    uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
 
     
     private:
@@ -81,10 +83,6 @@ class OLED_STANDART_MENU:I2C_check
     s_oledStandartMenuPage_t    menuPage;    
     bool                        f_blinkState;
     blink                       blinkState;
-    Timeout                     to_sleep;    
-
-    ERROR_errorText             errorOut;
-    e_BPLC_ERROR_t              errorCode; 
 
     Adafruit_SSD1306            oled;
 };

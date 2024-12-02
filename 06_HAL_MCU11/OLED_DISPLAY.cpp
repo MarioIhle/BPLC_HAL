@@ -1,18 +1,17 @@
 #include "OLED_DISPLAY.h"
 
-OLED_STANDART_MENU::OLED_STANDART_MENU() {}
+OLED_STANDART_MENU::OLED_STANDART_MENU() 
+{}
 void OLED_STANDART_MENU::begin()
 {
-  this->errorCode = BPLC_ERROR__NO_ERROR;
   this->blinkState.setupBlink(1, 1000, 1000);
-  this->to_sleep.setInterval(60000);
 
   if(!I2C_check::begin(0x3C))
   {
-    this->errorCode = BPLC_ERROR__OLED_COMMUNICATION_FAILED;
+    this->setError(BPLC_ERROR__OLED_COMMUNICATION_FAILED, __FILENAME__, __LINE__);
   }
 
-  if(this->errorCode == BPLC_ERROR__NO_ERROR)
+  if(this->getError()->errorCode == BPLC_ERROR__NO_ERROR)
   {
     // Library inititalisieren
     this->oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -31,46 +30,43 @@ void OLED_STANDART_MENU::begin()
   }
 }
 void OLED_STANDART_MENU::tick()
-{ 
-  switch (this->state)
+{     
+  if(this->getError()->errorCode == BPLC_ERROR__NO_ERROR)
   {
-    case OLED_STATE__SCREENSAVER:
-      this->showScreenSaver();
-    break;
-
-    case OLED_STATE__SHOW_PAGE:      
-      if (this->to_sleep.check())
-      {
-        this->oled.clearDisplay();
-        this->state = OLED_STATE__SCREENSAVER;    
-      }
-      this->showPage();
-    break;
-
-    default:
-    case OLED_STATE__ERROR:
-    break;
+    this->showPage();
   }
 }
 void OLED_STANDART_MENU::setPage(const s_oledStandartMenuPage_t PAGE)
 {
-  if(PAGE != this->menuPage)
-  {
-    this->menuPage      = PAGE;
-    this->f_refreshPage = true;
-  }  
+  for(uint8_t row = 0; row < 2; row++)
+  { 
+    if(PAGE.line[row].text != this->menuPage.line[row].text)
+    {
+      this->menuPage      = PAGE;
+      this->f_refreshPage = true;
+    }  
+  }
 }
 void OLED_STANDART_MENU::showPage()
 {
+  const bool BLINK_TEXT_ROW_1 = this->menuPage.line[ROW_1].f_blink;
+  const bool BLINK_TEXT_ROW_2 = this->menuPage.line[ROW_2].f_blink;
+
   //Blinken erzeugen
   if(this->blinkState.tickBlink() && (!this->f_blinkState))
   {
-    this->f_refreshPage = true;
+    if(BLINK_TEXT_ROW_1 || BLINK_TEXT_ROW_2)
+    {
+      this->f_refreshPage = true;
+    }    
     this->f_blinkState  = true;
   }
   else if((!this->blinkState.tickBlink()) && this->f_blinkState)
   {
-    this->f_refreshPage = true;
+    if(BLINK_TEXT_ROW_1 || BLINK_TEXT_ROW_2)
+    {
+      this->f_refreshPage = true;
+    } 
     this->f_blinkState  = false;
   }
 
@@ -82,9 +78,9 @@ void OLED_STANDART_MENU::showPage()
     for(uint8_t row = 0; row < 2; row++)
     {      
       //Nur Text ausgeben wenn blinken == TRUE || kein Blinkn erwümscht
-      if(this->f_blinkState || (!BLINK_TEXT))
+      if(this->f_blinkState || (!this->menuPage.line[row].f_blink))
       {    
-        this->showMenuText(this->menuPage.line[row], row);
+        this->showText(this->menuPage.line[row].text, row);
       } 
     } 
     this->f_refreshPage;
@@ -115,9 +111,4 @@ void OLED_STANDART_MENU::showText(const String TEXT, const bool ROW)
   
   // Display aktaliesieren
   this->oled.display();
-}
-void OLED_STANDART_MENU::resetScreenSaver()
-{
-  this->to_sleep.reset();
-  this->state = OLED_STATE__SHOW_PAGE;
 }

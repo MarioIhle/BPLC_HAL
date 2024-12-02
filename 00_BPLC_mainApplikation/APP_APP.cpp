@@ -14,11 +14,13 @@ void BPLC_APP::begin()
    //Module initialisieren
    this->setupSafety();
    this->setupApplication();     
-   if(this->APP_APP.settings.device.hardware.oledAvailable)
+
+   this->APP_HAL.HMI.begin(&this->APP_HAL.ENCODER, &this->APP_HAL.BUZZER);
+   if(this->APP_HAL.HMI.getModuleErrorCode(0) == BPLC_ERROR__NO_ERROR)
    {
-      this->APP_HAL.p_hmi = new BPLC_HMI;
-      this->APP_HAL.p_hmi->begin(this->APP_HAL.ENCODER, this->APP_HAL.BUZZER);
-   } 
+      this->APP_APP.settings.device.hardware.oledAvailable = true;
+   }
+   
    this->setupHardware();      
    this->setupNetwork();  
    
@@ -43,10 +45,8 @@ void BPLC_APP::tick()
 {   
    this->tickControlPanel();        
 
-   if(this->APP_HAL.p_hmi != nullptr)
-   {
-      this->APP_HAL.p_hmi->tick();
-   }          
+   this->APP_HAL.HMI.tick();
+                 
      
    //BPLC MAIN STATEMACHINE
    switch(this->APP_APP.deviceMode)

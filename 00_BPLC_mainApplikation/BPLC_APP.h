@@ -17,15 +17,14 @@
 #include <Preferences.h>
 
 //BPLC
-#include "BPLC_types.h"
 #include "BPLC_errorHandler.h"
 #include "BPLC_controlInterface.h"
 
 //Hardware
-#include "04_BPLC_extensionCardManager/BPLC_ecManager.h"
+#include "BPLC_ecManager.h"
 
 //MCU HMI
-#include "00_BPLC_mainApplikation/APP_HMI/APP_HMI.h"
+#include "APP_HMI.h"
 
 //Network
 #include "BertaNetNode.h"
@@ -155,7 +154,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     
     struct 
     {        
-        BPLC_HMI*       p_hmi;    
+        BPLC_HMI        HMI;    
         hmiEncoder      ENCODER; 
         output          BUZZER;
         output          LD1_DEVICE_STATE;

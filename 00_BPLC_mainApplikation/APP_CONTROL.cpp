@@ -98,8 +98,8 @@ void BPLC_APP::tickControlPanel()
                     }           
                 }
                 Serial.println("APPLIKATION SETTINGS:");
-                Serial.print("encoder beep: ");         Serial.println(this->APP_APP.settings.device.application.f_beepOnEncoderInput);
-                Serial.print("encoder inverted:  ");    Serial.println(this->APP_APP.settings.device.application.f_encoderInverted);
+                Serial.print("encoder beep: ");         Serial.println(this->APP_APP.settings.device.hmi.f_beepOnEncoderInput);
+                Serial.print("encoder inverted:  ");    Serial.println(this->APP_APP.settings.device.hmi.f_encoderInverted);
                 Serial.print("buzzer used:  ");         Serial.println(this->APP_APP.settings.device.application.f_useBuzzer);
                 Serial.println("COMMUNICATION SETTINGS:");
                 Serial.print("Device adddress: ");      Serial.println(this->APP_APP.settings.device.communication.deviceAddress);
@@ -117,7 +117,7 @@ void BPLC_APP::tickControlPanel()
                 break;
 
             case BPLC_PLI_KEY__INVERT_ENCODER:
-                this->APP_APP.settings.device.application.f_encoderInverted = !this->APP_APP.settings.device.application.f_encoderInverted;
+                this->APP_APP.settings.device.hmi.f_encoderInverted = !this->APP_APP.settings.device.hmi.f_encoderInverted;
                 this->saveDeviceSettings();
 
                 this->APP_HAL.ENCODER.invertTurningDirection();
@@ -141,10 +141,10 @@ void BPLC_APP::tickControlPanel()
                 break;
 
             case BPLC_PLI_KEY__BEEP_ON_ENCODER_INPUT:
-                this->APP_APP.settings.device.application.f_beepOnEncoderInput = !this->APP_APP.settings.device.application.f_beepOnEncoderInput;
+                this->APP_APP.settings.device.hmi.f_beepOnEncoderInput = !this->APP_APP.settings.device.hmi.f_beepOnEncoderInput;
                 this->saveDeviceSettings();
 
-                if(this->APP_APP.settings.device.application.f_beepOnEncoderInput)                
+                if(this->APP_APP.settings.device.hmi.f_beepOnEncoderInput)                
                 {
                     Serial.println("BEEP ON ENCODER INPUT!");
                 }

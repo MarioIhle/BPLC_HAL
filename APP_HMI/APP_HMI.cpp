@@ -1,12 +1,14 @@
 #include "APP_HMI.h"
 
-BPLC::BPLC()
+BPLC_HMI::BPLC_HMI()
 {}
 
 void BPLC_HMI::begin(hmiEncoder* P_HMI_ENCODER, output* P_BUZZER)
 {
    this->p_mcuHmiEncoder = P_HMI_ENCODER;
-   this->p_buzzer        = P_BUZZER;      
+   this->p_buzzer        = P_BUZZER;     
+   this->oledDisplay.begin(); 
+   this->menu.activeMenu = HMI_MENU__MAIN_MENU;
 }
 void BPLC_HMI::tick()
 {  
@@ -19,29 +21,30 @@ void BPLC_HMI::tick()
       this->p_buzzer->blinkOnce(1,50);
    }
 
+   uint8_t tempValue;
    //Menüsteuerung
-   if(this->oledDisplay.getError() == BPLC_ERROR__NO_ERROR)
+   if(this->oledDisplay.getModuleErrorCode(0) == BPLC_ERROR__NO_ERROR)
    {
       switch(this->menu.activeMenu)
       {      
          case HMI_MENU__MAIN_MENU:
-            this->showMainMenu(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION)        
+            this->showMenu(&tempValue);        
             break;
 
          case HMI_MENU__EDIT_DEVICE_MODE:
-            this->editDeviceMode(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);
+            this->showMenu(&tempValue); 
             break;
 
          case HMI_MENU__ERROR_OUT:
-            this->showErrorOut(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);
+            this->showMenu(&tempValue); 
             break;
 
          case HMI_MENU__EDIT_SETTING:
-            this->hardwareErrorOut(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);
+            this->showMenu(&tempValue); 
             break;
 
          case HMI_MENU__EDIT_V_DIP:
-            this->displaySettings(ENCODER_BUTTON_PRESSED, ENCODER_DIRETION);        
+            this->showMenu(&tempValue);         
             break;
       }
    }   
@@ -57,47 +60,28 @@ static String EXIT = "EXIT";
 static String press = "press";
 static String SHOW_PARAM_INSTEAD = "param";
 
-String screenSaver[1][2] =   
+String screenSaver[2][1] =   
 {  
    {{""}},
    {{""}}
 };
-String MainMenuTexts[HMI_MENU__COUNT][2] =   
+String MainMenuTexts[2][HMI_MENU__COUNT] =   
 {  
    {{"DEV MODE"},             {"EDIT MODE"}, {"ERROR"},  {"VDIP"},   {"SETTINGS"}},
    {SHOW_PARAM_INSTEAD,        press,         press,      press,      press}
 };
-String editDeviceModeTexts[BPLC_DEVICE_MODE__COUNT][2] =   
+String editDeviceModeTexts[2][BPLC_DEVICE_MODE__COUNT] =   
 {  
    {"EDIT MODE"},
    {{"stop"},{"start"},{"safe"},{"run"},{"run no error"},{"run no hal"},{"run no com"}}
 };
-String errorOutTexts[1][2] =   
+String errorOutTexts[2][1] =   
 {  
    {"ERROR CODE"},
    {SHOW_PARAM_INSTEAD}
 };
 
-#define MENU_DEF_TEXT       0
-#define MENU_DEF_PAGE_COUNT 1
-#define MENU_DEF_HAS_PARAM  2 
 
-typedef enum
-{   
-   EDITABLE_PARAM__NO,
-   EDITABLE_PARAM__BOOL,
-   EDITABLE_PARAM__U8,
-
-}e_EDITABLE_PARAM_t;
-
-typedef struct 
-{   
-   String*              p_texts;              
-   uint8_t              menuPages;
-   e_EDITABLE_PARAM_t   paramType;
-   e_HMI_MENU_t         nextMenu;
-
-}s_menu_t;
 
 const s_menu_t menuDefinition[HMI_MENU__COUNT] =  
 {
@@ -116,9 +100,9 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
    const uint8_t              ACTIVE_TEXT                = this->menu.activeText;   
 
    const s_menu_t*            P_ACTIVE_MENU_DEFINITION   = &menuDefinition[ACTIVE_MENU];
-   const uint8_t              TEXT_COUNT_OF_ACTIVE_MENU  = P_ACTIVE_MENU_DEFINITION.menuPages;
+   const uint8_t              TEXT_COUNT_OF_ACTIVE_MENU  = P_ACTIVE_MENU_DEFINITION->menuPages;
    const bool                 END_OF_MENU_REACHED        = (ACTIVE_TEXT > TEXT_COUNT_OF_ACTIVE_MENU);
-   const bool                 EDIT_PARAMETER             = (P_ACTIVE_MENU_DEFINITION->f_hasParam && this->menu.f_editShownParameter);
+   const bool                 EDIT_PARAMETER             = ((P_ACTIVE_MENU_DEFINITION->paramType!= EDITABLE_PARAM__NO) && this->menu.f_editShownParameter);
 
    //Encoder
    const bool           ENCODER_BUTTON_PRESSED  = this->p_mcuHmiEncoder->buttonPressed();
@@ -171,15 +155,16 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
 
    //TEXT ausgabe
    s_oledStandartMenuPage_t   pageToShow; 
-   pageToShow.line[ROW_1].text    = P_ACTIVE_MENU_DEFINITION->p_texts[ACTIVE_TEXT][ROW_1];
-
-   if(P_ACTIVE_MENU_DEFINITION->p_texts[ACTIVE_TEXT][ROW_2] == SHOW_PARAM_INSTEAD)
+   pageToShow.line[ROW_1].text    = P_ACTIVE_MENU_DEFINITION->p_texts[ROW_1][ACTIVE_TEXT];
+   String TEXT = "";
+   TEXT = P_ACTIVE_MENU_DEFINITION->p_texts[ROW_2][ACTIVE_TEXT];
+   if(TEXT == SHOW_PARAM_INSTEAD)
    {
       pageToShow.line[ROW_2].text   = String(p_tempParamValue, DEC);
    }
    else
    {
-      pageToShow.line[row].text     = P_ACTIVE_MENU_DEFINITION->p_texts[ACTIVE_TEXT][ROW_2];
+      pageToShow.line[ROW_2].text     = P_ACTIVE_MENU_DEFINITION->p_texts[ROW_2][ACTIVE_TEXT];
    }
    
    pageToShow.line[ROW_2].f_blink = EDIT_PARAMETER;
@@ -204,6 +189,7 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
 
 
 
+/*
 
 void BPLC_HMI::showMainMenu(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
 {  
@@ -451,11 +437,6 @@ Serial.println("");
 // Texte 2. Zeile
 String DEVICE_MODE[] = {{"stop"}, {"start"}, {"safestate"}, {"running"}, {"running no safety"}, {"running no HAL"}, {"running no COM"}};
 
-void OLED_STANDART_MENU::showScreenSaver()
-{
-  // Nichts anzeigen, vielleicht ein Logo?
-}
-
 void OLED_STANDART_MENU::showMainMenu()
 {
   if (this->menu.activeText == 0)
@@ -535,4 +516,4 @@ bool OLED_STANDART_MENU::parameterEntered()
 e_BPLC_ERROR_t  OLED_STANDART_MENU::getError()
 {
   return this->errorCode;
-}
+}*/
