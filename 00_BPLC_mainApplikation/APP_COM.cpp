@@ -84,7 +84,7 @@ void BPLC_APP::tickNetwork()
 
             switch(this->APP_COM.P_slaveNode->getNodeState())
             {
-                case SLAVE_NODE_STATE__NOT_AVAILABLE:
+                case SLAVE_NODE_STATE__TRYING_TO_ATTACH_TO_MASTER:
                     this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 100, 100);
                 break;
 
