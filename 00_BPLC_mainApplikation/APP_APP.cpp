@@ -22,7 +22,7 @@ void BPLC_APP::begin()
    if(this->systemErrorManager.noErrorSet())
    {
       this->printLog("BPLC SYSTEM INIT SUCCESSFUL", __FILENAME__, __LINE__);
-      this->setDeviceMode(APP_MODE__START);
+      this->setDeviceMode(APP_MODE__RUN);
    }
    else
    {
@@ -52,8 +52,8 @@ void BPLC_APP::tick()
          break;
 
       case APP_MODE__START: 
-         this->APP_HAL.OEN.reset(); 
-         this->setDeviceMode(APP_MODE__RUN);
+         this->APP_HAL.OEN.reset();        
+         this->begin();         
          break;
 
       case APP_MODE__RUN:             
@@ -66,7 +66,7 @@ void BPLC_APP::tick()
 
       case APP_MODE__RUN_WITHOUT_SAFETY:   
          this->APP_HAL.OEN.set();       
-         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 1000, 1000);     
+         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 1000, 1000);  
          this->tickHardware();   
          this->tickNetwork();       
          break;
@@ -100,6 +100,7 @@ void BPLC_APP::tick()
          break;
    }    
 }
+
 //DeviceMode
 e_APP_MODE_t BPLC_APP::getDeviceMode()
 {
@@ -109,6 +110,13 @@ void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
 {
    if(this->APP_APP.deviceMode != MODE)
    {
+      //Alle LEDs und Buzzer zurück setzten
+      this->APP_HAL.BUZZER.reset();
+      this->APP_HAL.LD1_DEVICE_STATE.reset();
+      this->APP_HAL.LD2_COMMUNICATION_STATE.reset();
+      this->APP_HAL.LD3_ERROR_OUT.reset();
+      this->APP_HAL.OEN.reset();
+
       this->APP_APP.deviceMode = MODE;
 
       switch(MODE)
@@ -127,12 +135,15 @@ void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
             break;
          case APP_MODE__RUN_WITHOUT_SAFETY:
             this->printLog("DEVICEMODE: RUN CONFIG WITOUT SAFETY", __FILENAME__, __LINE__);
+            this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);
             break;
          case APP_MODE__RUN_WITHOUT_EC_CARDS:
             this->printLog("DEVICEMODE: RUN WITHOUT EC CARDS", __FILENAME__, __LINE__);
             break;
          case APP_MODE__RUN_WITHOUT_COM:
             this->printLog("DEVICEMODE: RUN WITHOUT COM", __FILENAME__, __LINE__);
+            this->APP_APP.settings.device.communication.deviceAddress = 0;
+            this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);
             break;
       }      
    }   

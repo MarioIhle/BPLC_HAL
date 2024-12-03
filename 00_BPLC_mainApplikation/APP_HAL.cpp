@@ -10,8 +10,15 @@ void BPLC_APP::setupHardware()
       const bool INIT_SUCCSESFUL = this->extensionCardManager.addNewExtensionCard(MCU_TYPE, EC_ADDR_1);
       if(INIT_SUCCSESFUL)
       {
-         //BUZZER lautstärke anpassen
-         this->APP_HAL.BUZZER.setOnValue(150);
+         //Kleiner hack um buzzer aus zu schalten
+         if(this->APP_APP.settings.device.application.f_useBuzzer)
+         {
+            this->APP_HAL.BUZZER.setOnValue(150);
+         }
+         else
+         {
+            this->APP_HAL.BUZZER.setOnValue(0);
+         }         
          this->APP_HAL.OEN.setOnValue(1);
          //MCU IO´s mappen
          this->extensionCardManager.mapObjectToExtensionCard(&this->APP_HAL.BUZZER,                      MCU_TYPE, EC_ADDR_1, (e_EC_CHANNEL_t)MCU_CHANNEL__BUZZER);  
@@ -113,5 +120,8 @@ void BPLC_APP::tickHardware()
 }
 void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
 {
-   this->APP_HAL.BUZZER.blinkOnce(BEEPS, BEEP_INTERVAL); 
+   if(this->APP_APP.settings.device.application.f_useBuzzer)
+   {
+      this->APP_HAL.BUZZER.blinkOnce(BEEPS, BEEP_INTERVAL); 
+   }   
 }
