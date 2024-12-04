@@ -62,7 +62,12 @@ void BPLC_APP::handleDisplay()
 }
 
 void BPLC_APP::setupHMI()
-{}
+{
+   if (this->APP_APP.settings.device.application.f_encoderInverted)
+   {
+      this->APP_HAL.ENCODER.invertTurningDirection();
+   } 
+}
 
 //Display handling
 void BPLC_APP::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
