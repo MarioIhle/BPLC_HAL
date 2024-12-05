@@ -34,8 +34,8 @@ typedef enum
 
 typedef struct 
 {   
-   String*              p_texts;              
-   uint8_t              menuPages;
+   String*              p_texts[ROW_COUNT];              
+   uint8_t              menuPageCount;
    e_EDITABLE_PARAM_t   paramType;
    e_HMI_MENU_t         nextMenu;
 

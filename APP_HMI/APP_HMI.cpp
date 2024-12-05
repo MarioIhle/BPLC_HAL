@@ -52,13 +52,10 @@ void BPLC_HMI::tick()
 }
 
 
-
-
-
-
 //Display handling
+static String LOCK = "LOCK";
 static String EXIT = "EXIT";
-static String press = "press";
+static String PRESS = "press";
 static String SHOW_PARAM_INSTEAD = "param";
 
 String screenSaver[2][1] =   
@@ -69,41 +66,49 @@ String screenSaver[2][1] =
 String MainMenuTexts[2][HMI_MENU__COUNT] =   
 {  
    {{"DEV MODE"},             {"EDIT MODE"}, {"ERROR"},  {"VDIP"},   {"SETTINGS"}},
-   {SHOW_PARAM_INSTEAD,        press,         press,      press,      press}
+   {SHOW_PARAM_INSTEAD,        PRESS,         PRESS,      PRESS,      PRESS}
 };
 String editDeviceModeTexts[2][BPLC_DEVICE_MODE__COUNT] =   
 {  
-   {"EDIT MODE"},
+   {{"EDIT MODE"}},
    {{"stop"},{"start"},{"safe"},{"run"},{"run no error"},{"run no hal"},{"run no com"}}
 };
 String errorOutTexts[2][1] =   
 {  
-   {"ERROR CODE"},
+   {{"ERROR CODE"}},   
    {SHOW_PARAM_INSTEAD}
 };
-
-
+String vDipTexts[2][8] =   
+{  
+   {{"vDip1"}, {"vDip2"}, {"vDip3"}, {"vDip4"}, {"vDip5"}, {"vDip6"}, {"vDip7"}, {"vDip8"}},
+   {SHOW_PARAM_INSTEAD, SHOW_PARAM_INSTEAD, SHOW_PARAM_INSTEAD, SHOW_PARAM_INSTEAD, SHOW_PARAM_INSTEAD, SHOW_PARAM_INSTEAD, SHOW_PARAM_INSTEAD, SHOW_PARAM_INSTEAD}
+};
+String settingTexts[2][2] =   
+{  
+   {{"setting1"}, {"setting2"}}, 
+   {SHOW_PARAM_INSTEAD, SHOW_PARAM_INSTEAD}
+};
 
 s_menu_t menuDefinition[HMI_MENU__COUNT] =  
 {
-   //{p_texts,                      menuPages,                 f_hasParam,    nextMenu}
-   {&screenSaver[0][0],             0,                         EDITABLE_PARAM__NO,         HMI_MENU__MAIN_MENU},
-   {&MainMenuTexts[0][0],           HMI_MENU__COUNT,           EDITABLE_PARAM__NO,         HMI_MENU__SCREENSAVER},
-   {&editDeviceModeTexts[0][0],     BPLC_DEVICE_MODE__COUNT,   EDITABLE_PARAM__U8,         HMI_MENU__MAIN_MENU},
-   {&errorOutTexts[0][0],           1,                         EDITABLE_PARAM__BOOL,       HMI_MENU__MAIN_MENU},
-   {&errorOutTexts[0][0],           1,                         EDITABLE_PARAM__BOOL,       HMI_MENU__MAIN_MENU},
+   //{p_texts[ROW_1],                        p_texts[ROW_2]},                    menuPages,      f_hasParam,                      nextMenu}
+   {{&screenSaver[ROW_1][0],                 &screenSaver[ROW_2][0]},            1,              EDITABLE_PARAM__NO,           HMI_MENU__MAIN_MENU},
+   {{&MainMenuTexts[ROW_1][0],               &MainMenuTexts[ROW_2][0]},          5,              EDITABLE_PARAM__NO,           HMI_MENU__SCREENSAVER},
+   {{&editDeviceModeTexts[ROW_1][0],         &editDeviceModeTexts[ROW_2][0]},    7,              EDITABLE_PARAM__U8,           HMI_MENU__MAIN_MENU},
+   {{&errorOutTexts[ROW_1][0],               &errorOutTexts[ROW_2][0]},          1,              EDITABLE_PARAM__BOOL,         HMI_MENU__MAIN_MENU},
+   {{&vDipTexts[ROW_1][0],                   &vDipTexts[ROW_2][0]},              8,              EDITABLE_PARAM__U8,           HMI_MENU__MAIN_MENU},
+   {{&settingTexts[ROW_1][0],                &settingTexts[ROW_2][0]},           2,              EDITABLE_PARAM__NO,           HMI_MENU__MAIN_MENU},
 };
-               
-
+             
 void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
 {   
-   const e_HMI_MENU_t         ACTIVE_MENU                = this->menu.activeMenu;
-   const uint8_t              ACTIVE_TEXT                = this->menu.activeText;   
+   const e_HMI_MENU_t   ACTIVE_MENU                = this->menu.activeMenu;
+   const uint8_t        ACTIVE_TEXT                = this->menu.activeText;   
 
-   const s_menu_t*            P_ACTIVE_MENU_DEFINITION   = &menuDefinition[ACTIVE_MENU];
-   const uint8_t              TEXT_COUNT_OF_ACTIVE_MENU  = P_ACTIVE_MENU_DEFINITION->menuPages;
-   const bool                 END_OF_MENU_REACHED        = (ACTIVE_TEXT > TEXT_COUNT_OF_ACTIVE_MENU);
-   const bool                 EDIT_PARAMETER             = ((P_ACTIVE_MENU_DEFINITION->paramType!= EDITABLE_PARAM__NO) && this->menu.f_editShownParameter);
+   const s_menu_t*      P_ACTIVE_MENU_DEFINITION   = &menuDefinition[ACTIVE_MENU];
+   const uint8_t        TEXT_COUNT_OF_ACTIVE_MENU  = P_ACTIVE_MENU_DEFINITION->menuPageCount;
+   const bool           END_OF_MENU_REACHED        = (ACTIVE_TEXT > TEXT_COUNT_OF_ACTIVE_MENU);
+   const bool           EDIT_PARAMETER             = ((P_ACTIVE_MENU_DEFINITION->paramType!= EDITABLE_PARAM__NO) && this->menu.f_editShownParameter);
 
    //Encoder
    const bool           ENCODER_BUTTON_PRESSED  = this->p_mcuHmiEncoder->buttonPressed();
@@ -155,369 +160,37 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
    }   
 
    //TEXT ausgabe
-   s_oledStandartMenuPage_t   pageToShow; 
+   s_oledStandartMenuPage_t   pageToShow;
+   //Zeile 1  
+   String* p_textRow1 = P_ACTIVE_MENU_DEFINITION->p_texts[ROW_1];    
+   pageToShow.line[ROW_1].text = p_textRow1[ACTIVE_TEXT]; 
+   //Zeile 2
+   String* p_textRow2 = P_ACTIVE_MENU_DEFINITION->p_texts[ROW_2]; 
+   pageToShow.line[ROW_2].f_blink = EDIT_PARAMETER;
 
-   pageToShow.line[ROW_1].text    = MainMenuTexts[ROW_1][ACTIVE_TEXT];  
-
-   if(MainMenuTexts[ROW_2][ACTIVE_TEXT] == SHOW_PARAM_INSTEAD)
+   if(p_textRow2[ACTIVE_TEXT] == SHOW_PARAM_INSTEAD)
    {
       pageToShow.line[ROW_2].text   = String(*p_tempParamValue, DEC);
    }
    else
    {
-      pageToShow.line[ROW_2].text   = P_ACTIVE_MENU_DEFINITION->p_texts[ROW_2][ACTIVE_TEXT];
-   }
-
-   Serial.println(pageToShow.line[ROW_1].text );
-   Serial.println(pageToShow.line[ROW_2].text );   
-
-   pageToShow.line[ROW_2].f_blink = EDIT_PARAMETER;
-
+      pageToShow.line[ROW_2].text   = p_textRow2[ACTIVE_TEXT];
+   }     
+   
    if(END_OF_MENU_REACHED)
    {
       if(this->menu.activeMenu != HMI_MENU__MAIN_MENU)
       {
-         pageToShow.line[ROW_1].text = "EXIT";
+         pageToShow.line[ROW_1].text = EXIT;
       }
       else
       {
-         pageToShow.line[ROW_1].text = "LOCK";
+         pageToShow.line[ROW_1].text = LOCK;
       }      
-      pageToShow.line[ROW_2].text = "press";
+      pageToShow.line[ROW_2].text = PRESS;
       //Ende des Menü begrenzen 
       this->menu.activeText = TEXT_COUNT_OF_ACTIVE_MENU;
    }
    //Gebaute OLED menüseite ausgeben
    this->oledDisplay.setPage(pageToShow);
 }
-
-
-
-/*
-
-void BPLC_HMI::showMainMenu(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
-{  
-   this->oledDisplay.setPage(pageToShow);
-
-   //Menüsteuerung
-   if(ENCODER_BUTTON_PRESSED)
-   {            
-      this->menu.activeMenu = (e_HMI_MENU_t)this->menu.activeText;
-   }
-
-   if(ENCODER_DIRETION == MOVEMENT__RIGHT)
-   {
-      this->menu.activeText++;
-   }
-   else if(ENCODER_DIRETION == MOVEMENT__LEFT)
-   {
-      this->menu.activeText--;
-   }  
-   
-   //Menüausgabe
-   this->showMenu();
-}
-void BPLC_HMI::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
-{
-   if(ENCODER_BUTTON_PRESSED)
-   {                 
-      //Enter Parameter
-      if(this->APP_HAL.oled.parameterEntered() == false)
-      {           
-         this->APP_HMI.temp_ParameterStorage = this->APP_APP.deviceMode;
-         this->APP_HAL.oled.enterParameter();                          
-      }
-      else
-      {
-         this->setDeviceMode((e_BPLC_DEVICE_MODE_t)this->APP_HMI.temp_ParameterStorage);
-         this->APP_HAL.oled.exitParameter();
-      }
-      //Cursor on "exit"
-      if(this->APP_HAL.oled.readyToExitMenu())
-      {
-         this->APP_HAL.oled.setMenu(menu_mainMenu);
-      }      
-   }
-
-   if(ENCODER_DIRETION == MOVEMENT__RIGHT)
-   {
-      if(this->APP_HAL.oled.parameterEntered())
-      {
-         this->APP_HMI.temp_ParameterStorage++;
-      }
-      else
-      {
-         this->APP_HAL.oled.showNextTextOfThisMenu();            
-      }
-   }
-   else if(ENCODER_DIRETION == MOVEMENT__LEFT)
-   {    
-      if(this->APP_HAL.oled.parameterEntered())
-      {
-         this->APP_HMI.temp_ParameterStorage--;         
-      }
-      else
-      {
-         this->APP_HAL.oled.showPrevioursTextOfThisMenu();            
-      }
-   }  
-
-   //Bereichberenzung
-   if(this->APP_HMI.temp_ParameterStorage < BPLC_DEVICE_MODE__STOP)
-   {
-      APP_HMI.temp_ParameterStorage = BPLC_DEVICE_MODE__STOP;
-   }
-   if(this->APP_HMI.temp_ParameterStorage >= BPLC_DEVICE_MODE__COUNT)
-   {
-      this->APP_HMI.temp_ParameterStorage = BPLC_DEVICE_MODE__COUNT-1;
-   }
-
-   if(this->APP_HAL.oled.parameterEntered())
-   {
-      this->APP_HAL.oled.showPage(this->APP_HMI.temp_ParameterStorage);
-   }
-   else
-   {
-      this->APP_HAL.oled.showPage(this->APP_APP.deviceMode);
-   }   
-}
-void BPLC_HMI::showErrorOut(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
-{
-   const uint8_t ERROR_CODE_DISPLAYED = (this->APP_HAL.oled.getActiveMenuTextNum() == 0);
-
-   if(ENCODER_BUTTON_PRESSED)
-   {            
-      //Cursor on "exit"
-      if(this->APP_HAL.oled.readyToExitMenu())
-      {
-         this->APP_HAL.oled.setMenu(menu_mainMenu);         
-      } 
-      else if(ERROR_CODE_DISPLAYED)
-      {
-         this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);
-      }
-   }
-   uint8_t ERROR_CODE = (uint8_t)this->systemErrorManager.getError()->errorCode;
-
-   this->APP_HAL.oled.showPage(ERROR_CODE);
-   
-   if(ENCODER_DIRETION == MOVEMENT__RIGHT)
-   {
-      this->APP_HAL.oled.showNextTextOfThisMenu();
-   }
-   else if(ENCODER_DIRETION == MOVEMENT__LEFT)
-   {
-      this->APP_HAL.oled.showPrevioursTextOfThisMenu();
-   }    
-}
-void BPLC_HMI::displaySettings(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
-{
-   const uint8_t DISPLAYED_SETTING = this->APP_HAL.oled.getActiveMenuTextNum();
-
-   if(ENCODER_BUTTON_PRESSED)
-   {            
-      //Cursor on "exit"
-      if(this->APP_HAL.oled.readyToExitMenu())
-      {
-         this->APP_HAL.oled.setMenu(menu_mainMenu);         
-      } 
-      else if(DISPLAYED_SETTING == 0)
-      {         
-         this->APP_APP.settings.device.application.f_useBuzzer = (!this->APP_APP.settings.device.application.f_useBuzzer);
-      }
-      else if(DISPLAYED_SETTING == 1)
-      {
-         //this->APP_HAL.MOT11_CARD[MOT11_CARD__1].startCurrentAutotuning();
-      }
-   }
-
-   if (DISPLAYED_SETTING == 0)
-   {
-      this->APP_HAL.oled.showPage(this->APP_APP.settings.device.application.f_useBuzzer);
-   }
-
-   if(ENCODER_DIRETION == MOVEMENT__RIGHT)
-   {
-      this->APP_HAL.oled.showNextTextOfThisMenu();
-   }
-   else if(ENCODER_DIRETION == MOVEMENT__LEFT)
-   {
-      this->APP_HAL.oled.showPrevioursTextOfThisMenu();
-   } 
-}
-void BPLC_HMI::handle_vDip(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
-{  
-   const bool           IS_ENCODER_BUTTON_PRESSED  = ENCODER_BUTTON_PRESSED;
-   const e_MOVEMENT_t   TURNING_DIRECTION          = ENCODER_DIRETION;
-   const bool           PARARMETER_IS_ENTERED      = this->APP_HAL.oled.parameterEntered();
-   const e_V_DIP_t      SELECTED_DIP               = (e_V_DIP_t)this->APP_HAL.oled.getActiveMenuTextNum();
-
-   if(IS_ENCODER_BUTTON_PRESSED)
-   {            
-      //Enter Parameter
-      if(PARARMETER_IS_ENTERED == false)
-      {           
-         this->APP_HAL.oled.enterParameter();  
-         this->APP_HMI.temp_ParameterStorage = this->getVDip(SELECTED_DIP);               
-      }
-      else
-      {         
-         this->setVDip(SELECTED_DIP, this->APP_HMI.temp_ParameterStorage);  //Aktiver Text == gewählter Dip
-         this->APP_HAL.oled.exitParameter();               
-      }
-      //Cursor on "exit"
-      if(this->APP_HAL.oled.readyToExitMenu())
-      {
-         this->APP_HAL.oled.setMenu(menu_mainMenu);
-      }  
-   }
-
-   if(TURNING_DIRECTION == MOVEMENT__RIGHT)
-   {
-      if(PARARMETER_IS_ENTERED)
-      {
-         this->APP_HMI.temp_ParameterStorage++;
-      }
-      else
-      {
-         this->APP_HAL.oled.showNextTextOfThisMenu();   
-      }
-   }
-   else if(TURNING_DIRECTION == MOVEMENT__LEFT)
-   {    
-      if(PARARMETER_IS_ENTERED)
-      {
-         this->APP_HMI.temp_ParameterStorage--;
-      }
-      else
-      {
-         this->APP_HAL.oled.showPrevioursTextOfThisMenu();         
-      }
-   }
-
-   if(PARARMETER_IS_ENTERED)
-   {
-      this->APP_HAL.oled.showPage(this->APP_HMI.temp_ParameterStorage);
-   }
-   else
-   {
-      this->APP_HAL.oled.showPage(this->getVDip(SELECTED_DIP));
-   }
-
-#ifdef DEBUG_APP_MCU11_APP_HMI
-for(int i = 0; i< vDIP_COUNT; i++)
-{
-   Serial.print(", DIP "); Serial.print(i+1); Serial.print(": "); Serial.print(this->virtualDipSwitch[i]);
-}
-Serial.println("");
-#endif
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//old 
-
-//---------------------------------------------------
-// MENU AUSGABE
-// Texte 2. Zeile
-String DEVICE_MODE[] = {{"stop"}, {"start"}, {"safestate"}, {"running"}, {"running no safety"}, {"running no HAL"}, {"running no COM"}};
-
-void OLED_STANDART_MENU::showMainMenu()
-{
-  if (this->menu.activeText == 0)
-  {
-    this->showMenuText(DEVICE_MODE[this->paramValue], 1);
-  }
-  else
-  {
-    this->showMenuText("", 1);
-  }
-}
-
-void OLED_STANDART_MENU::showHardwareErrorCode()
-{
-  if (this->menu.activeText == 0)
-  {
-    this->showMenuText(String(this->paramValue, DEC), 1);
-  }
-  else
-  {
-    this->showMenuText("", 1);
-  }  
-}
-
-void OLED_STANDART_MENU::showSettings()
-{
-  if (this->menu.activeText == 0)
-  {
-    this->showMenuText(String(this->paramValue, DEC), 1);
-  }
-  else
-  {
-    this->showMenuText("", 1);
-  }  
-}
-
-void OLED_STANDART_MENU::showDipswitches()
-{
-  if (this->menu.activeText < 8)
-  {
-    this->showMenuText(String(this->paramValue, DEC), 1);
-  }
-}
-
-void OLED_STANDART_MENU::showDeviceMode()
-{
-  this->showMenuText(DEVICE_MODE[this->paramValue], 1);
-}
-
-//---------------------------------------------------
-// Parametermode
-void OLED_STANDART_MENU::enterParameter()
-{
-  // Nur bei Parameter in Parametriermode
-  if (HEADLINE_TEXT[this->menu.activeMenu][this->menu.activeText] != EXIT)
-  {
-    this->f_parmParameter = true;
-  }
-}
-
-void OLED_STANDART_MENU::showPage(const uint8_t VALUE)
-{
-  this->paramValue = VALUE;
-}
-
-void OLED_STANDART_MENU::exitParameter()
-{
-  this->f_parmParameter = false;
-  this->f_refresh = true;
-}
-
-bool OLED_STANDART_MENU::parameterEntered()
-{
-  return this->f_parmParameter;
-}
-
-e_BPLC_ERROR_t  OLED_STANDART_MENU::getError()
-{
-  return this->errorCode;
-}*/

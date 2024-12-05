@@ -48,8 +48,8 @@ typedef struct
 {
     struct 
     {
-        String text;
-        bool f_blink;
+        String   text;
+        bool     f_blink;
     }line[2];
     
 }s_oledStandartMenuPage_t;

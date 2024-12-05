@@ -40,16 +40,12 @@ void OLED_STANDART_MENU::setPage(s_oledStandartMenuPage_t PAGE)
 {
   for(uint8_t row = 0; row < 2; row++)
   {      
-    //if(TEXT_NEW != TEXT_OLD)
-    //{
+    if(PAGE.line[row].text != this->menuPage.line[row].text)
+    {
       this->menuPage      = PAGE;
       this->f_refreshPage = true;
-    //}  
+    }  
   }
-  Serial.println(PAGE.line[ROW_1].text);
-  Serial.println(PAGE.line[ROW_2].text);
-  Serial.println(menuPage.line[ROW_1].text);
-  Serial.println(menuPage.line[ROW_2].text);
 }
 void OLED_STANDART_MENU::showPage()
 {
