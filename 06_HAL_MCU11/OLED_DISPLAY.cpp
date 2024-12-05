@@ -36,16 +36,20 @@ void OLED_STANDART_MENU::tick()
     this->showPage();
   }
 }
-void OLED_STANDART_MENU::setPage(const s_oledStandartMenuPage_t PAGE)
+void OLED_STANDART_MENU::setPage(s_oledStandartMenuPage_t PAGE)
 {
   for(uint8_t row = 0; row < 2; row++)
-  { 
-    if(PAGE.line[row].text != this->menuPage.line[row].text)
-    {
+  {      
+    //if(TEXT_NEW != TEXT_OLD)
+    //{
       this->menuPage      = PAGE;
       this->f_refreshPage = true;
-    }  
+    //}  
   }
+  Serial.println(PAGE.line[ROW_1].text);
+  Serial.println(PAGE.line[ROW_2].text);
+  Serial.println(menuPage.line[ROW_1].text);
+  Serial.println(menuPage.line[ROW_2].text);
 }
 void OLED_STANDART_MENU::showPage()
 {
@@ -86,10 +90,10 @@ void OLED_STANDART_MENU::showPage()
     this->f_refreshPage;
   }
 }
-void OLED_STANDART_MENU::showText(const String TEXT, const bool ROW)
-{
-  this->oled.setTextSize(2);
+void OLED_STANDART_MENU::showText(const String TEXT, const uint8_t ROW)
+{  
   // Länge des auszugebenden Textes berechnen
+  /*
   int16_t textLength = TEXT.length() * -24;
 
   if (textLength > 100)
@@ -105,8 +109,10 @@ void OLED_STANDART_MENU::showText(const String TEXT, const bool ROW)
   {
     this->cursorPos = 0;
   }  
-
-  this->oled.setCursor(this->cursorPos, ROW);
+  */
+  this->oled.setTextSize(2);
+  int16_t row = ((SCREEN_HEIGHT/ROW_COUNT)*ROW);
+  this->oled.setCursor(0,  row);  
   this->oled.print(TEXT);         
   
   // Display aktaliesieren

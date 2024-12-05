@@ -34,6 +34,7 @@
 
 #define ROW_1 0
 #define ROW_2 1
+#define ROW_COUNT 2
 //---------------------------------------------------
 //MENÜS
 typedef enum
@@ -75,7 +76,7 @@ class OLED_STANDART_MENU:I2C_check, private BPLC_moduleErrorHandler, public BPLC
     e_OLED_STATE_t state;
     
     void        showPage        ();
-    void        showText        (const String TEXT, const bool ROW);
+    void        showText        (const String TEXT, const uint8_t ROW);
        
     //Textausgabe
     bool                        f_refreshPage;
