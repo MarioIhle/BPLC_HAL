@@ -4,7 +4,8 @@ OLED_STANDART_MENU::OLED_STANDART_MENU()
 {}
 void OLED_STANDART_MENU::begin()
 {
-  this->blinkState.setupBlink(1, 1000, 1000);
+  this->to_coolDown.setInterval(2000);
+  this->blinkState.setupBlink(1, 5000, 1000);
 
   if(!I2C_check::begin(0x3C))
   {
@@ -43,7 +44,11 @@ void OLED_STANDART_MENU::setPage(s_oledStandartMenuPage_t PAGE)
     if(PAGE.line[row].text != this->menuPage.line[row].text)
     {
       this->menuPage      = PAGE;
-      this->f_refreshPage = true;
+
+      if(to_coolDown.checkAndReset())
+      {
+        this->f_refreshPage = true;
+      }      
     }  
   }
 }
@@ -83,6 +88,8 @@ void OLED_STANDART_MENU::showPage()
         this->showText(this->menuPage.line[row].text, row);
       } 
     } 
+    // Display aktualiesieren
+    this->oled.display(); 
     this->f_refreshPage;
   }
 }
@@ -109,8 +116,5 @@ void OLED_STANDART_MENU::showText(const String TEXT, const uint8_t ROW)
   this->oled.setTextSize(2);
   int16_t row = ((SCREEN_HEIGHT/ROW_COUNT)*ROW);
   this->oled.setCursor(0,  row);  
-  this->oled.print(TEXT);         
-  
-  // Display aktaliesieren
-  this->oled.display();
+  this->oled.print(TEXT);          
 }

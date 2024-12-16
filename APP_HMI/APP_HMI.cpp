@@ -5,10 +5,12 @@ BPLC_HMI::BPLC_HMI()
 
 void BPLC_HMI::begin(hmiEncoder* P_HMI_ENCODER, output* P_BUZZER)
 {
-   this->p_mcuHmiEncoder = P_HMI_ENCODER;
-   this->p_buzzer        = P_BUZZER;     
+   this->p_mcuHmiEncoder            = P_HMI_ENCODER;
+   this->p_buzzer                   = P_BUZZER;        
+   this->menu.activeMenu            = HMI_MENU__MAIN_MENU;
+   this->menu.f_editShownParameter  = false;
+
    this->oledDisplay.begin(); 
-   this->menu.activeMenu = HMI_MENU__MAIN_MENU;
 }
 void BPLC_HMI::tick()
 {  
@@ -132,7 +134,9 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
       {
          this->menu.f_editShownParameter = !this->menu.f_editShownParameter;
       }   
+      Serial.println("PUSHED");
    }
+  
 
    switch(ENCODER_DIRETION)
    {
@@ -145,6 +149,7 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
          {
             this->menu.activeText--;
          }
+         Serial.println("LEFT");
       break;
 
       case MOVEMENT__RIGHT: 
@@ -156,8 +161,18 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
          {
             this->menu.activeText++;
          }
+          Serial.println("RIGHT");
       break;
    }   
+   //Menütexte begrenzen
+   if(this->menu.activeText < 0)
+   {
+      this->menu.activeText = 0;
+   }
+   if(this->menu.activeText >= TEXT_COUNT_OF_ACTIVE_MENU)
+   {
+      this->menu.activeText = TEXT_COUNT_OF_ACTIVE_MENU;
+   }
 
    //TEXT ausgabe
    s_oledStandartMenuPage_t   pageToShow;

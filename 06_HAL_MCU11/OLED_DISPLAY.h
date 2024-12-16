@@ -84,6 +84,7 @@ class OLED_STANDART_MENU:I2C_check, private BPLC_moduleErrorHandler, public BPLC
     s_oledStandartMenuPage_t    menuPage;    
     bool                        f_blinkState;
     blink                       blinkState;
+    Timeout                     to_coolDown;
 
     Adafruit_SSD1306            oled;
 };
