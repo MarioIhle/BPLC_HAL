@@ -23,13 +23,17 @@ void BPLC_HMI::tick()
       this->p_buzzer->blinkOnce(1,50);
    }
 
-   uint8_t tempValue = 88;
+   uint8_t tempValue = 77;
 
    //Menüsteuerung
    if(this->oledDisplay.getModuleErrorCode(0) == BPLC_ERROR__NO_ERROR)
    {
       switch(this->menu.activeMenu)
       {      
+         case HMI_MENU__SCREENSAVER:
+         break;
+         
+         default:
          case HMI_MENU__MAIN_MENU:
             this->showMenu(&tempValue);        
             break;
@@ -133,8 +137,7 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
       else if(P_ACTIVE_MENU_DEFINITION->paramType == EDITABLE_PARAM__U8)
       {
          this->menu.f_editShownParameter = !this->menu.f_editShownParameter;
-      }   
-      Serial.println("PUSHED");
+      } 
    }
   
 
@@ -149,7 +152,6 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
          {
             this->menu.activeText--;
          }
-         Serial.println("LEFT");
       break;
 
       case MOVEMENT__RIGHT: 
@@ -161,17 +163,16 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
          {
             this->menu.activeText++;
          }
-          Serial.println("RIGHT");
-      break;
+      break;      
    }   
    //Menütexte begrenzen
    if(this->menu.activeText < 0)
    {
       this->menu.activeText = 0;
    }
-   if(this->menu.activeText >= TEXT_COUNT_OF_ACTIVE_MENU)
+   else if(this->menu.activeText > TEXT_COUNT_OF_ACTIVE_MENU)
    {
-      this->menu.activeText = TEXT_COUNT_OF_ACTIVE_MENU;
+      this->menu.activeText = TEXT_COUNT_OF_ACTIVE_MENU;      
    }
 
    //TEXT ausgabe
@@ -185,7 +186,7 @@ void BPLC_HMI::showMenu(uint8_t* p_tempParamValue)
 
    if(p_textRow2[ACTIVE_TEXT] == SHOW_PARAM_INSTEAD)
    {
-      pageToShow.line[ROW_2].text   = String(*p_tempParamValue, DEC);
+      pageToShow.line[ROW_2].text   = String(*p_tempParamValue, DEC);      
    }
    else
    {

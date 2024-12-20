@@ -79,14 +79,14 @@ class hmiEncoder:public IO_Interface
                 case  HMI_ENCODER_CYCLE__FIRST_EDGE:
                 if(ENCODER_IS_HIGH_ACTIVE)
                     {
-                        if(this->inputChannels[i].ishigh())
+                        if(this->inputChannels[i].isHigh())
                         {
                             this->channelState[i] = HMI_ENCODER_CYCLE__ACTIVE_STATE;
                         }
                     }
                     else
                     {
-                        if(this->inputChannels[i].islow())
+                        if(this->inputChannels[i].isLow())
                         {
                             this->channelState[i] = HMI_ENCODER_CYCLE__ACTIVE_STATE;
                         }
@@ -157,7 +157,7 @@ class hmiEncoder:public IO_Interface
             if(this->direction = MOVEMENT__RIGHT)
             {                 
                 Serial.println("RIGHT");
-            }     
+            }   
         */
 
         return *P_DATA;    

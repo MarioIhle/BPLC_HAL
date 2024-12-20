@@ -6,6 +6,12 @@ void OLED_STANDART_MENU::begin()
 {
   this->to_coolDown.setInterval(2000);
   this->blinkState.setupBlink(1, 5000, 1000);
+  this->f_refreshPage = false;
+  this->f_blinkState  = false;
+  this->cursorPos     = 0;
+  memset(&this->menuPage, 0, sizeof(this->menuPage));
+  this->menuPage.line[ROW_1].text = "";
+  this->menuPage.line[ROW_2].text = "";
 
   if(!I2C_check::begin(0x3C))
   {
@@ -41,9 +47,11 @@ void OLED_STANDART_MENU::setPage(s_oledStandartMenuPage_t PAGE)
 {
   for(uint8_t row = 0; row < 2; row++)
   {      
+    //Serial.println(PAGE.line[row].text);
+
     if(PAGE.line[row].text != this->menuPage.line[row].text)
     {
-      this->menuPage      = PAGE;
+      this->menuPage = PAGE;
 
       if(to_coolDown.checkAndReset())
       {
@@ -82,15 +90,15 @@ void OLED_STANDART_MENU::showPage()
     
     for(uint8_t row = 0; row < 2; row++)
     {      
-      //Nur Text ausgeben wenn blinken == TRUE || kein Blinkn erwümscht
+      //Nur Text ausgeben wenn blinken == TRUE || kein Blinken erwünscht
       if(this->f_blinkState || (!this->menuPage.line[row].f_blink))
       {    
         this->showText(this->menuPage.line[row].text, row);
       } 
     } 
     // Display aktualiesieren
-    this->oled.display(); 
-    this->f_refreshPage;
+    //this->oled.display(); 
+    this->f_refreshPage = false;;
   }
 }
 void OLED_STANDART_MENU::showText(const String TEXT, const uint8_t ROW)
@@ -116,5 +124,6 @@ void OLED_STANDART_MENU::showText(const String TEXT, const uint8_t ROW)
   this->oled.setTextSize(2);
   int16_t row = ((SCREEN_HEIGHT/ROW_COUNT)*ROW);
   this->oled.setCursor(0,  row);  
-  this->oled.print(TEXT);          
+  //this->oled.print(TEXT);   
+  Serial.println(TEXT);
 }

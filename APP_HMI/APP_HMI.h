@@ -66,7 +66,7 @@ class BPLC_HMI: private BPLC_moduleErrorHandler, public BPLC_moduleErrorInterfac
     struct 
     {
         e_HMI_MENU_t    activeMenu;
-        uint8_t         activeText;
+        int8_t         activeText;
         bool            f_editShownParameter;
     }menu;
     
