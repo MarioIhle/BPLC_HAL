@@ -12,6 +12,9 @@ class hmiEncoder:public IO_Interface
     {
         this->f_invertedDirection   = false;
         this->ioType                = IO_TYPE__ROTARY_ENCODER; 
+        this->A.setDebounceTime(50,50);
+        this->B.setDebounceTime(50,50);
+        this->PB.setDebounceTime(50,50);
     }
 
     void                invertTurningDirection  (){this->f_invertedDirection = !this->f_invertedDirection;}
