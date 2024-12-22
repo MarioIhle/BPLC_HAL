@@ -5,22 +5,37 @@
 #include "00_ioInterface.h"
 #include "digitalInput.h"
 
+#define ENCODER_CHANNEL_A 0
+#define ENCODER_CHANNEL_B 1
+
+typedef enum
+{
+    HMI_ENCODER_CYCLE__IDLE,
+    HMI_ENCODER_CYCLE__FIRST_EDGE,
+    HMI_ENCODER_CYCLE__ACTIVE_STATE,
+    HMI_ENCODER_CYCLE__SECOND_EDGE,
+
+}e_HMI_ENCODER_CYCLE_t;
+
 class hmiEncoder:public IO_Interface
 {
 	public:
                         hmiEncoder              ()
     {
         this->f_invertedDirection   = false;
+        this->f_activeHigh          = false;
         this->ioType                = IO_TYPE__ROTARY_ENCODER; 
-        this->A.setDebounceTime(50,50);
-        this->B.setDebounceTime(50,50);
-        this->PB.setDebounceTime(50,50);
+        this->inputChannels[ENCODER_CHANNEL_A].setDebounceTime(10,10);
+        this->inputChannels[ENCODER_CHANNEL_B].setDebounceTime(10,10);
+        this->pushButton.setDebounceTime(10,10);
+        this->channelState[ENCODER_CHANNEL_A] = HMI_ENCODER_CYCLE__IDLE;
+        this->channelState[ENCODER_CHANNEL_B] = HMI_ENCODER_CYCLE__IDLE;
     }
 
     void                invertTurningDirection  (){this->f_invertedDirection = !this->f_invertedDirection;}
     e_MOVEMENT_t        getTurningDirection     (){e_MOVEMENT_t DIRECTION = this->direction; this->direction = MOVEMENT__IDLE; return DIRECTION;}
-    bool                buttonPressed           (){return this->PB.fallingEdge();}
-    bool                buttonReleased          (){return this->PB.risingEdge();}
+    bool                buttonPressed           (){return this->pushButton.fallingEdge();}
+    bool                buttonReleased          (){return this->pushButton.risingEdge();}
     //Hal handling
     e_IO_TYPE_t         getIoType               (){return this->ioType;}
     bool                newDataAvailable        (){return false;}
@@ -33,37 +48,72 @@ class hmiEncoder:public IO_Interface
         u_HAL_DATA_t EXTRACTED_HAL_DATA__Z;
         EXTRACTED_HAL_DATA__Z.digitalIoData.state = P_DATA->encoderData.stateZ;
 
-        this->A.halCallback(&EXTRACTED_HAL_DATA__A);   
-        this->B.halCallback(&EXTRACTED_HAL_DATA__B);   
-        this->PB.halCallback(&EXTRACTED_HAL_DATA__Z);  
+        this->inputChannels[ENCODER_CHANNEL_A].halCallback(&EXTRACTED_HAL_DATA__A);   
+        this->inputChannels[ENCODER_CHANNEL_B].halCallback(&EXTRACTED_HAL_DATA__B);   
+        this->pushButton.halCallback(&EXTRACTED_HAL_DATA__Z);  
+        
+        for(uint8_t i = 0; i<2; i++)
+        {
+            switch (this->channelState[i])
+            {
+                default:
+                case HMI_ENCODER_CYCLE__IDLE:
+                    if(this->inputChannels[i].fallingEdge())
+                    {
+                        this->channelState[i] = HMI_ENCODER_CYCLE__FIRST_EDGE;
+                    }
+                break;
 
-        //Richtungsauswertung
-        if(this->A.risingEdge() && this->B.ishigh())                   
-        {     
-            if(this->f_invertedDirection)
-            {
-                this->direction = MOVEMENT__LEFT;
-            }
-            else
-            {
-                this->direction = MOVEMENT__RIGHT;
-            }    
+                case  HMI_ENCODER_CYCLE__FIRST_EDGE:
+                    if(this->inputChannels[i].islow())
+                    {
+                        this->channelState[i] = HMI_ENCODER_CYCLE__ACTIVE_STATE;
+                    }
+                break;
+
+                case HMI_ENCODER_CYCLE__ACTIVE_STATE:
+                    if(this->inputChannels[i].risingEdge())
+                    {
+                        this->channelState[i] = HMI_ENCODER_CYCLE__SECOND_EDGE;
+                    }
+                break;
+                
+                //Auswertung abgeschlossen beide Channel zurück setzen
+                case HMI_ENCODER_CYCLE__SECOND_EDGE:                    
+                    this->channelState[0] = HMI_ENCODER_CYCLE__IDLE;
+                    this->channelState[1] = HMI_ENCODER_CYCLE__IDLE;
+                break;
+            }            
         }
-        else if (this->A.ishigh() && this->B.risingEdge())
+
+        //Richutngsauswertung sobald eine der beiden Spuren einen Zyklus abgeschlossen hat
+        if(this->channelState[0] == HMI_ENCODER_CYCLE__SECOND_EDGE)
         {
             if(this->f_invertedDirection)
-            {
-                this->direction = MOVEMENT__RIGHT;
+                {
+                    this->direction = MOVEMENT__LEFT;
+                }
+                else
+                {
+                    this->direction = MOVEMENT__RIGHT;
+                } 
+        }
+        else if(this->channelState[1] == HMI_ENCODER_CYCLE__SECOND_EDGE)
+        {
+            if(this->f_invertedDirection)
+                {
+                    this->direction = MOVEMENT__RIGHT;
+                }
+                else
+                {
+                    this->direction = MOVEMENT__LEFT;
+                } 
             }
-            else
-            {
-                this->direction = MOVEMENT__LEFT;
-            }            
-        }                                
         else
         {
             this->direction = MOVEMENT__IDLE;
-        }
+        }       
+
         return *P_DATA;
     }
     
@@ -72,9 +122,12 @@ class hmiEncoder:public IO_Interface
 
     e_IO_TYPE_t         ioType;
     bool                f_invertedDirection;
-    digitalInput        A;
-    digitalInput        B;
-    digitalInput        PB;
+    bool                f_activeHigh;
+    //Inputs
+    digitalInput        inputChannels[2];
+    digitalInput        pushButton;
+    //richtungsauswertung 
+    e_HMI_ENCODER_CYCLE_t channelState[2];
     e_MOVEMENT_t        direction;
 };
 
