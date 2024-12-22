@@ -11,6 +11,7 @@ class digitalInput: public IO_Interface
     public:
     //init
                         digitalInput    (){this->ioType = IO_TYPE__DIGITAL_INPUT; this->state = false; this->previousState = false;}
+    void                setDebounceTime (const uint8_t LOW_TO_HIGH_MS, const uint8_t HIGH_TO_LOW_MS){this->debouncer.setDebounceTime(LOW_TO_HIGH_MS, HIGH_TO_LOW_MS);}
     //Applikation
 
     bool 	            ishigh          (){return (this->state == true);}

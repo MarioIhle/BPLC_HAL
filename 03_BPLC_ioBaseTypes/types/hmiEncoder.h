@@ -12,10 +12,13 @@ class hmiEncoder:public IO_Interface
     {
         this->f_invertedDirection   = false;
         this->ioType                = IO_TYPE__ROTARY_ENCODER; 
+        this->A.setDebounceTime(50,50);
+        this->B.setDebounceTime(50,50);
+        this->PB.setDebounceTime(50,50);
     }
 
     void                invertTurningDirection  (){this->f_invertedDirection = !this->f_invertedDirection;}
-    e_MOVEMENT_t        getTurningDirection     (){return this->direction;}
+    e_MOVEMENT_t        getTurningDirection     (){e_MOVEMENT_t DIRECTION = this->direction; this->direction = MOVEMENT__IDLE; return DIRECTION;}
     bool                buttonPressed           (){return this->PB.fallingEdge();}
     bool                buttonReleased          (){return this->PB.risingEdge();}
     //Hal handling
