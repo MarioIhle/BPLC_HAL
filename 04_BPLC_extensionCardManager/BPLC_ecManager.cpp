@@ -2,7 +2,7 @@
 //Public Interface
 BPLC_extensionCardManager::BPLC_extensionCardManager()
 {
-    this->intIsrOccoured = true;            //Falls DIN EC vorhanden, wird im ersten tick das Flag erkannt und einmal alle Karten gelesen
+    this->intIsrOccoured = 10;            //Falls DIN EC vorhanden, wird im ersten tick das Flag erkannt und einmal alle Karten gelesen
     this->to_I2cScan.setInterval(10000);
     this->to_readInputs.setInterval(50);
 }
@@ -110,14 +110,12 @@ void BPLC_extensionCardManager::tick()
             {
                 switch(p_extensionCardToTick->getCardType())            
                 {
-                    case EC__DIN11revA:
-                        //INT ist callback
-                        if(this->intIsrOccoured)
+                    case EC__DIN11revA:                       
+                        if(0 < this->intIsrOccoured)
                         {
                             this->to_readInputs.reset();
-                            this->intIsrOccoured = false;                                                       
-                        }
-                        //Wenn INT isr callback, 50ms lang Inputs über I2C lesen
+                            this->intIsrOccoured--;                                                       
+                        }                        
                         if(!this->to_readInputs.check())
                         {
                             p_extensionCardToTick->getHalInterface()->tick();

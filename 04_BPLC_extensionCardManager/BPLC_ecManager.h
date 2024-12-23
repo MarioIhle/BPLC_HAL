@@ -85,7 +85,7 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
     extensionCard*      searchExtensionCard                 (const e_EC_TYPE_t  SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR);
     //Input Interrupt count
-    volatile bool       intIsrOccoured;
+    volatile uint64_t   intIsrOccoured;
     Timeout             to_readInputs;
 };
 #endif

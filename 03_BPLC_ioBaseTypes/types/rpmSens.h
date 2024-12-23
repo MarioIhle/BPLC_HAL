@@ -11,10 +11,10 @@
 class rpmSensor: public IO_Interface
 {
     public:
-                        rpmSensor           ();
+                        rpmSensor           (){this->ioType = IO_TYPE__RPM_SENS;}
     void                begin               (const uint16_t PULSES_PER_REV = 1, const uint16_t SAMPLE_TIME = 500)
     {
-        this->pulsesPerRevolution 	= 1;
+        this->pulsesPerRevolution 	= PULSES_PER_REV;
         this->startTime 			= millis();
         this->sampleCounter.resetCount();
         this->to_rpmCalculation.setInterval(SAMPLE_TIME);

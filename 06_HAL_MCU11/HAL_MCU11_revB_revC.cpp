@@ -1,14 +1,15 @@
 #include "HAL_MCU11.h"
 
 //Callback für Hardware Interrupt 
-volatile bool*  p_f_INT_MCU_REVB;
+volatile uint64_t* p_ISR_COUNT_MCU_REVB;
+
 static void INT_ISR()
 {
-   *p_f_INT_MCU_REVB = true;
+    *p_ISR_COUNT_MCU_REVB = *p_ISR_COUNT_MCU_REVB + 1;
 }
-HAL_MCU11_revB::HAL_MCU11_revB(volatile bool* p_f_INT)
+HAL_MCU11_revB::HAL_MCU11_revB(volatile uint64_t* P_ISR_COUNT)
 {
-    p_f_INT_MCU_REVB = p_f_INT;
+    p_ISR_COUNT_MCU_REVB = P_ISR_COUNT;
 }
 void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
 {
@@ -173,7 +174,7 @@ void HAL_MCU11_revB::tickSafety()
     {
         this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }
-    if(p_f_INT_MCU_REVB == nullptr)
+    if(p_ISR_COUNT_MCU_REVB == nullptr)
     {
         this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
     }

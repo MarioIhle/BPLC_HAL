@@ -12,6 +12,9 @@ class servoMotor: public IO_Interface
 	{
 		this->pwmValue 					= 0;
 		this->f_newPositionAvailable 	= true;
+		this->ioType					= IO_TYPE__SERVO;
+		this->minAngle 					= 0;
+		this->maxAngle					= 180;
 	}
     void                begin               (const uint16_t MIN = 0, const uint16_t MAX = 180)
 	{

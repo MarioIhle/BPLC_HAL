@@ -43,7 +43,7 @@ class digitalInput: public IO_Interface
     u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA)
     {    
         const bool PIN_STATE            = this->state;
-        const bool NEW_PIN_STATE        = this->state = this->debouncer.tick(P_DATA->digitalIoData.state);
+        const bool NEW_PIN_STATE        = this->debouncer.tick(P_DATA->digitalIoData.state);
         const bool PIN_STATE_CHANGED    = (PIN_STATE != NEW_PIN_STATE);
         
         if (PIN_STATE_CHANGED)
