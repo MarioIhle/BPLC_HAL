@@ -8,9 +8,11 @@ void BPLC_APP::begin()
 {   
    Serial.begin(115200);
    this->printLog("SETUP BPLC SYSTEM", __FILENAME__, __LINE__);
-   //Device Parameter aus Flash laden
+   //Device Parameter aus Flash laden  
    this->setupParameterFlash();
+   //this->parameterFlash.clear(); //Flash Parameter löschen 
    this->loadDeviceSettings();
+
    //Module initialisieren
    this->setupSafety();
    this->setupApplication();      
