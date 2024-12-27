@@ -40,4 +40,6 @@ class HAL_DIN11: public halInterface, private BPLC_moduleErrorHandler, private B
         const uint8_t PIN         [DIN11_CHANNEL_COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      
     }channels;       
  };
+
+
 #endif

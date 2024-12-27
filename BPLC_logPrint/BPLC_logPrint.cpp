@@ -33,5 +33,5 @@ void BPLC_logPrint::printResetReason(String TEXT, String FILE, const uint16_t LI
     Serial.println("OS Time: " + String(millis()) + ", FILE: " + FILE +", LINE: " + String(LINE));
     Serial.println("--> " + TEXT);
     Serial.flush();
-    delay(1000);
+    delay(2500);
 }
