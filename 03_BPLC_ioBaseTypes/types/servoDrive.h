@@ -8,7 +8,7 @@
 class servoMotor: public IO_Interface
 {
     public:
-                        servoMotor          ()
+    servoMotor()
 	{
 		this->pwmValue 					= 0;
 		this->f_newPositionAvailable 	= true;
@@ -16,15 +16,21 @@ class servoMotor: public IO_Interface
 		this->minAngle 					= 0;
 		this->maxAngle					= 180;
 	}
-    void                begin               (const uint16_t MIN = 0, const uint16_t MAX = 180)
+    void begin(const uint16_t MIN = 0, const uint16_t MAX = 180)
 	{
 		this->minAngle = MIN;
 		this->maxAngle = MAX;
 	}
-    void                setServoPosition    (const uint16_t POSITION)
-	{		
-		this->pwmValue = map(POSITION, 180, 0, 136, 363);
-		this->f_newPositionAvailable = true;
+    void setServoPosition (const uint16_t POSITION)
+	{	
+		uint16_t 	NEW_PWM_VALUE 		= map(POSITION, 180, 0, 136, 363);			
+		const bool 	PWM_VALUE_CHANGED 	= (NEW_PWM_VALUE != this->pwmValue);
+
+		if(PWM_VALUE_CHANGED)
+		{
+			this->pwmValue 					= NEW_PWM_VALUE;
+			this->f_newPositionAvailable 	= true;
+		}
 	}
     //Hal handling
     e_IO_TYPE_t         getIoType           (){return this->ioType;}
@@ -37,7 +43,6 @@ class servoMotor: public IO_Interface
 			
 		return BUFFER;
 	}
-
 
     private:    
     e_IO_TYPE_t         ioType;
