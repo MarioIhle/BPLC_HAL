@@ -14,6 +14,8 @@ class digitalInput: public IO_Interface
     void                setDebounceTime (const uint8_t LOW_TO_HIGH_MS, const uint8_t HIGH_TO_LOW_MS){this->debouncer.setDebounceTime(LOW_TO_HIGH_MS, HIGH_TO_LOW_MS);}
     //Applikation
 
+    bool 	            high            (){return (this->state == true);}       //abwärtsKompatibel
+    bool	            low             (){return (this->state == false);}      //abwärtsKompatibel
     bool 	            ishigh          (){return (this->state == true);}       //abwärtsKompatibel
     bool	            islow           (){return (this->state == false);}      //abwärtsKompatibel
     bool 	            isHigh          (){return (this->state == true);}
