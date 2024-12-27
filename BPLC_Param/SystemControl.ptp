@@ -93,6 +93,13 @@ BEEP ON ENCODER INPUT
 5
 
 SEND
+9
+GET RAM USAGE
+24 08 00 25
+0
+5
+
+SEND
 10
 -----------APPLIKATION-----------
 

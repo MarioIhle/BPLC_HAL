@@ -117,14 +117,12 @@ class OLED_MCU11: I2C_check
     s_menu_t    menu;
     bool        f_refresh;
 
-    int16_t         paramValue;
-    bool            f_parmParameter;
-    Timeout         to_parmeter;
-    bool            f_parameterBlink;
+    int16_t     paramValue;
+    bool        f_parmParameter;
+    Timeout     to_parmeter;
+    bool        f_parameterBlink;
  
     String          TEXT_OUTPUT[2];
-
-    ERROR_errorText errorOut;
 
     s_screenSaverParameter_t    screenSaverParameter;
     s_deviceSettingsParameter_t deviceSettings;      

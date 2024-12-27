@@ -23,7 +23,10 @@ void BPLC_APP::tickControlPanel()
                     this->printErrorSet(this->systemErrorManager.getError(error)->errorCode, __FILENAME__, __LINE__); 
                 }
                 break;
-
+            case BPLC_PLI_KEY__GET_RAM_USAGE:
+                this->printRamUsage();
+                break;
+                
             case BPLC_PLI_KEY__RESET_ALL_ERRORS:               
                 this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);                 
                 break;

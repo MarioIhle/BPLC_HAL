@@ -7,7 +7,7 @@
 #define __FILENAME__ (__builtin_strrchr( "/" __FILE__, '/') + 1)
 #endif
 
-class BPLC_logPrint: ERROR_errorText
+class BPLC_logPrint
 {
     public:
             BPLC_logPrint       ();
@@ -15,5 +15,6 @@ class BPLC_logPrint: ERROR_errorText
     void    printErrorSet       (const e_BPLC_ERROR_t ERROR_CODE,  String FILE, const uint16_t LINE);
     void    printErrorReset     (const e_BPLC_ERROR_t ERROR_CODE,  String FILE, const uint16_t LINE);
     void    printResetReason    (String TEXT, String FILE, const uint16_t LINE);
+    void    printRamUsage       ();
 };
 #endif 
