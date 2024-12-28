@@ -1,5 +1,5 @@
 #ifndef BPLC_APP_h
-#define BPLC_APP_H
+#define BPLC_APP_h
 //------------------------------------------------------------
 /**
  * @file BPLC_APP.h
@@ -17,6 +17,7 @@
 #include <Preferences.h>
 
 //BPLC
+#include "BPLC_virtualDip/BPLC_vDip.h"
 #include "BPLC_errorHandler.h"
 #include "BPLC_controlInterface.h"
 
@@ -67,7 +68,7 @@ typedef enum
 #define RUNTIME_ERRORS_MAX 3
 #define RUNNTIME 1000
 
-class BPLC_APP: BPLC_logPrint, CRC16Calculator
+class BPLC_APP: private BPLC_logPrint, private CRC16Calculator, public BPLC_vDipManager
 {
     public:
     //Setup des BPLC Systems
@@ -81,10 +82,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     void    tick                    ();    
     //Buzzer aus Applikation heraus nutzen
     void    beep                    (const uint8_t BEEPS, const int BEEP_INTERVAL);    
-    //Dip Controll
-    void    setVDip                 (const e_V_DIP_t DIP_NUM, const int16_t VALUE);
-    int16_t getVDip                 (const e_V_DIP_t DIP_NUM);
-
+    
     
     private:
     //ControlPanel
@@ -105,8 +103,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
 
     struct
     {
-        e_APP_MODE_t   deviceMode;
-        int16_t        virtualDipSwitch[vDIP_COUNT]; 
+        e_APP_MODE_t   deviceMode;      
 
         struct
         {

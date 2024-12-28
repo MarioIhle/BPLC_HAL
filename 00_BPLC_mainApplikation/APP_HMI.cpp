@@ -206,19 +206,31 @@ void BPLC_APP::handle_vDip(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t
    const bool           IS_ENCODER_BUTTON_PRESSED  = ENCODER_BUTTON_PRESSED;
    const e_MOVEMENT_t   TURNING_DIRECTION          = ENCODER_DIRETION;
    const bool           PARARMETER_IS_ENTERED      = this->APP_HAL.oled.parameterEntered();
-   const e_V_DIP_t      SELECTED_DIP               = (e_V_DIP_t)this->APP_HAL.oled.getActiveMenuTextNum();
-
+         uint8_t        selectedDip               = this->APP_HAL.oled.getActiveMenuTextNum();
+   
+   const uint8_t        V_DIP_COUNT = this->getVDipCount();
+         uint8_t        vDipToShow  = 0;
+   selectedDip = constrain(selectedDip, 0, V_DIP_COUNT);
+        
+   BPLC_vDip*     p_dipToShow = this->getFirstVDip();   
+   
+   while(vDipToShow != selectedDip)
+   {
+      p_dipToShow = p_dipToShow->getNext();
+      vDipToShow++;
+   }
+ 
    if(IS_ENCODER_BUTTON_PRESSED)
    {            
       //Enter Parameter
       if(PARARMETER_IS_ENTERED == false)
       {           
          this->APP_HAL.oled.enterParameter();  
-         this->APP_HMI.temp_ParameterStorage = this->getVDip(SELECTED_DIP);               
+         this->APP_HMI.temp_ParameterStorage = p_dipToShow->getValue();               
       }
       else
       {         
-         this->setVDip(SELECTED_DIP, this->APP_HMI.temp_ParameterStorage);  //Aktiver Text == gewählter Dip
+         p_dipToShow->setValue(this->APP_HMI.temp_ParameterStorage);  //Aktiver Text == gewählter Dip
          this->APP_HAL.oled.exitParameter();               
       }
       //Cursor on "exit"
@@ -257,7 +269,7 @@ void BPLC_APP::handle_vDip(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t
    }
    else
    {
-      this->APP_HAL.oled.setParamValueToShow(this->getVDip(SELECTED_DIP));
+      this->APP_HAL.oled.setParamValueToShow((uint8_t)p_dipToShow->getValue());
    }
 
 #ifdef DEBUG_APP_MCU11_APP_HMI

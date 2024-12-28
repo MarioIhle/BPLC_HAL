@@ -150,12 +150,3 @@ void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
       }      
    }   
 }
-//Dip handling
-void BPLC_APP::setVDip(const e_V_DIP_t DIP_NUM, const int16_t VALUE)
-{
-   this->APP_APP.virtualDipSwitch[DIP_NUM] = VALUE;
-}
-int16_t BPLC_APP::getVDip(const e_V_DIP_t DIP_NUM)
-{
-   return this->APP_APP.virtualDipSwitch[DIP_NUM];
-}
