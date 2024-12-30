@@ -38,7 +38,7 @@ void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
     attachInterrupt(this->PIN.INT, INT_ISR, FALLING);       
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
-    //Serial1.begin(this->baudrate.RS232);    //RS232
+    Serial1.begin(this->baudrate.RS232, SERIAL_8N1, 32, 33);    //RS232
     Serial2.begin(this->baudrate.RS485);    //RS485
     //I2C
     Wire.begin();

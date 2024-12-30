@@ -85,6 +85,8 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     void    setVDip                 (const e_V_DIP_t DIP_NUM, const int16_t VALUE);
     int16_t getVDip                 (const e_V_DIP_t DIP_NUM);
 
+    void            setDeviceMode   (const e_APP_MODE_t MODE);
+
     
     private:
     //ControlPanel
@@ -101,7 +103,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     void            loadDeviceSettings  ();
     //Device Mode
     e_APP_MODE_t    getDeviceMode   ();    
-    void            setDeviceMode   (const e_APP_MODE_t MODE);
+    
 
     struct
     {
