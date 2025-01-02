@@ -118,11 +118,11 @@ void HAL_MCU11_revB::tick()
             //NPN PullUp schaltung, ausgang also invertieren
             if(OEN_STATE > 0)
             {
-                digitalWrite(this->PIN.OEN, LOW);
+                digitalWrite(this->PIN.OEN, HIGH);
             }
             else
             {
-                digitalWrite(this->PIN.OEN, HIGH);
+                digitalWrite(this->PIN.OEN, LOW);
             }
             
         }

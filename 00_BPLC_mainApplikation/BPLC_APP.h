@@ -15,7 +15,7 @@
 #include "SpecialFunctions.h"
 #ifndef ARDUINO_AVR_NANO
 #include <Preferences.h>
-
+#include <esp_task_wdt.h>
 //BPLC
 #include "BPLC_errorHandler.h"
 #include "BPLC_controlInterface.h"

@@ -13,13 +13,13 @@ void BPLC_APP::begin()
    //this->parameterFlash.clear(); //Flash Parameter löschen 
    this->loadDeviceSettings();
 
-   //Module initialisieren
-   this->setupSafety();
+   //Module initialisieren   
    this->setupApplication();      
    this->setupHMI();   
    this->setupHardware();      
    this->setupNetwork();  
-   
+   this->setupSafety();
+
    //Fehlerprüfung bevor System startet
    if(this->systemErrorManager.noErrorSet())
    {
@@ -71,6 +71,7 @@ void BPLC_APP::tick()
          this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 1000, 1000);  
          this->tickHardware();   
          this->tickNetwork();       
+         esp_task_wdt_reset();   //Da Safety nicht getickt
          break;
 
       case APP_MODE__RUN_WITHOUT_EC_CARDS:
