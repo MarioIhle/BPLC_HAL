@@ -14,7 +14,7 @@
 #include "HAL_NANO11.h"
 #include "HAL_FUSE12.h"
 
-
+#include <esp_task_wdt.h>
 typedef enum
 {
     EC__NO_TYPE_DEFINED,

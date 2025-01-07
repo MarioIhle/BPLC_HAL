@@ -41,24 +41,24 @@ class rpmSensor: public IO_Interface
         if(this->p_sampleCounter != nullptr)
         {
             if(to_rpmCalculation.checkAndReset())
-            {
-                //Daten vorladen
-                const double OS_TIME                    = (double)millis();
-                const double SAMPLES			        = (double)this->p_sampleCounter->getCount();                 
-                const double START_TIME                 = (double)this->startTime;
-                const double TIME_DELTA 		        = (OS_TIME - START_TIME);
-                const double PULSES_PER_REVOLUTION      = (double)this->pulsesPerRevolution;                                           
+            {                
+                //Daten vorladen                
+                const uint64_t  OS_TIME                 = micros();
+                const uint64_t  SAMPLES			        = this->p_sampleCounter->getCount();                                 
+                const uint64_t  START_TIME              = this->startTime;
+                const uint64_t  TIME_DELTA 		        = (OS_TIME - START_TIME);
+                const uint64_t  PULSES_PER_REVOLUTION   = this->pulsesPerRevolution;                                           
                 //Drehzahl berechnen
-                const double REVOLUTIONS	            = (SAMPLES / PULSES_PER_REVOLUTION);
+                const double REVOLUTIONS	            = (double)(SAMPLES / PULSES_PER_REVOLUTION);
                 const double TIME_PER_REV               = (REVOLUTIONS/TIME_DELTA);
-                const double CALCULATED_RPM             = (TIME_PER_REV * 60000.00);
+                const double CALCULATED_RPM             = (TIME_PER_REV * 60000000.00);
                 //Drehzahl glätten
                 const double RPM_OLD                    = (double)this->rpm;
                 this->rpm                               = (uint64_t)CALCULATED_RPM; //(CALCULATED_RPM * 0.25) + (RPM_OLD * 0.75);
         
-                //Alle Werte zurück setzten, neue Messung starten 
-                this->startTime = millis();	
-                this->p_sampleCounter->resetCount();    	
+                //Alle Werte zurück setzten, neue Messung starten      
+                this->startTime = micros();           	
+                this->p_sampleCounter->resetCount();              	                
             }
         }
         else

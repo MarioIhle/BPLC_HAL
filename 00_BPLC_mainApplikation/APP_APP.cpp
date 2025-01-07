@@ -1,5 +1,18 @@
 #include "BPLC_APP.h"
 
+/*
+BPLC_APP* P_APP = nullptr;
+void bplcTask(void* arg)
+{
+  while(1)
+  {
+    P_APP->tick();
+    delay(5);
+  }
+}    
+*/
+
+
 BPLC_APP::BPLC_APP()
 {   
    memset(&this->APP_APP, 0, sizeof(this->APP_APP));
@@ -35,6 +48,8 @@ void BPLC_APP::begin()
 }
 void BPLC_APP::setupApplication()
 {   
+   //P_APP = this;
+   //xTaskCreatePinnedToCore(bplcTask, "bplcTask", 4096, NULL, 2, nullptr, 0);
    Wire.begin();
 }
 void BPLC_APP::tick()

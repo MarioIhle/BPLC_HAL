@@ -1,4 +1,5 @@
 #include "BPLC_ecManager.h"
+
 //Public Interface
 BPLC_extensionCardManager::BPLC_extensionCardManager()
 {
@@ -20,21 +21,29 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
     }      
 }  
 
-halInterface* p_HAL1 = nullptr;
-volatile uint64_t ISR_COUNT;
+TaskHandle_t        dinTaskHandler;
+halInterface*       p_dinHal[DIN11_ADDRESS_COUNT];
+volatile uint64_t   ISR_COUNT;
 
 void DIN_CALLBACK(void* arg)
-{
+{//I2C limit ist ca. 1,5k Aufrufe pro secunde, reicht für 100k U/min
+    esp_task_wdt_init(1, true);                
+    esp_task_wdt_add(NULL);                
+
     while(1)
-    {
+    {     
+        esp_task_wdt_reset();
         if(0 < ISR_COUNT)
         {
-            ISR_COUNT--;     
-            if(p_HAL1 != nullptr) 
+            for(uint8_t dinCard = 0; dinCard < DIN11_ADDRESS_COUNT; dinCard++)
             {
-                //p_HAL1->tick();
-            }                                               
-        }
+                if(p_dinHal[dinCard] != nullptr) 
+                {
+                    p_dinHal[dinCard]->tick();                
+                }
+            }            
+            ISR_COUNT--;                                               
+        }       
     }
 }
 
@@ -48,7 +57,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
         switch (EXTENSION_CARD_TYPE)
         {
             case EC__MCU11revA:    
-                p_newHalInterface = new HAL_MCU11_revA(&this->intIsrOccoured);  
+                p_newHalInterface = new HAL_MCU11_revA(&ISR_COUNT);  
                 break;
 
             case EC__MCU11revB:    
@@ -61,9 +70,22 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
                 break; 
        
             case EC__DIN11revA:              
-                p_newHalInterface = new HAL_DIN11();
-                xTaskCreate(DIN_CALLBACK, "DIN_CALLBACK", 4096, NULL, 10, nullptr);         
-                p_HAL1 = p_newHalInterface;       
+                p_newHalInterface = new HAL_DIN11();                         
+                    
+                for(uint8_t dinCard = 0; dinCard < DIN11_ADDRESS_COUNT; dinCard++)
+                {
+                    if(p_dinHal[dinCard] == nullptr) 
+                    {
+                        //Task nur 1x erstellen für alle Din Karten, zwecks ISR_Count abzählen
+                        if(dinTaskHandler == nullptr)
+                        {
+                            xTaskCreatePinnedToCore(DIN_CALLBACK, "din11_addr_1", 4096, NULL, 1, &dinTaskHandler, 0);
+                        }
+                        
+                        p_dinHal[dinCard] = p_newHalInterface;      
+                        break;          
+                    }
+                }   
                 break;                         
   
             case EC__DO11revA:        
@@ -132,7 +154,7 @@ void BPLC_extensionCardManager::tick()
                 switch(p_extensionCardToTick->getCardType())            
                 {
                     case EC__DIN11revA:                       
-                        
+                        //do Nothing, da über Task in CPU 0 abgebildet
                     break;
 
                     default:
