@@ -2,12 +2,10 @@
 
 //Callback für Hardware Interrupt 
 volatile uint64_t*  p_ISR_COUNT_MCU_REVA;
-IO_Interface*       p_counterForRpmSens_MCU_REVA;
 
 static void INT_ISR()
 {
     *p_ISR_COUNT_MCU_REVA = *p_ISR_COUNT_MCU_REVA + 1;
-    p_counterForRpmSens_MCU_REVA->newDataAvailable();
 }
 HAL_MCU11_revA::HAL_MCU11_revA(volatile uint64_t* P_ISR_COUNT)
 {
@@ -91,13 +89,6 @@ void HAL_MCU11_revA::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             {
                 this->p_ld3 = P_IO_OBJECT;
             }
-            break;
-
-        case MCU_CHANNEL__INT_COUNTER:
-            if(P_IO_OBJECT->getIoType() == IO_TYPE__DIGITAL_COUNTER)
-            {
-                p_counterForRpmSens_MCU_REVA = P_IO_OBJECT;
-            }  
             break;
 
         default:
