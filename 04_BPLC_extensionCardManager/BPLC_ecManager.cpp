@@ -19,6 +19,25 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
         this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);       
     }      
 }  
+
+halInterface* p_HAL1 = nullptr;
+volatile uint64_t ISR_COUNT;
+
+void DIN_CALLBACK(void* arg)
+{
+    while(1)
+    {
+        if(0 < ISR_COUNT)
+        {
+            ISR_COUNT--;     
+            if(p_HAL1 != nullptr) 
+            {
+                //p_HAL1->tick();
+            }                                               
+        }
+    }
+}
+
 bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR)
 {
     bool newEcAdded = false;   
@@ -34,7 +53,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
 
             case EC__MCU11revB:    
             case EC__MCU11revC://Gleiches pinning, nur änderungen im Layout 
-                p_newHalInterface = new HAL_MCU11_revB(&this->intIsrOccoured);      
+                p_newHalInterface = new HAL_MCU11_revB(&ISR_COUNT);               
                 break;   
 
             case EC__AIN11revA:          
@@ -43,6 +62,8 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
        
             case EC__DIN11revA:              
                 p_newHalInterface = new HAL_DIN11();
+                xTaskCreate(DIN_CALLBACK, "DIN_CALLBACK", 4096, NULL, 10, nullptr);         
+                p_HAL1 = p_newHalInterface;       
                 break;                         
   
             case EC__DO11revA:        
@@ -111,15 +132,7 @@ void BPLC_extensionCardManager::tick()
                 switch(p_extensionCardToTick->getCardType())            
                 {
                     case EC__DIN11revA:                       
-                        if(0 < this->intIsrOccoured)
-                        {
-                            this->to_readInputs.reset();
-                            this->intIsrOccoured--;                                                       
-                        }                        
-                        if(!this->to_readInputs.check())
-                        {
-                            p_extensionCardToTick->getHalInterface()->tick();
-                        }
+                        
                     break;
 
                     default:

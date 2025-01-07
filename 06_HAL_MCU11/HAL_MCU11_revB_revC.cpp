@@ -1,11 +1,16 @@
 #include "HAL_MCU11.h"
 
 //Callback für Hardware Interrupt 
-volatile uint64_t* p_ISR_COUNT_MCU_REVB;
+volatile uint64_t* p_ISR_COUNT_MCU_REVB         = nullptr;
+IO_Interface*      p_counterForRpmSens_MCU_REVB = nullptr;
 
 static void INT_ISR()
 {
     *p_ISR_COUNT_MCU_REVB = *p_ISR_COUNT_MCU_REVB + 1;
+    if(p_counterForRpmSens_MCU_REVB != nullptr)
+    {
+        p_counterForRpmSens_MCU_REVB->newDataAvailable();
+    }    
 }
 HAL_MCU11_revB::HAL_MCU11_revB(volatile uint64_t* P_ISR_COUNT)
 {
@@ -89,6 +94,13 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             {
                 this->p_ld3 = P_IO_OBJECT;
             }
+            break;
+
+        case MCU_CHANNEL__INT_COUNTER:
+            if(P_IO_OBJECT->getIoType() == IO_TYPE__DIGITAL_COUNTER)
+            {
+                p_counterForRpmSens_MCU_REVB = P_IO_OBJECT;
+            }  
             break;
 
         default:
