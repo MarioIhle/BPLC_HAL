@@ -5,7 +5,6 @@
 #include "digitalDebouncer.h"
 #include "types/00_ioInterface.h"
 
-
 class digitalInput: public IO_Interface
 {
     public:
@@ -13,7 +12,7 @@ class digitalInput: public IO_Interface
                         digitalInput    (){this->ioType = IO_TYPE__DIGITAL_INPUT; this->state = false; this->previousState = false;}
     void                setDebounceTime (const uint8_t LOW_TO_HIGH_MS, const uint8_t HIGH_TO_LOW_MS){this->debouncer.setDebounceTime(LOW_TO_HIGH_MS, HIGH_TO_LOW_MS);}
     //Applikation
-
+    bool                stateChanged    (){const bool STATE_CHANGED = (this->f_stateChanged == true); this->f_stateChanged = false; return STATE_CHANGED;}
     bool 	            high            (){return (this->state == true);}       //abwärtsKompatibel
     bool	            low             (){return (this->state == false);}      //abwärtsKompatibel
     bool 	            ishigh          (){return (this->state == true);}       //abwärtsKompatibel
@@ -44,22 +43,28 @@ class digitalInput: public IO_Interface
     bool                newDataAvailable(){return false;}    
     u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA)
     {    
-        const bool PIN_STATE            = this->state;
-        const bool NEW_PIN_STATE        = this->debouncer.tick(P_DATA->digitalIoData.state);
-        const bool PIN_STATE_CHANGED    = (PIN_STATE != NEW_PIN_STATE);
-        
+        const bool  PIN_STATE               = this->state;
+        const bool  NEW_PIN_STATE           = this->debouncer.tick(P_DATA->digitalIoData.state);
+        const bool  PIN_STATE_CHANGED       = (PIN_STATE != NEW_PIN_STATE);
+                
         if (PIN_STATE_CHANGED)
         {     
-            if(PIN_STATE && !NEW_PIN_STATE)
+            if(!PIN_STATE && NEW_PIN_STATE)
             {
                 this->f_risingEdgeOccoured  = true;
             }
-            if(!PIN_STATE && NEW_PIN_STATE)
+            if(PIN_STATE && !NEW_PIN_STATE)
             {
                 this->f_fallingEdgeOccoured = true;
             }
+
             this->state = NEW_PIN_STATE;
-        }
+            
+            if(!this->f_stateChanged)      
+            {
+                this->f_stateChanged = true;
+            }
+        }        
         return *P_DATA;
     }
 
@@ -67,6 +72,7 @@ class digitalInput: public IO_Interface
     bool                f_fallingEdgeOccoured;
     bool                f_risingEdgeOccoured;
 
+    bool                f_stateChanged;
     bool                state;                      
     bool                previousState;
     e_IO_TYPE_t         ioType;
