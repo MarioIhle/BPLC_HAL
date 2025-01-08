@@ -1,7 +1,7 @@
 #include "BPLC_APP.h"
 
 void BPLC_APP::setupHardware()
-{//this->printLog("SETUP HARDWARE");
+{
    const e_EC_TYPE_t MCU_TYPE = this->APP_APP.settings.device.hardware.mcuCard;  
 
    if(MCU_TYPE != EC__NO_TYPE_DEFINED)
@@ -36,6 +36,11 @@ void BPLC_APP::setupHardware()
    {
       this->systemErrorManager.setError(BPLC_ERROR__NO_MCU_DEFINED, __FILENAME__, __LINE__);
    }
+
+   //Erst nach MCU initialisieren den ECM task erstellen, da sonst direkt ein fehler generiet wird
+   //MCU kann nicht ohne channels funktionieren, EC Karten schon zumindest bis jetzt
+   this->extensionCardManager.begin();
+
    //Zuerst die Output Karten initialisieren
    //REL11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < REL11_ADDRESS_COUNT; CARD_ADDR++)
@@ -126,7 +131,7 @@ void BPLC_APP::tickHardware()
    {
       Wire.setClock(I2C_CLOCK_SPEED_400_KHZ);
    }
-   this->extensionCardManager.tick();   
+   //this->extensionCardManager.tick();   
 }
 void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
 {

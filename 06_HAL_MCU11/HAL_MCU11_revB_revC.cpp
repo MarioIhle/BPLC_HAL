@@ -1,9 +1,9 @@
 #include "HAL_MCU11.h"
 
 //Callback für Hardware Interrupt 
-volatile uint64_t* p_ISR_COUNT_MCU_REVB         = nullptr;
+volatile uint64_t* p_ISR_COUNT_MCU_REVB = nullptr;
 
-static void INT_ISR()
+static void INT_ISR_MCU_REV_B()
 {
     *p_ISR_COUNT_MCU_REVB = *p_ISR_COUNT_MCU_REVB + 1;
 }
@@ -35,7 +35,7 @@ void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
     pinMode(this->PIN.OEN, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT);
-    attachInterrupt(this->PIN.INT, INT_ISR, FALLING);       
+    attachInterrupt(this->PIN.INT, INT_ISR_MCU_REV_B, FALLING);       
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
     Serial1.begin(this->baudrate.RS232, SERIAL_8N1, 32, 33);    //RS232

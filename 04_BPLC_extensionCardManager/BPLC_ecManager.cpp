@@ -1,33 +1,88 @@
 #include "BPLC_ecManager.h"
 
-//Public Interface
-BPLC_extensionCardManager::BPLC_extensionCardManager()
-{
-    this->intIsrOccoured = 10;            //Falls DIN EC vorhanden, wird im ersten tick das Flag erkannt und einmal alle Karten gelesen
-    this->to_I2cScan.setInterval(10000);
-    this->to_readInputs.setInterval(50);
-}
-void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)                                
-{
-    extensionCard* p_cardToMapChannelTo = this->searchExtensionCard(CARD, ADDR);
+BPLC_extensionCardManager* p_ECM;
 
-    if(p_cardToMapChannelTo != nullptr)
-    {
-        p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);
+String getEcName(e_EC_TYPE_t EC_TYPE)
+{
+    switch(EC_TYPE)
+    {          
+        case EC__MCU11revA:
+            return "MCU11revA";
+            break;
+        case EC__MCU11revB:
+            return "MCU11revB";
+            break;
+
+        case EC__MCU11revC:
+            return "MCU11revC";
+            break;
+
+        case EC__AIN11revA:
+            return "AIN11revA";
+            break;
+
+        case EC__DIN11revA:
+            return "DIN11revA";
+            break;
+
+        case EC__DO11revA:
+            return "DO11revA";
+            break;
+
+        case EC__REL11revA:
+            return "REL11revA";
+            break;
+
+        case EC__MOT11revA:
+            return "MOT11revA";
+            break;
+
+        case EC__TMP11revA:
+            return "TMP11revA";
+            break;
+
+        case EC__PPO11revA:
+            return "PPO11revA";
+            break;
+
+        case EC__NANO11revA:
+            return "NANO11revA";
+            break;
+
+        case EC__FUSE11revA:
+            return "FUSE11revA";
+            break;
+
+        case EC__FUSE12revA:
+            return "FUSE12revA";
+            break;         
+
+            default:
+            return "TEXTS NEED UPDATE";
+            break;
     }
-    else
-    {//Error Setzen        
-        this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);       
-    }      
-}  
+}
 
-TaskHandle_t        dinTaskHandler;
-halInterface*       p_dinHal[DIN11_ADDRESS_COUNT];
+void ecmTask(void* arg)
+{
+    esp_task_wdt_init(1, true);                
+    esp_task_wdt_add(NULL);   
+
+    while(true)
+    {
+        esp_task_wdt_reset();
+        p_ECM->tick();
+        delay(1);
+    }
+}
+
+//Wenn Counter verwendet werden, wird ein extra Task für das Interrupthandling erzeugt. Die dinHal wird dann aus dem ecMtask gelöscht
+//Erstmal für eine schnelle DinKarte ausgelegt, könnte aber ggf. erweitert werden 
+extensionCard*      p_dinHal;
 volatile uint64_t   ISR_COUNT;
 
-void DIN_CALLBACK(void* arg)
+void din11TaskForCounters(void* arg)
 {//I2C limit ist ca. 1,5k Aufrufe pro secunde, reicht für 100k U/min
-    disableCore0WDT();
     esp_task_wdt_init(1, true);                
     esp_task_wdt_add(NULL);                
 
@@ -35,19 +90,75 @@ void DIN_CALLBACK(void* arg)
     {     
         esp_task_wdt_reset();
         if(0 < ISR_COUNT)
-        {
-            for(uint8_t dinCard = 0; dinCard < DIN11_ADDRESS_COUNT; dinCard++)
-            {
-                if(p_dinHal[dinCard] != nullptr) 
-                {
-                    p_dinHal[dinCard]->tick();                
-                }
-            }            
-            ISR_COUNT--;                                                    
+        {    
+            p_dinHal->getHalInterface()->tick();                                                                  
         }  
     }
 }
 
+//Public Interface
+BPLC_extensionCardManager::BPLC_extensionCardManager()
+{
+    this->intIsrOccoured = 10;            //Falls DIN EC vorhanden, wird im ersten tick das Flag erkannt und einmal alle Karten gelesen
+    this->to_I2cScan.setInterval(10000);
+    this->to_readInputs.setInterval(50);
+}
+void BPLC_extensionCardManager::begin()
+{
+    p_ECM = this;
+    xTaskCreatePinnedToCore(ecmTask, "ecmTask", 4096, NULL, 1, NULL, 0);
+}
+void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)                                
+{
+    extensionCard* p_cardToMapChannelTo = this->searchExtensionCard(CARD, ADDR);   
+
+    //Karte wurde in ecM Liste gefunden
+    if(p_cardToMapChannelTo != nullptr)
+    {
+        p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);        
+    }
+    //Vielleicht DIN11 Karte mit interrupt task?
+    else if((CARD == EC__DIN11revA)
+        &&  (p_dinHal != nullptr))
+    {
+        //Ist das auch die richtige Karte?
+        if(p_dinHal->getAddr() == ADDR)
+        {
+            p_dinHal->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);
+        }
+    }
+    else
+    {//Error Setzen        
+        this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);       
+    }    
+
+
+    if(CARD == EC__DIN11revA)
+    {    
+        //externen dinTask erzeugen und aus ecM Liste löschen, wenn diese IO_objkete verwedet werden
+        switch(P_IO_OBJECT->getIoType())
+        {        
+            case IO_TYPE__DIGITAL_COUNTER:
+            case IO_TYPE__POSITION_ENCODER:
+            case IO_TYPE__ROTARY_ENCODER:
+            case IO_TYPE__RPM_SENS:
+                //Es sollte grundsätzlich das extensionCard objekt beim Start des Systems erzeugt worden sein, kann also einfach kopiert und anschließend aus der liste gelöscht werden
+                if(p_cardToMapChannelTo != nullptr)
+                {
+                    p_dinHal = p_cardToMapChannelTo;                                                                //Kartenobjekt an golbalen poniter übergeben                
+                    xTaskCreatePinnedToCore(din11TaskForCounters, "din11TaskForCounters", 4096, NULL, 1, NULL, 0);  //Task erstellen
+                    this->printLog("DIN11 TASK ERZEUGT", __FILENAME__, __LINE__);
+                    this->deleteExtensionCardFromList(p_cardToMapChannelTo);                                        //Kartenobjekt von ecM Liste löschen                    
+                }
+                break;
+
+            default:
+                break;
+        } 
+    }        
+}  
+
+//EC Karten Handling
 bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR)
 {
     bool newEcAdded = false;   
@@ -71,22 +182,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
                 break; 
        
             case EC__DIN11revA:              
-                p_newHalInterface = new HAL_DIN11();  
-                                
-                for(uint8_t dinCard = 0; dinCard < DIN11_ADDRESS_COUNT; dinCard++)
-                {
-                    if(p_dinHal[dinCard] == nullptr) 
-                    {
-                        //Task nur 1x erstellen für alle Din Karten, zwecks ISR_Count abzählen
-                        if(dinTaskHandler == nullptr)
-                        {                            
-                            xTaskCreatePinnedToCore(DIN_CALLBACK, "din11_addr_1", 4096, NULL, 1, &dinTaskHandler, 0);
-                        }
-                        
-                        p_dinHal[dinCard] = p_newHalInterface;      
-                        break;          
-                    }
-                }   
+                p_newHalInterface = new HAL_DIN11(); 
                 break;                         
   
             case EC__DO11revA:        
@@ -155,7 +251,10 @@ void BPLC_extensionCardManager::tick()
                 switch(p_extensionCardToTick->getCardType())            
                 {
                     case EC__DIN11revA:                       
-                        //do Nothing, da über Task in CPU 0 abgebildet
+                        if(0 < ISR_COUNT)
+                        {    
+                            p_extensionCardToTick->getHalInterface()->tick();                                                            
+                        }                      
                     break;
 
                     default:
@@ -164,7 +263,8 @@ void BPLC_extensionCardManager::tick()
                 }      
             }      
             p_extensionCardToTick = p_extensionCardToTick->getNext();      
-        }       
+        }    
+        ISR_COUNT--;     
     }
     if(this->to_I2cScan.checkAndReset())
     {
@@ -294,4 +394,35 @@ void BPLC_extensionCardManager::addExtensionCardToList(extensionCard* CARD_TO_AD
         CARD_TO_ADD->setNext(this->p_firstExtensionCard);
         this->p_firstExtensionCard = CARD_TO_ADD;
     }  
+}
+void BPLC_extensionCardManager::deleteExtensionCardFromList(extensionCard* CARD_TO_DELETE_FROM_LIST)
+{    
+    if(this->p_firstExtensionCard != nullptr)
+    {
+        extensionCard* p_searchedCard           = this->p_firstExtensionCard;
+        extensionCard* p_cardBeforeSearchedCard = this->p_firstExtensionCard;   
+
+        while(p_searchedCard != CARD_TO_DELETE_FROM_LIST)
+        {
+            //Falls der nächste Port der gesuchte Port ist, pointer auf aktuellen speichern.         
+            if(p_searchedCard->getNext() == CARD_TO_DELETE_FROM_LIST)
+            {
+                p_cardBeforeSearchedCard = p_searchedCard;
+            }
+            p_searchedCard = p_searchedCard->getNext();
+        }
+        if(p_searchedCard != nullptr)
+        {
+            //Falls erste Karte, dann nur nächste Karte auf den Anfang vorziehen
+            if(CARD_TO_DELETE_FROM_LIST == this->p_firstExtensionCard)
+            {   
+                this->p_firstExtensionCard = p_searchedCard->getNext();
+            }
+            else
+            {   //Lücke schließen      
+                p_cardBeforeSearchedCard->setNext(p_searchedCard->getNext());        
+            }   
+            this->printLog(getEcName(CARD_TO_DELETE_FROM_LIST->getCardType()) + " ADDR:" + String(CARD_TO_DELETE_FROM_LIST->getAddr()) + " DELETED FROM ECM LIST", __FILENAME__, __LINE__);
+            }
+        }       
 }

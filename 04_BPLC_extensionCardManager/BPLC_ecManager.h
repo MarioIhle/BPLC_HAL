@@ -65,6 +65,7 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
 {
     public:
                         BPLC_extensionCardManager           ();    
+    void                begin                               ();
     void                tick                                ();    
     void                mapObjectToExtensionCard            (IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL);
     bool                addNewExtensionCard                 (const e_EC_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR);
@@ -84,6 +85,8 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     extensionCard*      p_firstExtensionCard;    
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
     extensionCard*      searchExtensionCard                 (const e_EC_TYPE_t  SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR);
+    void                deleteExtensionCardFromList         (extensionCard* CARD_TO_DELETE_FROM_LIST);
+
     //Input Interrupt count
     volatile uint64_t   intIsrOccoured;
     Timeout             to_readInputs;

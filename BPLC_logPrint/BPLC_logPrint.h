@@ -15,6 +15,6 @@ class BPLC_logPrint
     void    printErrorSet       (const e_BPLC_ERROR_t ERROR_CODE,  String FILE, const uint16_t LINE);
     void    printErrorReset     (const e_BPLC_ERROR_t ERROR_CODE,  String FILE, const uint16_t LINE);
     void    printResetReason    (String TEXT, String FILE, const uint16_t LINE);
-    void    printRamUsage       ();
+    void    printRamUsage       ();    
 };
 #endif 
