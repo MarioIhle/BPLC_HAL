@@ -43,8 +43,8 @@ void DIN_CALLBACK(void* arg)
                     p_dinHal[dinCard]->tick();                
                 }
             }            
-            ISR_COUNT--;                                               
-        }       
+            ISR_COUNT--;                                                    
+        }  
     }
 }
 
@@ -79,7 +79,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
                     {
                         //Task nur 1x erstellen für alle Din Karten, zwecks ISR_Count abzählen
                         if(dinTaskHandler == nullptr)
-                        {
+                        {                            
                             xTaskCreatePinnedToCore(DIN_CALLBACK, "din11_addr_1", 4096, NULL, 1, &dinTaskHandler, 0);
                         }
                         

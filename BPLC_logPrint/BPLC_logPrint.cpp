@@ -2,7 +2,8 @@
 
 BPLC_logPrint::BPLC_logPrint()
 {}
-void BPLC_logPrint::printLog(String TEXT, String FILE, const uint16_t LINE)
+//ESP: __FILENAME__, __LINE__
+void BPLC_logPrint::printLog(String TEXT, String FILE, const uint16_t LINE) 
 {  
     Serial.println("");
     Serial.println("----------------LOG----------------");
@@ -10,6 +11,7 @@ void BPLC_logPrint::printLog(String TEXT, String FILE, const uint16_t LINE)
     Serial.println("--> " + TEXT);
     Serial.flush();
 }
+//ESP: __FILENAME__, __LINE__
 void BPLC_logPrint::printErrorSet(const e_BPLC_ERROR_t ERROR_CODE,  String FILE, const uint16_t LINE)
 {
     Serial.println("");
@@ -19,6 +21,7 @@ void BPLC_logPrint::printErrorSet(const e_BPLC_ERROR_t ERROR_CODE,  String FILE,
     Serial.println("-->ERROR CODE: " + String(ERROR_CODE) + ", " + String(text.getErrorCodeText(ERROR_CODE)));
     Serial.flush();
 }
+//ESP: __FILENAME__, __LINE__
 void BPLC_logPrint::printErrorReset(const e_BPLC_ERROR_t ERROR_CODE,  String FILE, const uint16_t LINE)
 {
     Serial.println("");
@@ -28,6 +31,7 @@ void BPLC_logPrint::printErrorReset(const e_BPLC_ERROR_t ERROR_CODE,  String FIL
     Serial.println("-->ERROR CODE: " + String(ERROR_CODE) + ", " + String(text.getErrorCodeText(ERROR_CODE)));
     Serial.flush();
 }
+//ESP: __FILENAME__, __LINE__
 void BPLC_logPrint::printResetReason(String TEXT, String FILE, const uint16_t LINE)
 {    
     Serial.println("");
@@ -37,6 +41,7 @@ void BPLC_logPrint::printResetReason(String TEXT, String FILE, const uint16_t LI
     Serial.flush();
     delay(2500);
 }
+//ESP: __FILENAME__, __LINE__
 void BPLC_logPrint::printRamUsage()
 {
     Serial.print("HEAP_SIZE: ");      Serial.print(ESP.getHeapSize()); 

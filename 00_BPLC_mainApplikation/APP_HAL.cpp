@@ -96,9 +96,14 @@ void BPLC_APP::setupHardware()
    //DIN11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < DIN11_ADDRESS_COUNT; CARD_ADDR++)
    {
-      if(this->APP_APP.settings.device.hardware.din11revACards[CARD_ADDR])
+      const bool EC_CARD_DEFINED_IN_SETTINGS = this->APP_APP.settings.device.hardware.din11revACards[CARD_ADDR];
+      if(EC_CARD_DEFINED_IN_SETTINGS)
       {   
-         this->extensionCardManager.addNewExtensionCard(EC__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  
+         const bool EC_SUCCSEFUL_INITIALIZED = this->extensionCardManager.addNewExtensionCard(EC__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  
+         if(!EC_SUCCSEFUL_INITIALIZED)
+         {
+            this->systemErrorManager.setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+         }
       }             
    }
    //TMP11revA Cards initialisieren
@@ -116,6 +121,11 @@ void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, cons
 }
 void BPLC_APP::tickHardware()
 {  
+   //I2C taktfrequenz auf 400kHz erhöhen
+   if(Wire.getClock() != I2C_CLOCK_SPEED_400_KHZ)
+   {
+      Wire.setClock(I2C_CLOCK_SPEED_400_KHZ);
+   }
    this->extensionCardManager.tick();   
 }
 void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)

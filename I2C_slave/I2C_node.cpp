@@ -33,10 +33,7 @@ void BPLC_I2C_NODE::begin(const uint8_t ADDRESS)
     {
         Wire.begin(ADDRESS);
     }
-    else
-    {
-        Wire.begin();
-    }    
+  
     Wire.onReceive(receiveCallback);
     Wire.onRequest(requestCallback);
 }

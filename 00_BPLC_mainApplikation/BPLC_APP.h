@@ -47,7 +47,7 @@ typedef enum
 }e_V_DIP_t;
 
 typedef enum
-{
+{    
     APP_MODE__STOP,    
     APP_MODE__START,
     APP_MODE__SAFE_STATE,
@@ -55,7 +55,8 @@ typedef enum
     APP_MODE__RUN_WITHOUT_SAFETY,
     APP_MODE__RUN_WITHOUT_EC_CARDS,
     APP_MODE__RUN_WITHOUT_COM,
-
+    APP_MODE__INIT,
+    
     APP_MODE__COUNT,
 }e_APP_MODE_t;
 
@@ -66,6 +67,8 @@ typedef enum
 #define HARDWARE_ERROR_BUFFER_SIZE 10
 #define RUNTIME_ERRORS_MAX 3
 #define RUNNTIME 1000
+
+#define I2C_CLOCK_SPEED_400_KHZ 400000
 
 class BPLC_APP: BPLC_logPrint, CRC16Calculator
 {
@@ -85,6 +88,9 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     void    setVDip                 (const e_V_DIP_t DIP_NUM, const int16_t VALUE);
     int16_t getVDip                 (const e_V_DIP_t DIP_NUM);
 
+    
+    //Device Mode
+    e_APP_MODE_t    getDeviceMode   (); 
     void            setDeviceMode   (const e_APP_MODE_t MODE);
 
     
@@ -96,13 +102,13 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
 
     //APP_APP 
     void            setupApplication    ();
+
+    void            setDeviceModeInternal(const e_APP_MODE_t MODE);
     //DeviceSettings
     Preferences     parameterFlash;
     void            setupParameterFlash ();
     void            saveDeviceSettings  ();
-    void            loadDeviceSettings  ();
-    //Device Mode
-    e_APP_MODE_t    getDeviceMode   ();    
+    void            loadDeviceSettings  ();     
     
 
     struct
