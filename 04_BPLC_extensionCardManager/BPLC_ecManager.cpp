@@ -71,8 +71,8 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
                 break; 
        
             case EC__DIN11revA:              
-                p_newHalInterface = new HAL_DIN11();                         
-                    
+                p_newHalInterface = new HAL_DIN11();  
+                                
                 for(uint8_t dinCard = 0; dinCard < DIN11_ADDRESS_COUNT; dinCard++)
                 {
                     if(p_dinHal[dinCard] == nullptr) 

@@ -87,7 +87,8 @@ void HAL_DIN11::tick()
     //Hal ticken
     if(this->noErrorSet())
     {        
-        this->PCF.read8();
+        //Alle pinzustände von PCF lesen
+        this->PCF.read8();     
         
         for(uint8_t CH = 0; CH < DIN11_CHANNEL_COUNT; CH++)
         {      
@@ -100,15 +101,15 @@ void HAL_DIN11::tick()
                     case IO_TYPE__DIGITAL_INPUT:
                     case IO_TYPE__RPM_SENS:
                     case IO_TYPE__DIGITAL_COUNTER:
-                        tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);
+                        tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);         //pinstates bitweise aus Datenpaket filtern
                         this->channels.p_ioObject[CH]->halCallback(&tempBuffer); 
                     break;
 
                     case IO_TYPE__ROTARY_ENCODER:
                     case IO_TYPE__POSITION_ENCODER:
-                        tempBuffer.encoderData.stateA  = !PCF.read(this->channels.PIN[CH]);
-                        tempBuffer.encoderData.stateB  = !PCF.read(this->channels.PIN[CH + 1]);
-                        tempBuffer.encoderData.stateZ  = !PCF.read(this->channels.PIN[CH + 2]);
+                        tempBuffer.encoderData.stateA  = !PCF.read(this->channels.PIN[CH]);          //pinstates bitweise aus Datenpaket filtern
+                        tempBuffer.encoderData.stateB  = !PCF.read(this->channels.PIN[CH + 1]);      //pinstates bitweise aus Datenpaket filtern
+                        tempBuffer.encoderData.stateZ  = !PCF.read(this->channels.PIN[CH + 2]);      //pinstates bitweise aus Datenpaket filtern
                         this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
                         CH +=3;//Sonst wird encoder 3x gelesen...
                     break;
