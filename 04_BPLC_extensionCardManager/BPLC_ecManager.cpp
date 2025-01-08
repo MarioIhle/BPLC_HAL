@@ -27,6 +27,7 @@ volatile uint64_t   ISR_COUNT;
 
 void DIN_CALLBACK(void* arg)
 {//I2C limit ist ca. 1,5k Aufrufe pro secunde, reicht für 100k U/min
+    disableCore0WDT();
     esp_task_wdt_init(1, true);                
     esp_task_wdt_add(NULL);                
 
