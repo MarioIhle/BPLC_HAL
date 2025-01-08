@@ -78,8 +78,9 @@ void ecmTask(void* arg)
 
 //Wenn Counter verwendet werden, wird ein extra Task für das Interrupthandling erzeugt. Die dinHal wird dann aus dem ecMtask gelöscht
 //Erstmal für eine schnelle DinKarte ausgelegt, könnte aber ggf. erweitert werden 
-extensionCard*      p_dinHal;
+extensionCard*      p_firstInterruptEc;
 volatile uint64_t   ISR_COUNT;
+
 
 void din11TaskForCounters(void* arg)
 {//I2C limit ist ca. 1,5k Aufrufe pro secunde, reicht für 100k U/min
@@ -88,10 +89,15 @@ void din11TaskForCounters(void* arg)
 
     while(1)
     {     
-        esp_task_wdt_reset();
+        esp_task_wdt_reset();   
         if(0 < ISR_COUNT)
-        {    
-            p_dinHal->getHalInterface()->tick();                                                                  
+        {   
+            extensionCard* p_ecToTick = p_firstInterruptEc;
+            while(p_ecToTick != nullptr)
+            {
+                p_ecToTick->getHalInterface()->tick();
+                p_ecToTick = p_ecToTick->getNext();
+            }   
         }  
     }
 }
@@ -101,7 +107,7 @@ BPLC_extensionCardManager::BPLC_extensionCardManager()
 {
     this->intIsrOccoured = 10;            //Falls DIN EC vorhanden, wird im ersten tick das Flag erkannt und einmal alle Karten gelesen
     this->to_I2cScan.setInterval(10000);
-    this->to_readInputs.setInterval(50);
+    this->to_readInputs.setInterval(100);
 }
 void BPLC_extensionCardManager::begin()
 {
@@ -110,31 +116,37 @@ void BPLC_extensionCardManager::begin()
 }
 void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)                                
 {
-    extensionCard* p_cardToMapChannelTo = this->searchExtensionCard(CARD, ADDR);   
-
-    //Karte wurde in ecM Liste gefunden
-    if(p_cardToMapChannelTo != nullptr)
+    extensionCard* p_cardToMapChannelTo = this->searchExtensionCard(CARD, ADDR);
+  
+    const bool CARD_FOUND_IN_COMON_ECM_LIST     = (p_cardToMapChannelTo != nullptr);
+ 
+    //Karte wurde in common ecM Liste gefunden
+    if(CARD_FOUND_IN_COMON_ECM_LIST)
     {
         p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);        
     }
-    //Vielleicht DIN11 Karte mit interrupt task?
-    else if((CARD == EC__DIN11revA)
-        &&  (p_dinHal != nullptr))
-    {
-        //Ist das auch die richtige Karte?
-        if(p_dinHal->getAddr() == ADDR)
-        {
-            p_dinHal->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);
-        }
+    //Gesuchte Karte möglicherweise eine DIN11 vom Interrupt handler?
+    else if(CARD == EC__DIN11revA)
+    {      
+        p_cardToMapChannelTo = p_firstInterruptEc;
+
+        while (p_cardToMapChannelTo != nullptr)
+        {//Richtige Karte finden
+            if(p_cardToMapChannelTo->getAddr() == ADDR)
+            {
+                p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);
+                break;
+            }
+            p_cardToMapChannelTo = p_cardToMapChannelTo->getNext();
+        }        
     }
     else
     {//Error Setzen        
         this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);       
     }    
 
-
     if(CARD == EC__DIN11revA)
-    {    
+    {           
         //externen dinTask erzeugen und aus ecM Liste löschen, wenn diese IO_objkete verwedet werden
         switch(P_IO_OBJECT->getIoType())
         {        
@@ -142,13 +154,26 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
             case IO_TYPE__POSITION_ENCODER:
             case IO_TYPE__ROTARY_ENCODER:
             case IO_TYPE__RPM_SENS:
-                //Es sollte grundsätzlich das extensionCard objekt beim Start des Systems erzeugt worden sein, kann also einfach kopiert und anschließend aus der liste gelöscht werden
-                if(p_cardToMapChannelTo != nullptr)
                 {
-                    p_dinHal = p_cardToMapChannelTo;                                                                //Kartenobjekt an golbalen poniter übergeben                
-                    xTaskCreatePinnedToCore(din11TaskForCounters, "din11TaskForCounters", 4096, NULL, 1, NULL, 0);  //Task erstellen
-                    this->printLog("DIN11 TASK ERZEUGT", __FILENAME__, __LINE__);
-                    this->deleteExtensionCardFromList(p_cardToMapChannelTo);                                        //Kartenobjekt von ecM Liste löschen                    
+                    //Es sollte grundsätzlich das extensionCard objekt beim Start des Systems erzeugt worden sein, kann also einfach kopiert und anschließend aus der liste gelöscht werden
+                    const bool TASK_NEEDS_TO_BE_CREATED = CARD_FOUND_IN_COMON_ECM_LIST;
+                                    
+                    if(TASK_NEEDS_TO_BE_CREATED)
+                    {    
+                        if(p_firstInterruptEc == nullptr)
+                        {
+                            p_firstInterruptEc = p_cardToMapChannelTo;   
+                            xTaskCreatePinnedToCore(din11TaskForCounters, "din11TaskForCounters", 4096, NULL, 1, NULL, 0);  //Task erstellen wenn es die erste EC ist                                
+                        }
+                        else
+                        {
+                            p_firstInterruptEc->setNext(p_firstInterruptEc);
+                            p_firstInterruptEc = p_cardToMapChannelTo;
+                        }                                                                                                               
+                        
+                        this->printLog("DIN11 TASK ERZEUGT", __FILENAME__, __LINE__);
+                        this->deleteExtensionCardFromList(p_cardToMapChannelTo);  //Kartenobjekt von ecM Liste löschen      
+                    }
                 }
                 break;
 
@@ -251,7 +276,7 @@ void BPLC_extensionCardManager::tick()
                 switch(p_extensionCardToTick->getCardType())            
                 {
                     case EC__DIN11revA:                       
-                        if(0 < ISR_COUNT)
+                        if(0 < ISR_COUNT && this-to_readInputs.checkAndReset())
                         {    
                             p_extensionCardToTick->getHalInterface()->tick();                                                            
                         }                      
