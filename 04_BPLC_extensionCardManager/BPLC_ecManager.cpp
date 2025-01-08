@@ -78,27 +78,30 @@ void ecmTask(void* arg)
 
 //Wenn Counter verwendet werden, wird ein extra Task für das Interrupthandling erzeugt. Die dinHal wird dann aus dem ecMtask gelöscht
 //Erstmal für eine schnelle DinKarte ausgelegt, könnte aber ggf. erweitert werden 
-extensionCard*      p_firstInterruptEc;
-volatile uint64_t   ISR_COUNT;
+extensionCard*      p_firstInterruptEc = nullptr;
+e_MCU_INT_ISR_t     isrState = MCU_INT_ISR__IDLE;
 
 
 void din11TaskForCounters(void* arg)
 {//I2C limit ist ca. 1,5k Aufrufe pro secunde, reicht für 100k U/min
+    disableCore0WDT();
     esp_task_wdt_init(1, true);                
     esp_task_wdt_add(NULL);                
 
     while(1)
     {     
         esp_task_wdt_reset();   
-        if(0 < ISR_COUNT)
-        {   
-            extensionCard* p_ecToTick = p_firstInterruptEc;
+        extensionCard* p_ecToTick = p_firstInterruptEc;
+
+        if(isrState == MCU_INT_ISR__NEW_INT)
+        {              
             while(p_ecToTick != nullptr)
             {
                 p_ecToTick->getHalInterface()->tick();
                 p_ecToTick = p_ecToTick->getNext();
             }   
-        }  
+            isrState = MCU_INT_ISR__WAIT_FOR_ECM;
+        }                
     }
 }
 
@@ -116,9 +119,8 @@ void BPLC_extensionCardManager::begin()
 }
 void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)                                
 {
-    extensionCard* p_cardToMapChannelTo = this->searchExtensionCard(CARD, ADDR);
-  
-    const bool CARD_FOUND_IN_COMON_ECM_LIST     = (p_cardToMapChannelTo != nullptr);
+    extensionCard*  p_cardToMapChannelTo            = this->searchExtensionCard(CARD, ADDR);  
+    const bool      CARD_FOUND_IN_COMON_ECM_LIST    = (p_cardToMapChannelTo != nullptr);
  
     //Karte wurde in common ecM Liste gefunden
     if(CARD_FOUND_IN_COMON_ECM_LIST)
@@ -162,16 +164,17 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
                     {    
                         if(p_firstInterruptEc == nullptr)
                         {
-                            p_firstInterruptEc = p_cardToMapChannelTo;   
-                            xTaskCreatePinnedToCore(din11TaskForCounters, "din11TaskForCounters", 4096, NULL, 1, NULL, 0);  //Task erstellen wenn es die erste EC ist                                
+                            p_cardToMapChannelTo->setNext(nullptr);
+                            p_firstInterruptEc = p_cardToMapChannelTo;                       
+                             
+                            xTaskCreatePinnedToCore(din11TaskForCounters, "dinHalTask", 4096, NULL, 1, NULL, 0);  //Task erstellen wenn es die erste EC ist    
+                            this->printLog("DIN11 TASK ERZEUGT", __FILENAME__, __LINE__);                            
                         }
                         else
                         {
-                            p_firstInterruptEc->setNext(p_firstInterruptEc);
-                            p_firstInterruptEc = p_cardToMapChannelTo;
-                        }                                                                                                               
-                        
-                        this->printLog("DIN11 TASK ERZEUGT", __FILENAME__, __LINE__);
+                            p_cardToMapChannelTo->setNext(p_firstInterruptEc);
+                            p_firstInterruptEc = p_cardToMapChannelTo;                
+                        }
                         this->deleteExtensionCardFromList(p_cardToMapChannelTo);  //Kartenobjekt von ecM Liste löschen      
                     }
                 }
@@ -194,12 +197,12 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
         switch (EXTENSION_CARD_TYPE)
         {
             case EC__MCU11revA:    
-                p_newHalInterface = new HAL_MCU11_revA(&ISR_COUNT);  
+                p_newHalInterface = new HAL_MCU11_revA(&isrState);  
                 break;
 
             case EC__MCU11revB:    
             case EC__MCU11revC://Gleiches pinning, nur änderungen im Layout 
-                p_newHalInterface = new HAL_MCU11_revB(&ISR_COUNT);               
+                p_newHalInterface = new HAL_MCU11_revB(&isrState);               
                 break;   
 
             case EC__AIN11revA:          
@@ -266,17 +269,25 @@ void BPLC_extensionCardManager::tick()
     if(this->p_firstExtensionCard!= nullptr)
     {
         extensionCard* p_extensionCardToTick = this->p_firstExtensionCard;
-    
+
+        const bool TIME_TO_READ_INPUTS        = this-to_readInputs.checkAndReset();
+        const bool NEW_INPUTSTATES_AVAILABLE  = (isrState != MCU_INT_ISR__IDLE);
+        
+        if(NEW_INPUTSTATES_AVAILABLE && TIME_TO_READ_INPUTS)
+        {
+            isrState = MCU_INT_ISR__IDLE;       
+        }
+            
         while(p_extensionCardToTick != nullptr)
         {
-            const bool HAL_SUCCESSFUL_INITIALIZED = (bool)(p_extensionCardToTick->getHalInterface()->getModuleErrorCount() == 0);
-
+            const bool HAL_SUCCESSFUL_INITIALIZED = (p_extensionCardToTick->getHalInterface()->getModuleErrorCount() == 0);
+            
             if(HAL_SUCCESSFUL_INITIALIZED)
             {
                 switch(p_extensionCardToTick->getCardType())            
                 {
                     case EC__DIN11revA:                       
-                        if(0 < ISR_COUNT && this-to_readInputs.checkAndReset())
+                        if(NEW_INPUTSTATES_AVAILABLE && TIME_TO_READ_INPUTS)
                         {    
                             p_extensionCardToTick->getHalInterface()->tick();                                                            
                         }                      
@@ -289,7 +300,6 @@ void BPLC_extensionCardManager::tick()
             }      
             p_extensionCardToTick = p_extensionCardToTick->getNext();      
         }    
-        ISR_COUNT--;     
     }
     if(this->to_I2cScan.checkAndReset())
     {

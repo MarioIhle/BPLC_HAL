@@ -21,6 +21,13 @@
 
 
 //#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
+typedef enum 
+{
+    MCU_INT_ISR__IDLE,
+    MCU_INT_ISR__WAIT_FOR_ECM,
+    MCU_INT_ISR__NEW_INT,
+
+}e_MCU_INT_ISR_t;
 
 enum
 {
@@ -42,7 +49,7 @@ class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, priv
 {
     public:
     //Hal constructor
-                    HAL_MCU11_revA          (volatile uint64_t* P_ISR_COUNT);    
+                    HAL_MCU11_revA          (e_MCU_INT_ISR_t* P_ISR_STATE);    
     //Hal interface 
     void            init                    (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
@@ -100,7 +107,7 @@ class HAL_MCU11_revB: public halInterface, protected BPLC_moduleErrorHandler, pr
 {
     public:
     //Hal constructor
-                    HAL_MCU11_revB          (volatile uint64_t* P_ISR_COUNT);    
+                    HAL_MCU11_revB          (e_MCU_INT_ISR_t* P_ISR_STATE);    
     //Hal interface 
     void            init                    (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        

@@ -61,7 +61,7 @@ void BPLC_APP::begin()
 void BPLC_APP::setupApplication()
 {   
    P_APP = this;
-   xTaskCreatePinnedToCore(bplcTask, "bplcTask", 4096, NULL, 2, nullptr, 1);
+   xTaskCreatePinnedToCore(bplcTask, "bplcTask", 4096, NULL, 1, nullptr, 1);
    Wire.begin();   
 }
 void BPLC_APP::tick()
