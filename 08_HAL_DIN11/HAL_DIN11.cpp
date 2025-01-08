@@ -86,42 +86,39 @@ void HAL_DIN11::tick()
     }
     //Hal ticken
     if(this->noErrorSet())
-    {         
-        for(uint8_t READ = 0; READ < 2; READ++)//2x lesen um Flankenauswertung zu ermöglichen
-        {
-            this->PCF.read8();
-            
-            for(uint8_t CH = 0; CH < DIN11_CHANNEL_COUNT; CH++)
-            {      
-                if(this->channels.p_ioObject[CH] != nullptr)
-                {
-                    u_HAL_DATA_t tempBuffer;                
+    {        
+        this->PCF.read8();
+        
+        for(uint8_t CH = 0; CH < DIN11_CHANNEL_COUNT; CH++)
+        {      
+            if(this->channels.p_ioObject[CH] != nullptr)
+            {
+                u_HAL_DATA_t tempBuffer;                
 
-                    switch (this->channels.p_ioObject[CH]->getIoType())
-                    {                    
-                        case IO_TYPE__DIGITAL_INPUT:
-                        case IO_TYPE__RPM_SENS:
-                        case IO_TYPE__DIGITAL_COUNTER:
-                            tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);
-                            this->channels.p_ioObject[CH]->halCallback(&tempBuffer); 
-                        break;
+                switch (this->channels.p_ioObject[CH]->getIoType())
+                {                    
+                    case IO_TYPE__DIGITAL_INPUT:
+                    case IO_TYPE__RPM_SENS:
+                    case IO_TYPE__DIGITAL_COUNTER:
+                        tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);
+                        this->channels.p_ioObject[CH]->halCallback(&tempBuffer); 
+                    break;
 
-                        case IO_TYPE__ROTARY_ENCODER:
-                        case IO_TYPE__POSITION_ENCODER:
-                            tempBuffer.encoderData.stateA  = !PCF.read(this->channels.PIN[CH]);
-                            tempBuffer.encoderData.stateB  = !PCF.read(this->channels.PIN[CH + 1]);
-                            tempBuffer.encoderData.stateZ  = !PCF.read(this->channels.PIN[CH + 2]);
-                            this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
-                            CH +=3;//Sonst wird encoder 3x gelesen...
-                        break;
+                    case IO_TYPE__ROTARY_ENCODER:
+                    case IO_TYPE__POSITION_ENCODER:
+                        tempBuffer.encoderData.stateA  = !PCF.read(this->channels.PIN[CH]);
+                        tempBuffer.encoderData.stateB  = !PCF.read(this->channels.PIN[CH + 1]);
+                        tempBuffer.encoderData.stateZ  = !PCF.read(this->channels.PIN[CH + 2]);
+                        this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
+                        CH +=3;//Sonst wird encoder 3x gelesen...
+                    break;
 
-                        default:
-                        case IO_TYPE__NOT_DEFINED:
-                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
-                        break;               
-                    }
-                }                                              
-            }    
-        }         
+                    default:
+                    case IO_TYPE__NOT_DEFINED:
+                        this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                    break;               
+                }
+            }                                              
+        }                   
     }
 }
