@@ -194,7 +194,8 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
 
 
     //APP_HAL
-    BPLC_extensionCardManager   extensionCardManager; 
+    BPLC_extensionCardManager*  ecmForSlowSpeed;
+    BPLC_extensionCardManager*  ecmForHighSpeed; 
     void                        setupHardware   ();
     void                        tickHardware    ();
      

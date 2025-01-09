@@ -8,7 +8,7 @@ void BPLC_APP::setupSafety()
    this->APP_SAFETY.to_scanI2Cbus.now();     //Wird nach Setup bei ersten tick ausgeführt, bevor OEN aktiv wird!               
    
    //SystemErrorHandler an Untergeordnete Module weitergeben für Callback 
-   this->extensionCardManager.setSuperiorErrorManager(&this->systemErrorManager);   //Gibts pointer an Hal objekte weiter
+   //this->extensionCardManager.setSuperiorErrorManager(&this->systemErrorManager);   //Gibts pointer an Hal objekte weiter
 }
 void BPLC_APP::tickSafety()
 {
