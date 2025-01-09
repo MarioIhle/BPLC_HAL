@@ -34,7 +34,7 @@ void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
     //oen
     pinMode(this->PIN.OEN, OUTPUT);
     //INT
-    pinMode(this->PIN.INT, INPUT);
+    pinMode(this->PIN.INT, INPUT_PULLUP);
     attachInterrupt(this->PIN.INT, INT_ISR_MCU_REV_B, FALLING);       
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
@@ -146,6 +146,14 @@ void HAL_MCU11_revB::tick()
         {
             analogWrite(this->PIN.LD3, this->p_ld3->halCallback().analogIoData.value);
         } 
+        //!Super schrott fix, geht aber nicht anders
+        //Problemstellung: Interruptpins der PCF sind mitinander verbunden daher kommt es manchmal zu einem Fehlerzustand auf den PCF und die INT leitung bleibt dann low
+        //Damit die INT leitung wieder freigegeben wird, muss eine I2C kommunikation stattdinden
+        const bool INT_LINE_GOT_STUCK_LOW_DUE_TO_PCF_ERROR = (digitalRead(this->PIN.INT)== LOW);
+        if(INT_LINE_GOT_STUCK_LOW_DUE_TO_PCF_ERROR)
+        {
+            INT_ISR_MCU_REV_B();
+        }      
     }    
 }
 void HAL_MCU11_revB::tickSafety()
