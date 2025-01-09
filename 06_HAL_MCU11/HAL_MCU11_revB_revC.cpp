@@ -35,7 +35,7 @@ void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
     pinMode(this->PIN.OEN, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT_PULLUP);
-    attachInterrupt(this->PIN.INT, INT_ISR_MCU_REV_B, FALLING);       
+    attachInterrupt(this->PIN.INT, INT_ISR_MCU_REV_B, CHANGE);       
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
     Serial1.begin(this->baudrate.RS232, SERIAL_8N1, 32, 33);    //RS232

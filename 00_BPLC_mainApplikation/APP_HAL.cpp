@@ -4,31 +4,33 @@
 BPLC_extensionCardManager* p_ECM_slow;
 void ecmTaskSlow(void* arg)
 {
-    esp_task_wdt_init(1, true);                
-    esp_task_wdt_add(NULL);   
+   disableCore0WDT();
+   esp_task_wdt_init(1, true);                
+   esp_task_wdt_add(NULL);   
 
-    while(true)
-    {
-        esp_task_wdt_reset();
-        p_ECM_slow->tick();
-        delay(5);
-    }
+   while(true)
+   {
+      esp_task_wdt_reset();
+      p_ECM_slow->tick();
+      delay(5);
+   }
 }
 BPLC_extensionCardManager* p_ECM_fast;
-void ecmTaskFast()
+void ecmTaskFast(void* arg)
 {
-    esp_task_wdt_init(1, true);                
-    esp_task_wdt_add(NULL);   
+   disableCore0WDT();
+   esp_task_wdt_init(1, true);                
+   esp_task_wdt_add(NULL);   
 
-    while(true)
-    {
-        esp_task_wdt_reset();
-        p_ECM_fast->tick();
-    }
+   while(true)
+   {
+      esp_task_wdt_reset();
+      p_ECM_fast->tick();
+   }
 }
 
 void BPLC_APP::setupHardware()
-{
+{  
    this->ecmForSlowSpeed = new BPLC_extensionCardManager;
    p_ECM_slow = this->ecmForSlowSpeed;    
    xTaskCreatePinnedToCore(ecmTaskSlow, "ecmTaskSlow", 4096, NULL, 1, NULL, 0);
@@ -130,13 +132,13 @@ void BPLC_APP::setupHardware()
       const bool EC_CARD_DEFINED_IN_SETTINGS = this->APP_APP.settings.device.hardware.din11revACards[CARD_ADDR];
       if(EC_CARD_DEFINED_IN_SETTINGS)
       {   
-         if(this->ecmForSlowSpeed == nullptr)
+         if(this->ecmForHighSpeed == nullptr)
          {
             this->ecmForHighSpeed = new BPLC_extensionCardManager;
-            p_ECM_fast = this->ecmForSlowSpeed;
-            xTaskCreatePinnedToCore(ecmTaskFast, "ecmTaskSlow", 4096, NULL, 1, NULL, 0);       
+            p_ECM_fast = this->ecmForHighSpeed;
+            xTaskCreatePinnedToCore(ecmTaskFast, "ecmTaskFast", 4096, NULL, 1, NULL, 0);       
          }
-         const bool EC_SUCCSEFUL_INITIALIZED = this->ecmForSlowSpeed->addNewExtensionCard(EC__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  
+         const bool EC_SUCCSEFUL_INITIALIZED = this->ecmForHighSpeed->addNewExtensionCard(EC__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  
          if(!EC_SUCCSEFUL_INITIALIZED)
          {
             this->systemErrorManager.setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);

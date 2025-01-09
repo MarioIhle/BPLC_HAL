@@ -84,12 +84,12 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     //ExtensionCard List
     extensionCard*      p_firstExtensionCard;    
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
-    extensionCard*      getExtensionCard                 (const e_EC_TYPE_t  SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR);
+    extensionCard*      getExtensionCard                    (const e_EC_TYPE_t  SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR);
     void                deleteExtensionCardFromList         (extensionCard* CARD_TO_DELETE_FROM_LIST);
 
     //Input Interrupt count
     volatile uint64_t   intIsrOccoured;
     Timeout             to_readInputs;
-    bool                fastDinCards[DIN11_ADDRESS_COUNT];
+    bool                ecCardNeedRealTimeProcessing[DIN11_ADDRESS_COUNT];
 };
 #endif

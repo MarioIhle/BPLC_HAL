@@ -73,7 +73,7 @@ BPLC_extensionCardManager::BPLC_extensionCardManager()
 {
     memset(this, 0, sizeof(BPLC_extensionCardManager));
     this->to_I2cScan.setInterval(10000);
-    this->to_readInputs.setInterval(100);
+    this->to_readInputs.setInterval(50);
 }
 void BPLC_extensionCardManager::begin()
 {
@@ -95,7 +95,7 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
                 case IO_TYPE__DIGITAL_COUNTER:
                 case IO_TYPE__POSITION_ENCODER:
                 case IO_TYPE__RPM_SENS:
-                    this->fastDinCards[ADDR] = true;        //Diese EC als Echtzeitfähig makieren
+                    this->ecCardNeedRealTimeProcessing[ADDR] = true;        //Diese EC als Echtzeitfähig makieren
                 break;
             }
         }
@@ -190,36 +190,30 @@ void BPLC_extensionCardManager::tick()
 {
     if(this->p_firstExtensionCard!= nullptr)
     {
-        extensionCard* p_extensionCardToTick = this->p_firstExtensionCard;
-
-        const bool TIME_TO_READ_INPUTS        = this-to_readInputs.checkAndReset();
-        const bool NEW_INPUTSTATES_AVAILABLE  = (isrState != MCU_INT_ISR__IDLE);
+        extensionCard*  p_extensionCardToTick       = this->p_firstExtensionCard;
+        const bool      TIME_TO_READ_INPUTS         = (!this-to_readInputs.check());
+        const bool      NEW_INPUTSTATES_AVAILABLE   = (isrState != MCU_INT_ISR__IDLE);
+        
+        if(NEW_INPUTSTATES_AVAILABLE)
+        {
+            this->to_readInputs.reset();
+        }
                       
         while(p_extensionCardToTick != nullptr)
         {
             halInterface*   p_halInterface  = p_extensionCardToTick->getHalInterface();
-            const bool      HAL_OK          = (p_halInterface->getModuleErrorCount() == 0);
-            const bool      FAST_CARD       = this->fastDinCards[p_extensionCardToTick->getAddr()];
+            const bool      HAL_OK          = (p_halInterface->getModuleErrorCount() == 0);            
             
             if(HAL_OK)
             {
                 switch(p_extensionCardToTick->getCardType())            
                 {
                     case EC__DIN11revA:        
-                        if(NEW_INPUTSTATES_AVAILABLE && FAST_CARD)          
+                        if(TIME_TO_READ_INPUTS)
                         {
-                            p_halInterface->tick(); 
-                            isrState = MCU_INT_ISR__WAIT_FOR_ECM;
-                        }               
-                        else if(NEW_INPUTSTATES_AVAILABLE && TIME_TO_READ_INPUTS)
-                        {    
-                            p_halInterface->tick();        
-                            isrState = MCU_INT_ISR__IDLE;                                                    
-                        }            
-                        else
-                        {
-                            //do nothing
-                        }                        
+                            p_halInterface->tick();                     
+                            isrState = MCU_INT_ISR__IDLE;
+                        }                               
                     break;
 
                     default:
