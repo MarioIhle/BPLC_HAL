@@ -65,10 +65,10 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
 {
     public:
                         BPLC_extensionCardManager           ();    
-    void                begin                               ();
+    void                begin                               (const uint8_t TASK_DELAY_TIME, const char* TASK_NAME);
     void                tick                                ();    
     void                mapObjectToExtensionCard            (IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL);
-    bool                addNewExtensionCard                 (const e_EC_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR);
+    extensionCard*      addNewExtensionCard                 (const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR);
     //Modul Error Interface   
     uint8_t             getModuleErrorCount                 ()                                                      {return this->getErrorCount();}
     e_BPLC_ERROR_t      getModuleErrorCode                  (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
@@ -77,10 +77,6 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
 
 
     private:        
-    //Bus Scan
-    void                scanForUnkonwnI2CDevices            ();
-    bool                scanCardAddresses                   (const e_EC_TYPE_t CARD_TYPE, const uint8_t* P_ADDRESSES_TO_SCAN, const uint8_t ADDRESS_COUNT);
-    Timeout             to_I2cScan;
     //ExtensionCard List
     extensionCard*      p_firstExtensionCard;    
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
@@ -91,5 +87,6 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     Timeout             to_readInputs;
     Timeout             to_readInputsCooldown;
     bool                ecCardNeedRealTimeProcessing[DIN11_ADDRESS_COUNT];
+    String              ECM_NAME;   //Kann mehrere Instanzen geben, für Debugging sehr hilfreich
 };
 #endif

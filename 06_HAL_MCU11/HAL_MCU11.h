@@ -24,7 +24,6 @@
 typedef enum 
 {
     MCU_INT_ISR__IDLE,
-    MCU_INT_ISR__WAIT_FOR_ECM,
     MCU_INT_ISR__NEW_INT,
 
 }e_MCU_INT_ISR_t;
@@ -42,6 +41,7 @@ enum
 
     MCU_CHANNEL__COUNT,
 };
+
 //--------------------------------------------------------------------
 //HAL KLASSE
 //--------------------------------------------------------------------
@@ -62,7 +62,7 @@ class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, priv
 
 
     private:   
-    void            tickSafety              ();
+    bool            tickSafety              ();
     IO_Interface*   p_encoder;
     IO_Interface*   p_buzzer;
     IO_Interface*   p_ld1;
@@ -120,7 +120,7 @@ class HAL_MCU11_revB: public halInterface, protected BPLC_moduleErrorHandler, pr
 
 
     private:
-    void            tickSafety();
+    bool            tickSafety();
 
     IO_Interface* p_encoder;
     IO_Interface* p_buzzer;

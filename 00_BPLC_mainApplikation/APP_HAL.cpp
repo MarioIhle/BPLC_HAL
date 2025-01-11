@@ -1,39 +1,10 @@
 #include "BPLC_APP.h"
 
-BPLC_extensionCardManager* p_ECM_slow;
-void ecmTaskSlow(void* arg)
-{
-   disableCore0WDT();
-   esp_task_wdt_init(1, true);                
-   esp_task_wdt_add(NULL);   
-
-   while(true)
-   {
-      esp_task_wdt_reset();
-      p_ECM_slow->tick();
-      delay(5);
-   }
-}
-BPLC_extensionCardManager* p_ECM_fast;
-void ecmTaskFast(void* arg)
-{
-   disableCore0WDT();
-   esp_task_wdt_init(1, true);                
-   esp_task_wdt_add(NULL);   
-
-   while(true)
-   {
-      esp_task_wdt_reset();
-      p_ECM_fast->tick();
-   }
-}
-
 void BPLC_APP::setupHardware()
 {  
    this->ecmForSlowSpeed = new BPLC_extensionCardManager();
-   p_ECM_slow = this->ecmForSlowSpeed;    
-   xTaskCreatePinnedToCore(ecmTaskSlow, "ecmTaskSlow", 4096, NULL, 1, NULL, 0);
-
+   this->ecmForSlowSpeed->begin(5, "ECM_GENERAL_TASK");
+   
    const e_EC_TYPE_t MCU_TYPE = this->APP_APP.settings.device.hardware.mcuCard;  
 
    if(MCU_TYPE != EC__NO_TYPE_DEFINED)
@@ -61,7 +32,7 @@ void BPLC_APP::setupHardware()
          this->ecmForSlowSpeed->mapObjectToExtensionCard(&this->APP_HAL.LD3_ERROR_OUT,               MCU_TYPE, EC_ADDR_1, (e_EC_CHANNEL_t)MCU_CHANNEL__LD3);  
          //OnboardDisplay initialisieren
          this->APP_HAL.oled.begin();     
-         this->APP_APP.settings.device.hardware.oledAvailable = true;
+         this->APP_APP.settings.device.hardware.oledAvailable = (this->APP_HAL.oled.getError() == BPLC_ERROR__NO_ERROR);
       }
    }
    else
@@ -117,14 +88,7 @@ void BPLC_APP::setupHardware()
          this->ecmForSlowSpeed->addNewExtensionCard(EC__FUSE12revA, (e_EC_ADDR_t)CARD_ADDR);
       }
    }
-   //AIN11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < AIN11_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      if(this->APP_APP.settings.device.hardware.ain11revACards[CARD_ADDR])
-      {  
-         this->ecmForSlowSpeed->addNewExtensionCard(EC__AIN11revA, (e_EC_ADDR_t)CARD_ADDR);
-      }
-   }   
+   //Input Karten
    //DIN11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < DIN11_ADDRESS_COUNT; CARD_ADDR++)
    {
@@ -133,9 +97,8 @@ void BPLC_APP::setupHardware()
       {   
          if(this->ecmForHighSpeed == nullptr)
          {
-            this->ecmForHighSpeed = new BPLC_extensionCardManager();
-            p_ECM_fast = this->ecmForHighSpeed;
-            xTaskCreatePinnedToCore(ecmTaskFast, "ecmTaskFast", 4096, NULL, 1, NULL, 0);       
+            this->ecmForHighSpeed = new BPLC_extensionCardManager();    
+            this->ecmForHighSpeed->begin(0, "ECM_DIN11_TASK");          
          }
          const bool EC_SUCCSEFUL_INITIALIZED = this->ecmForHighSpeed->addNewExtensionCard(EC__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  
          if(!EC_SUCCSEFUL_INITIALIZED)
@@ -144,6 +107,14 @@ void BPLC_APP::setupHardware()
          }
       }             
    }
+   //AIN11revA Cards initialisieren
+   for (uint8_t CARD_ADDR = 0; CARD_ADDR < AIN11_ADDRESS_COUNT; CARD_ADDR++)
+   {
+      if(this->APP_APP.settings.device.hardware.ain11revACards[CARD_ADDR])
+      {  
+         this->ecmForSlowSpeed->addNewExtensionCard(EC__AIN11revA, (e_EC_ADDR_t)CARD_ADDR);
+      }
+   }      
    //TMP11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < TMP11_ADDRESS_COUNT; CARD_ADDR++)
    {

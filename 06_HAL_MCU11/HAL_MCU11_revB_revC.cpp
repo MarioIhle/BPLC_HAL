@@ -99,10 +99,10 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
 }
 void HAL_MCU11_revB::tick()
 {  
-    //Hier prüfen bevor Pointer ins nichts zeigen
-    this->tickSafety();
+    //Hier prüfen bevor Pointer = NULL
+    const bool NO_ERROR = (!this->tickSafety());
 
-    if(this->noErrorSet())
+    if(NO_ERROR)
     {
         //encoder
         u_HAL_DATA_t tempbuffer;
@@ -156,34 +156,42 @@ void HAL_MCU11_revB::tick()
         }      
     }    
 }
-void HAL_MCU11_revB::tickSafety()
+bool HAL_MCU11_revB::tickSafety()
 {
+    bool errorDetected = false;
+    
     if(this->p_buzzer == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(this->p_encoder == nullptr)
+    else if(this->p_encoder == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(this->p_ld1 == nullptr)
+    else if(this->p_ld1 == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(this->p_ld2 == nullptr)
+    else if(this->p_ld2 == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(this->p_ld3 == nullptr)
+    else if(this->p_ld3 == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(this->p_oen == nullptr)
+    else if(this->p_oen == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(P_ISR_STATE_MCU_REVB == nullptr)
+    else if(P_ISR_STATE_MCU_REVB == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
+    else
+    {
+        errorDetected = false;
+    }
+    
+    return errorDetected;
 }
