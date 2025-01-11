@@ -68,7 +68,7 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     void                begin                               (const uint8_t TASK_DELAY_TIME, const char* TASK_NAME);
     void                tick                                ();    
     void                mapObjectToExtensionCard            (IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL);
-    extensionCard*      addNewExtensionCard                 (const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR);
+    bool                addNewExtensionCard                 (const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR);
     //Modul Error Interface   
     uint8_t             getModuleErrorCount                 ()                                                      {return this->getErrorCount();}
     e_BPLC_ERROR_t      getModuleErrorCode                  (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
