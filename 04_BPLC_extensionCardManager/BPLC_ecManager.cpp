@@ -1,5 +1,6 @@
 #include "BPLC_ecManager.h"
 
+static volatile e_MCU_INT_ISR_t intIsrState;
 
 String getEcName(e_EC_TYPE_t EC_TYPE)
 {
@@ -61,19 +62,12 @@ String getEcName(e_EC_TYPE_t EC_TYPE)
             break;
     }
 }
-
-
-//Wenn Counter verwendet werden, wird ein extra Task für das Interrupthandling erzeugt. Die dinHal wird dann aus dem ecMtask gelöscht
-//Erstmal für eine schnelle DinKarte ausgelegt, könnte aber ggf. erweitert werden 
-static e_MCU_INT_ISR_t isrState = MCU_INT_ISR__IDLE;
-
-
 //Public Interface
 BPLC_extensionCardManager::BPLC_extensionCardManager()
-{
+{    
     memset(this, 0, sizeof(BPLC_extensionCardManager));
     this->to_I2cScan.setInterval(10000);
-    this->to_readInputs.setInterval(50);
+    this->to_readInputs.setInterval(50);    //Wenn Interrupt errignis, dann 50ms Input Karten lesen
 }
 void BPLC_extensionCardManager::begin()
 {
@@ -119,12 +113,12 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
         switch (EXTENSION_CARD_TYPE)
         {
             case EC__MCU11revA:    
-                p_newHalInterface = new HAL_MCU11_revA(&isrState);  
+                p_newHalInterface = new HAL_MCU11_revA(&intIsrState);  
                 break;
 
             case EC__MCU11revB:    
             case EC__MCU11revC://Gleiches pinning, nur änderungen im Layout 
-                p_newHalInterface = new HAL_MCU11_revB(&isrState);               
+                p_newHalInterface = new HAL_MCU11_revB(&intIsrState);               
                 break;   
 
             case EC__AIN11revA:          
@@ -190,14 +184,16 @@ void BPLC_extensionCardManager::tick()
 {
     if(this->p_firstExtensionCard!= nullptr)
     {
-        extensionCard*  p_extensionCardToTick       = this->p_firstExtensionCard;
-        const bool      TIME_TO_READ_INPUTS         = (!this-to_readInputs.check());
-        const bool      NEW_INPUTSTATES_AVAILABLE   = (isrState != MCU_INT_ISR__IDLE);
+        extensionCard*  p_extensionCardToTick       = this->p_firstExtensionCard;        
+        const bool      NEW_INPUTSTATES_AVAILABLE   = (intIsrState != MCU_INT_ISR__IDLE);
         
         if(NEW_INPUTSTATES_AVAILABLE)
         {
             this->to_readInputs.reset();
+            intIsrState = MCU_INT_ISR__IDLE;
         }
+
+        const bool TIME_TO_READ_INPUTS = (!this->to_readInputs.check());
                       
         while(p_extensionCardToTick != nullptr)
         {
@@ -211,8 +207,7 @@ void BPLC_extensionCardManager::tick()
                     case EC__DIN11revA:        
                         if(TIME_TO_READ_INPUTS)
                         {
-                            p_halInterface->tick();                     
-                            isrState = MCU_INT_ISR__IDLE;
+                            p_halInterface->tick();                    
                         }                               
                     break;
 

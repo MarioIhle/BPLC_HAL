@@ -1,6 +1,5 @@
 #include "BPLC_APP.h"
 
-
 BPLC_extensionCardManager* p_ECM_slow;
 void ecmTaskSlow(void* arg)
 {
@@ -31,7 +30,7 @@ void ecmTaskFast(void* arg)
 
 void BPLC_APP::setupHardware()
 {  
-   this->ecmForSlowSpeed = new BPLC_extensionCardManager;
+   this->ecmForSlowSpeed = new BPLC_extensionCardManager();
    p_ECM_slow = this->ecmForSlowSpeed;    
    xTaskCreatePinnedToCore(ecmTaskSlow, "ecmTaskSlow", 4096, NULL, 1, NULL, 0);
 
@@ -134,7 +133,7 @@ void BPLC_APP::setupHardware()
       {   
          if(this->ecmForHighSpeed == nullptr)
          {
-            this->ecmForHighSpeed = new BPLC_extensionCardManager;
+            this->ecmForHighSpeed = new BPLC_extensionCardManager();
             p_ECM_fast = this->ecmForHighSpeed;
             xTaskCreatePinnedToCore(ecmTaskFast, "ecmTaskFast", 4096, NULL, 1, NULL, 0);       
          }

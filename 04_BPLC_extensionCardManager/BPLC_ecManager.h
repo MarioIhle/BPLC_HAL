@@ -88,7 +88,6 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     void                deleteExtensionCardFromList         (extensionCard* CARD_TO_DELETE_FROM_LIST);
 
     //Input Interrupt count
-    volatile uint64_t   intIsrOccoured;
     Timeout             to_readInputs;
     bool                ecCardNeedRealTimeProcessing[DIN11_ADDRESS_COUNT];
 };
