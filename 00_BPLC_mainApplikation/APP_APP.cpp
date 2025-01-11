@@ -21,8 +21,6 @@ void bplcTask(void* arg)
    }
 }    
 
-
-
 BPLC_APP::BPLC_APP()
 {   
    memset(&this->APP_APP, 0, sizeof(this->APP_APP));
@@ -45,7 +43,7 @@ void BPLC_APP::begin()
    this->setupSafety();
 
    //Fehlerprüfung bevor System startet
-   this->APP_APP.setup.f_completeSetupDone = true;
+   this->APP_APP.setup.f_bplcSetupDone = true;
 
    if(this->systemErrorManager.noErrorSet())
    {

@@ -119,7 +119,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
         struct
         {
             bool f_setupParameterFlash;
-            bool f_completeSetupDone;
+            bool f_bplcSetupDone;
         }setup;       
         
         union 

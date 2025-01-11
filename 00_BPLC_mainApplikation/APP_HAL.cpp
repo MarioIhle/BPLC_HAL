@@ -174,7 +174,6 @@ void BPLC_APP::tickHardware()
    {
       Wire.setClock(I2C_CLOCK_SPEED_400_KHZ);
    }
-   //this->extensionCardManager.tick();   
 }
 void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
 {

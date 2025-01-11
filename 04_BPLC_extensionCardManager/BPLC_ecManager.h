@@ -89,6 +89,7 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
 
     //Input Interrupt count
     Timeout             to_readInputs;
+    Timeout             to_readInputsCooldown;
     bool                ecCardNeedRealTimeProcessing[DIN11_ADDRESS_COUNT];
 };
 #endif

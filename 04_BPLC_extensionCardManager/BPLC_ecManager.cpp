@@ -67,7 +67,8 @@ BPLC_extensionCardManager::BPLC_extensionCardManager()
 {    
     memset(this, 0, sizeof(BPLC_extensionCardManager));
     this->to_I2cScan.setInterval(10000);
-    this->to_readInputs.setInterval(50);    //Wenn Interrupt errignis, dann 50ms Input Karten lesen
+    this->to_readInputsCooldown.setInterval(100);   //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 500ms
+    this->to_readInputs.setInterval(10);            //Wenn Interrupt errignis, dann 50ms Input Karten lesen
 }
 void BPLC_extensionCardManager::begin()
 {
@@ -184,28 +185,34 @@ void BPLC_extensionCardManager::tick()
 {
     if(this->p_firstExtensionCard!= nullptr)
     {
-        extensionCard*  p_extensionCardToTick       = this->p_firstExtensionCard;        
-        const bool      NEW_INPUTSTATES_AVAILABLE   = (intIsrState != MCU_INT_ISR__IDLE);
-        
-        if(NEW_INPUTSTATES_AVAILABLE)
-        {
-            this->to_readInputs.reset();
-            intIsrState = MCU_INT_ISR__IDLE;
-        }
+        extensionCard*  p_extensionCardToTick       = this->p_firstExtensionCard;     
 
+        const bool NEW_INPUTSTATES_AVAILABLE    = (intIsrState != MCU_INT_ISR__IDLE);     
+        const bool COOL_DOWN_TIME_PASSED        = (this->to_readInputsCooldown.check());    
+
+        if(COOL_DOWN_TIME_PASSED && NEW_INPUTSTATES_AVAILABLE)
+        {    
+            intIsrState = MCU_INT_ISR__IDLE;                   
+            this->to_readInputsCooldown.reset();             
+            this->to_readInputs.reset();
+        }
         const bool TIME_TO_READ_INPUTS = (!this->to_readInputs.check());
-                      
+               
         while(p_extensionCardToTick != nullptr)
         {
-            halInterface*   p_halInterface  = p_extensionCardToTick->getHalInterface();
-            const bool      HAL_OK          = (p_halInterface->getModuleErrorCount() == 0);            
-            
+            halInterface*       p_halInterface                  = p_extensionCardToTick->getHalInterface();
+            const bool          HAL_OK                          = (p_halInterface->getModuleErrorCount() == 0);   
+            const e_EC_ADDR_t   EC_ADDR                         = p_extensionCardToTick->getAddr();
+            const bool          CARD_NEED_REAL_TIME_PROCESSING  = this->ecCardNeedRealTimeProcessing[EC_ADDR];         
+
+            const bool          TICK_DIN_CARD                   =  (TIME_TO_READ_INPUTS 
+                                                                || (CARD_NEED_REAL_TIME_PROCESSING && NEW_INPUTSTATES_AVAILABLE));
             if(HAL_OK)
             {
                 switch(p_extensionCardToTick->getCardType())            
                 {
                     case EC__DIN11revA:        
-                        if(TIME_TO_READ_INPUTS)
+                        if(TICK_DIN_CARD)
                         {
                             p_halInterface->tick();                    
                         }                               

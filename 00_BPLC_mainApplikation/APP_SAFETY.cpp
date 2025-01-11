@@ -15,7 +15,7 @@ void BPLC_APP::tickSafety()
    //Watchdog
    
    //Init überwachung
-   if(this->APP_APP.setup.f_completeSetupDone == false)
+   if(this->APP_APP.setup.f_bplcSetupDone == false)
    {
       this->systemErrorManager.setError(BPLC_ERROR__BPLC_BEGIN_CALL_MISSING, __FILENAME__, __LINE__);
    }
