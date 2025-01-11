@@ -1,15 +1,15 @@
 #include "HAL_MCU11.h"
 
 //Callback für Hardware Interrupt 
-volatile uint64_t* p_ISR_COUNT_MCU_REVA;
+volatile e_MCU_INT_ISR_t*  P_ISR_STATE_MCU_REVA = nullptr;
 
-static void INT_ISR()
+static void INT_ISR_MCU_REV_A()
 {
-    *p_ISR_COUNT_MCU_REVA = *p_ISR_COUNT_MCU_REVA + 1;
+    *P_ISR_STATE_MCU_REVA = MCU_INT_ISR__NEW_INT;
 }
-HAL_MCU11_revA::HAL_MCU11_revA(volatile uint64_t* P_ISR_COUNT)
+HAL_MCU11_revA::HAL_MCU11_revA(volatile e_MCU_INT_ISR_t* P_ISR_STATE)
 {
-    p_ISR_COUNT_MCU_REVA = P_ISR_COUNT;
+    P_ISR_STATE_MCU_REVA = P_ISR_STATE;
 }
 void HAL_MCU11_revA::init(const e_EC_ADDR_t ADDR)
 {
@@ -35,7 +35,7 @@ void HAL_MCU11_revA::init(const e_EC_ADDR_t ADDR)
     pinMode(this->PIN.OEN, OUTPUT);
     //INT
     pinMode(this->PIN.INT, INPUT_PULLUP);
-    attachInterrupt(this->PIN.INT, INT_ISR, FALLING);       
+    attachInterrupt(this->PIN.INT, INT_ISR_MCU_REV_A, FALLING);       
     //Serielle Schnittstellen
     Serial.begin(this->baudrate.USB);       //USB
     Serial1.begin(this->baudrate.RS232, SERIAL_8N1, 32, 33);
@@ -99,9 +99,9 @@ void HAL_MCU11_revA::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
 }
 void HAL_MCU11_revA::tick()
 {  
-    this->tickSafety();
+    const bool NO_ERROR = (!this->tickSafety());
     
-    if(this->noErrorSet())
+    if(NO_ERROR)
     {
         //encoder
         u_HAL_DATA_t encoderInput;
@@ -135,36 +135,52 @@ void HAL_MCU11_revA::tick()
         {
             analogWrite(this->PIN.LD3, this->p_ld3->halCallback().analogIoData.value);
         } 
+    }   
+    //!Super schrott fix, geht aber nicht anders
+    //Problemstellung: Interruptpins der PCF sind mitinander verbunden daher kommt es manchmal zu einem Fehlerzustand auf den PCF und die INT leitung bleibt dann low
+    //Damit die INT leitung wieder freigegeben wird, muss eine I2C kommunikation stattdinden
+    const bool INT_LINE_GOT_STUCK_LOW_DUE_TO_PCF_ERROR = (digitalRead(this->PIN.INT)== LOW);
+    if(INT_LINE_GOT_STUCK_LOW_DUE_TO_PCF_ERROR)
+    {
+        INT_ISR_MCU_REV_A();
     }    
 }
-void HAL_MCU11_revA::tickSafety()
+bool HAL_MCU11_revA::tickSafety()
 {
+    bool errorDetected = false;
+    
     if(this->p_buzzer == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(this->p_encoder == nullptr)
+    else if(this->p_encoder == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(this->p_ld1 == nullptr)
+    else if(this->p_ld1 == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(this->p_ld2 == nullptr)
+    else if(this->p_ld2 == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(this->p_ld3 == nullptr)
+    else if(this->p_ld3 == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(this->p_oen == nullptr)
+    else if(this->p_oen == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
-    if(p_ISR_COUNT_MCU_REVA == nullptr)
+    else if(P_ISR_STATE_MCU_REVA == nullptr)
     {
-        this->setError(MCU11_ERROR__CHANNEL_POINTER_NOT_SET, __FILENAME__, __LINE__);
+        errorDetected = true;
     }
+    else
+    {
+        errorDetected = false;
+    }
+    
+    return errorDetected;
 }

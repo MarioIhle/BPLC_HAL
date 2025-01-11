@@ -82,7 +82,7 @@ void BPLC_APP::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMEN
       }
       else
       {
-         this->setDeviceMode((e_APP_MODE_t)this->APP_HMI.temp_ParameterStorage);
+         this->setDeviceModeInternal((e_APP_MODE_t)this->APP_HMI.temp_ParameterStorage);
          this->APP_HAL.oled.exitParameter();
       }
       //Cursor on "exit"

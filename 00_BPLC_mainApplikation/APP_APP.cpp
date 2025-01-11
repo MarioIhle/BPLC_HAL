@@ -1,8 +1,30 @@
 #include "BPLC_APP.h"
 
+BPLC_APP* P_APP = nullptr;
+
+void bplcTask(void* arg)
+{
+   disableCore1WDT();
+   esp_task_wdt_init(2, true);                
+   esp_task_wdt_add(NULL);                   
+
+  while(1)
+  {
+      esp_task_wdt_reset();
+
+      if((P_APP != nullptr) 
+      && (P_APP->getDeviceMode() != APP_MODE__INIT))
+      {
+         P_APP->tick();    
+      }    
+      delay(5);
+   }
+}    
+
 BPLC_APP::BPLC_APP()
 {   
    memset(&this->APP_APP, 0, sizeof(this->APP_APP));
+   this->APP_APP.deviceMode = APP_MODE__INIT;
 }
 void BPLC_APP::begin()
 {   
@@ -21,21 +43,24 @@ void BPLC_APP::begin()
    this->setupSafety();
 
    //Fehlerprüfung bevor System startet
+   this->APP_APP.setup.f_bplcSetupDone = true;
+
    if(this->systemErrorManager.noErrorSet())
    {
       this->printLog("BPLC SYSTEM INIT SUCCESSFUL", __FILENAME__, __LINE__);
-      this->setDeviceMode(APP_MODE__RUN);
+      this->setDeviceModeInternal(APP_MODE__RUN);
    }
    else
    {
       this->printLog("BPLC SYSTEM INIT FAILED", __FILENAME__, __LINE__);
-      this->setDeviceMode(APP_MODE__SAFE_STATE);
-   }   
-   this->APP_APP.setup.f_completeSetupDone = true;
+      this->setDeviceModeInternal(APP_MODE__SAFE_STATE);
+   }      
 }
 void BPLC_APP::setupApplication()
 {   
-   Wire.begin();
+   P_APP = this;
+   xTaskCreatePinnedToCore(bplcTask, "bplcTask", 4096, NULL, 1, nullptr, 1);
+   Wire.begin();   
 }
 void BPLC_APP::tick()
 {   
@@ -70,8 +95,7 @@ void BPLC_APP::tick()
          this->APP_HAL.OEN.set();       
          this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 1000, 1000);  
          this->tickHardware();   
-         this->tickNetwork();       
-         esp_task_wdt_reset();   //Da Safety nicht getickt
+         this->tickNetwork();                
          break;
 
       case APP_MODE__RUN_WITHOUT_EC_CARDS:
@@ -99,17 +123,29 @@ void BPLC_APP::tick()
          break;
 
       default:
-         this->setDeviceMode(APP_MODE__SAFE_STATE);
+         this->setDeviceModeInternal(APP_MODE__SAFE_STATE);
          break;
    }    
 }
 
 //DeviceMode
+void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
+{
+   if(this->getDeviceMode() != APP_MODE__SAFE_STATE)
+   {
+      this->setDeviceModeInternal(MODE);
+   }
+   else
+   {
+      BPLC_logPrint log;
+      log.printLog("APPLICATION CAN NOT EDIT DEVICE MODE, DEVICE IS IN SAFEMODE", __FILENAME__, __LINE__);
+   }
+}
 e_APP_MODE_t BPLC_APP::getDeviceMode()
 {
    return this->APP_APP.deviceMode;
 }
-void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
+void BPLC_APP::setDeviceModeInternal(const e_APP_MODE_t MODE)
 {
    if(this->APP_APP.deviceMode != MODE)
    {

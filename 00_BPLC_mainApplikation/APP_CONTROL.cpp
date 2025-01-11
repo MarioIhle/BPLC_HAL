@@ -160,23 +160,23 @@ void BPLC_APP::tickControlPanel()
 
             //Applikation
             case BPLC_PLI_KEY__DEVICE_MODE_STOP:
-                this->setDeviceMode(APP_MODE__STOP);
+                this->setDeviceModeInternal(APP_MODE__STOP);
                 break;
 
             case BPLC_PLI_KEY__DEVICE_MODE_RUN:
-                this->setDeviceMode(APP_MODE__RUN);
+                this->setDeviceModeInternal(APP_MODE__RUN);
                 break;
 
             case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_SAFETY:
-                this->setDeviceMode(APP_MODE__RUN_WITHOUT_SAFETY);
+                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_SAFETY);
                 break;
 
             case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_HARDWARE:
-                this->setDeviceMode(APP_MODE__RUN_WITHOUT_EC_CARDS);
+                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_EC_CARDS);
                 break;
 
             case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_COMMUNICATION:
-                this->setDeviceMode(APP_MODE__RUN_WITHOUT_COM);
+                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_COM);
                 break;
 
             

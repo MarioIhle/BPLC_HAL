@@ -21,6 +21,12 @@
 
 
 //#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
+typedef enum 
+{
+    MCU_INT_ISR__IDLE,
+    MCU_INT_ISR__NEW_INT,
+
+}e_MCU_INT_ISR_t;
 
 enum
 {
@@ -31,9 +37,11 @@ enum
     MCU_CHANNEL__LD1,
     MCU_CHANNEL__LD2,
     MCU_CHANNEL__LD3,
+    MCU_CHANNEL__INT_COUNTER,
 
     MCU_CHANNEL__COUNT,
 };
+
 //--------------------------------------------------------------------
 //HAL KLASSE
 //--------------------------------------------------------------------
@@ -41,7 +49,7 @@ class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, priv
 {
     public:
     //Hal constructor
-                    HAL_MCU11_revA          (volatile uint64_t* P_ISR_COUNT);    
+                    HAL_MCU11_revA          (volatile e_MCU_INT_ISR_t* P_ISR_STATE);    
     //Hal interface 
     void            init                    (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
@@ -54,7 +62,7 @@ class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, priv
 
 
     private:   
-    void            tickSafety              ();
+    bool            tickSafety              ();
     IO_Interface*   p_encoder;
     IO_Interface*   p_buzzer;
     IO_Interface*   p_ld1;
@@ -99,7 +107,7 @@ class HAL_MCU11_revB: public halInterface, protected BPLC_moduleErrorHandler, pr
 {
     public:
     //Hal constructor
-                    HAL_MCU11_revB          (volatile uint64_t* P_ISR_COUNT);    
+                    HAL_MCU11_revB          (volatile e_MCU_INT_ISR_t* P_ISR_STATE);    
     //Hal interface 
     void            init                    (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
@@ -112,7 +120,7 @@ class HAL_MCU11_revB: public halInterface, protected BPLC_moduleErrorHandler, pr
 
 
     private:
-    void            tickSafety();
+    bool            tickSafety();
 
     IO_Interface* p_encoder;
     IO_Interface* p_buzzer;

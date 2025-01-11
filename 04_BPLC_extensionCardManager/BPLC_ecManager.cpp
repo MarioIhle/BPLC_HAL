@@ -1,40 +1,151 @@
 #include "BPLC_ecManager.h"
+
+//Für Log Prints
+String getEcName(e_EC_TYPE_t EC_TYPE)
+{
+    switch(EC_TYPE)
+    {          
+        case EC__MCU11revA:
+            return "MCU11revA";
+            break;
+        case EC__MCU11revB:
+            return "MCU11revB";
+            break;
+
+        case EC__MCU11revC:
+            return "MCU11revC";
+            break;
+
+        case EC__AIN11revA:
+            return "AIN11revA";
+            break;
+
+        case EC__DIN11revA:
+            return "DIN11revA";
+            break;
+
+        case EC__DO11revA:
+            return "DO11revA";
+            break;
+
+        case EC__REL11revA:
+            return "REL11revA";
+            break;
+
+        case EC__MOT11revA:
+            return "MOT11revA";
+            break;
+
+        case EC__TMP11revA:
+            return "TMP11revA";
+            break;
+
+        case EC__PPO11revA:
+            return "PPO11revA";
+            break;
+
+        case EC__NANO11revA:
+            return "NANO11revA";
+            break;
+
+        case EC__FUSE11revA:
+            return "FUSE11revA";
+            break;
+
+        case EC__FUSE12revA:
+            return "FUSE12revA";
+            break;         
+
+            default:
+            return "TEXTS NEED UPDATE";
+            break;
+    }
+}
+
+//ECM task
+                uint8_t         tempTaskdelay   = 0;
+BPLC_extensionCardManager*      p_tempEcm       = nullptr;
+void ecmTask(void* arg)
+{
+    disableCore0WDT();
+    esp_task_wdt_init(1, true);                
+    esp_task_wdt_add(NULL);   
+
+    BPLC_extensionCardManager*  p_ECM       = p_tempEcm;
+    const uint8_t               TASK_DELAY  = tempTaskdelay;
+    while(true)
+    {
+        esp_task_wdt_reset();
+        p_ECM->tick();
+        delay(TASK_DELAY);
+    }
+}
+
 //Public Interface
 BPLC_extensionCardManager::BPLC_extensionCardManager()
+{    
+    memset(this, 0, sizeof(BPLC_extensionCardManager));
+    this->to_readInputsCooldown.setInterval(100);   //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 500ms
+    this->to_readInputs.setInterval(10);            //Wenn Interrupt errignis, dann 50ms Input Karten lesen
+}
+void BPLC_extensionCardManager::begin(const uint8_t TASK_DELAY_TIME, const char* TASK_NAME)
 {
-    this->intIsrOccoured = 10;            //Falls DIN EC vorhanden, wird im ersten tick das Flag erkannt und einmal alle Karten gelesen
-    this->to_I2cScan.setInterval(10000);
-    this->to_readInputs.setInterval(50);
+    tempTaskdelay   = TASK_DELAY_TIME;
+    p_tempEcm       = this;
+    this->ECM_NAME  = String(TASK_NAME);
+    xTaskCreatePinnedToCore(ecmTask, TASK_NAME, 4096, NULL, 1, NULL, 0);
+    this->printLog("CREATE NEW ECM TASK: " + String(TASK_NAME), __FILENAME__, __LINE__);
 }
 void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)                                
 {
-    extensionCard* p_cardToMapChannelTo = this->searchExtensionCard(CARD, ADDR);
-
-    if(p_cardToMapChannelTo != nullptr)
+    extensionCard*  p_cardToMapChannelTo    = this->getExtensionCard(CARD, ADDR);  
+    const bool      CARD_FOUND              = (p_cardToMapChannelTo != nullptr);
+ 
+    //Karte wurde in ecM Liste gefunden
+    if(CARD_FOUND)
     {
-        p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);
-    }
+        p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);      
+        if(CARD == EC__DIN11revA)
+        {
+            switch(P_IO_OBJECT->getIoType())
+            {
+                case IO_TYPE__DIGITAL_COUNTER:
+                case IO_TYPE__POSITION_ENCODER:
+                case IO_TYPE__RPM_SENS:
+                    this->ecCardNeedRealTimeProcessing[ADDR] = true;        //Diese EC als Echtzeitfähig makieren
+                break;
+            }
+        }
+        String ECM_NAME = getEcName(CARD);
+        this->printLog("MAPPED IO OBJEKT TO " + ECM_NAME + " WITH ADDR " + String(ADDR)+ " AT CHANNEL "+ String(CHANNEL), __FILENAME__, __LINE__);
+    }   
     else
     {//Error Setzen        
         this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);       
-    }      
+    }       
 }  
-bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_CARD_TYPE, const e_EC_ADDR_t ADDR)
+
+//Übergreifend für alle ECM instanzen
+static volatile e_MCU_INT_ISR_t intIsrState = MCU_INT_ISR__IDLE;
+//EC Karten Handling
+bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR)
 {
     bool newEcAdded = false;   
-    if(this->searchExtensionCard(EXTENSION_CARD_TYPE, ADDR) == nullptr)
+    const bool EC_NOT_CREATED_YET = (this->getExtensionCard(CARD, ADDR) == nullptr);
+    
+    if(EC_NOT_CREATED_YET)
     {
         halInterface* p_newHalInterface;
         
-        switch (EXTENSION_CARD_TYPE)
+        switch (CARD)
         {
             case EC__MCU11revA:    
-                p_newHalInterface = new HAL_MCU11_revA(&this->intIsrOccoured);  
+                p_newHalInterface = new HAL_MCU11_revA(&intIsrState);  
                 break;
 
             case EC__MCU11revB:    
             case EC__MCU11revC://Gleiches pinning, nur änderungen im Layout 
-                p_newHalInterface = new HAL_MCU11_revB(&this->intIsrOccoured);      
+                p_newHalInterface = new HAL_MCU11_revB(&intIsrState);               
                 break;   
 
             case EC__AIN11revA:          
@@ -42,7 +153,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
                 break; 
        
             case EC__DIN11revA:              
-                p_newHalInterface = new HAL_DIN11();
+                p_newHalInterface = new HAL_DIN11(); 
                 break;                         
   
             case EC__DO11revA:        
@@ -74,25 +185,29 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t EXTENSION_
         
         //System Error Manager an Hal moduleErrorManager übergeben
         p_newHalInterface->setSuperiorErrorManager(this->p_superiorErrorManager);
-        //Hal mit entsprechender ADDR(wird in Hal zu entsprechender i2c addresse gemappt)initialisieren
+        //Hal inizialisieren
         p_newHalInterface->init(ADDR);          
-        const bool HAL_SUCCESSFUL_INITIALIZED = (bool)(p_newHalInterface->getModuleErrorCount() == 0);
+        const bool HAL_SUCCESSFUL_INITIALIZED = (p_newHalInterface->getModuleErrorCount() == 0);
 
         if(HAL_SUCCESSFUL_INITIALIZED)
         {            
             //Neues extensionCard Objekt erzeugen und in Liste aufnehmen
             extensionCard* p_extensionCard = new extensionCard();
+
             //Interface für neu erzeugte Hal an extensionCard objekt übergeben
             p_extensionCard->setHalInterface(p_newHalInterface);
-            p_extensionCard->setCardType(EXTENSION_CARD_TYPE);  
+            p_extensionCard->setCardType(CARD);  
             p_extensionCard->setAddr(ADDR); 
             this->addExtensionCardToList(p_extensionCard);  
             newEcAdded = true;
+
+            String EC_NAME = getEcName(CARD);
+            this->printLog(EC_NAME + " WITH ADDR " + String(ADDR) + " ADDED TO " + (this->ECM_NAME), __FILENAME__, __LINE__);
         }       
     }
     else
     {
-        //this->printLog("EC ALREADY DEFINDED", __FILENAME__, __LINE__);
+        this->printLog("EC ALREADY ADDED TO ECM", __FILENAME__, __LINE__);
     }    
     return newEcAdded;
 }
@@ -100,139 +215,51 @@ void BPLC_extensionCardManager::tick()
 {
     if(this->p_firstExtensionCard!= nullptr)
     {
-        extensionCard* p_extensionCardToTick = this->p_firstExtensionCard;
-    
+        extensionCard*  p_extensionCardToTick       = this->p_firstExtensionCard;     
+
+        const bool NEW_INPUTSTATES_AVAILABLE    = (intIsrState != MCU_INT_ISR__IDLE);     
+        const bool COOL_DOWN_TIME_PASSED        = (this->to_readInputsCooldown.check());    
+
+        if(COOL_DOWN_TIME_PASSED && NEW_INPUTSTATES_AVAILABLE)
+        {    
+            intIsrState = MCU_INT_ISR__IDLE;                   
+            this->to_readInputsCooldown.reset();             
+            this->to_readInputs.reset();
+        }
+        const bool TIME_TO_READ_INPUTS = (!this->to_readInputs.check());
+               
         while(p_extensionCardToTick != nullptr)
         {
-            const bool HAL_SUCCESSFUL_INITIALIZED = (bool)(p_extensionCardToTick->getHalInterface()->getModuleErrorCount() == 0);
+            halInterface*       p_halInterface                  = p_extensionCardToTick->getHalInterface();
+            const bool          HAL_OK                          = (p_halInterface->getModuleErrorCount() == 0);   
+            const e_EC_ADDR_t   EC_ADDR                         = p_extensionCardToTick->getAddr();
+            const bool          CARD_NEED_REAL_TIME_PROCESSING  = this->ecCardNeedRealTimeProcessing[EC_ADDR];         
 
-            if(HAL_SUCCESSFUL_INITIALIZED)
+            const bool          TICK_DIN_CARD                   =  (TIME_TO_READ_INPUTS 
+                                                                || (CARD_NEED_REAL_TIME_PROCESSING && NEW_INPUTSTATES_AVAILABLE));
+            if(HAL_OK)
             {
                 switch(p_extensionCardToTick->getCardType())            
                 {
-                    case EC__DIN11revA:                       
-                        if(0 < this->intIsrOccoured)
+                    case EC__DIN11revA:        
+                        if(TICK_DIN_CARD)
                         {
-                            this->to_readInputs.reset();
-                            this->intIsrOccoured--;                                                       
-                        }                        
-                        if(!this->to_readInputs.check())
-                        {
-                            p_extensionCardToTick->getHalInterface()->tick();
-                        }
+                            p_halInterface->tick();                    
+                        }                               
                     break;
 
                     default:
-                        p_extensionCardToTick->getHalInterface()->tick();
+                        p_halInterface->tick();
                     break;
                 }      
             }      
             p_extensionCardToTick = p_extensionCardToTick->getNext();      
-        }       
+        }    
     }
-    if(this->to_I2cScan.checkAndReset())
-    {
-        //this->scanForUnkonwnI2CDevices();
-    }      
 }
-//I2C Scan
-void BPLC_extensionCardManager::scanForUnkonwnI2CDevices()
-{         
-    //AIN11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_AIN11revA = this->scanCardAddresses(EC__AIN11revA, &AIN11_I2C_ADDRESSES[0], AIN11_ADDRESS_COUNT);
-    
-    if(THERE_IS_A_UNDEFINED_AIN11revA)
-    {
-        this->setError(AIN11_ERROR__UNDEFINED_AIN11_FOUND, __FILENAME__, __LINE__);
-    }
-    //DIN11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_DIN11revA = this->scanCardAddresses(EC__DIN11revA, &DIN11_I2C_ADDRESSES[0], DIN11_ADDRESS_COUNT);
 
-    if(THERE_IS_A_UNDEFINED_DIN11revA)
-    {
-        this->setError(DIN11_ERROR__UNDEFINED_DIN11_FOUND, __FILENAME__, __LINE__);
-    }
-    //DO11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_DO11revA = this->scanCardAddresses(EC__DO11revA, &DO11_I2C_ADDRESSES[0], DO11_ADDRESS_COUNT);
-
-    if(THERE_IS_A_UNDEFINED_DO11revA)
-    {
-        this->setError(DO11_ERROR__UNDEFINED_DO11_FOUND, __FILENAME__, __LINE__);
-    }
-    //REL11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_REL11revA = this->scanCardAddresses(EC__REL11revA, &REL11_I2C_ADDRESSES[0], REL11_ADDRESS_COUNT);
-
-    if(THERE_IS_A_UNDEFINED_REL11revA)
-    {
-        this->setError(REL11_ERROR__UNDEFINED_REL11_FOUND, __FILENAME__, __LINE__);
-    }    
-    //MOT11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_MOT11revA = this->scanCardAddresses(EC__MOT11revA, &MOT11_I2C_ADDRESSES[0], MOT11_ADDRESS_COUNT);
-
-    if(THERE_IS_A_UNDEFINED_MOT11revA)
-    {
-        this->setError(MOT11_ERROR__UNDEFINED_MOT11_FOUND, __FILENAME__, __LINE__);
-    }
-    //TMP11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_TMP11revA = this->scanCardAddresses(EC__TMP11revA, &TMP11_I2C_ADDRESSES[0], TMP11_ADDRESS_COUNT);
-
-    if(THERE_IS_A_UNDEFINED_TMP11revA)
-    {
-        this->setError(TMP11_ERROR__UNDEFINED_TMP11_FOUND, __FILENAME__, __LINE__);
-    }   
-    //PPO11revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_PPO11revA = this->scanCardAddresses(EC__PPO11revA, &PPO11_I2C_ADDRESSES[0], PPO11_ADDRESS_COUNT);
-
-    if(THERE_IS_A_UNDEFINED_PPO11revA)
-    {
-        this->setError(PPO11_ERROR__UNDEFINED_PPO11_FOUND, __FILENAME__, __LINE__);
-    }
-    //NANOrevA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_NANOrevA = this->scanCardAddresses(EC__NANO11revA, &NANO11_I2C_ADDRESSES[0], NANO11_ADDRESS_COUNT);
-
-    if(THERE_IS_A_UNDEFINED_NANOrevA)
-    {
-        this->setError(NANO11_ERROR__UNDEFINED_NANO11_FOUND, __FILENAME__, __LINE__);
-    }
-    //FUSE12revA Cards suchen
-    const bool THERE_IS_A_UNDEFINED_FUSE12revA = this->scanCardAddresses(EC__FUSE12revA, &FUSE12_I2C_ADDRESSES[0], FUSE12_ADDRESS_COUNT);
-
-    if(THERE_IS_A_UNDEFINED_FUSE12revA)
-    {
-        this->setError(FUSE12_ERROR__UNDEFINED_FUSE12_FOUND, __FILENAME__, __LINE__);
-    }    
-}
-bool BPLC_extensionCardManager::scanCardAddresses(const e_EC_TYPE_t CARD_TYPE, const uint8_t* P_ADDRESSES_TO_SCAN, const uint8_t ADDRESS_COUNT)
-{
-    bool unkownCardFound = false;
-
-    for(uint8_t CARD_ADDR = 0; CARD_ADDR < ADDRESS_COUNT; CARD_ADDR++)
-    {
-        const uint8_t EC_I2C_ADDRESS = P_ADDRESSES_TO_SCAN[CARD_ADDR];
-        //Prüfen ob Karte normal in Nutzung und Definiert
-        const bool EC_IS_DEFINED = this->searchExtensionCard(CARD_TYPE, (e_EC_ADDR_t)CARD_ADDR);
-        
-        if(EC_IS_DEFINED)
-        {//KeepAlive wird von Hal ausgeführt, hier wird nur nach undefinierten Karten gesucht
-            continue;
-        }
-        else
-        {       
-            Wire.beginTransmission(EC_I2C_ADDRESS);
-            const bool DEVICE_FOUND = (bool)(Wire.endTransmission() == 0); 
-            //Undefinierte EC gefunden
-            if(DEVICE_FOUND)
-            {
-                unkownCardFound = true;
-                this->printLog("UNDEFINED I2C ADDRESS: " + String(EC_I2C_ADDRESS), __FILENAME__, __LINE__);
-                break;
-            }            
-        }
-    }
-    return unkownCardFound;
-}
 //Listen Handling
-extensionCard* BPLC_extensionCardManager::searchExtensionCard(const e_EC_TYPE_t SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR)
+extensionCard* BPLC_extensionCardManager::getExtensionCard(const e_EC_TYPE_t SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR)
 {
     extensionCard* p_searchedCard = this->p_firstExtensionCard;
 
@@ -258,4 +285,35 @@ void BPLC_extensionCardManager::addExtensionCardToList(extensionCard* CARD_TO_AD
         CARD_TO_ADD->setNext(this->p_firstExtensionCard);
         this->p_firstExtensionCard = CARD_TO_ADD;
     }  
+}
+void BPLC_extensionCardManager::deleteExtensionCardFromList(extensionCard* CARD_TO_DELETE_FROM_LIST)
+{    
+    if(this->p_firstExtensionCard != nullptr)
+    {
+        extensionCard* p_searchedCard           = this->p_firstExtensionCard;
+        extensionCard* p_cardBeforeSearchedCard = this->p_firstExtensionCard;   
+
+        while(p_searchedCard != CARD_TO_DELETE_FROM_LIST)
+        {
+            //Falls der nächste Port der gesuchte Port ist, pointer auf aktuellen speichern.         
+            if(p_searchedCard->getNext() == CARD_TO_DELETE_FROM_LIST)
+            {
+                p_cardBeforeSearchedCard = p_searchedCard;
+            }
+            p_searchedCard = p_searchedCard->getNext();
+        }
+        if(p_searchedCard != nullptr)
+        {
+            //Falls erste Karte, dann nur nächste Karte auf den Anfang vorziehen
+            if(CARD_TO_DELETE_FROM_LIST == this->p_firstExtensionCard)
+            {   
+                this->p_firstExtensionCard = p_searchedCard->getNext();
+            }
+            else
+            {   //Lücke schließen      
+                p_cardBeforeSearchedCard->setNext(p_searchedCard->getNext());        
+            }   
+            this->printLog(getEcName(CARD_TO_DELETE_FROM_LIST->getCardType()) + " ADDR:" + String(CARD_TO_DELETE_FROM_LIST->getAddr()) + " DELETED FROM ECM LIST", __FILENAME__, __LINE__);
+        }
+    }       
 }

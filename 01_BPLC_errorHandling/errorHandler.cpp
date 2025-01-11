@@ -40,6 +40,7 @@ s_error_t* BPLC_moduleErrorHandler::getError(uint8_t ERROR_NUMBER)
         
     return p_searchedError->getErrorData();      
 }    
+//setError("TEXT", __FILENAME__, __LINE__);
 void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE)
 {
     //Nur speichern, wenn noch nicht vorhanden
