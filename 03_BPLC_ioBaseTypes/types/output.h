@@ -13,11 +13,18 @@ typedef enum
     OUTPUTMODE__VALUE,
 	OUTPUTMODE__BLINK_ONCE,
     OUTPUTMODE__BLINK_CONTINIOUS,
+	OUTPUTMODE__FADE,
 
-	OUTPUTMODE__SIZE,
+	OUTPUTMODE__SIZE
 }e_outputMode_t;
 
-class output: public IO_Interface, blink
+typedef enum
+{
+	FADE_MODE__IN,
+	FADE_MODE__OUT
+}e_FADE_MODE_t;
+
+class output: public IO_Interface, private blink
  {
 	public:
     //Setup
@@ -44,6 +51,19 @@ class output: public IO_Interface, blink
 	{
 		this->setupBlink(BLINKS, BLINK_INTERVAL, BREAK_TIME);	
 		this->mode = OUTPUTMODE__BLINK_CONTINIOUS;
+	}
+	void fade(const unsigned long FADE_IN_TIME, const unsigned long FADE_OUT_TIME)
+	{		
+		if(this->mode != OUTPUTMODE__FADE)
+		{
+			this->fadeSettings.inTime 	= (FADE_IN_TIME	/ this->setting.onValue);
+			this->fadeSettings.outTime 	= (FADE_OUT_TIME / this->setting.onValue);
+			
+			this->fadeSettings.mode 	= FADE_MODE__IN;
+			this->fadeSettings.to_fade.setInterval(this->fadeSettings.inTime);
+
+			this->mode = OUTPUTMODE__FADE;
+		}		
 	}
 	void set()		                //output ON
 	{
@@ -138,6 +158,39 @@ class output: public IO_Interface, blink
 				}		
 			break;
 
+			case OUTPUTMODE__FADE:
+				//fadeIn	
+				if(this->fadeSettings.to_fade.checkAndReset())
+				{			
+					if(this->fadeSettings.mode == FADE_MODE__IN)
+					{						
+						this->value++;
+											
+						if(this->value == this->setting.onValue)
+						{
+							this->fadeSettings.mode = FADE_MODE__OUT;
+							this->fadeSettings.to_fade.setInterval(this->fadeSettings.outTime);
+						}
+					}					
+					//fadeOut
+					else if(FADE_MODE__OUT)
+					{						
+						this->value--;
+						
+						if(this->value == 0)
+						{
+							this->fadeSettings.mode = FADE_MODE__IN;
+							this->fadeSettings.to_fade.setInterval(this->fadeSettings.inTime);
+						}
+					}					
+					else
+					{
+						//do nothing
+					}
+					this->f_newDataAvailable = true;
+				}
+			break;
+
 			default:
 				this->mode = OUTPUTMODE__OFF;
 			break;
@@ -161,8 +214,17 @@ class output: public IO_Interface, blink
 
     struct //Hauptsächlich für verarbeitende HAL interessant
     {
-        uint8_t         onValue;	    //Welcher Wert wird geschieben bei object.set():
+        uint8_t         onValue;	    //Welcher Wert wird geschieben bei object.set():		
     }setting;    
+
+	struct 
+	{
+		unsigned long 	inTime;
+		unsigned long 	outTime;
+		Timeout 		to_fade;
+		e_FADE_MODE_t	mode;
+	}fadeSettings;
+	
 };
 
 #endif

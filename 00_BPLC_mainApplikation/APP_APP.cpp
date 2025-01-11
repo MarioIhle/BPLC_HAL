@@ -85,7 +85,7 @@ void BPLC_APP::tick()
 
       case APP_MODE__RUN:             
          this->APP_HAL.OEN.set();           
-         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 2500, 2500);  
+         this->APP_HAL.LD1_DEVICE_STATE.fade(2500, 2500);  
          this->tickSafety();
          this->tickHardware();    
          this->tickNetwork();      
