@@ -93,21 +93,21 @@ void BPLC_APP::tick()
 
       case APP_MODE__RUN_WITHOUT_SAFETY:   
          this->APP_HAL.OEN.set();       
-         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 1000, 1000);  
+         this->APP_HAL.LD1_DEVICE_STATE.fade(1000, 1000);  
          this->tickHardware();   
          this->tickNetwork();                
          break;
 
       case APP_MODE__RUN_WITHOUT_EC_CARDS:
          this->APP_HAL.OEN.reset();
-         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 1000, 1000);
+         this->APP_HAL.LD1_DEVICE_STATE.fade(1000, 1000);
          this->tickSafety();
          this->tickNetwork();
          break;
 
       case APP_MODE__RUN_WITHOUT_COM:
          this->APP_HAL.OEN.set();        
-         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 1000, 1000);   
+         this->APP_HAL.LD1_DEVICE_STATE.fade(1000, 1000);   
          this->tickHardware();
          this->tickSafety();
          break;     
