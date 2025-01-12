@@ -73,7 +73,7 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     uint8_t             getModuleErrorCount                 ()                                                      {return this->getErrorCount();}
     e_BPLC_ERROR_t      getModuleErrorCode                  (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
     void                resetAllModuleErrors                (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
-    void                setSuperiorErrorManager             (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
+    void                setSuperiorErrorManager             (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_systemErrorManager = P_SUPERIOR_ERROR_MANAGER;}
 
 
     private:        
@@ -82,6 +82,9 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);
     extensionCard*      getExtensionCard                    (const e_EC_TYPE_t  SEARCHED_EXTENSION_CARD, const e_EC_ADDR_t ADDR);
     void                deleteExtensionCardFromList         (extensionCard* CARD_TO_DELETE_FROM_LIST);
+
+    //errormanager für Hals
+    BPLC_moduleErrorHandler* p_systemErrorManager;
 
     //Input Interrupt count
     Timeout             to_readInputs;

@@ -1,15 +1,17 @@
 #include "BPLC_APP.h"
 
 void BPLC_APP::setupHardware()
-{  
+{    
    this->ecmForSlowSpeed = new BPLC_extensionCardManager();
    this->ecmForSlowSpeed->begin(5, "ECM_GENERAL_TASK");
-   
+   //SystemErrorHandler an Untergeordnete Module weitergeben für Callback 
+   //this->ecmForSlowSpeed->setSuperiorErrorManager(&this->systemErrorManager);   //Gibts pointer an Hal objekte weiter
+   //HAL initialisieren
+
    const e_EC_TYPE_t MCU_TYPE = this->APP_APP.settings.device.hardware.mcuCard;  
 
    if(MCU_TYPE != EC__NO_TYPE_DEFINED)
-   {      
-      //HAL initialisieren
+   {            
       const bool INIT_SUCCSESFUL = this->ecmForSlowSpeed->addNewExtensionCard(MCU_TYPE, EC_ADDR_1);
       if(INIT_SUCCSESFUL)
       {
@@ -99,6 +101,9 @@ void BPLC_APP::setupHardware()
          {
             this->ecmForHighSpeed = new BPLC_extensionCardManager();    
             this->ecmForHighSpeed->begin(0, "ECM_DIN11_TASK");          
+            //SystemErrorHandler an Untergeordnete Module weitergeben für Callback 
+            //this->ecmForHighSpeed->setSuperiorErrorManager(&this->systemErrorManager);   //Gibts pointer an Hal objekte weiter
+   
          }
          const bool EC_SUCCSEFUL_INITIALIZED = this->ecmForHighSpeed->addNewExtensionCard(EC__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  
          if(!EC_SUCCSEFUL_INITIALIZED)
@@ -129,12 +134,18 @@ void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, cons
    //Prüfen ob Input       
    switch(CARD)
    {        
-      case EC__DIN11revA:                                    
-         this->ecmForHighSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL);           
+      case EC__DIN11revA:       
+         if(this->ecmForHighSpeed != nullptr)
+         {
+            this->ecmForHighSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL);  
+         }                            
          break;
 
       default:
-         this->ecmForSlowSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL);
+         if(this->ecmForSlowSpeed != nullptr)
+         {
+            this->ecmForSlowSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL);
+         }
          break;
    } 
 }

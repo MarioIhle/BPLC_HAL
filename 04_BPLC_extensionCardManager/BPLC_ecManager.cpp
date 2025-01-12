@@ -184,7 +184,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, cons
         }         
         
         //System Error Manager an Hal moduleErrorManager übergeben
-        p_newHalInterface->setSuperiorErrorManager(this->p_superiorErrorManager);
+        p_newHalInterface->setSuperiorErrorManager(this->p_systemErrorManager);
         //Hal inizialisieren
         p_newHalInterface->init(ADDR);          
         const bool HAL_SUCCESSFUL_INITIALIZED = (p_newHalInterface->getModuleErrorCount() == 0);
@@ -203,7 +203,11 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, cons
 
             String EC_NAME = getEcName(CARD);
             this->printLog(EC_NAME + " WITH ADDR " + String(ADDR) + " ADDED TO " + (this->ECM_NAME), __FILENAME__, __LINE__);
-        }       
+        }    
+        else
+        {
+            this->setError(ECM_ERROR__EC_CONNECTION_FAILED, __FILENAME__, __LINE__);
+        }   
     }
     else
     {
@@ -215,7 +219,7 @@ void BPLC_extensionCardManager::tick()
 {
     if(this->p_firstExtensionCard!= nullptr)
     {
-        extensionCard*  p_extensionCardToTick       = this->p_firstExtensionCard;     
+        extensionCard*  p_extensionCardToTick = this->p_firstExtensionCard;     
 
         const bool NEW_INPUTSTATES_AVAILABLE    = (intIsrState != MCU_INT_ISR__IDLE);     
         const bool COOL_DOWN_TIME_PASSED        = (this->to_readInputsCooldown.check());    
@@ -253,6 +257,10 @@ void BPLC_extensionCardManager::tick()
                     break;
                 }      
             }      
+            else
+            {
+                this->setError(ECM_ERROR__EC_CONNECTION_FAILED, __FILENAME__, __LINE__);
+            }
             p_extensionCardToTick = p_extensionCardToTick->getNext();      
         }    
     }

@@ -18,6 +18,7 @@ typedef enum
     //ExtensonCardManager Errors    
     ECM_ERROR__EC_NOT_DEFINED,
     ECM_ERROR__EC_ALREADY_DEFINED,
+    ECM_ERROR__EC_CONNECTION_FAILED,
     //MCU11 errors
     MCU11_ERROR__CHANNEL_OUT_OF_RANGE,
     MCU11_ERROR__CHANNEL_POINTER_NOT_SET,
@@ -135,6 +136,7 @@ class ERROR_errorText
         //ExtensonCardManager Errors    
         {"ECM_ERROR__EC_NOT_DEFINED"},
         {"ECM_ERROR__EC_ALREADY_DEFINED"},
+        {"ECM_ERROR__EC_CONNECTION_FAILED"},
         //MCU11 errors
         {"MCU11_ERROR__CHANNEL_OUT_OF_RANGE"},
         {"MCU11_ERROR__CHANNEL_POINTER_NOT_SET"},
@@ -230,7 +232,7 @@ class ERROR_errorText
 
     String getErrorCodeText(const e_BPLC_ERROR_t ERROR_CODE)
     {      
-        if(BPLC_ERROR__COUNT != 92)
+        if(BPLC_ERROR__COUNT != 93)
         {
             return("ERROR_TEXTS_NEED_UPDATE!");
         }

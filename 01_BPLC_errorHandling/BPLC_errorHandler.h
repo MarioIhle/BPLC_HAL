@@ -37,16 +37,17 @@ class errorListElement
 class BPLC_moduleErrorHandler
 {
     public:
-                            BPLC_moduleErrorHandler ();
-    bool                    noErrorSet              (){return (bool)(this->errorCount == 0);}
-    uint8_t                 getErrorCount           ();
-    s_error_t*              getError                (uint8_t ERROR_NUMBER = 0);
-    e_BPLC_ERROR_t          getErrorCode            (){return this->p_firstError->getErrorData()->errorCode;}
+                                BPLC_moduleErrorHandler ();
+    bool                        noErrorSet              (){return (bool)(this->errorCount == 0);}
+    uint8_t                     getErrorCount           ();
+    s_error_t*                  getError                (uint8_t ERROR_NUMBER = 0);
+    e_BPLC_ERROR_t              getErrorCode            (){return this->p_firstError->getErrorData()->errorCode;}
     
-    void                    setError                (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
-    void                    resetError              (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
-    void                    resetAllErrors          (String FILE, const uint16_t LINE);
-        
+    void                        setError                (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
+    void                        resetError              (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
+    void                        resetAllErrors          (String FILE, const uint16_t LINE);
+    void                        setSystemErrorManager   (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER){this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
+
 
     private:
     BPLC_logPrint           log;
