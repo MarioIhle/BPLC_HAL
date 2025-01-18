@@ -63,21 +63,25 @@ String getEcName(e_EC_TYPE_t EC_TYPE)
 }
 
 //ECM task
-                uint8_t         tempTaskdelay   = 0;
-BPLC_extensionCardManager*      p_tempEcm       = nullptr;
-void ecmTask(void* arg)
+typedef struct 
+{
+    uint8_t                     taskdelay = 0;
+    BPLC_extensionCardManager*  p_ecm     = nullptr;
+}s_ECM_TASK_PARAMETER_t;
+
+void ecmTask(void* taskParameter)
 {
     disableCore0WDT();
     esp_task_wdt_init(1, true);                
     esp_task_wdt_add(NULL);   
 
-    BPLC_extensionCardManager*  p_ECM       = p_tempEcm;
-    const uint8_t               TASK_DELAY  = tempTaskdelay;
+    s_ECM_TASK_PARAMETER_t* p_taskParameter = (s_ECM_TASK_PARAMETER_t *) taskParameter;
+
     while(true)
     {
         esp_task_wdt_reset();
-        p_ECM->tick();
-        delay(TASK_DELAY);
+        p_taskParameter->p_ecm->tick();
+        delay(p_taskParameter->taskdelay);
     }
 }
 
@@ -89,11 +93,13 @@ BPLC_extensionCardManager::BPLC_extensionCardManager()
     this->to_readInputs.setInterval(10);            //Wenn Interrupt errignis, dann 50ms Input Karten lesen
 }
 void BPLC_extensionCardManager::begin(const uint8_t TASK_DELAY_TIME, const char* TASK_NAME)
-{
-    tempTaskdelay   = TASK_DELAY_TIME;
-    p_tempEcm       = this;
-    this->ECM_NAME  = String(TASK_NAME);
-    xTaskCreatePinnedToCore(ecmTask, TASK_NAME, 4096, NULL, 1, NULL, 0);
+{    
+    s_ECM_TASK_PARAMETER_t taskParameter;
+    taskParameter.p_ecm     = this;
+    taskParameter.taskdelay = TASK_DELAY_TIME;
+    this->ECM_NAME          = String(TASK_NAME); 
+
+    xTaskCreatePinnedToCore(ecmTask, TASK_NAME, 4096, &taskParameter, 1, NULL, 0);
     this->printLog("CREATE NEW ECM TASK: " + String(TASK_NAME), __FILENAME__, __LINE__);
 }
 void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)                                

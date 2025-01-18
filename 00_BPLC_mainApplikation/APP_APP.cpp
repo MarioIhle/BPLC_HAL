@@ -1,12 +1,12 @@
 #include "BPLC_APP.h"
 
-BPLC_APP* P_APP = nullptr;
-
-void bplcTask(void* arg)
+void bplcTask(void* taskParameter)
 {
    disableCore1WDT();
    esp_task_wdt_init(2, true);                
-   esp_task_wdt_add(NULL);                   
+   esp_task_wdt_add(NULL);      
+
+   BPLC_APP* P_APP = (BPLC_APP*)taskParameter;             
 
   while(1)
   {
@@ -58,8 +58,8 @@ void BPLC_APP::begin()
 }
 void BPLC_APP::setupApplication()
 {   
-   P_APP = this;
-   xTaskCreatePinnedToCore(bplcTask, "bplcTask", 4096, NULL, 1, nullptr, 1);
+   BPLC_APP* P_APP = this;
+   xTaskCreatePinnedToCore(bplcTask, "bplcTask", 4096, P_APP, 1, nullptr, 1);
    Wire.begin();   
 }
 void BPLC_APP::tick()
