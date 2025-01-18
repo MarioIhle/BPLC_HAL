@@ -219,8 +219,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
 
     struct 
     {        
-        MasterNode*     p_masterNode;
-        SlaveNode*      P_slaveNode;  
+        nodeInterface*  p_comNode;
         Timeout         to_communicationError; 
     }APP_COM;  
 };

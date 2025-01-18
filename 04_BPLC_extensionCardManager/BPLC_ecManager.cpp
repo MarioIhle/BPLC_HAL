@@ -65,7 +65,7 @@ String getEcName(e_EC_TYPE_t EC_TYPE)
 //ECM task
 typedef struct 
 {
-    uint8_t                     taskdelay = 0;
+    uint8_t                     taskDelay = 0;
     BPLC_extensionCardManager*  p_ecm     = nullptr;
 }s_ECM_TASK_PARAMETER_t;
 
@@ -75,13 +75,27 @@ void ecmTask(void* taskParameter)
     esp_task_wdt_init(1, true);                
     esp_task_wdt_add(NULL);   
 
-    s_ECM_TASK_PARAMETER_t* p_taskParameter = (s_ECM_TASK_PARAMETER_t *) taskParameter;
+    s_ECM_TASK_PARAMETER_t*     p_taskParameter = (s_ECM_TASK_PARAMETER_t *) taskParameter;
+    BPLC_extensionCardManager*  p_ecm       = p_taskParameter->p_ecm;
+    const uint8_t               TASK_DELAY  = p_taskParameter->taskDelay;
+
 
     while(true)
     {
         esp_task_wdt_reset();
-        p_taskParameter->p_ecm->tick();
-        delay(p_taskParameter->taskdelay);
+
+        if(p_ecm != nullptr)
+        {            
+            p_ecm->tick();
+            delay(TASK_DELAY);
+        }
+        else
+        {
+            BPLC_logPrint log;
+            log.printResetReason("p_ECM is nullptr", __FILENAME__, __LINE__);
+            abort();
+        }
+        
     }
 }
 
@@ -96,7 +110,7 @@ void BPLC_extensionCardManager::begin(const uint8_t TASK_DELAY_TIME, const char*
 {    
     s_ECM_TASK_PARAMETER_t taskParameter;
     taskParameter.p_ecm     = this;
-    taskParameter.taskdelay = TASK_DELAY_TIME;
+    taskParameter.taskDelay = TASK_DELAY_TIME;
     this->ECM_NAME          = String(TASK_NAME); 
 
     xTaskCreatePinnedToCore(ecmTask, TASK_NAME, 4096, &taskParameter, 1, NULL, 0);

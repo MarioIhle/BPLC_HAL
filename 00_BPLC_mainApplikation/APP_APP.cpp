@@ -12,11 +12,19 @@ void bplcTask(void* taskParameter)
   {
       esp_task_wdt_reset();
 
-      if((P_APP != nullptr) 
-      && (P_APP->getDeviceMode() != APP_MODE__INIT))
+      if(P_APP != nullptr) 
       {
-         P_APP->tick();    
-      }    
+         if(P_APP->getDeviceMode() != APP_MODE__INIT)
+         {
+            P_APP->tick();    
+         }    
+      }
+      else
+      {
+         BPLC_logPrint log;         
+         log.printResetReason("p_BPLC_APP is nullptr", __FILENAME__, __LINE__);
+         abort();
+      }
       delay(5);
    }
 }    

@@ -1,102 +1,88 @@
 #include"BPLC_APP.h"
 
+void comTask(void* taskParameter)
+{
+    nodeInterface* p_networkNode = (nodeInterface*) taskParameter;
+
+    disableCore1WDT();
+    esp_task_wdt_init(2, true);                
+    esp_task_wdt_add(NULL);    
+
+    while(true)
+    {
+        esp_task_wdt_reset();  
+        p_networkNode->tick();
+        delay(1);
+    }    
+}
 void BPLC_APP::setupNetwork()
 {
-    if(this->APP_APP.settings.device.communication.deviceAddress == 0)
+    if(this->APP_COM.p_comNode == nullptr)
     {
-        //Netzwerk nicht in Benutzung
-    }
-    else if(this->APP_APP.settings.device.communication.deviceAddress == MASTER_NODE_ADDRESS)
-    {        
-        if(this->APP_COM.p_masterNode == nullptr)
-        {
+        //Master Node erzeugen
+        if(this->APP_APP.settings.device.communication.deviceAddress == MASTER_NODE_ADDRESS)
+        {  
             this->printLog("Network setup as masterNode", __FILENAME__, __LINE__);
-            MasterNode* p_networkNode = new MasterNode;
-            p_networkNode->begin(&Serial2, 4);
-            this->APP_COM.p_masterNode = p_networkNode;
-        }        
+            this->APP_COM.p_comNode = new MasterNode;
+            this->APP_COM.p_comNode->begin(1, &Serial2, 4);
+        }
+        //Slave Node erzeugen
+        else
+        {
+            this->printLog("Network setup as slaveNode with address: " + String(this->APP_APP.settings.device.communication.deviceAddress), __FILENAME__, __LINE__);
+            this->APP_COM.p_comNode = new SlaveNode;
+            this->APP_COM.p_comNode->begin(this->APP_APP.settings.device.communication.deviceAddress, &Serial2, 4);
+        }
+        //Task erstellen
+        xTaskCreatePinnedToCore(comTask, "comTask", 4096, this->APP_COM.p_comNode, 1, NULL, 0);
+        this->printLog("CREATE NEW COM TASK", __FILENAME__, __LINE__);
+        //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
+        this->APP_COM.to_communicationError.setInterval(60000);
     }
     else
     {
-        if(this->APP_COM.p_masterNode == nullptr)
-        {
-            this->printLog("Network setup as slaveNode with address: " + String(this->APP_APP.settings.device.communication.deviceAddress), __FILENAME__, __LINE__);
-            SlaveNode* p_networkNode = new SlaveNode;
-            p_networkNode->begin(this->APP_APP.settings.device.communication.deviceAddress, &Serial2, 4);
-            this->APP_COM.P_slaveNode = p_networkNode;
-        }
+        this->printResetReason("COM_NODE_ALREADY_DEFINED", __FILENAME__, __LINE__);
+        abort();
     }
-    //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
-    this->APP_COM.to_communicationError.setInterval(60000);
 }
 void BPLC_APP::mapPortToNetwork(portInterface_APP* P_PORT)
 {    
     //Network setup
-    if(this->APP_APP.settings.device.communication.deviceAddress == 0)
+    if(this->APP_COM.p_comNode == nullptr)
     {                       
         this->systemErrorManager.setError(BPLC_ERROR__NETWORK_ADDRESS_NOT_DEFINED, __FILENAME__, __LINE__);
     }
-    else if(this->APP_APP.settings.device.communication.deviceAddress == 1)
+    else 
     {
-        this->APP_COM.p_masterNode->mapPortToNetwork(P_PORT);
-    }
-    else
-    {
-        this->APP_COM.P_slaveNode->mapPortToNetwork(P_PORT);
+        this->APP_COM.p_comNode->mapPortToNetwork(P_PORT);
     }
 }
 void BPLC_APP::tickNetwork()
 {
-    if(this->APP_APP.settings.device.communication.deviceAddress > 0)
+    if(this->APP_COM.p_comNode != nullptr)
     {      
         //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
         if(this->APP_COM.to_communicationError.check())
         {
             this->systemErrorManager.setError(BPLC_ERROR__COMMUNICATION_FAILED, __FILENAME__, __LINE__);
-        }
+        }                            
 
-        const bool DEVICE_IS_MASTER_NODE = (bool)(this->APP_APP.settings.device.communication.deviceAddress == MASTER_NODE_ADDRESS);
+        switch(this->APP_COM.p_comNode->getState())
+        {
+            case COM_NODE_STATE__AVAILABLE:
+                this->APP_HAL.LD2_COMMUNICATION_STATE.fade(2500, 2500);
+                this->APP_COM.to_communicationError.reset();
+            break;
 
-        if(DEVICE_IS_MASTER_NODE)
-        {                       
-            switch(this->APP_COM.p_masterNode->getError())
-            {
-                case MASTER_NODE_ERROR__NO_ERROR:
-                    this->APP_COM.p_masterNode->tick();
-                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 2500, 2500);
-                    this->APP_COM.to_communicationError.reset();
-                break;
+            case COM_NODE_STATE__NO_SLAVE_AVAILABLE:   
+            case COM_NODE_STATE__NOT_AVAILABLE:
+                this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 100, 100);
+            break;
 
-                case MASTER_NODE_ERROR__NO_SLAVE_AVAILABLE:
-                    this->APP_COM.p_masterNode->tick();
-                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 100, 100);
-                break;
-
-                default:
-
-                case MASTER_NODE_ERROR__COUNT:
-                break;
-            }                    
-        }
-        else
-        {            
-            this->APP_COM.P_slaveNode->tick();
-
-            switch(this->APP_COM.P_slaveNode->getNodeState())
-            {
-                case SLAVE_NODE_STATE__NOT_AVAILABLE:
-                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 100, 100);
-                break;
-
-                case SLAVE_NODE_STATE__RESYNC_PORTS:
-                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 50, 50);
-                break;
-                
-                case SLAVE_NODE_STATE__AVAILABLE:
-                    this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 2500, 2500);
-                    this->APP_COM.to_communicationError.reset();
-                break;
-            }
-        }        
+            case COM_NODE_STATE__TRYING_TO_ATTACH_TO_MASTER:
+            case COM_NODE_STATE__RESYNC_PORTS:
+                this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 50, 50);
+            break;               
+        }              
     }
 }
