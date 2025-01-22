@@ -129,12 +129,26 @@ void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, cons
    //Prüfen ob Input       
    switch(CARD)
    {        
-      case EC__DIN11revA:                                    
-         this->ecmForHighSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL);           
+      case EC__DIN11revA:      
+         if(this->ecmForHighSpeed != nullptr)
+         {
+            this->ecmForHighSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL); 
+         }      
+         else
+         {
+            this->systemErrorManager.setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);
+         }                             
          break;
 
       default:
-         this->ecmForSlowSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL);
+         if(this->ecmForSlowSpeed != nullptr)
+         {
+            this->ecmForSlowSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL);
+         }      
+         else
+         {
+            this->systemErrorManager.setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);
+         }
          break;
    } 
 }

@@ -136,8 +136,18 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
                 break;
             }
         }
-        String ECM_NAME = getEcName(CARD);
-        this->printLog("MAPPED IO OBJEKT TO " + ECM_NAME + " WITH ADDR " + String(ADDR)+ " AT CHANNEL "+ String(CHANNEL), __FILENAME__, __LINE__);
+        switch (CARD)
+        {   //Bei MCU uinterressant, da immer die gleichen Ports belegt werden
+            case EC__MCU11revA:
+            case EC__MCU11revB:
+            case EC__MCU11revC:
+                break;
+            
+            default:
+                String ECM_NAME = getEcName(CARD);
+                this->printLog("MAPPED IO OBJEKT TO " + ECM_NAME + " WITH ADDR " + String(ADDR)+ " AT CHANNEL "+ String(CHANNEL), __FILENAME__, __LINE__);          
+                break;
+        } 
     }   
     else
     {//Error Setzen        
