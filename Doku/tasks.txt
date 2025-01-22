@@ -1,0 +1,12 @@
+TASKS:
+
+loopTask: wird mit #include "Arduino.h" auf core 1 erzeugt. 
+-> kann für normale applikation in loop() benutzt werden 
+
+BPLC_TASK: wird mit BPLC_APP::begin() auf code 1 erzeugt
+-> ersetzt den BPLC_APP::tick() aufruf in der "loop()"
+
+ECM_TASK: wird durch BPLC_APP::mapObjektToExtensionCardChannel über BPLC_extensionCardmanager::begin() auf code 0 erzeugt
+-> wird ein zweites mal erzeugt, wegen timing falls es sich um inputKarten handelt.
+
+COM_TASK: wird durch BPLC_APP::setupNetwork, falls Networkaddresse definiert auf code 1 erzeugt.
