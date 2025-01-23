@@ -16,7 +16,11 @@ void comTask(void* taskParameter)
 }
 void BPLC_APP::setupNetwork()
 {
-    if(this->APP_COM.p_comNode == nullptr)
+    const bool COM_NODE_ALREADY_DEFINED = (this->APP_COM.p_comNode != nullptr);
+    const bool ADDRESS_VALIDE           = (this->APP_APP.settings.device.communication.deviceAddress != 0);
+    
+    if(ADDRESS_VALIDE
+    && (!COM_NODE_ALREADY_DEFINED))
     {
         //Master Node erzeugen
         if(this->APP_APP.settings.device.communication.deviceAddress == MASTER_NODE_ADDRESS)
@@ -26,7 +30,7 @@ void BPLC_APP::setupNetwork()
             this->APP_COM.p_comNode->begin(1, &Serial2, 4);
         }
         //Slave Node erzeugen
-        else
+        else if(MASTER_NODE_ADDRESS)
         {
             this->printLog("Network setup as slaveNode with address: " + String(this->APP_APP.settings.device.communication.deviceAddress), __FILENAME__, __LINE__);
             this->APP_COM.p_comNode = new SlaveNode;
