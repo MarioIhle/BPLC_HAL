@@ -15,37 +15,40 @@ void comTask(void* taskParameter)
     }    
 }
 void BPLC_APP::setupNetwork()
-{
-    const bool COM_NODE_ALREADY_DEFINED = (this->APP_COM.p_comNode != nullptr);
-    const bool ADDRESS_VALIDE           = (this->APP_APP.settings.device.communication.deviceAddress != 0);
+{    
+    const bool ADDRESS_VALIDE = (this->APP_APP.settings.device.communication.deviceAddress != 0);
     
-    if(ADDRESS_VALIDE
-    && (!COM_NODE_ALREADY_DEFINED))
+    if(ADDRESS_VALIDE)
     {
-        //Master Node erzeugen
-        if(this->APP_APP.settings.device.communication.deviceAddress == MASTER_NODE_ADDRESS)
-        {  
-            this->printLog("Network setup as masterNode", __FILENAME__, __LINE__);
-            this->APP_COM.p_comNode = new MasterNode;
-            this->APP_COM.p_comNode->begin(1, &Serial2, 4);
-        }
-        //Slave Node erzeugen
-        else if(MASTER_NODE_ADDRESS)
+        const bool COM_NODE_ALREADY_DEFINED = (this->APP_COM.p_comNode != nullptr);
+
+        if(COM_NODE_ALREADY_DEFINED)
         {
-            this->printLog("Network setup as slaveNode with address: " + String(this->APP_APP.settings.device.communication.deviceAddress), __FILENAME__, __LINE__);
-            this->APP_COM.p_comNode = new SlaveNode;
-            this->APP_COM.p_comNode->begin(this->APP_APP.settings.device.communication.deviceAddress, &Serial2, 4);
+            this->printResetReason("COM_NODE_ALREADY_DEFINED", __FILENAME__, __LINE__);
+            abort();           
         }
-        //Task erstellen 
-        xTaskCreatePinnedToCore(comTask, "comTask", 4096, this->APP_COM.p_comNode, 1, NULL, 1); //Core 1, da Core 0 schon mit HardwareInterrupt belastet
-        this->printLog("CREATE NEW COM TASK", __FILENAME__, __LINE__);
-        //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
-        this->APP_COM.to_communicationError.setInterval(60000);
-    }
-    else
-    {
-        this->printResetReason("COM_NODE_ALREADY_DEFINED", __FILENAME__, __LINE__);
-        abort();
+        else
+        {
+            //Master Node erzeugen
+            if(this->APP_APP.settings.device.communication.deviceAddress == MASTER_NODE_ADDRESS)
+            {  
+                this->printLog("Network setup as masterNode", __FILENAME__, __LINE__);
+                this->APP_COM.p_comNode = new MasterNode;
+                this->APP_COM.p_comNode->begin(1, &Serial2, 4);
+            }
+            //Slave Node erzeugen
+            else if(MASTER_NODE_ADDRESS)
+            {
+                this->printLog("Network setup as slaveNode with address: " + String(this->APP_APP.settings.device.communication.deviceAddress), __FILENAME__, __LINE__);
+                this->APP_COM.p_comNode = new SlaveNode;
+                this->APP_COM.p_comNode->begin(this->APP_APP.settings.device.communication.deviceAddress, &Serial2, 4);
+            }
+            //Task erstellen 
+            xTaskCreatePinnedToCore(comTask, "comTask", 4096, this->APP_COM.p_comNode, 1, NULL, 1); //Core 1, da Core 0 schon mit HardwareInterrupt belastet
+            this->printLog("CREATE NEW COM TASK", __FILENAME__, __LINE__);
+            //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
+            this->APP_COM.to_communicationError.setInterval(60000);
+        }
     }
 }
 void BPLC_APP::mapPortToNetwork(portInterface_APP* P_PORT)
