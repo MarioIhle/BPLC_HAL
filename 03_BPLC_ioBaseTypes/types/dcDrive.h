@@ -28,14 +28,14 @@ class dcDrive: public IO_Interface
 		this->motParams.old.speed     = this->motParams.speed;
 		this->motParams.direction     = MOVEMENT__IDLE; 
 		this->motParams.speed     	  = 0;   
-		f_thereAreNewDriveParametersAvailable = true;
+		f_newDriveParametersAvailable = true;
 	}
     void                start                   ()
 	{
 		//Bei Start letzte gemerkte Parameter laden 
 		this->motParams.direction     = this->motParams.old.direction; 
 		this->motParams.speed     	  = this->motParams.old.speed;   
-		f_thereAreNewDriveParametersAvailable = true;
+		f_newDriveParametersAvailable = true;
 	}
     void                stopAndBreak            ()
 	{
@@ -44,14 +44,14 @@ class dcDrive: public IO_Interface
 		this->motParams.old.speed     = this->motParams.speed;
 		this->motParams.direction     = MOVEMENT__IDLE; 
 		this->motParams.speed     	  = 255;   
-		f_thereAreNewDriveParametersAvailable = true;
+		f_newDriveParametersAvailable = true;
 	}
     void                setSpeed                (const uint8_t SPEED)
 	{   
 		if(this->motParams.speed != SPEED)
 		{
 			this->motParams.speed = SPEED;
-			f_thereAreNewDriveParametersAvailable = true; 
+			f_newDriveParametersAvailable = true; 
 		}	
 	}
     void                setDirection            (const e_MOVEMENT_t DIRECTION)
@@ -59,14 +59,14 @@ class dcDrive: public IO_Interface
 		if(this->motParams.direction != DIRECTION)
 		{
 			this->motParams.direction = DIRECTION;
-			f_thereAreNewDriveParametersAvailable = true; 
+			f_newDriveParametersAvailable = true; 
 		}	   
 	}
     void                setDirectionAndSpeed    (const e_MOVEMENT_t DIRECTION, const uint8_t SPEED)
 	{
 		this->motParams.direction     = DIRECTION; 
 		this->motParams.speed     	  = SPEED;   
-		f_thereAreNewDriveParametersAvailable = true;
+		f_newDriveParametersAvailable = true;
 	}
 
     //Getter 
@@ -77,21 +77,40 @@ class dcDrive: public IO_Interface
 
     //Hal handling
     e_IO_TYPE_t         getIoType               (){return this->ioType;}
-    bool                newDataAvailable        (){return this->f_thereAreNewDriveParametersAvailable;}
+    bool                newDataAvailable        ()
+	{
+		const bool NEW_DATA_AVAILABLE 		= this->f_newDriveParametersAvailable;
+		this->f_newDriveParametersAvailable = false;
+		return NEW_DATA_AVAILABLE;
+	}
     u_HAL_DATA_t        halCallback             (u_HAL_DATA_t* P_DATA = nullptr)
-	{	 
-		this->motParams.current  		= P_DATA->dcDriveData.current;
+	{	
+		//Es können(muss aber nicht) auch daten gelesen weredn, ohne neues Kommando
+		if(P_DATA != nullptr)
+		{
+			const bool DIRECTION_IS_DIFFERENT_ON_HARDWARE 	= this->motParams.direction != P_DATA->dcDriveData.direction;		//Vielleicht für Fehlererkennung?? sollte immmer der geschriebene Wert sein
+			const bool SPEED_IS_DIFFERENT_ON_HARDWARE 		= this->motParams.speed  	!= P_DATA->dcDriveData.speed;			//Vielleicht für Fehlererkennung?? sollte immmer der geschriebene Wert sein
+			this->motParams.current  						= P_DATA->dcDriveData.current;		
+			
+			if(DIRECTION_IS_DIFFERENT_ON_HARDWARE
+			|| SPEED_IS_DIFFERENT_ON_HARDWARE)
+			{
+				this->f_newDriveParametersAvailable = true;
+			}
+		}
+
+		//Befehle ausgeben
 		u_HAL_DATA_t BUFFER;
 		BUFFER.dcDriveData.direction 	= this->motParams.direction;
-		BUFFER.dcDriveData.speed 		= this->motParams.speed;     
-		this->f_thereAreNewDriveParametersAvailable = false;
+		BUFFER.dcDriveData.speed 		= this->motParams.speed;  
+		
 		return BUFFER; 
 	}
 
 
     private:
     e_DRIVE_STATE_t     driveState; 
-    bool                f_thereAreNewDriveParametersAvailable;
+    bool                f_newDriveParametersAvailable;
     e_IO_TYPE_t         ioType;
     //Motor Parameter
     struct 
