@@ -83,7 +83,7 @@ void HAL_MOT11::startCurrentAutotuning()
     
     COMMAND.extract.key = (uint8_t)MOT11_I2C_KEY__START_CURRENT_AUTOTUNING;
 
-    this->i2c.sendCommand(this->deviceAddress, COMMAND.data, sizeof(COMMAND));
+    //this->i2c.sendCommand(this->deviceAddress, COMMAND.data, sizeof(COMMAND));
 }
 void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
 {  

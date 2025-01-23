@@ -22,23 +22,22 @@ typedef enum
 
 }e_I2C_BPLC_KEY_t;
 
+
+#define PAYLAOD_BYTES_MAX 32
+#define MESSAGE_HEAD      2
 #pragma pack (push, 1)
-typedef struct 
+typedef union 
 {   
-  union 
+  struct 
   {
-    struct 
-    {
-      uint8_t i2cBplcKey;          
-      uint8_t payload[32];
-    }extract; 
+    uint8_t i2cBplcKey;   
+    uint8_t payloadSize;       
+    uint8_t payload[PAYLAOD_BYTES_MAX];
+  }extract; 
 
-    uint8_t data[33];
-  }frame;
-  
-  uint8_t frameSize;
+  uint8_t data[PAYLAOD_BYTES_MAX + MESSAGE_HEAD]; 
 
-}s_I2C_BPLC_NODE_FRAME_t;
+}u_I2C_BPLC_NODE_FRAME_t;
 #pragma pack (pop)
 
 
@@ -46,10 +45,10 @@ class BPLC_I2C_NODE
 {
   public:
             BPLC_I2C_NODE                           ();
-    void    begin                                   (const uint8_t ADDRESS = 0, s_I2C_BPLC_NODE_FRAME_t* p_cb_request = nullptr);  
+    void    begin                                   (const uint8_t ADDRESS = 0, u_I2C_BPLC_NODE_FRAME_t* p_cb_request = nullptr);  
    
     e_I2C_BPLC_KEY_t        newFrameReceived        ();
-    s_I2C_BPLC_NODE_FRAME_t getFrame                ();
+    u_I2C_BPLC_NODE_FRAME_t getFrame                ();
     
     void    sendFrame                               (const uint8_t DESTINATION_ADDRESS, const e_I2C_BPLC_KEY_t KEY, const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT);  
     void    sendACK                                 (const uint8_t DESTINATION_ADDRESS);
@@ -91,7 +90,7 @@ class I2C_BPLC_Slave
 
   private:
 
-  s_I2C_BPLC_NODE_FRAME_t slaveDataBuffer;  
+  u_I2C_BPLC_NODE_FRAME_t slaveDataBuffer;  
 
   BPLC_I2C_NODE i2cNode;
 };
