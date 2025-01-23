@@ -29,11 +29,11 @@ typedef struct
   {
     struct 
     {
-      uint8_t key;          
-      uint8_t payload[31];
+      uint8_t i2cBplcKey;          
+      uint8_t payload[32];
     }extract; 
 
-    uint8_t data[32];
+    uint8_t data[33];
   }frame;
   
   uint8_t frameSize;
@@ -46,7 +46,7 @@ class BPLC_I2C_NODE
 {
   public:
             BPLC_I2C_NODE                           ();
-    void    begin                                   (const uint8_t ADDRESS = 0);  
+    void    begin                                   (const uint8_t ADDRESS = 0, s_I2C_BPLC_NODE_FRAME_t* p_cb_request = nullptr);  
    
     e_I2C_BPLC_KEY_t        newFrameReceived        ();
     s_I2C_BPLC_NODE_FRAME_t getFrame                ();
@@ -55,8 +55,6 @@ class BPLC_I2C_NODE
     void    sendACK                                 (const uint8_t DESTINATION_ADDRESS);
     void    sendNAK                                 (const uint8_t DESTINATION_ADDRESS);
   
-    bool    masterOnRevceive                        ();
-
     
   private:
 
@@ -71,13 +69,13 @@ class I2C_BPLC_Master
             I2C_BPLC_Master   (){};
   void      begin             ();
 
-  uint8_t   getSlaveData      (const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t BYTE_COUNT); 
-  bool      sendCommand       (const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t BYTE_COUNT);
+  bool getSlaveData      (const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t BYTE_COUNT); 
+  bool sendCommand       (const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t BYTE_COUNT);
   
 
   private:
 
-  BPLC_I2C_NODE comNode;
+  BPLC_I2C_NODE i2cNode;
 };
 
 class I2C_BPLC_Slave
@@ -92,11 +90,9 @@ class I2C_BPLC_Slave
   uint8_t getCommand              (uint8_t* P_BUFFER);
 
   private:
-  void    sendSlaveData           ();  
 
-  uint8_t slaveDataBuffer[32];  
-  uint8_t sizeOfSlaveData;
+  s_I2C_BPLC_NODE_FRAME_t slaveDataBuffer;  
 
-  BPLC_I2C_NODE comNode;
+  BPLC_I2C_NODE i2cNode;
 };
 #endif

@@ -10,32 +10,42 @@ void receiveCallback(int howMany)
         {    
             callback_inBuffer.frame.data[BYTE] = Wire.read();    
         }
-    }    
+    }        
     callback_inBuffer.frameSize = (uint8_t)howMany; 
 }
-bool f_dataRequested;
+
+//requestCallback
+s_I2C_BPLC_NODE_FRAME_t* p_callback_outBuffer;  //pointer auf Daten, die bei Master Request versendet werden
 void requestCallback()
-{
-    f_dataRequested = true;
+{    
+    Wire.write(p_callback_outBuffer->frame.data, (p_callback_outBuffer->frameSize + 1));  //PAYLOAD_SIZE + i2cBplcKey  
+
+    /*
+    for(uint8_t i = 0; i< p_callback_outBuffer->frameSize; i++)
+    {
+        Serial.print(p_callback_outBuffer->frame.data[i]);
+    } 
+    */   
 }
-bool BPLC_I2C_NODE::masterOnRevceive()
-{
-    bool MASTER_IS_READY = f_dataRequested;
-    f_dataRequested = false;
-    return MASTER_IS_READY;
-}
+
+
+
 BPLC_I2C_NODE::BPLC_I2C_NODE()
 {}
-void BPLC_I2C_NODE::begin(const uint8_t ADDRESS)
+void BPLC_I2C_NODE::begin(const uint8_t ADDRESS, s_I2C_BPLC_NODE_FRAME_t* p_cb_request)
 {
     //I2C Kommunikation aufbauen
     if(ADDRESS != 0)
     {
         Wire.begin(ADDRESS);
     }
+    //I2C taktfrequenz auf 400kHz erhöhen
+    Wire.setClock(400000);
+   
   
     Wire.onReceive(receiveCallback);
     Wire.onRequest(requestCallback);
+    p_callback_outBuffer = p_cb_request;
 }
 void BPLC_I2C_NODE::sendACK(const uint8_t DESTINATION_ADDRESS)
 {
@@ -50,7 +60,7 @@ void BPLC_I2C_NODE::sendFrame(const uint8_t DESTINATION_ADDRESS, const e_I2C_BPL
     s_I2C_BPLC_NODE_FRAME_t OUT_FRAME;
     memset(&OUT_FRAME, 0, sizeof(OUT_FRAME));
 
-    OUT_FRAME.frame.extract.key = KEY;
+    OUT_FRAME.frame.extract.i2cBplcKey = (uint8_t)KEY;
 
     if(PAYLOAD != nullptr)
     {        
@@ -69,6 +79,7 @@ void BPLC_I2C_NODE::sendFrame(const uint8_t DESTINATION_ADDRESS, const e_I2C_BPL
         case I2C_BPLC_KEY__SLAVE_COMMAND:
             Wire.beginTransmission(DESTINATION_ADDRESS);
             Wire.write(OUT_FRAME.frame.data, 1+BYTE_COUNT);
+            Serial.write(OUT_FRAME.frame.data, 1+BYTE_COUNT);
             Wire.endTransmission(true); 
             break;
 
@@ -76,12 +87,13 @@ void BPLC_I2C_NODE::sendFrame(const uint8_t DESTINATION_ADDRESS, const e_I2C_BPL
         case I2C_BPLC_KEY__NAK:
         case I2C_BPLC_KEY__SLAVE_DATA:
             Wire.write(OUT_FRAME.frame.data, 1+BYTE_COUNT);
+            Serial.write(OUT_FRAME.frame.data, 1+BYTE_COUNT);
             break;
     }            
 }
 e_I2C_BPLC_KEY_t BPLC_I2C_NODE::newFrameReceived()
 {
-     return (e_I2C_BPLC_KEY_t)callback_inBuffer.frame.extract.key;
+    return (e_I2C_BPLC_KEY_t)callback_inBuffer.frame.extract.i2cBplcKey;
 }
 s_I2C_BPLC_NODE_FRAME_t BPLC_I2C_NODE::getFrame()
 {
