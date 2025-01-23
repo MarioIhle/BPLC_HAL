@@ -26,12 +26,12 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     if(this->noErrorSet())
     {   
         this->i2c.begin();
-        this->deviceState = MOT11_DEVICE_STATE__INIT;  
+        this->state = MOT11_DEVICE_STATE__INIT;  
         this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
     {
-        this->deviceState = MOT11_DEVICE_STATE__SAFE_STATE;
+        this->state = MOT11_DEVICE_STATE__SAFE_STATE;
         this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
 }
@@ -51,48 +51,30 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
     }
 }
 void HAL_MOT11::tick()
-{    
-    if(this->channels.p_ioObject == nullptr)
+{          
+    //Zyklisch Parameter abfragen
+    if(this->to_parameterPoll.checkAndReset())
     {
-        this->setError(MOT11_ERROR__NO_CHANNEL_IN_USE, __FILENAME__, __LINE__);
-    }
-
-    if(this->noErrorSet())
-    {                  
-        switch(this->deviceState)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
+        this->requestDriveParameter();                    
+    }      
+    if(this->channels.p_ioObject != nullptr)
+    {
+        switch(this->state)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
         {
             default:
-            case MOT11_DEVICE_STATE__INIT:    
-            case MOT11_DEVICE_STATE__SAFE_STATE:    
-                //Über Request wird zyklisch alle live Parameter abgefragt
-                if(this->to_parameterPoll.checkAndReset())
-                {
-                    this->requestDriveParameter();                    
-                } 
+            case MOT11_DEVICE_STATE__INIT:                          
+            case MOT11_DEVICE_STATE__SAFE_STATE:   
+            case MOT11_DEVICE_STATE__AUTOTUNING:                 
             break;
 
-            case MOT11_DEVICE_STATE__RUNNING:   //Normalbetreb
+            case MOT11_DEVICE_STATE__RUNNING:   //Normalbetreb            
                 if(this->channels.p_ioObject->newDataAvailable())
-                {
+                {            
                     this->sendDriveCommand(this->channels.p_ioObject->halCallback());
-                }
-                //Über Request wird zyklisch alle live Parameter abgefragt
-                if(this->to_parameterPoll.checkAndReset())
-                {
-                    this->requestDriveParameter();                     
-                }  
-            break;
-
-            case MOT11_DEVICE_STATE__AUTOTUNING:
-                //Status abfragen, solange Autotuning aktiv nix tun
-                if(this->to_parameterPoll.check())
-                {
-                    this->requestDriveParameter(); 
-                    this->to_parameterPoll.reset();
-                }              
-            break;                     
+                }             
+                break;      
         }
-    }
+    }        
 }
 void HAL_MOT11::startCurrentAutotuning()
 {
@@ -117,7 +99,24 @@ void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
 void HAL_MOT11::requestDriveParameter()
 {
     u_MOT11_DATA_FRAME_t BUFFER;
-    this->i2c.getSlaveData(this->deviceAddress, BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));
+    const bool SLAVE_DATA_RECEIVED = this->i2c.getSlaveData(this->deviceAddress, BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));
+    
+    if(SLAVE_DATA_RECEIVED)
+    {
+        this->state         = (e_MOT11_DEVICE_STATE_t) BUFFER.extract.deviceState;    
+        this->error         = (e_BPLC_ERROR_t)BUFFER.extract.error;
+        //Daten an IO Objekt weiter geben
+        u_HAL_DATA_t inDATA;    
+        inDATA.dcDriveData.direction    = (e_MOVEMENT_t)BUFFER.extract.direction;
+        inDATA.dcDriveData.speed        = BUFFER.extract.speed;
+        inDATA.dcDriveData.current      = BUFFER.extract.current;
+        this->channels.p_ioObject->halCallback(&inDATA);
+    }
+    else
+    {
+        //irgendwas anders empfangen
+    }
+    
 
 #ifdef DEBUG_HAL_MOT11 
 Serial.println("Drive Parameter:");
@@ -125,7 +124,7 @@ Serial.print("KEY: ");        Serial.println(BUFFER.extract.key);
 Serial.print("DEVICESTATE: ");Serial.println(BUFFER.extract.deviceState);
 Serial.print("DIRECTION: ");  Serial.println(BUFFER.extract.direction);
 Serial.print("SPEED: ");      Serial.println(BUFFER.extract.speed);
-Serial.print("ERROR: ");      Serial.println(BUFFER.extract.errordetection);
+Serial.print("ERROR: ");      Serial.println(BUFFER.extract.error);
 Serial.print("CURRENT: ");    Serial.println(BUFFER.extract.current);
 Serial.println("");
 #endif

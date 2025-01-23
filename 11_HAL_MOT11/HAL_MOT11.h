@@ -10,6 +10,8 @@
 #define MOT11_ADDRESS_COUNT 4
 #define MOT11_CHANNEL_COUNT 1
 
+//DEBUGGING
+//#define DEBUG_HAL_MOT11
 //-------------------------------------------------------------
 //HAL_DIN11 KLASSE
 //-------------------------------------------------------------
@@ -34,16 +36,17 @@ class HAL_MOT11: public halInterface, private BPLC_moduleErrorHandler, private B
   
     private:
     //Settings    
-    uint8_t                 deviceAddress;
-    e_MOT11_DEVICE_STATE_t  deviceState;
+    uint8_t deviceAddress;   
+
+    e_MOT11_DEVICE_STATE_t  state;
+    e_BPLC_ERROR_t          error;   
 
     //I2C Kommunikation
     void sendDriveCommand     (const u_HAL_DATA_t DRIVE_PARAMETER);
     void requestDriveParameter();
-    void sendFrame            (const u_MOT11_DATA_FRAME_t COMMAND);
-
-    Timeout to_parameterPoll;    
   
+    Timeout to_parameterPoll;     
+
     //Object handling
     struct 
     {

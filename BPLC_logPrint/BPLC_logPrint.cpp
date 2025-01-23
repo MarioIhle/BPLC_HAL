@@ -44,9 +44,11 @@ void BPLC_logPrint::printResetReason(String TEXT, String FILE, const uint16_t LI
 //ESP: __FILENAME__, __LINE__
 void BPLC_logPrint::printRamUsage()
 {
+#ifndef ARDUINO_AVR_NANO
     Serial.print("HEAP_SIZE: ");      Serial.print(ESP.getHeapSize()); 
     Serial.print(", FREE_HEAP: ");    Serial.print(ESP.getFreeHeap()); 
     Serial.print(", SKETCH_SIZE: ");  Serial.print(ESP.getSketchSize()); 
     Serial.print(", FLASH_SIZE: ");   Serial.print(ESP.getFlashChipSize()); 
     Serial.print(", SPIRAM_SIZE: ");  Serial.println(ESP.getFreePsram()); 
+#endif
 }
