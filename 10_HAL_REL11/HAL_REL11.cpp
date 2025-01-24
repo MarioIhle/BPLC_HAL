@@ -60,7 +60,7 @@ void HAL_REL11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
 void HAL_REL11::tick()
 {
     //I2C Verbindung zyklisch prüfen
-    if(!this->requestHeartbeat())
+    if(!this->tickHeartbeat())
     {
         this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
     }
