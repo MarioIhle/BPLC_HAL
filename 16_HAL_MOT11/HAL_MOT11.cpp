@@ -52,7 +52,7 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
 }
 void HAL_MOT11::tick()
 {          
-    //Zyklisch Parameter abfragen
+    //Zyklisch Parameter abfragen, wird über Callback bei Slave behandelt, daher Timing unabhänig
     if(this->to_parameterPoll.checkAndReset())
     {
         this->requestDriveParameter();                    
@@ -61,10 +61,7 @@ void HAL_MOT11::tick()
     {
         switch(this->state)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
         {
-            default:
-            case MOT11_DEVICE_STATE__INIT:                          
-            case MOT11_DEVICE_STATE__SAFE_STATE:   
-            case MOT11_DEVICE_STATE__AUTOTUNING:                 
+            default:            
             break;
 
             case MOT11_DEVICE_STATE__RUNNING:   //Normalbetreb            
