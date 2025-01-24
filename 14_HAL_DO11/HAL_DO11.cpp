@@ -197,3 +197,12 @@ void HAL_DO11::tick()
         }    
     }
 }
+void HAL_DO11::controlCommand(const e_EC_COMMAND_t COMMAND)
+{
+    switch (COMMAND)
+    {       
+        default:
+            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
+            break;
+    }
+}

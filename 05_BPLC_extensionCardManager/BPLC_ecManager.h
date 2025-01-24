@@ -74,7 +74,8 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     e_BPLC_ERROR_t      getModuleErrorCode                  (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
     void                resetAllModuleErrors                (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
     void                setSuperiorErrorManager             (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
-
+    //Mot11 spezial Call
+    void                startCurrentTuningMot11             (const e_EC_ADDR_t ADDR);
 
     private:        
     //ExtensionCard List

@@ -145,6 +145,15 @@ void HAL_MCU11_revA::tick()
         INT_ISR_MCU_REV_A();
     }    
 }
+void HAL_MCU11_revA::controlCommand(const e_EC_COMMAND_t COMMAND)
+{
+    switch (COMMAND)
+    {       
+        default:
+            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
+            break;
+    }
+}
 bool HAL_MCU11_revA::tickSafety()
 {
     bool errorDetected = false;

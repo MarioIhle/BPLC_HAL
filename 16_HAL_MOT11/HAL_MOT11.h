@@ -64,16 +64,14 @@ class HAL_MOT11: public halInterface, private BPLC_moduleErrorHandler, private B
     //Hal interface 
     void            init                    (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
-    void            tick                    ();        
+    void            tick                    ();   
+    void            controlCommand          (const e_EC_COMMAND_t COMMAND);        
     //Modul Error Interface   
     uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
     e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
     void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
     void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
 
-    //Spezifisch
-    void            startCurrentAutotuning  ();  
-    
   
     private:
     //Settings    
@@ -83,8 +81,9 @@ class HAL_MOT11: public halInterface, private BPLC_moduleErrorHandler, private B
     e_BPLC_ERROR_t          error;   
 
     //I2C Kommunikation
-    void sendDriveCommand     (const u_HAL_DATA_t DRIVE_PARAMETER);
-    void requestDriveParameter();
+    void startCurrentAutotuning ();
+    void sendDriveCommand       (const u_HAL_DATA_t DRIVE_PARAMETER);
+    void requestDriveParameter  ();
   
     Timeout to_parameterPoll;     
 

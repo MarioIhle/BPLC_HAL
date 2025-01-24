@@ -76,6 +76,20 @@ void HAL_MOT11::tick()
         }
     }        
 }
+void HAL_MOT11::controlCommand(const e_EC_COMMAND_t COMMAND)
+{
+    switch (COMMAND)
+    {
+        case EC_COMMAND__MOT11_START_CURRENT_TUNING:
+            this->printLog("START CURRENT TUNING", __FILENAME__, __LINE__);
+            this->startCurrentAutotuning();
+            break;
+        
+        default:
+            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
+            break;
+    }
+}
 void HAL_MOT11::startCurrentAutotuning()
 {
     u_MOT11_DATA_FRAME_t COMMAND;
@@ -83,7 +97,7 @@ void HAL_MOT11::startCurrentAutotuning()
     
     COMMAND.extract.key = (uint8_t)MOT11_I2C_KEY__START_CURRENT_AUTOTUNING;
 
-    //this->i2c.sendCommand(this->deviceAddress, COMMAND.data, sizeof(COMMAND));
+    this->i2c.sendCommand(this->deviceAddress, COMMAND.data, sizeof(COMMAND));
 }
 void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
 {  

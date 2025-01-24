@@ -347,3 +347,15 @@ void BPLC_extensionCardManager::deleteExtensionCardFromList(extensionCard* CARD_
         }
     }       
 }
+void BPLC_extensionCardManager::startCurrentTuningMot11(const e_EC_ADDR_t ADDR)
+{
+    extensionCard* p_mot = this->getExtensionCard(EC__MOT11revA, ADDR);
+    if(p_mot != nullptr)
+    {
+        p_mot->getHalInterface()->controlCommand(EC_COMMAND__MOT11_START_CURRENT_TUNING);
+    }
+    else
+    {
+        this->printLog("EC NOT DEFINED", __FILENAME__, __LINE__);
+    }
+}

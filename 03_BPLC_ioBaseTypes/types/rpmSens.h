@@ -40,7 +40,7 @@ class rpmSensor: public IO_Interface
             const double TIME_PER_REV               = (REVOLUTIONS/TIME_DELTA);
             const double CALCULATED_RPM             = (TIME_PER_REV * 60000000.00);
             //Drehzahl glätten
-            const double RPM_OLD                    = (double)this->rpm;
+            //const double RPM_OLD                    = (double)this->rpm;
             this->rpm                               = (uint64_t)CALCULATED_RPM; //(CALCULATED_RPM * 0.25) + (RPM_OLD * 0.75);
     
             //Alle Werte zurück setzten, neue Messung starten      

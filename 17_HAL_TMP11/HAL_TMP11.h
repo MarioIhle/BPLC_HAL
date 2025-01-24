@@ -34,6 +34,7 @@ class HAL_TMP11: public halInterface, private BPLC_moduleErrorHandler, private B
     void            init                    (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
     void            tick                    ();        
+    void            controlCommand          (const e_EC_COMMAND_t COMMAND);   
     //Modul Error Interface   
     uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
     e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}

@@ -234,10 +234,31 @@ void BPLC_APP::tickControlPanel()
                 this->setupHardware();
                 break;
 
-            case BPLC_PLI_KEY__ADD_EC_MOT111revA:
-                this->APP_APP.settings.device.hardware.mot11revAcards[COMMAND.command.paramValue] = true;    
-                this->saveDeviceSettings();
-                this->setupHardware();
+            case BPLC_PLI_KEY__ADD_EC_MOT111revA:                                
+                switch(COMMAND.command.paramValue)
+                {
+                    default:
+                    //neue Mot11 hinzufügen
+                        if(COMMAND.command.paramValue < MOT11_ADDRESS_COUNT)
+                        {
+                            this->APP_APP.settings.device.hardware.mot11revAcards[COMMAND.command.paramValue] = true;    
+                            this->saveDeviceSettings();
+                            this->setupHardware();
+                        }
+                        break;
+                    case 4:
+                        this->ecmForSlowSpeed->startCurrentTuningMot11(EC_ADDR_1);
+                        break;
+                    case 5:
+                        this->ecmForSlowSpeed->startCurrentTuningMot11(EC_ADDR_2);
+                        break;
+                    case 6:
+                        this->ecmForSlowSpeed->startCurrentTuningMot11(EC_ADDR_3);
+                        break;
+                    case 7:
+                        this->ecmForSlowSpeed->startCurrentTuningMot11(EC_ADDR_4);
+                        break;
+                }                          
                 break;
 
             case BPLC_PLI_KEY__ADD_EC_TMP11revA:

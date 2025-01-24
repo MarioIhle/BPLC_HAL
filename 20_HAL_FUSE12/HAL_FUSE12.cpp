@@ -70,3 +70,12 @@ void HAL_FUSE12::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNE
 }
 void HAL_FUSE12::tick()
 {}
+void HAL_FUSE12::controlCommand(const e_EC_COMMAND_t COMMAND)
+{
+    switch (COMMAND)
+    {       
+        default:
+            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
+            break;
+    }
+}

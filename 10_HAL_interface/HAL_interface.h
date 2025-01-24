@@ -18,16 +18,8 @@ typedef enum
     EC_ADDR_6,
     EC_ADDR_7,
     EC_ADDR_8,
-    EC_ADDR_9,
-    EC_ADDR_10,
-    EC_ADDR_11,
-    EC_ADDR_12,
-    EC_ADDR_13,
-    EC_ADDR_14,
-    EC_ADDR_15,
-    EC_ADDR_16,
 
-    EC_ADDR_NOT_DEFINED,
+    EC_ADDR_NOT_DEFINED
 }e_EC_ADDR_t;
 
 typedef enum
@@ -39,14 +31,24 @@ typedef enum
     EC_CHANNEL_5, 
     EC_CHANNEL_6, 
     EC_CHANNEL_7, 
-    EC_CHANNEL_8,  
+    EC_CHANNEL_8,
+
+    EC_CHANNEL_NOT_DEFINED
 }e_EC_CHANNEL_t;
+
+typedef enum
+{
+    EC_COMMAND__SELFTEST,   
+    EC_COMMAND__MOT11_START_CURRENT_TUNING,
+
+}e_EC_COMMAND_t;
 
 class halInterface: public BPLC_moduleErrorInterface
 {
     public:
-    virtual void init                (const e_EC_ADDR_t ADDR) = 0;
-    virtual void tick                () = 0;
-    virtual void mapObjectToChannel  (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL) = 0;
+    virtual void init                   (const e_EC_ADDR_t ADDR) = 0;
+    virtual void tick                   () = 0;
+    virtual void mapObjectToChannel     (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL) = 0;
+    virtual void controlCommand         (const e_EC_COMMAND_t COMMAND) = 0;
 };
 #endif
