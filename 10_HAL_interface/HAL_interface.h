@@ -8,7 +8,6 @@
 #include "BPLC_logPrint.h"
 
 
-
 typedef enum 
 {    
     EC_ADDR_1,

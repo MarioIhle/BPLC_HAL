@@ -6,7 +6,8 @@ void I2C_BPLC_Master::begin()
 }
 bool I2C_BPLC_Master::getSlaveData(const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t PAYLOAD_SIZE)
 {    
-    Wire.requestFrom(SLAVE_ADDRESS, (PAYLOAD_SIZE + 1));    //PAYLOAD_SIZE + i2cBplcKey
+    const uint8_t BYTES_REQUESTED = (PAYLOAD_SIZE + MESSAGE_HEAD);   //PAYLOAD_SIZE + i2cBplcKey + palyoadSize
+    Wire.requestFrom(SLAVE_ADDRESS, BYTES_REQUESTED);    
   
     u_I2C_BPLC_NODE_FRAME_t slaveData;
     memset(&slaveData, 0, sizeof(slaveData));
