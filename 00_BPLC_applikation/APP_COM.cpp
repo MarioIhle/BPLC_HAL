@@ -10,8 +10,17 @@ void comTask(void* taskParameter)
 
     while(true)
     {
-        esp_task_wdt_reset();  
-        p_networkNode->tick();
+        if(p_networkNode != nullptr)
+        {
+            esp_task_wdt_reset();  
+            p_networkNode->tick();
+        }
+        else
+        {
+            BPLC_logPrint log;         
+            log.printResetReason("p_networkNode is nullptr", __FILENAME__, __LINE__);
+            abort();      
+        }
     }    
 }
 void BPLC_APP::setupNetwork()
@@ -37,14 +46,14 @@ void BPLC_APP::setupNetwork()
                 this->APP_COM.p_comNode->begin(1, &Serial2, 4);
             }
             //Slave Node erzeugen
-            else if(MASTER_NODE_ADDRESS)
+            else
             {
                 this->printLog("Network setup as slaveNode with address: " + String(this->APP_APP.settings.device.communication.deviceAddress), __FILENAME__, __LINE__);
                 this->APP_COM.p_comNode = new SlaveNode;
                 this->APP_COM.p_comNode->begin(this->APP_APP.settings.device.communication.deviceAddress, &Serial2, 4);
             }
             //Task erstellen 
-            xTaskCreatePinnedToCore(comTask, "comTask", 4096, this->APP_COM.p_comNode, 1, NULL, 1); //Core 1, da Core 0 schon mit HardwareInterrupt belastet
+            xTaskCreatePinnedToCore(comTask, "comTask", 4096, this->APP_COM.p_comNode, 1, NULL, 0); //Core 1, da Core 0 schon mit HardwareInterrupt belastet
             this->printLog("CREATE NEW COM TASK", __FILENAME__, __LINE__);
             //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
             this->APP_COM.to_communicationError.setInterval(60000);
@@ -70,7 +79,7 @@ void BPLC_APP::tickNetwork()
         //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
         if(this->APP_COM.to_communicationError.check())
         {
-            this->systemErrorManager.setError(BPLC_ERROR__COMMUNICATION_FAILED, __FILENAME__, __LINE__);
+            //this->systemErrorManager.setError(BPLC_ERROR__COMMUNICATION_FAILED, __FILENAME__, __LINE__);
         }                            
 
         switch(this->APP_COM.p_comNode->getState())
