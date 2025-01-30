@@ -12,7 +12,7 @@ void BPLC_APP::handleDisplay()
       this->beep(1, 50);
    }
 
-   if(this->APP_HAL.oled.getError() == BPLC_ERROR__NO_ERROR && this->APP_APP.settings.device.hardware.oledAvailable == true)
+   if(this->APP_HAL.oled.getError() == BPLC_ERROR__NO_ERROR && this->APP_APP.settings.device.extensionCards.oledAvailable == true)
    {
       this->APP_HAL.oled.tick();
 

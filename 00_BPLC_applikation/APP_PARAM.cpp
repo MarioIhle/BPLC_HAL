@@ -32,8 +32,7 @@ void BPLC_APP::loadDeviceSettings()
    }
 }
 void BPLC_APP::saveDeviceSettings()
-{
-   this->printLog("DEVICE SETTING SAVED IN FLASH!", __FILENAME__, __LINE__);
+{   
    this->parameterFlash.putBytes("deviceSettings", this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData));  
 
    uint8_t loByteToCheck = 0;      
@@ -43,4 +42,10 @@ void BPLC_APP::saveDeviceSettings()
 
    this->parameterFlash.putUChar("flashCRCLoByte", loByteToCheck);      
    this->parameterFlash.putUChar("flashCRCHiByte", hiByteToCheck);
+   
+   this->printLog("DEVICE SETTING SAVED IN FLASH!", __FILENAME__, __LINE__);
+}
+void BPLC_APP::loadDefaultParameter()
+{
+   this->APP_APP.settings.device.application.f_useBuzzer = true;
 }

@@ -108,7 +108,8 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     Preferences     parameterFlash;
     void            setupParameterFlash ();
     void            saveDeviceSettings  ();
-    void            loadDeviceSettings  ();     
+    void            loadDeviceSettings  ();
+    void            loadDefaultParameter();     
     
 
     struct
@@ -126,6 +127,8 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
         {        
             struct 
             {
+                e_EC_TYPE_t  mcuCard;
+
                 struct 
                 {
                     bool f_beepOnEncoderInput;
@@ -139,8 +142,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
                 }communication;               
 
                 struct 
-                {            
-                    e_EC_TYPE_t  mcuCard;
+                {          
                     bool                oledAvailable;
                     bool                ain11revACards [AIN11_ADDRESS_COUNT];
                     bool                din11revACards [DIN11_ADDRESS_COUNT];                
@@ -151,7 +153,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
                     bool                ppo11revACards [PPO11_ADDRESS_COUNT];
                     bool                nano11revACards[NANO11_ADDRESS_COUNT];
                     bool                fuse12revACards[FUSE12_ADDRESS_COUNT];
-                }hardware;
+                }extensionCards;
 
             }device;               
 

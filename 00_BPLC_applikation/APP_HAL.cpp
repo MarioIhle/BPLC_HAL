@@ -5,7 +5,7 @@ void BPLC_APP::setupHardware()
    this->ecmForSlowSpeed = new BPLC_extensionCardManager();
    this->ecmForSlowSpeed->begin(5, "ECM_GENERAL_TASK");
    
-   const e_EC_TYPE_t MCU_TYPE = this->APP_APP.settings.device.hardware.mcuCard;  
+   const e_EC_TYPE_t MCU_TYPE = this->APP_APP.settings.device.mcuCard;  
 
    if(MCU_TYPE != EC__NO_TYPE_DEFINED)
    {      
@@ -32,7 +32,7 @@ void BPLC_APP::setupHardware()
          this->ecmForSlowSpeed->mapObjectToExtensionCard(&this->APP_HAL.LD3_ERROR_OUT,               MCU_TYPE, EC_ADDR_1, (e_EC_CHANNEL_t)MCU_CHANNEL__LD3);  
          //OnboardDisplay initialisieren
          this->APP_HAL.oled.begin();     
-         this->APP_APP.settings.device.hardware.oledAvailable = (this->APP_HAL.oled.getError() == BPLC_ERROR__NO_ERROR);
+         this->APP_APP.settings.device.extensionCards.oledAvailable = (this->APP_HAL.oled.getError() == BPLC_ERROR__NO_ERROR);
       }
    }
    else
@@ -43,7 +43,7 @@ void BPLC_APP::setupHardware()
    //REL11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < REL11_ADDRESS_COUNT; CARD_ADDR++)
    {
-      if(this->APP_APP.settings.device.hardware.rel11revACards[CARD_ADDR])
+      if(this->APP_APP.settings.device.extensionCards.rel11revACards[CARD_ADDR])
       {
          this->ecmForSlowSpeed->addNewExtensionCard(EC__REL11revA, (e_EC_ADDR_t)CARD_ADDR);
       }
@@ -51,7 +51,7 @@ void BPLC_APP::setupHardware()
    //DO11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < DO11_ADDRESS_COUNT; CARD_ADDR++)
    {
-      if(this->APP_APP.settings.device.hardware.do11revACards[CARD_ADDR])
+      if(this->APP_APP.settings.device.extensionCards.do11revACards[CARD_ADDR])
       {        
          this->ecmForSlowSpeed->addNewExtensionCard(EC__DO11revA, (e_EC_ADDR_t)CARD_ADDR);           
       }
@@ -59,7 +59,7 @@ void BPLC_APP::setupHardware()
    //MOT11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < MOT11_ADDRESS_COUNT; CARD_ADDR++)
    {
-      if(this->APP_APP.settings.device.hardware.mot11revAcards[CARD_ADDR])
+      if(this->APP_APP.settings.device.extensionCards.mot11revAcards[CARD_ADDR])
       {
          this->ecmForSlowSpeed->addNewExtensionCard(EC__MOT11revA, (e_EC_ADDR_t)CARD_ADDR);
       }
@@ -67,7 +67,7 @@ void BPLC_APP::setupHardware()
    //PPO11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < PPO11_ADDRESS_COUNT; CARD_ADDR++)
    {
-      if(this->APP_APP.settings.device.hardware.ppo11revACards[CARD_ADDR])
+      if(this->APP_APP.settings.device.extensionCards.ppo11revACards[CARD_ADDR])
       {
          this->ecmForSlowSpeed->addNewExtensionCard(EC__PPO11revA, (e_EC_ADDR_t)CARD_ADDR);
       }
@@ -75,7 +75,7 @@ void BPLC_APP::setupHardware()
    //NANO11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < NANO11_ADDRESS_COUNT; CARD_ADDR++)
    {
-      if(this->APP_APP.settings.device.hardware.nano11revACards[CARD_ADDR])
+      if(this->APP_APP.settings.device.extensionCards.nano11revACards[CARD_ADDR])
       {
          this->ecmForSlowSpeed->addNewExtensionCard(EC__NANO11revA, (e_EC_ADDR_t)CARD_ADDR);
       }
@@ -83,7 +83,7 @@ void BPLC_APP::setupHardware()
    //FUSE12revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < FUSE12_ADDRESS_COUNT; CARD_ADDR++)
    {
-      if(this->APP_APP.settings.device.hardware.fuse12revACards[CARD_ADDR])
+      if(this->APP_APP.settings.device.extensionCards.fuse12revACards[CARD_ADDR])
       {
          this->ecmForSlowSpeed->addNewExtensionCard(EC__FUSE12revA, (e_EC_ADDR_t)CARD_ADDR);
       }
@@ -92,7 +92,7 @@ void BPLC_APP::setupHardware()
    //DIN11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < DIN11_ADDRESS_COUNT; CARD_ADDR++)
    {
-      const bool EC_CARD_DEFINED_IN_SETTINGS = this->APP_APP.settings.device.hardware.din11revACards[CARD_ADDR];
+      const bool EC_CARD_DEFINED_IN_SETTINGS = this->APP_APP.settings.device.extensionCards.din11revACards[CARD_ADDR];
       if(EC_CARD_DEFINED_IN_SETTINGS)
       {   
          if(this->ecmForHighSpeed == nullptr)
@@ -110,7 +110,7 @@ void BPLC_APP::setupHardware()
    //AIN11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < AIN11_ADDRESS_COUNT; CARD_ADDR++)
    {
-      if(this->APP_APP.settings.device.hardware.ain11revACards[CARD_ADDR])
+      if(this->APP_APP.settings.device.extensionCards.ain11revACards[CARD_ADDR])
       {  
          this->ecmForSlowSpeed->addNewExtensionCard(EC__AIN11revA, (e_EC_ADDR_t)CARD_ADDR);
       }
@@ -118,7 +118,7 @@ void BPLC_APP::setupHardware()
    //TMP11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < TMP11_ADDRESS_COUNT; CARD_ADDR++)
    {
-      if(this->APP_APP.settings.device.hardware.tmp11revACards[CARD_ADDR])
+      if(this->APP_APP.settings.device.extensionCards.tmp11revACards[CARD_ADDR])
       {
          this->ecmForSlowSpeed->addNewExtensionCard(EC__TMP11revA, (e_EC_ADDR_t)CARD_ADDR);
       }

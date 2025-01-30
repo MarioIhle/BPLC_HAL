@@ -33,8 +33,7 @@ void BPLC_APP::setupNetwork()
 
         if(COM_NODE_ALREADY_DEFINED)
         {
-            this->printResetReason("COM_NODE_ALREADY_DEFINED", __FILENAME__, __LINE__);
-            abort();           
+            this->printResetReason("COM_NODE_ALREADY_DEFINED", __FILENAME__, __LINE__);          
         }
         else
         {

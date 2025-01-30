@@ -34,68 +34,68 @@ void BPLC_APP::tickControlPanel()
             case BPLC_PLI_KEY__GET_DEVICE_SETTINGS:
                 Serial.println("HARDWARE SETTINGS: ");
                 
-                Serial.print("MCU:          "); Serial.println(this->APP_APP.settings.device.hardware.mcuCard);
-                Serial.print("oledAvailable:"); Serial.println(this->APP_APP.settings.device.hardware.oledAvailable);              
+                Serial.print("MCU:          "); Serial.println(this->APP_APP.settings.device.mcuCard);
+                Serial.print("oledAvailable:"); Serial.println(this->APP_APP.settings.device.extensionCards.oledAvailable);              
 
                 for(uint8_t card = 0; card < AIN11_ADDRESS_COUNT; card++)
                 {
-                    if(this->APP_APP.settings.device.hardware.ain11revACards[card])
+                    if(this->APP_APP.settings.device.extensionCards.ain11revACards[card])
                     {
                         Serial.print("AIN11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }                    
                 }                          
                 for(uint8_t card = 0; card < DIN11_ADDRESS_COUNT; card++)
                 {
-                    if(this->APP_APP.settings.device.hardware.din11revACards[card])
+                    if(this->APP_APP.settings.device.extensionCards.din11revACards[card])
                     {
                         Serial.print("DIN11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }
                 } 
                 for(uint8_t card = 0; card < DO11_ADDRESS_COUNT; card++)
                 {
-                    if(this->APP_APP.settings.device.hardware.do11revACards[card])
+                    if(this->APP_APP.settings.device.extensionCards.do11revACards[card])
                     {
                         Serial.print("DO11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 } 
                 for(uint8_t card = 0; card < REL11_ADDRESS_COUNT; card++)
                 {
-                    if(this->APP_APP.settings.device.hardware.rel11revACards[card])
+                    if(this->APP_APP.settings.device.extensionCards.rel11revACards[card])
                     {
                         Serial.print("REL11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 } 
                 for(uint8_t card = 0; card < MOT11_ADDRESS_COUNT; card++)
                 {
-                    if(this->APP_APP.settings.device.hardware.mot11revAcards[card])
+                    if(this->APP_APP.settings.device.extensionCards.mot11revAcards[card])
                     {
                         Serial.print("MOT11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 } 
                 for(uint8_t card = 0; card < TMP11_ADDRESS_COUNT; card++)
                 {
-                    if(this->APP_APP.settings.device.hardware.tmp11revACards[card])
+                    if(this->APP_APP.settings.device.extensionCards.tmp11revACards[card])
                     {
                         Serial.print("TMP11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 } 
                 for(uint8_t card = 0; card < PPO11_ADDRESS_COUNT; card++)
                 {
-                    if(this->APP_APP.settings.device.hardware.ppo11revACards[card])
+                    if(this->APP_APP.settings.device.extensionCards.ppo11revACards[card])
                     {
                         Serial.print("PPO11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 }
                 for(uint8_t card = 0; card < NANO11_ADDRESS_COUNT; card++)
                 {
-                    if(this->APP_APP.settings.device.hardware.nano11revACards[card])
+                    if(this->APP_APP.settings.device.extensionCards.nano11revACards[card])
                     {
                         Serial.print("NANO11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 }
                 for(uint8_t card = 0; card < FUSE12_ADDRESS_COUNT; card++)
                 {
-                    if(this->APP_APP.settings.device.hardware.fuse12revACards[card])
+                    if(this->APP_APP.settings.device.extensionCards.fuse12revACards[card])
                     {
                         Serial.print("FUSE12revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
@@ -111,11 +111,24 @@ void BPLC_APP::tickControlPanel()
             case BPLC_PLI_KEY__RESET_ALL_SETTINGS:
                 this->parameterFlash.clear();
                 this->setupParameterFlash();
-                Serial.println("RESET DEVICE TO CLEAR FLASH");
+                this->loadDefaultParameter();
+                this->saveDeviceSettings();
+                Serial.println("RESET DEVICE TO CLEAR FLASH, reboot...");
+                delay(2000);
+                ESP.restart();
+                break;
+
+            case BPLC_PLI_KEY__RESET_EXTENSION_CARDS:
+                memset(&this->APP_APP.settings.device.extensionCards, 0, sizeof(this->APP_APP.settings.device.extensionCards));
+                this->saveDeviceSettings();
+                Serial.println("RESET EXTENSIONCARDS, reboot...");
+                delay(2000);
                 ESP.restart();
                 break;
 
             case BPLC_PLI_KEY__SOFT_RESET:
+                Serial.println("SOFT RESET");
+                delay(1000);
                 ESP.restart();
                 break;
 
@@ -185,7 +198,18 @@ void BPLC_APP::tickControlPanel()
                 this->APP_APP.settings.device.communication.deviceAddress = COMMAND.command.paramValue;
                 this->saveDeviceSettings();
                 Serial.print("DEVICE ADDRESS SET TO "); Serial.println(this->APP_APP.settings.device.communication.deviceAddress);
-                this->setupNetwork();
+                
+                if(this->APP_COM.p_comNode == nullptr)
+                {
+                    //Warmstart
+                    this->setupNetwork();
+                }
+                else
+                {
+                    Serial.println("NODE ALREADY DEFINED, device needs to reboot...");
+                    delay(2000);
+                    ESP.restart();
+                }                
                 break;
 
 
@@ -194,42 +218,44 @@ void BPLC_APP::tickControlPanel()
                 switch (COMMAND.command.paramValue)
                 {
                     case 0:
-                        this->APP_APP.settings.device.hardware.mcuCard = EC__MCU11revA;                
+                        this->APP_APP.settings.device.mcuCard = EC__MCU11revA;                
                         break;
                     case 1:
-                        this->APP_APP.settings.device.hardware.mcuCard = EC__MCU11revB;                
+                        this->APP_APP.settings.device.mcuCard = EC__MCU11revB;                
                         break;
                     case 2:
-                        this->APP_APP.settings.device.hardware.mcuCard = EC__MCU11revC;                
+                        this->APP_APP.settings.device.mcuCard = EC__MCU11revC;                
                         break;
                     
                     default:
                         break;
                 }
                 this->saveDeviceSettings();
-                this->setupHardware();       
+                Serial.println("device needs to reboot...");
+                delay(2000);
+                ESP.restart();    
                 break;     
 
             case BPLC_PLI_KEY__ADD_EC_AIN11revA:                
-                this->APP_APP.settings.device.hardware.ain11revACards[COMMAND.command.paramValue] = true;    
+                this->APP_APP.settings.device.extensionCards.ain11revACards[COMMAND.command.paramValue] = true;    
                 this->saveDeviceSettings();
                 this->setupHardware();             
                 break;
 
             case BPLC_PLI_KEY__ADD_EC_DIN11revA:
-                this->APP_APP.settings.device.hardware.din11revACards[COMMAND.command.paramValue] = true;    
+                this->APP_APP.settings.device.extensionCards.din11revACards[COMMAND.command.paramValue] = true;    
                 this->saveDeviceSettings();
                 this->setupHardware();             
                 break;
             
             case BPLC_PLI_KEY__ADD_EC_DO11revA:
-                this->APP_APP.settings.device.hardware.do11revACards[COMMAND.command.paramValue] = true;    
+                this->APP_APP.settings.device.extensionCards.do11revACards[COMMAND.command.paramValue] = true;    
                 this->saveDeviceSettings();
                 this->setupHardware();             
                 break;       
 
             case BPLC_PLI_KEY__ADD_EC_REL11revA:
-                this->APP_APP.settings.device.hardware.rel11revACards[COMMAND.command.paramValue] = true;    
+                this->APP_APP.settings.device.extensionCards.rel11revACards[COMMAND.command.paramValue] = true;    
                 this->saveDeviceSettings();
                 this->setupHardware();
                 break;
@@ -241,7 +267,7 @@ void BPLC_APP::tickControlPanel()
                     //neue Mot11 hinzufügen
                         if(COMMAND.command.paramValue < MOT11_ADDRESS_COUNT)
                         {
-                            this->APP_APP.settings.device.hardware.mot11revAcards[COMMAND.command.paramValue] = true;    
+                            this->APP_APP.settings.device.extensionCards.mot11revAcards[COMMAND.command.paramValue] = true;    
                             this->saveDeviceSettings();
                             this->setupHardware();
                         }
@@ -262,25 +288,25 @@ void BPLC_APP::tickControlPanel()
                 break;
 
             case BPLC_PLI_KEY__ADD_EC_TMP11revA:
-                this->APP_APP.settings.device.hardware.tmp11revACards[COMMAND.command.paramValue] = true;    
+                this->APP_APP.settings.device.extensionCards.tmp11revACards[COMMAND.command.paramValue] = true;    
                 this->saveDeviceSettings();
                 this->setupHardware();
                 break;
 
             case BPLC_PLI_KEY__ADD_EC_PPO11revA:
-                this->APP_APP.settings.device.hardware.ppo11revACards[COMMAND.command.paramValue] = true;    
+                this->APP_APP.settings.device.extensionCards.ppo11revACards[COMMAND.command.paramValue] = true;    
                 this->saveDeviceSettings();
                 this->setupHardware();
                 break;
 
             case BPLC_PLI_KEY__ADD_EC_NANOrevA:
-                this->APP_APP.settings.device.hardware.nano11revACards[COMMAND.command.paramValue] = true;    
+                this->APP_APP.settings.device.extensionCards.nano11revACards[COMMAND.command.paramValue] = true;    
                 this->saveDeviceSettings();
                 this->setupHardware();
                 break;
 
             case BPLC_PLI_KEY__ADD_EC_FUSE12revA:
-                this->APP_APP.settings.device.hardware.fuse12revACards[COMMAND.command.paramValue] = true;    
+                this->APP_APP.settings.device.extensionCards.fuse12revACards[COMMAND.command.paramValue] = true;    
                 this->saveDeviceSettings();
                 this->setupHardware();
                 break;        
