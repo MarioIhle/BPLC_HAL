@@ -38,10 +38,30 @@ void BPLC_APP::begin()
 {   
    Serial.begin(115200);
    this->printLog("SETUP BPLC SYSTEM", __FILENAME__, __LINE__);
+
    //Device Parameter aus Flash laden  
    this->setupParameterFlash();
    //this->parameterFlash.clear(); //Flash Parameter löschen 
-   this->loadDeviceSettings();
+   const bool PARAMETER_NOK = (!this->loadDeviceSettings());   
+
+   if(PARAMETER_NOK)
+   {
+      //Auf Kommando warten, anschließend reset durchführen
+      this->parameterFlash.clear();      
+      this->printLog("CLEAR FLASH!", __FILENAME__, __LINE__);      
+   }   
+
+   //Auf neue Firmwareversion prüfen
+   const bool NEW_MAJOR = (this->APP_APP.settings.device.application.versionMajor != VERSION_MAJOR);
+   const bool NEW_MINOR = (this->APP_APP.settings.device.application.versionMinor != VERSION_MINOR);
+   
+   if(NEW_MAJOR || NEW_MINOR)
+   {
+      this->APP_APP.settings.device.application.versionMajor = VERSION_MAJOR;
+      this->APP_APP.settings.device.application.versionMinor = VERSION_MINOR;
+      this->printLog("NEW FIRMWARE VERSION DETECTED!", __FILENAME__, __LINE__);
+      this->saveDeviceSettings();
+   }
 
    //Module initialisieren   
    this->setupApplication();      

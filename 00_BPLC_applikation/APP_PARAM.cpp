@@ -14,8 +14,9 @@ void BPLC_APP::setupParameterFlash()
       this->APP_APP.setup.f_setupParameterFlash = true;  
    }
 }
-void BPLC_APP::loadDeviceSettings()
+bool BPLC_APP::loadDeviceSettings()
 {      
+   bool parameterOk = true;
    //Device Settings aus Flash laden
    this->parameterFlash.getBytes("deviceSettings", this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData));   
    //Checksumme berechenn
@@ -29,7 +30,9 @@ void BPLC_APP::loadDeviceSettings()
    if(calculatedLoByte != loByteToCheck || calculatedHiByteToCheck != hiByteToCheck)
    {
       this->systemErrorManager.setError(BPLC_ERROR__FLASH_PARAMETER_CORUPT, __FILENAME__, __LINE__);
+      parameterOk = false;
    }
+   return parameterOk;
 }
 void BPLC_APP::saveDeviceSettings()
 {   

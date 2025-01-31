@@ -7,7 +7,8 @@
  * @version 1.0
  */
 //-------------------------------------------------------------
-
+#define VERSION_MAJOR 2
+#define VERSION_MINOR 0
 //-------------------------------------------------------------
 //INCLUDES
 //-------------------------------------------------------------
@@ -108,7 +109,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     Preferences     parameterFlash;
     void            setupParameterFlash ();
     void            saveDeviceSettings  ();
-    void            loadDeviceSettings  ();
+    bool            loadDeviceSettings  ();
     void            loadDefaultParameter();     
     
 
@@ -127,10 +128,15 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
         {        
             struct 
             {
+                
+
                 e_EC_TYPE_t  mcuCard;
 
                 struct 
                 {
+                    uint8_t versionMajor;
+                    uint8_t versionMinor;
+
                     bool f_beepOnEncoderInput;
                     bool f_useBuzzer;
                     bool f_encoderInverted;   

@@ -52,7 +52,7 @@ void BPLC_APP::setupNetwork()
                 this->APP_COM.p_comNode->begin(this->APP_APP.settings.device.communication.deviceAddress, &Serial2, 4);
             }
             //Task erstellen 
-            xTaskCreatePinnedToCore(comTask, "comTask", 4096, this->APP_COM.p_comNode, 1, NULL, 0); //Core 1, da Core 0 schon mit HardwareInterrupt belastet
+            xTaskCreatePinnedToCore(comTask, "comTask", 4096, this->APP_COM.p_comNode, 1, NULL, 1); //Core 1, da Core 0 schon mit HardwareInterrupt belastet
             this->printLog("CREATE NEW COM TASK", __FILENAME__, __LINE__);
             //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
             this->APP_COM.to_communicationError.setInterval(60000);
