@@ -92,7 +92,7 @@ void HAL_REL11::tick()
 
                         default:
                         case IO_TYPE__NOT_DEFINED:
-                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                            this->setError(REL11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
                             break;  
                     }                    
                 }               

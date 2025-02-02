@@ -7,8 +7,24 @@
 //-------------------------------------------------------------
 //Card definition
 #define NANO11_ADDRESS_COUNT 10
-#define NANO11_CHANNEL_COUNT 1
+#define NANO11_CHANNEL_COUNT 8  //Natürlich erweiterbar
 const uint8_t NANO11_I2C_ADDRESSES[NANO11_ADDRESS_COUNT] = {0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9};
+
+typedef enum
+{
+    NANO11_COMMAND_KEY__WRITE,
+    NANO11_COMMAND_KEY__SET_CHANNEL_COUNT,
+
+    NANO11_COMMAND_KEY__COUNT
+}e_NANO11_COMMAND_KEY_t;
+
+typedef struct 
+{
+    e_NANO11_COMMAND_KEY_t  key;
+    uint8_t                 channel;
+    u_HAL_DATA_t            payload;
+    
+}s_NANO11_COMMAND_t;
 
 //-------------------------------------------------------------
 class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
@@ -30,13 +46,13 @@ class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private 
   
     private:          
     //Settings  
-    uint8_t   deviceAddress;
+    uint8_t             deviceAddress;
+    I2C_BPLC_Master     bplcNode;
   
     //Object handling
     struct
     {
-        IO_Interface* p_ioObject  [TMP11_CHANNEL_COUNT];   
-        const uint8_t PIN         [TMP11_CHANNEL_COUNT] = {2, 3, 1, 0};   
-    }channels;         
+        IO_Interface*   p_ioObject  [NANO11_CHANNEL_COUNT];    
+    }channels;        
  };
 #endif
