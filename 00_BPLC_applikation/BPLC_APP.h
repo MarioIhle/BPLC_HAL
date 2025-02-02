@@ -77,6 +77,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     //Setup des BPLC Systems
             BPLC_APP                ();
     void    begin                   ();      
+    void    resetDeviceParameter    ();
     //Network PORT
     void    mapPortToNetwork        (portInterface_APP* P_PORT);
     //IO PORT

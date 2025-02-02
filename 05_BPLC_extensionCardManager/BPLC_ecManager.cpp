@@ -205,6 +205,10 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, cons
             case EC__PPO11revA:                
                 p_newHalInterface = new HAL_PPO11();                                                                         
                 break;
+
+            case EC__NANO11revA:
+                p_newHalInterface = new HAL_NANO11();                                                                         
+                break;
                 
             default:
             case EC__NO_TYPE_DEFINED:

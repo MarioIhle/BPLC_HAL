@@ -84,6 +84,13 @@ void BPLC_APP::begin()
       this->setDeviceModeInternal(APP_MODE__SAFE_STATE);
    }      
 }
+void BPLC_APP::resetDeviceParameter()
+{
+   this->setupParameterFlash();
+   this->parameterFlash.clear();
+   this->printResetReason("RESET FLASH PARAMETER", __FILENAME__, __LINE__);
+   ESP.restart();
+}
 void BPLC_APP::setupApplication()
 {   
    BPLC_APP* P_APP = this;
