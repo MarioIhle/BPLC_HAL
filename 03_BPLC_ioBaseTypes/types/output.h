@@ -49,12 +49,15 @@ class output: public IO_Interface, private blink
 	}
 	void blinkContinious (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL, const unsigned long BREAK_TIME)  //Blinkt dauerhaft mit optinaler Pause
 	{
-		this->setupBlink(BLINKS, BLINK_INTERVAL, BREAK_TIME);	
-		this->mode = OUTPUTMODE__BLINK_CONTINIOUS;
+		if(this->mode != OUTPUTMODE__BLINK_ONCE)//Blinken zuerst fertig ausführen
+		{
+			this->setupBlink(BLINKS, BLINK_INTERVAL, BREAK_TIME);	
+			this->mode = OUTPUTMODE__BLINK_CONTINIOUS;
+		}
 	}
 	void fade(const unsigned long FADE_IN_TIME, const unsigned long FADE_OUT_TIME)
 	{		
-		if(this->mode != OUTPUTMODE__FADE)
+		if((this->mode != OUTPUTMODE__FADE) || (this->mode != OUTPUTMODE__BLINK_ONCE))//Blinken zuerst fertig ausführen)
 		{
 			this->fadeSettings.inTime 	= (FADE_IN_TIME	/ this->setting.onValue);
 			this->fadeSettings.outTime 	= (FADE_OUT_TIME / this->setting.onValue);
