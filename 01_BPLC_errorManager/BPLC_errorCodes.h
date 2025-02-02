@@ -21,6 +21,8 @@ typedef enum
     //MCU11 errors
     MCU11_ERROR__CHANNEL_OUT_OF_RANGE,
     MCU11_ERROR__CHANNEL_POINTER_NOT_SET,
+    //I2C NODE errors
+    BPLC_NODE_ERRPR__SLAVE_DATA_TO_BIG,
     //DIN11 errors
     DIN11_ERROR__I2C_CONNECTION_FAILED, 
     DIN11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, 
@@ -138,6 +140,8 @@ class ERROR_errorText
         //MCU11 errors
         {"MCU11_ERROR__CHANNEL_OUT_OF_RANGE"},
         {"MCU11_ERROR__CHANNEL_POINTER_NOT_SET"},
+        //I2C NODE errors
+        {"BPLC_NODE_ERRPR__SLAVE_DATA_TO_BIG"},
         //DIN11 errors
         {"DIN11_ERROR__I2C_CONNECTION_FAILED"}, 
         {"DIN11_ERROR__I2C_ADDRESS_OUT_OF_RANGE"}, 
@@ -230,7 +234,7 @@ class ERROR_errorText
 
     String getErrorCodeText(const e_BPLC_ERROR_t ERROR_CODE)
     {      
-        if(BPLC_ERROR__COUNT != 92)
+        if(BPLC_ERROR__COUNT != 93)
         {
             return("ERROR_TEXTS_NEED_UPDATE!");
         }

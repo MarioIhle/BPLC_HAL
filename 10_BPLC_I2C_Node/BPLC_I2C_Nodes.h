@@ -18,7 +18,7 @@ typedef enum
 }e_I2C_BPLC_KEY_t;
 
 
-#define PAYLAOD_BYTES_MAX 32
+#define PAYLAOD_BYTES_MAX 128
 #define MESSAGE_HEAD      2
 #pragma pack (push, 1)
 typedef union 
@@ -72,7 +72,7 @@ class I2C_BPLC_Slave
           I2C_BPLC_Slave          ();
   void    begin                   (const uint8_t ADDRESS);
  
-  void    setSlaveData            (uint8_t* BUFFER, const uint8_t SIZE);
+  bool    setSlaveData            (uint8_t* BUFFER, const uint8_t SIZE);
   
   bool    newCommandAvailable     (); //Wie tick, muss zyklisch aufgerufen werden
   uint8_t getCommand              (uint8_t* P_BUFFER);

@@ -31,9 +31,20 @@ uint8_t I2C_BPLC_Slave::getCommand(uint8_t* P_PAYLOADBUFFER)
 
     return NEW_FRAME.extract.payloadSize;
 }
-void I2C_BPLC_Slave::setSlaveData(uint8_t* BUFFER, const uint8_t SIZE)
+bool I2C_BPLC_Slave::setSlaveData(uint8_t* BUFFER, const uint8_t SIZE)
 {    
-    memcpy(this->slaveDataBuffer.extract.payload, BUFFER, SIZE);
-    this->slaveDataBuffer.extract.i2cBplcKey    = I2C_BPLC_KEY__SLAVE_DATA;
-    this->slaveDataBuffer.extract.payloadSize   = SIZE;    
+    bool sizeToBig = false;
+
+    if(SIZE < PAYLAOD_BYTES_MAX)
+    {
+        memcpy(this->slaveDataBuffer.extract.payload, BUFFER, SIZE);
+        this->slaveDataBuffer.extract.i2cBplcKey    = I2C_BPLC_KEY__SLAVE_DATA;
+        this->slaveDataBuffer.extract.payloadSize   = SIZE;  
+    }      
+    else
+    {
+        Serial.println("SLAVE_DATA_TO_BIG");
+        sizeToBig = true;
+    }
+    return sizeToBig;
 }
