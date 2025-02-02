@@ -203,7 +203,10 @@ class output: public IO_Interface, private blink
     u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA = nullptr)
 	{
 		//Daten über Hal empfangen(BPLC_I2C_NODE)
-		this->value = P_DATA->analogIoData.value;
+		if(P_DATA != nullptr)
+		{
+			this->value = P_DATA->analogIoData.value;
+		}		
 		//Daten an HAL übergeben
 		u_HAL_DATA_t tempBuffer;
 		tempBuffer.analogIoData.value 	= this->value;

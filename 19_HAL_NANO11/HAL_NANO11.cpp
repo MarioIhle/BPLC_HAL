@@ -101,24 +101,27 @@ void HAL_NANO11::tick()
             //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschieben
             for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
             {
-                switch (this->channels.p_ioObject[CH]->getIoType())
-                {
-                    case IO_TYPE__ANALOG_INPUT:
-                    case IO_TYPE__DIGITAL_COUNTER:
-                    case IO_TYPE__DIGITAL_INPUT:
-                    case IO_TYPE__POSITION_ENCODER:
-                    case IO_TYPE__PT1000:
-                    case IO_TYPE__PT100:
-                    case IO_TYPE__PTC:
-                    case IO_TYPE__ROTARY_ENCODER:
-                    case IO_TYPE__RPM_SENS:       
-                        this->channels.p_ioObject[CH]->halCallback(&dataBuffer[CH]);
-                        break;
-                    
-                    default:
-                        break;
-                }          
-            }   
+                if(this->channels.p_ioObject[CH] != nullptr)
+                {  
+                    switch (this->channels.p_ioObject[CH]->getIoType())
+                    {
+                        case IO_TYPE__ANALOG_INPUT:
+                        case IO_TYPE__DIGITAL_COUNTER:
+                        case IO_TYPE__DIGITAL_INPUT:
+                        case IO_TYPE__POSITION_ENCODER:
+                        case IO_TYPE__PT1000:
+                        case IO_TYPE__PT100:
+                        case IO_TYPE__PTC:
+                        case IO_TYPE__ROTARY_ENCODER:
+                        case IO_TYPE__RPM_SENS:       
+                            this->channels.p_ioObject[CH]->halCallback(&dataBuffer[CH]);
+                            break;
+                        
+                        default:
+                            break;
+                    }          
+                }  
+            } 
         }       
 
         //Outputs schreiben
