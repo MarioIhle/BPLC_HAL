@@ -3,7 +3,7 @@
 //-------------------------------------------------------------
 //INCLUDES
 #include "HAL_interface.h"
-
+#include "BPLC_I2C_Nodes.h"
 //-------------------------------------------------------------
 //Card definition
 #define NANO11_ADDRESS_COUNT 10
@@ -18,11 +18,16 @@ typedef enum
     NANO11_COMMAND_KEY__COUNT
 }e_NANO11_COMMAND_KEY_t;
 
-typedef struct 
+typedef union 
 {
-    e_NANO11_COMMAND_KEY_t  key;
-    uint8_t                 channel;
-    u_HAL_DATA_t            payload;
+    struct 
+    {
+        e_NANO11_COMMAND_KEY_t  key;
+        uint8_t                 channel;
+        u_HAL_DATA_t            payload;
+    }extract;
+    
+    uint8_t data[sizeof(extract)];
     
 }s_NANO11_COMMAND_t;
 

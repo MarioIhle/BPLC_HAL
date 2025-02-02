@@ -13,7 +13,7 @@ void HAL_NANO11::init(const e_EC_ADDR_t ADDR)
         this->setError(NANO11_ERROR__I2C_ADDRESS_OUT_OF_RANGE, __FILENAME__, __LINE__);
     } 
 
-    for(uint8_t CH =0; CH < MOT11_CHANNEL_COUNT; CH++)
+    for(uint8_t CH =0; CH < NANO11_CHANNEL_COUNT; CH++)
     {
         this->channels.p_ioObject[CH] = nullptr;
     }   
@@ -28,13 +28,10 @@ void HAL_NANO11::init(const e_EC_ADDR_t ADDR)
     if(this->noErrorSet())
     {   
         this->bplcNode.begin();
-        to_readInputData.setInterval(5000);
-        this->state = MOT11_DEVICE_STATE__INIT;  
         this->printLog("NANO11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
     {
-        this->state = MOT11_DEVICE_STATE__SAFE_STATE;
         this->printLog("NANO11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
 }
@@ -60,9 +57,11 @@ void HAL_NANO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNE
 
         //Neue anzahl an Channels komunizieren, damit bei Abfrage auch genügned Daten geschickt werden
         s_NANO11_COMMAND_t command;
-        command.key                     = NANO11_KEY__SET_CHANNEL_COUNT;
-        command.payload.analogIoData    = (uint32_t)CHANNEL;
-        this.bplcNode.sendCommand(this->deviceAddress, &command, sizeof(command));     
+        command.extract.key                         = NANO11_COMMAND_KEY__SET_CHANNEL_COUNT;
+        command.extract.payload.analogIoData.value  = (uint32_t)CHANNEL;
+        command.extract.channel                     = 0;
+        const uint8_t BYTE_COUNT                    = sizeof(command);
+        this->bplcNode.sendCommand(this->deviceAddress, &command.data[0], BYTE_COUNT);     
     }
 }
 void HAL_NANO11::tick()
@@ -87,7 +86,7 @@ void HAL_NANO11::tick()
                 channelCount = CH;
                 break;
             }
-            else if(this->channels.p_ioObject[CH].newDataAvailable())
+            else if(this->channels.p_ioObject[CH]->newDataAvailable())
             {
                 requestData = true;                
             }
@@ -96,13 +95,13 @@ void HAL_NANO11::tick()
         if(requestData)
         {
             //Daten anfragen
-            u_HAL_DATA_t data[channelCount];
-            this->bplcNode.getSlaveData(this->deviceAddress, &data, sizeof(data));
+            u_HAL_DATA_t dataBuffer[channelCount];
+            this->bplcNode.getSlaveData(this->deviceAddress, &dataBuffer[0].data[0], sizeof(dataBuffer));
             
             //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschieben
             for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
             {
-                switch (this->channels.p_ioObject[CH].getIoType())
+                switch (this->channels.p_ioObject[CH]->getIoType())
                 {
                     case IO_TYPE__ANALOG_INPUT:
                     case IO_TYPE__DIGITAL_COUNTER:
@@ -113,7 +112,7 @@ void HAL_NANO11::tick()
                     case IO_TYPE__PTC:
                     case IO_TYPE__ROTARY_ENCODER:
                     case IO_TYPE__RPM_SENS:       
-                        this->channels.p_ioObject[CH].halCallback(data[CH]);
+                        this->channels.p_ioObject[CH]->halCallback(&dataBuffer[CH]);
                         break;
                     
                     default:
@@ -138,10 +137,11 @@ void HAL_NANO11::tick()
                         if(this->channels.p_ioObject[CH]->newDataAvailable())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
                         {                       
                             s_NANO11_COMMAND_t command;
-                            command.key = NANO11_KEY__WRITE;
-                            command.channel = CH;
-                            command.payload = this->channels.p_ioObject[CH]->halCallback();
-                            this->bplcNode.sendCommand(this->deviceAddress, &command, sizeof(command));
+                            command.extract.key         = NANO11_COMMAND_KEY__WRITE;
+                            command.extract.channel     = CH;
+                            command.extract.payload     = this->channels.p_ioObject[CH]->halCallback();
+                            const uint8_t BYTE_COUNT    = sizeof(command);
+                            this->bplcNode.sendCommand(this->deviceAddress, &command.data[0], BYTE_COUNT);
                         }                       
                         break;
 

@@ -200,7 +200,7 @@ class output: public IO_Interface, private blink
 		}
 		return this->f_newDataAvailable;
 	}
-    u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA)
+    u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA = nullptr)
 	{
 		u_HAL_DATA_t tempBuffer;
 		tempBuffer.analogIoData.value 	= this->value;

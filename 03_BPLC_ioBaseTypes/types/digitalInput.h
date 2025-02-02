@@ -72,7 +72,10 @@ class digitalInput: public IO_Interface, private BPLC_logPrint
             {
                 this->f_stateChanged = true;
             }
-        }        
+        }     
+           
+        P_DATA->digitalIoData.state = NEW_PIN_STATE;
+
         return *P_DATA;
     }
 
