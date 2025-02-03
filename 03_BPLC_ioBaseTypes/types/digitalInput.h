@@ -48,7 +48,7 @@ class digitalInput: public IO_Interface, private BPLC_logPrint
     }
     //Hal handling
     e_IO_TYPE_t         getIoType       (){return this->ioType;}
-    bool                newDataAvailable(){return false;}    
+    bool                newDataAvailable(){return f_stateChanged;}    
     u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA)
     {    
         const bool  PIN_STATE               = this->state;
