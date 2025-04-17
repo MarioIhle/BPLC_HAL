@@ -46,6 +46,8 @@ void BPLC_APP::saveDeviceSettings()
    this->parameterFlash.putUChar("flashCRCLoByte", loByteToCheck);      
    this->parameterFlash.putUChar("flashCRCHiByte", hiByteToCheck);
    
+   this->setupParameterFlash.end();
+   
    this->printLog("DEVICE SETTING SAVED IN FLASH!", __FILENAME__, __LINE__);
 }
 void BPLC_APP::loadDefaultParameter()
