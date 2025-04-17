@@ -28,6 +28,7 @@ class digitalInput: public IO_Interface, private BPLC_logPrint
     bool	            islow           (){return (this->state == false);}      //abwärtsKompatibel
     bool 	            isHigh          (){return (this->state == true);}
     bool	            isLow           (){return (this->state == false);}
+    bool                getState        (){return this->state;}
 	bool 	            risingEdge      ()
     {
         if(this->f_risingEdgeOccoured)
