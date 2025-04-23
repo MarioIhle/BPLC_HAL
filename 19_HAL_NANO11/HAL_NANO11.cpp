@@ -19,10 +19,12 @@ void HAL_NANO11::init(const e_EC_ADDR_t ADDR)
     }   
         
     //I2C Verbindung prüfen
+    /*
     if(I2C_check::begin(this->deviceAddress) == false)
     {
-        this->setError(NANO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
+        //this->setError(NANO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
+    */
 
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
@@ -56,46 +58,47 @@ void HAL_NANO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNE
         this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;   
 
         //Neue anzahl an Channels komunizieren, damit bei Abfrage auch genügned Daten geschickt werden
+      /*
         s_NANO11_COMMAND_t command;
         command.extract.key                         = NANO11_COMMAND_KEY__SET_CHANNEL_COUNT;
         command.extract.payload.analogIoData.value  = (uint32_t)CHANNEL;
         command.extract.channel                     = 0;
         const uint8_t BYTE_COUNT                    = sizeof(command);
-        this->bplcNode.sendCommand(this->deviceAddress, &command.data[0], BYTE_COUNT);     
+        this->bplcNode.sendCommand(this->deviceAddress, &command.data[0], BYTE_COUNT);    */ 
     }
 }
 void HAL_NANO11::tick()
 {          
     //I2C Verbindung zyklisch prüfen
+    /*
     if(!this->tickHeartbeat())
     {
         this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);      
     }
+    */
     
     //Hal ticken
     if(this->noErrorSet())
     {    
         //Prüfen ob IO Objekt Daten anfordert  
         bool    requestData     = false;
-        uint8_t channelCount    = 0;
 
         for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
-        {            
-            if(this->channels.p_ioObject[CH] == nullptr)
-            {
-                channelCount = CH;
-                break;
-            }
-            else if(this->channels.p_ioObject[CH]->newDataAvailable())
-            {
-                requestData = true;                
+        {           
+            if(this->channels.p_ioObject[CH] != nullptr)
+            {                
+                if(this->channels.p_ioObject[CH]->newDataAvailable())
+                {
+                    requestData = true;       
+                    break;         
+                }
             }
         }
 
         if(requestData)
         {
             //Daten anfragen
-            u_HAL_DATA_t dataBuffer[channelCount];
+            u_HAL_DATA_t dataBuffer[NANO11_CHANNEL_COUNT];
             this->bplcNode.getSlaveData(this->deviceAddress, &dataBuffer[0].data[0], sizeof(dataBuffer));
             
             //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschieben

@@ -4,10 +4,11 @@
 //INCLUDES
 #include "HAL_interface.h"
 #include "BPLC_I2C_Nodes.h"
+#include "SpecialFunctions.h"
 //-------------------------------------------------------------
 //Card definition
 #define NANO11_ADDRESS_COUNT 10
-#define NANO11_CHANNEL_COUNT 8  //Natürlich erweiterbar
+#define NANO11_CHANNEL_COUNT 8      //Natürlich erweiterbar, der Databuffer von Slavedata muss aber erweitert werden!
 const uint8_t NANO11_I2C_ADDRESSES[NANO11_ADDRESS_COUNT] = {0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9};
 
 typedef enum
@@ -32,6 +33,7 @@ typedef union
 }s_NANO11_COMMAND_t;
 
 //-------------------------------------------------------------
+//Normale HAL für BPLC Master um mit NANO11 zu kommunizieren
 class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check
 {
     public:
@@ -57,7 +59,44 @@ class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private 
     //Object handling
     struct
     {
+        uint8_t         channelCount;
         IO_Interface*   p_ioObject  [NANO11_CHANNEL_COUNT];    
     }channels;        
+ };
+
+//-------------------------------------------------------------
+//Lib auf Atmega um mit BPLC Master zu kommunizieren
+class LIB_NANO11
+{
+    public:
+    //Hal constructor
+                    LIB_NANO11              ();
+    //Hal interface 
+    void            begin                   (const e_EC_ADDR_t ADDR);
+    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);    
+    void            mapPinToChannel         (const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL, const e_IO_TYPE_t IO_TYPE);   //pins direkt auf channel mappen, geht nur mit einfachen io objekten 
+    void            tick                    ();        
+
+    private:          
+    //Settings  
+    uint8_t             deviceAddress;
+    I2C_BPLC_Slave      bplcNode;
+    bool                error;
+
+    //INT
+    Timeout to_INTout;
+
+    //Object handling
+    struct
+    {
+        uint8_t         pin;
+        IO_Interface*   p_ioObject;    
+    }channels[NANO11_CHANNEL_COUNT];     
+    
+    struct 
+    {
+        const uint8_t OEN = 8;
+        const uint8_t INT = 9;       
+    }pins;    
  };
 #endif
