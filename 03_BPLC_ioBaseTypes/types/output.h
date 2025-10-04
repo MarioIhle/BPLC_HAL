@@ -104,7 +104,7 @@ class output: public IO_Interface, private blink
 			this->f_newDataAvailable 	= true;
 		}	
 	}
-	bool	 			getState		(){return (bool)this->value;}
+	bool	 			getState		(){return (OUTPUTMODE__ON == this->mode);}
 	uint8_t 			getValue		(){return this->value;}
    
     //Hal handling
