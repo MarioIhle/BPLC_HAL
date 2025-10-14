@@ -16,13 +16,13 @@ typedef enum
     BPLC_PLI_KEY__USE_BUZZER,
     BPLC_PLI_KEY__BEEP_ON_ENCODER_INPUT,
     BPLC_PLI_KEY__GET_RAM_USAGE,
+    BPLC_PLI_KEY__AUTOSTART,
 
     //Applikation
-    BPLC_PLI_KEY__DEVICE_MODE_STOP = 0x10,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_SAFETY,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_HARDWARE,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_COMMUNICATION,
+    BPLC_PLI_KEY__USER_APP_COMMAND = 0x10,
+    BPLC_PLI_KEY__HARDWARE_COMMAND,
+    BPLC_PLI_KEY__NETWORK_COMMAND,
+    BPLC_PLI_KEY__ERROR_MANAGER_COMMAND,
 
     //Kommunikation
     BPLC_PLI_KEY__SET_DEVICE_ADDRESS = 0x20,
@@ -66,10 +66,7 @@ void BPLC_APP::tickControlPanel()
                 {                    
                     this->printErrorSet(this->systemErrorManager.getError(error)->errorCode, __FILENAME__, __LINE__); 
                 }
-                break;
-            case BPLC_PLI_KEY__GET_RAM_USAGE:
-                this->printRamUsage();
-                break;
+                break;            
                 
             case BPLC_PLI_KEY__RESET_ALL_ERRORS:               
                 this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);                 
@@ -201,7 +198,7 @@ void BPLC_APP::tickControlPanel()
                 break;
 
             case BPLC_PLI_KEY__BEEP_ON_ENCODER_INPUT:
-                this->APP_APP.settings.device.application.f_beepOnEncoderInput = !this->APP_APP.settings.device.application.f_beepOnEncoderInput;
+                this->APP_APP.settings.device.application.f_beepOnEncoderInput = (!this->APP_APP.settings.device.application.f_beepOnEncoderInput);
                 this->saveDeviceSettings();
 
                 if(this->APP_APP.settings.device.application.f_beepOnEncoderInput)                
@@ -214,29 +211,101 @@ void BPLC_APP::tickControlPanel()
                 }
                 break;
 
+            case BPLC_PLI_KEY__GET_RAM_USAGE:
+                this->printRamUsage();
+            break;
+
+            case BPLC_PLI_KEY__AUTOSTART:
+                this->APP_APP.settings.device.autoStart = (!this->APP_APP.settings.device.autoStart);
+                if(this->APP_APP.settings.device.autoStart)                
+                {
+                    Serial.println("AUTOSTART_ENABLED!");
+                }
+                else
+                {
+                    Serial.println("AUTOSTART_DISABLED!");
+                }
+            break;                   
+
 
             //Applikation
-            case BPLC_PLI_KEY__DEVICE_MODE_STOP:
-                this->setDeviceModeInternal(APP_MODE__STOP);
-                break;
+            case BPLC_PLI_KEY__USER_APP_COMMAND: 
+                switch(COMMAND.command.payload)
+                {
+                    //Enable/Disable 
+                    case 0:
+                        if(APP_MODULE_STATE__ENABLED == this->APP_APP.operationMode.userApplication)
+                        {
+                            this->APP_APP.operationMode.userApplication = APP_MODULE_STATE__DISABLED;
+                            Serial.println("USER APP DISABLED!");
+                        }
+                        else
+                        {
+                            this->APP_APP.operationMode.userApplication = APP_MODULE_STATE__ENABLED;
+                            Serial.println("USER APP ENABLED!");
+                        }                        
+                    break;
+                }
+            break;
 
-            case BPLC_PLI_KEY__DEVICE_MODE_RUN:
-                this->setDeviceModeInternal(APP_MODE__RUN);
-                break;
+            case BPLC_PLI_KEY__HARDWARE_COMMAND: 
+                switch(COMMAND.command.payload)
+                {
+                    //Enable/Disable 
+                    case 0:
+                        if(APP_MODULE_STATE__ENABLED == this->APP_APP.operationMode.extensionCards)
+                        {
+                            this->APP_APP.operationMode.extensionCards = APP_MODULE_STATE__DISABLED;
+                            Serial.println("EXTENSIONCARDS DISABLED!");
+                        }
+                        else
+                        {
+                            this->APP_APP.operationMode.extensionCards = APP_MODULE_STATE__ENABLED;
+                            Serial.println("EXTENSIONCARDS ENABLED!");
+                        }                        
+                    break;
+                }
+            break;
 
-            case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_SAFETY:
-                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_SAFETY);
-                break;
+            case BPLC_PLI_KEY__NETWORK_COMMAND: 
+                switch(COMMAND.command.payload)
+                {
+                    //Enable/Disable 
+                    case 0:
+                        if(APP_MODULE_STATE__ENABLED == this->APP_APP.operationMode.network)
+                        {
+                            this->APP_APP.operationMode.network = APP_MODULE_STATE__DISABLED;
+                            Serial.println("NETWORK DISABLED!");
+                        }
+                        else
+                        {
+                            this->APP_APP.operationMode.network = APP_MODULE_STATE__ENABLED;
+                            Serial.println("NETWORK ENABLED!");
+                        }                        
+                    break;
+                }
+            break;
 
-            case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_HARDWARE:
-                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_EC_CARDS);
-                break;
+            case BPLC_PLI_KEY__ERROR_MANAGER_COMMAND: 
+                switch(COMMAND.command.payload)
+                {
+                    //Enable/Disable 
+                    case 0:
+                        if(APP_MODULE_STATE__ENABLED == this->APP_APP.operationMode.errorOut)
+                        {
+                            this->APP_APP.operationMode.errorOut = APP_MODULE_STATE__DISABLED;
+                            Serial.println("ERROR_MANAGER DISABLED!");
+                        }
+                        else
+                        {
+                            this->APP_APP.operationMode.errorOut = APP_MODULE_STATE__ENABLED;
+                            Serial.println("ERROR_MANAGER ENABLED!");
+                        }                        
+                    break;
+                }
+            break;
 
-            case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_COMMUNICATION:
-                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_COM);
-                break;
 
-            
             //Kommunikation
             case BPLC_PLI_KEY__SET_DEVICE_ADDRESS:
                 this->APP_APP.settings.device.communication.deviceAddress = COMMAND.command.payload;
