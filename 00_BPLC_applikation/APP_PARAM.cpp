@@ -16,21 +16,25 @@ void BPLC_APP::setupParameterFlash()
 }
 bool BPLC_APP::loadDeviceSettings()
 {      
-   bool parameterOk = true;
+   bool parameterOk = false;
    //Device Settings aus Flash laden
    this->parameterFlash.getBytes("deviceSettings", this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData));   
    //Checksumme berechenn
    uint8_t loByteToCheck            = this->parameterFlash.getUChar("flashCRCLoByte");      
    uint8_t hiByteToCheck            = this->parameterFlash.getUChar("flashCRCHiByte");     
    uint8_t calculatedLoByte         = 0;
-   uint8_t calculatedHiByteToCheck  = 0;
+   uint8_t calculatedHiByte  = 0;
    //Berechnete und gespeicherte Checksumme vergleichen
-   this->calculateCrC16(this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData), &calculatedLoByte, &calculatedHiByteToCheck);
+   this->calculateCrC16(this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData), &calculatedLoByte, &calculatedHiByte);
 
-   if(calculatedLoByte != loByteToCheck || calculatedHiByteToCheck != hiByteToCheck)
+   if((calculatedLoByte == loByteToCheck )
+   && (calculatedHiByte == hiByteToCheck))
+   {
+      parameterOk = true;
+   }
+   else
    {
       this->systemErrorManager.setError(BPLC_ERROR__FLASH_PARAMETER_CORUPT, __FILENAME__, __LINE__);
-      parameterOk = false;
    }
    return parameterOk;
 }

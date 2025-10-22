@@ -77,14 +77,14 @@ void BPLC_APP::begin()
       this->APP_APP.operationMode.userApplication  = APP_MODULE_STATE__ENABLED;
       this->APP_APP.operationMode.extensionCards   = APP_MODULE_STATE__ENABLED;
       this->APP_APP.operationMode.network          = APP_MODULE_STATE__ENABLED;
-      this->APP_APP.operationMode.errorOut           = APP_MODULE_STATE__ENABLED;
+      this->APP_APP.operationMode.errorOut         = APP_MODULE_STATE__ENABLED;
    }
    else
    {
       this->APP_APP.operationMode.userApplication  = APP_MODULE_STATE__NOT_INITILIZED;
       this->APP_APP.operationMode.extensionCards   = APP_MODULE_STATE__NOT_INITILIZED;
       this->APP_APP.operationMode.network          = APP_MODULE_STATE__NOT_INITILIZED;
-      this->APP_APP.operationMode.errorOut           = APP_MODULE_STATE__NOT_INITILIZED;
+      this->APP_APP.operationMode.errorOut         = APP_MODULE_STATE__NOT_INITILIZED;
    }
 
    //Fehlerprüfung bevor System startet
