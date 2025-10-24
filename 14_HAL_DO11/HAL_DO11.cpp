@@ -93,8 +93,14 @@ void HAL_DO11::tick()
                 if(this->channels.p_ioObject[CH]->newDataAvailable())
                 {
                     //PWM von 0-255 laden und umrechnen
-                    uint16_t TARGET_PWM_VALUE = map(this->channels.p_ioObject[CH]->halCallback().analogIoData.value, 0, 255, 0, 4095);
-                
+                    const uint16_t APPLICATION_VALUE    = (uint16_t)this->channels.p_ioObject[CH]->halCallback().analogIoData.value;
+                    const uint16_t TARGET_PWM_VALUE     = map(APPLICATION_VALUE, 0, 255, 0, 4095);                                     
+                    
+                    if(this->printSimulationOutput)
+                    {
+                        this->printExtensionCardSimualtionOutput("DO11", String(this->deviceAddress), String(CH), String(APPLICATION_VALUE));
+                    }
+
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {                    
                         case IO_TYPE__OUTPUT_PULL:
@@ -160,21 +166,19 @@ void HAL_DO11::tick()
                             break;
 
                         case IO_TYPE__SERVO:
-                            //Direkt 16bit wert von Servo Klasse berechent
-                            TARGET_PWM_VALUE = this->channels.p_ioObject[CH]->halCallback().analogIoData.value;
                             //Um überschneidung bei umschalten der PWM zu vermeiden, sonst FETS = rauch :C
                             PCA.setChannelOff(this->channels.PIN[CH][HS_MOSFET]); //Spannungsführend zuerst aus
                             PCA.setChannelOff(this->channels.PIN[CH][LS_MOSFET]);                                       
                             delay(1);       
                                                     
                             //FULL ON
-                            if(TARGET_PWM_VALUE < DEAD_TIME)
+                            if(APPLICATION_VALUE < DEAD_TIME)
                             {
                                 PCA.setChannelOn(this->channels.PIN[CH][LS_MOSFET]);
                                 //PCA.setChannelOff(this->PIN[PORT][HS_MOSFET]);    
                             }
                             //FULL OFF
-                            else if(TARGET_PWM_VALUE > 4096 - DEAD_TIME)
+                            else if(APPLICATION_VALUE > 4096 - DEAD_TIME)
                             {
                                 //PCA.setChannelOff(this->channels.PIN[PORT][LS_MOSFET]);
                                 PCA.setChannelOn(this->channels.PIN[CH][HS_MOSFET]);    
@@ -183,7 +187,7 @@ void HAL_DO11::tick()
                             else
                             {                        
                                 PCA.setChannelPWM(this->channels.PIN[CH][LS_MOSFET],  TARGET_PWM_VALUE + DEAD_TIME,       4095);
-                                PCA.setChannelPWM(this->channels.PIN[CH][HS_MOSFET],  DEAD_TIME,               TARGET_PWM_VALUE);  
+                                PCA.setChannelPWM(this->channels.PIN[CH][HS_MOSFET],  DEAD_TIME,               APPLICATION_VALUE);  
                             }
                             break;
 
@@ -204,5 +208,9 @@ void HAL_DO11::controlCommand(const e_EC_COMMAND_t COMMAND)
         default:
             this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
             break;
+
+        case EC_COMMAND__SIMULATION_OUTPUT: 
+            this->printSimulationOutput = true;
+        break;
     }
 }

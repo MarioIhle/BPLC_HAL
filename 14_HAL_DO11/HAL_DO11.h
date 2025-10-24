@@ -36,7 +36,7 @@ class HAL_DO11: public halInterface, private BPLC_moduleErrorHandler, private BP
     //Settings          
     PCA9685 PCA;
     uint8_t deviceAddress;
-    
+    bool    printSimulationOutput;
     struct
     {
         IO_Interface* p_ioObject  [DO11_CHANNEL_COUNT];         
