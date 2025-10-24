@@ -242,53 +242,50 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, cons
     return newEcAdded;
 }
 void BPLC_extensionCardManager::tick()
-{   
-    if(this->enabled())
+{
+    if(this->p_firstExtensionCard!= nullptr)
     {
-        if(this->p_firstExtensionCard!= nullptr)
-        {
-            extensionCard*  p_extensionCardToTick       = this->p_firstExtensionCard;     
+        extensionCard*  p_extensionCardToTick       = this->p_firstExtensionCard;     
 
-            const bool NEW_INPUTSTATES_AVAILABLE    = (intIsrState != MCU_INT_ISR__IDLE);     
-            const bool COOL_DOWN_TIME_PASSED        = (this->to_readInputsCooldown.check());    
+        const bool NEW_INPUTSTATES_AVAILABLE    = (intIsrState != MCU_INT_ISR__IDLE);     
+        const bool COOL_DOWN_TIME_PASSED        = (this->to_readInputsCooldown.check());    
 
-            if(COOL_DOWN_TIME_PASSED && NEW_INPUTSTATES_AVAILABLE)
-            {    
-                intIsrState = MCU_INT_ISR__IDLE;                   
-                this->to_readInputsCooldown.reset();             
-                this->to_readInputs.reset();
-            }
-            const bool TIME_TO_READ_INPUTS = (!this->to_readInputs.check());
-                
-            while(p_extensionCardToTick != nullptr)
-            {
-                halInterface*       p_halInterface                  = p_extensionCardToTick->getHalInterface();
-                const bool          HAL_OK                          = (p_halInterface->getModuleErrorCount() == 0);   
-                const e_EC_ADDR_t   EC_ADDR                         = p_extensionCardToTick->getAddr();
-                const bool          CARD_NEED_REAL_TIME_PROCESSING  = this->ecCardNeedRealTimeProcessing[EC_ADDR];         
-
-                const bool          TICK_DIN_CARD                   =  (TIME_TO_READ_INPUTS 
-                                                                    || (CARD_NEED_REAL_TIME_PROCESSING && NEW_INPUTSTATES_AVAILABLE));
-                if(HAL_OK)
-                {
-                    switch(p_extensionCardToTick->getCardType())            
-                    {
-                        case EC__DIN11revA:        
-                            if(TICK_DIN_CARD)
-                            {
-                                p_halInterface->tick();                    
-                            }                               
-                        break;
-
-                        default:
-                            p_halInterface->tick();
-                        break;
-                    }      
-                }      
-                p_extensionCardToTick = p_extensionCardToTick->getNext();      
-            }    
+        if(COOL_DOWN_TIME_PASSED && NEW_INPUTSTATES_AVAILABLE)
+        {    
+            intIsrState = MCU_INT_ISR__IDLE;                   
+            this->to_readInputsCooldown.reset();             
+            this->to_readInputs.reset();
         }
-    }    
+        const bool TIME_TO_READ_INPUTS = (!this->to_readInputs.check());
+               
+        while(p_extensionCardToTick != nullptr)
+        {
+            halInterface*       p_halInterface                  = p_extensionCardToTick->getHalInterface();
+            const bool          HAL_OK                          = (p_halInterface->getModuleErrorCount() == 0);   
+            const e_EC_ADDR_t   EC_ADDR                         = p_extensionCardToTick->getAddr();
+            const bool          CARD_NEED_REAL_TIME_PROCESSING  = this->ecCardNeedRealTimeProcessing[EC_ADDR];         
+
+            const bool          TICK_DIN_CARD                   =  (TIME_TO_READ_INPUTS 
+                                                                || (CARD_NEED_REAL_TIME_PROCESSING && NEW_INPUTSTATES_AVAILABLE));
+            if(HAL_OK)
+            {
+                switch(p_extensionCardToTick->getCardType())            
+                {
+                    case EC__DIN11revA:        
+                        if(TICK_DIN_CARD)
+                        {
+                            p_halInterface->tick();                    
+                        }                               
+                    break;
+
+                    default:
+                        p_halInterface->tick();
+                    break;
+                }      
+            }      
+            p_extensionCardToTick = p_extensionCardToTick->getNext();      
+        }    
+    }
 }
 
 //Listen Handling
