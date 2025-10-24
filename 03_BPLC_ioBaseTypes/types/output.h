@@ -57,16 +57,17 @@ class output: public IO_Interface, private blink
 	}
 	void fade(const unsigned long FADE_IN_TIME, const unsigned long FADE_OUT_TIME)
 	{		
-		if((this->mode != OUTPUTMODE__FADE) || (this->mode != OUTPUTMODE__BLINK_ONCE))//Blinken zuerst fertig ausführen)
+		if((this->mode != OUTPUTMODE__FADE) 		//Nicht neustarten, wenn Fade schon läuft
+		&& (this->mode != OUTPUTMODE__BLINK_ONCE))	//Blinken zuerst fertig ausführen
 		{
 			this->fadeSettings.inTime 	= (FADE_IN_TIME	/ this->setting.onValue);
 			this->fadeSettings.outTime 	= (FADE_OUT_TIME / this->setting.onValue);
 			
 			this->fadeSettings.mode 	= FADE_MODE__IN;
-			this->fadeSettings.to_fade.setInterval(this->fadeSettings.inTime);
+			this->fadeSettings.to_fade.setInterval(this->fadeSettings.inTime, false);
 
 			this->mode = OUTPUTMODE__FADE;
-		}		
+		}	
 	}
 	void set()		                //output ON
 	{
