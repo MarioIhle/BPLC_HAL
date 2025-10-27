@@ -46,9 +46,12 @@ class BPLC_moduleErrorHandler
     void                    setError                (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
     void                    resetError              (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
     void                    resetAllErrors          (String FILE, const uint16_t LINE);
-        
+    void                    enableErrordetection    (){this->enabled = true;}
+    void                    disableErrordetection   (){this->enabled = false;}
+
 
     private:
+    bool                    enabled;                 
     BPLC_logPrint           log;
     //Error Listen handling
     errorListElement*       searchError             (const e_BPLC_ERROR_t ERROR_CODE);

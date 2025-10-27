@@ -5,10 +5,18 @@ BPLC_moduleErrorHandler::BPLC_moduleErrorHandler()
     this->p_firstError              = nullptr;
     this->p_superiorErrorManager    = nullptr;
     this->errorCount                = 0;
+    this->enabled                   = true;
 }
 uint8_t BPLC_moduleErrorHandler::getErrorCount()
 {
-    return this->errorCount;
+    if(this->enabled)
+    {
+        return this->errorCount;
+    }
+    else
+    {
+        return 0;
+    }    
 }  
 s_error_t* BPLC_moduleErrorHandler::getError(uint8_t ERROR_NUMBER)
 {

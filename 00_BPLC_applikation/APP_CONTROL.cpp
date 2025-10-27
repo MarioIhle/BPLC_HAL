@@ -28,6 +28,7 @@ typedef enum
     BPLC_PLI_KEY__SET_DEVICE_ADDRESS = 0x20,
 
     //Hardware
+    BPLC_PLI_KEY__SIMULATION_OUTPUT = 0x29,
     BPLC_PLI_KEY__DEFINE_MCU = 0x30,
     BPLC_PLI_KEY__ADD_EC_AIN11revA,
     BPLC_PLI_KEY__ADD_EC_DIN11revA,
@@ -215,7 +216,7 @@ void BPLC_APP::tickControlPanel()
                 break;
 
 
-            //Applikation
+//Applikation
             case BPLC_PLI_KEY__DEVICE_MODE_STOP:
                 this->setDeviceModeInternal(APP_MODE__STOP);
                 break;
@@ -237,7 +238,7 @@ void BPLC_APP::tickControlPanel()
                 break;
 
             
-            //Kommunikation
+//Kommunikation
             case BPLC_PLI_KEY__SET_DEVICE_ADDRESS:
                 this->APP_APP.settings.device.communication.deviceAddress = COMMAND.command.payload;
                 this->saveDeviceSettings();
@@ -255,9 +256,18 @@ void BPLC_APP::tickControlPanel()
                     ESP.restart();
                 }                
                 break;
-
-
-            //Hardware                           
+ //Hardware  
+            case BPLC_PLI_KEY__SIMULATION_OUTPUT:
+                if(this->ecmForSlowSpeed != nullptr)
+                {    
+                    this->ecmForSlowSpeed->enableSimulationOutput();
+                } 
+                if(this->ecmForHighSpeed != nullptr)
+                {
+                    this->ecmForHighSpeed->enableSimulationOutput();
+                }                               
+                break;
+                                    
             case BPLC_PLI_KEY__DEFINE_MCU:
                 switch (COMMAND.command.payload)
                 {
