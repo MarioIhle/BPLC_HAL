@@ -4,9 +4,11 @@ HAL_PPO11::HAL_PPO11()
 {}
 void HAL_PPO11::init(const e_EC_ADDR_t ADDR)
 {
+    this->bplcAddress = ADDR;
+    
     if(ADDR < PPO11_ADDRESS_COUNT)
     {
-        this->deviceAddress = PPO11_I2C_ADDRESSES[ADDR];             
+        this->i2cAddress = PPO11_I2C_ADDRESSES[ADDR];             
     }
     else
     {
@@ -19,7 +21,7 @@ void HAL_PPO11::init(const e_EC_ADDR_t ADDR)
     }       
    
     //I2C verbindung prüfen
-    if(!I2C_check::begin(this->deviceAddress))
+    if(!I2C_check::begin(this->i2cAddress))
     {
         this->setError(PPO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);     
     }
@@ -27,15 +29,15 @@ void HAL_PPO11::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {        
-        PCA.setI2CAddress(this->deviceAddress);
+        PCA.setI2CAddress(this->i2cAddress);
         PCA.init();
         PCA.setPWMFrequency(200);   
         PCA.setAllChannelsPWM(0);
-        this->printLog("PPO11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
+        this->printLog("PPO11revA CARD (" + String(this->i2cAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
     {
-        this->printLog("PPO11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
+        this->printLog("PPO11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
 }
 void HAL_PPO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
@@ -172,7 +174,7 @@ void HAL_PPO11::controlCommand(const e_EC_COMMAND_t COMMAND)
     switch (COMMAND)
     {       
         default:
-            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
+            this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
             break;
     }
 }

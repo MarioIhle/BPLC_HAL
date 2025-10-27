@@ -55,7 +55,7 @@ void BPLC_logPrint::printRamUsage()
 void BPLC_logPrint::printExtensionCardSimualtionOutput(String EXTENSIONCARD_TYPE, String ADDR, String CHANNEL, String VALUE)
 {
     Serial.println("");
-    Serial.println("----------------EC SIM----------------");
+    Serial.println("----------------EC DEBUG OUTPUT----------------");
     Serial.println("OS Time: " + String(millis()));
     Serial.println("--> " + EXTENSIONCARD_TYPE + " ADDR:" + ADDR +  ", SET CHANNEL " + CHANNEL + " TO: " + VALUE);
     Serial.flush();

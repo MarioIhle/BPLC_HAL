@@ -28,9 +28,7 @@ class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private 
     void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
 
   
-    private:          
-    //Settings  
-    uint8_t   deviceAddress;
+    private:        
   
     //Object handling
     struct

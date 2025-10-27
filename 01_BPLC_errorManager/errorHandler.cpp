@@ -111,6 +111,17 @@ void BPLC_moduleErrorHandler::resetAllErrors(String FILE, const uint16_t LINE)
         this->resetError(this->p_firstError->getErrorData()->errorCode, FILE, LINE);
     }  
 }
+void BPLC_moduleErrorHandler::enableErrordetection(String FILE, const uint16_t LINE)
+{
+    this->enabled = true;
+    this->log.printLog("MODULE ERROR DETECTION DISABLED", FILE, LINE);
+}
+void BPLC_moduleErrorHandler::disableErrordetection(String FILE, const uint16_t LINE)
+{
+    this->enabled = false;
+    this->log.printLog("MODULE ERROR DETECTION ENABELD", FILE, LINE);
+}
+    
 //Private
 errorListElement* BPLC_moduleErrorHandler::searchError(const e_BPLC_ERROR_t ERROR_CODE)
 {

@@ -75,7 +75,7 @@ class HAL_MOT11: public halInterface, private BPLC_moduleErrorHandler, private B
   
     private:
     //Settings    
-    uint8_t deviceAddress;   
+    uint8_t i2cAddress;   
 
     e_MOT11_DEVICE_STATE_t  state;
     e_BPLC_ERROR_t          error;   

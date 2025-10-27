@@ -4,9 +4,11 @@ HAL_REL11::HAL_REL11()
 {}
 void HAL_REL11::init(const e_EC_ADDR_t ADDR)
 {    
+    this->bplcAddress = ADDR;
+
     if(ADDR < REL11_ADDRESS_COUNT)
     {
-        this->deviceAddress = REL11_I2C_ADDRESSES[ADDR];             
+        this->i2cAddress = REL11_I2C_ADDRESSES[ADDR];             
     }
     else
     {
@@ -19,21 +21,21 @@ void HAL_REL11::init(const e_EC_ADDR_t ADDR)
     }       
     
     //I2C Verbindung Prüfen
-    if(!I2C_check::begin(this->deviceAddress))
+    if(!I2C_check::begin(this->i2cAddress))
     {
         this->setError(REL11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {   
-        this->PCF.setAddress(this->deviceAddress);      
+        this->PCF.setAddress(this->i2cAddress);      
         this->PCF.begin();                              
         this->PCF.write8(false);                         
-        this->printLog("REL11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);       
+        this->printLog("REL11revA CARD (" + String(this->i2cAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);       
     }
     else
     {
-        this->printLog("REL11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
+        this->printLog("REL11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
     }  
 }   
 void HAL_REL11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
@@ -65,7 +67,8 @@ void HAL_REL11::tick()
         this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
     }
     //Hal ticken
-    if(this->noErrorSet())
+    if(this->noErrorSet()
+    || this->printDebugOutput)
     {         
         for(int CH = 0; CH < REL11_CHANNEL_COUNT; CH++)
         {
@@ -73,21 +76,16 @@ void HAL_REL11::tick()
             {
                 if(this->channels.p_ioObject[CH]->newDataAvailable())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
                 {
-                    u_HAL_DATA_t tempBuffer;                
+                    u_HAL_DATA_t tempBuffer = this->channels.p_ioObject[CH]->halCallback();       
 
                     switch (this->channels.p_ioObject[CH]->getIoType())
-                    {
+                    {                       
                         case IO_TYPE__OUTPUT_PUSH:
-                            tempBuffer = this->channels.p_ioObject[CH]->halCallback();
-
-                            if(tempBuffer.digitalIoData.state >= 1)
+                            if(this->printDebugOutput)
                             {
-                                this->PCF.write(this->channels.PIN[CH], true);
-                            }
-                            else if(tempBuffer.digitalIoData.state == false)
-                            {
-                                this->PCF.write(this->channels.PIN[CH], false);
-                            }
+                                this->printExtensionCardSimualtionOutput("REL11", String(this->bplcAddress), String(CH), String(tempBuffer.digitalIoData.state));
+                            }                          
+                            this->PCF.write(this->channels.PIN[CH], tempBuffer.digitalIoData.state);                                          
                             break;
 
                         default:
@@ -105,7 +103,13 @@ void HAL_REL11::controlCommand(const e_EC_COMMAND_t COMMAND)
     switch (COMMAND)
     {       
         default:
-            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
+            this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
             break;
+
+        case EC_COMMAND__SIMULATION_OUTPUT: 
+            this->printDebugOutput = true;
+            this->printLog("SIMUALATION OUTPUT ENABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
     }
 }

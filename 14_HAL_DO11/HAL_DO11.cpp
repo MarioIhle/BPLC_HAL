@@ -4,9 +4,11 @@ HAL_DO11::HAL_DO11()
 {}
 void HAL_DO11::init(const e_EC_ADDR_t ADDR)
 {
+    this->bplcAddress = ADDR;
+
     if(ADDR < DO11_ADDRESS_COUNT)
     {
-        this->deviceAddress = DO11_I2C_ADDRESSES[ADDR];             
+        this->i2cAddress = DO11_I2C_ADDRESSES[ADDR];             
     }
     else
     {
@@ -19,7 +21,7 @@ void HAL_DO11::init(const e_EC_ADDR_t ADDR)
     }       
    
     //I2C verbindung prüfen
-    if(!I2C_check::begin(this->deviceAddress))
+    if(!I2C_check::begin(this->i2cAddress))
     {
         this->setError(DO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);     
     }
@@ -27,15 +29,15 @@ void HAL_DO11::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {        
-        PCA.setI2CAddress(this->deviceAddress);
+        PCA.setI2CAddress(this->i2cAddress);
         PCA.init();
         PCA.setPWMFrequency(200);   //Falls Servos verwendet werden, wird automatisch PWM freuenz auf 25Hz gesenkt!
         PCA.setAllChannelsPWM(0);
-        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
+        this->printLog("DO11revA CARD (" + String(this->i2cAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
     {
-        this->printLog("DO11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
+        this->printLog("DO11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
 }
 void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
@@ -85,7 +87,7 @@ void HAL_DO11::tick()
     }
     //Hal ticken    
     if(this->noErrorSet()  
-    || this->printSimulationOutput) 
+    || this->printDebugOutput) 
     {  
         for(uint8_t CH = 0; CH < DO11_CHANNEL_COUNT; CH++)
         {       
@@ -97,9 +99,9 @@ void HAL_DO11::tick()
                     const uint16_t APPLICATION_VALUE    = (uint16_t)this->channels.p_ioObject[CH]->halCallback().analogIoData.value;
                     const uint16_t TARGET_PWM_VALUE     = map(APPLICATION_VALUE, 0, 255, 0, 4095);                                     
                     
-                    if(this->printSimulationOutput)
+                    if(this->printDebugOutput)
                     {
-                        this->printExtensionCardSimualtionOutput("DO11", String(this->deviceAddress), String(CH), String(APPLICATION_VALUE));
+                        this->printExtensionCardSimualtionOutput("DO11", String(this->bplcAddress), String(CH), String(APPLICATION_VALUE));
                     }
 
                     switch (this->channels.p_ioObject[CH]->getIoType())
@@ -207,13 +209,13 @@ void HAL_DO11::controlCommand(const e_EC_COMMAND_t COMMAND)
     switch (COMMAND)
     {       
         default:
-            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
+            this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
             break;
 
         case EC_COMMAND__SIMULATION_OUTPUT: 
-            this->printSimulationOutput = true;
+            this->printDebugOutput = true;
             this->printLog("SIMUALATION OUTPUT ENABLED", __FILENAME__, __LINE__);
-            this->disableErrordetection();
+            this->disableErrordetection(__FILENAME__, __LINE__);
         break;
     }
 }

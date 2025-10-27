@@ -4,9 +4,11 @@ HAL_MOT11::HAL_MOT11()
 {}
 void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
 {
+    this->bplcAddress = ADDR;
+    
     if(ADDR < MOT11_ADDRESS_COUNT)
     {
-        this->deviceAddress = MOT11_I2C_ADDRESSES[ADDR];             
+        this->i2cAddress = MOT11_I2C_ADDRESSES[ADDR];             
     }
     else
     {
@@ -17,7 +19,7 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     this->to_parameterPoll.setInterval(2500);
      
     //I2C Verbindung prüfen
-    if(I2C_check::begin(this->deviceAddress) == false)
+    if(I2C_check::begin(this->i2cAddress) == false)
     {
         this->setError(MOT11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
@@ -27,12 +29,12 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     {   
         this->i2c.begin();
         this->state = MOT11_DEVICE_STATE__INIT;  
-        this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
+        this->printLog("MOT11revA CARD (" + String(this->i2cAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
     {
         this->state = MOT11_DEVICE_STATE__SAFE_STATE;
-        this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
+        this->printLog("MOT11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
 }
 void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
@@ -83,7 +85,7 @@ void HAL_MOT11::controlCommand(const e_EC_COMMAND_t COMMAND)
             break;
         
         default:
-            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
+            this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
             break;
     }
 }
@@ -94,7 +96,7 @@ void HAL_MOT11::startCurrentAutotuning()
     
     COMMAND.extract.key = (uint8_t)MOT11_I2C_KEY__START_CURRENT_AUTOTUNING;
 
-    this->i2c.sendCommand(this->deviceAddress, COMMAND.data, sizeof(COMMAND));
+    this->i2c.sendCommand(this->i2cAddress, COMMAND.data, sizeof(COMMAND));
 }
 void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
 {  
@@ -105,12 +107,12 @@ void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
     COMMAND.extract.direction   = (uint8_t)DRIVE_PARAMETER.dcDriveData.direction;
     COMMAND.extract.speed       = DRIVE_PARAMETER.dcDriveData.speed;
     
-    this->i2c.sendCommand(this->deviceAddress, COMMAND.data, sizeof(COMMAND));
+    this->i2c.sendCommand(this->i2cAddress, COMMAND.data, sizeof(COMMAND));
 }
 void HAL_MOT11::requestDriveParameter()
 {
     u_MOT11_DATA_FRAME_t BUFFER;
-    const bool SLAVE_DATA_RECEIVED = this->i2c.getSlaveData(this->deviceAddress, BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));
+    const bool SLAVE_DATA_RECEIVED = this->i2c.getSlaveData(this->i2cAddress, BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));
     
     if(SLAVE_DATA_RECEIVED)
     {

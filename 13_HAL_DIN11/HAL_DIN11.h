@@ -33,8 +33,7 @@ class HAL_DIN11: public halInterface, private BPLC_moduleErrorHandler, private B
     private:    
     //Settings
     PCF8574 PCF;
-    uint8_t deviceAddress;
-
+ 
     struct
     {
         IO_Interface* p_ioObject  [DIN11_CHANNEL_COUNT];   
