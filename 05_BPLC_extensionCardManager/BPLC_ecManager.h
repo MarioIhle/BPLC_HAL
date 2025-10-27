@@ -76,8 +76,8 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
     void                setSuperiorErrorManager             (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
     //Mot11 spezial Call
     void                startCurrentTuningMot11             (const e_EC_ADDR_t ADDR);
-    void                enableSimulationOutput              ();
-
+    void                enableECDebugOutput                 ();
+    void                disableECErrorDetection             ();
 
     private:        
     //ExtensionCard List

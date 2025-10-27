@@ -1,7 +1,11 @@
 #include "HAL_DO11.h"
 
 HAL_DO11::HAL_DO11()
-{}
+{
+    this->bplcAddress           = EC_ADDR_NOT_DEFINED;
+    this->i2cAddress            = 0;
+    this->debugOutputEnabled    = false;
+}
 void HAL_DO11::init(const e_EC_ADDR_t ADDR)
 {
     this->bplcAddress = ADDR;
@@ -87,7 +91,7 @@ void HAL_DO11::tick()
     }
     //Hal ticken    
     if(this->noErrorSet()  
-    || this->printDebugOutput) 
+    || this->debugOutputEnabled) 
     {  
         for(uint8_t CH = 0; CH < DO11_CHANNEL_COUNT; CH++)
         {       
@@ -99,9 +103,9 @@ void HAL_DO11::tick()
                     const uint16_t APPLICATION_VALUE    = (uint16_t)this->channels.p_ioObject[CH]->halCallback().analogIoData.value;
                     const uint16_t TARGET_PWM_VALUE     = map(APPLICATION_VALUE, 0, 255, 0, 4095);                                     
                     
-                    if(this->printDebugOutput)
+                    if(this->debugOutputEnabled)
                     {
-                        this->printExtensionCardSimualtionOutput("DO11", String(this->bplcAddress), String(CH), String(APPLICATION_VALUE));
+                        this->printExtensionCardDebugOutput("DO11", String(this->bplcAddress), String(CH), String(APPLICATION_VALUE));
                     }
 
                     switch (this->channels.p_ioObject[CH]->getIoType())
@@ -210,11 +214,15 @@ void HAL_DO11::controlCommand(const e_EC_COMMAND_t COMMAND)
     {       
         default:
             this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
-            break;
+        break;
 
-        case EC_COMMAND__SIMULATION_OUTPUT: 
-            this->printDebugOutput = true;
-            this->printLog("SIMUALATION OUTPUT ENABLED", __FILENAME__, __LINE__);
+        case EC_COMMAND__ENABLE_DEBUG_OUTPUT: 
+            this->debugOutputEnabled = true;
+            this->printLog("DEBUG OUTPUT ENABLED", __FILENAME__, __LINE__);
+        break;
+        
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
             this->disableErrordetection(__FILENAME__, __LINE__);
         break;
     }

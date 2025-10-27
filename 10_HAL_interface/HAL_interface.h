@@ -40,7 +40,8 @@ typedef enum
 {
     EC_COMMAND__SELFTEST,   
     EC_COMMAND__MOT11_START_CURRENT_TUNING,
-    EC_COMMAND__SIMULATION_OUTPUT,
+    EC_COMMAND__ENABLE_DEBUG_OUTPUT,
+    EC_COMMAND__DISABLE_ERROR_DETECTION,
 
     EC_COMMAND__COUNT
 
@@ -57,6 +58,6 @@ class halInterface: public BPLC_moduleErrorInterface
     //public
     uint8_t     i2cAddress;
     e_EC_ADDR_t bplcAddress;
-    bool        printDebugOutput;
+    bool        debugOutputEnabled;
 };
 #endif

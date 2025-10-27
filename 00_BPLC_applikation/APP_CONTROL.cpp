@@ -28,7 +28,8 @@ typedef enum
     BPLC_PLI_KEY__SET_DEVICE_ADDRESS = 0x20,
 
     //Hardware
-    BPLC_PLI_KEY__SIMULATION_OUTPUT = 0x29,
+    BPLC_PLI_KEY__DISABLE_EC_ERROR_DETECTION = 0x28,
+    BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT = 0x29,
     BPLC_PLI_KEY__DEFINE_MCU = 0x30,
     BPLC_PLI_KEY__ADD_EC_AIN11revA,
     BPLC_PLI_KEY__ADD_EC_DIN11revA,
@@ -257,15 +258,26 @@ void BPLC_APP::tickControlPanel()
                 }                
                 break;
  //Hardware  
-            case BPLC_PLI_KEY__SIMULATION_OUTPUT:
+            case BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT:
                 if(this->ecmForSlowSpeed != nullptr)
                 {    
-                    this->ecmForSlowSpeed->enableSimulationOutput();
+                    this->ecmForSlowSpeed->enableECDebugOutput();
                 } 
                 if(this->ecmForHighSpeed != nullptr)
                 {
-                    this->ecmForHighSpeed->enableSimulationOutput();
+                    this->ecmForHighSpeed->enableECDebugOutput();
                 }                               
+                break;
+
+            case BPLC_PLI_KEY__DISABLE_EC_ERROR_DETECTION:
+                if(this->ecmForSlowSpeed != nullptr)
+                {    
+                    this->ecmForSlowSpeed->disableECErrorDetection();
+                } 
+                if(this->ecmForHighSpeed != nullptr)
+                {
+                    this->ecmForHighSpeed->disableECErrorDetection();
+                }   
                 break;
                                     
             case BPLC_PLI_KEY__DEFINE_MCU:

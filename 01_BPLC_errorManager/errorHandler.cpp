@@ -114,12 +114,12 @@ void BPLC_moduleErrorHandler::resetAllErrors(String FILE, const uint16_t LINE)
 void BPLC_moduleErrorHandler::enableErrordetection(String FILE, const uint16_t LINE)
 {
     this->enabled = true;
-    this->log.printLog("MODULE ERROR DETECTION DISABLED", FILE, LINE);
+    this->log.printLog("MODULE ERROR DETECTION ENABELD", FILE, LINE);
 }
 void BPLC_moduleErrorHandler::disableErrordetection(String FILE, const uint16_t LINE)
 {
     this->enabled = false;
-    this->log.printLog("MODULE ERROR DETECTION ENABELD", FILE, LINE);
+    this->log.printLog("MODULE ERROR DETECTION DISABLED", FILE, LINE);
 }
     
 //Private

@@ -5,7 +5,7 @@ HAL_DIN11::HAL_DIN11()
 void HAL_DIN11::init(const e_EC_ADDR_t ADDR)
 { 
     this->bplcAddress = ADDR;
-    
+
     if(ADDR < DIN11_ADDRESS_COUNT)
     {
         this->i2cAddress = DIN11_I2C_ADDRESSES[ADDR];             
@@ -132,6 +132,11 @@ void HAL_DIN11::controlCommand(const e_EC_COMMAND_t COMMAND)
         default:
             this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
             this->bplcAddress;
-            break;
+        break;
+
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
     }
 }

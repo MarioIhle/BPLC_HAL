@@ -68,7 +68,7 @@ void HAL_REL11::tick()
     }
     //Hal ticken
     if(this->noErrorSet()
-    || this->printDebugOutput)
+    || this->debugOutputEnabled)
     {         
         for(int CH = 0; CH < REL11_CHANNEL_COUNT; CH++)
         {
@@ -81,9 +81,9 @@ void HAL_REL11::tick()
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {                       
                         case IO_TYPE__OUTPUT_PUSH:
-                            if(this->printDebugOutput)
+                            if(this->debugOutputEnabled)
                             {
-                                this->printExtensionCardSimualtionOutput("REL11", String(this->bplcAddress), String(CH), String(tempBuffer.digitalIoData.state));
+                                this->printExtensionCardDebugOutput("REL11", String(this->bplcAddress), String(CH), String(tempBuffer.digitalIoData.state));
                             }                          
                             this->PCF.write(this->channels.PIN[CH], tempBuffer.digitalIoData.state);                                          
                             break;
@@ -104,11 +104,15 @@ void HAL_REL11::controlCommand(const e_EC_COMMAND_t COMMAND)
     {       
         default:
             this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
-            break;
+        break;
 
-        case EC_COMMAND__SIMULATION_OUTPUT: 
-            this->printDebugOutput = true;
-            this->printLog("SIMUALATION OUTPUT ENABLED", __FILENAME__, __LINE__);
+        case EC_COMMAND__ENABLE_DEBUG_OUTPUT: 
+            this->debugOutputEnabled = true;
+            this->printLog("DEBUG OUTPUT ENABLED", __FILENAME__, __LINE__);
+        break;
+
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
             this->disableErrordetection(__FILENAME__, __LINE__);
         break;
     }

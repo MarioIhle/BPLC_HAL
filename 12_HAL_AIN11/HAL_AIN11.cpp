@@ -5,7 +5,7 @@ HAL_AIN11::HAL_AIN11()
 void HAL_AIN11::init(const e_EC_ADDR_t ADDR)
 {    
     this->bplcAddress = ADDR;
-    
+
     if(ADDR < AIN11_ADDRESS_COUNT)
     {
         this->i2cAddress = AIN11_I2C_ADDRESSES[ADDR];             
@@ -123,6 +123,11 @@ void HAL_AIN11::controlCommand(const e_EC_COMMAND_t COMMAND)
     {       
         default:
             this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
-            break;
+        break;
+
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
     }
 }

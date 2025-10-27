@@ -5,7 +5,7 @@ HAL_PPO11::HAL_PPO11()
 void HAL_PPO11::init(const e_EC_ADDR_t ADDR)
 {
     this->bplcAddress = ADDR;
-    
+
     if(ADDR < PPO11_ADDRESS_COUNT)
     {
         this->i2cAddress = PPO11_I2C_ADDRESSES[ADDR];             
@@ -175,6 +175,11 @@ void HAL_PPO11::controlCommand(const e_EC_COMMAND_t COMMAND)
     {       
         default:
             this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
-            break;
+        break;
+        
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
     }
 }

@@ -5,7 +5,7 @@ HAL_MOT11::HAL_MOT11()
 void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
 {
     this->bplcAddress = ADDR;
-    
+
     if(ADDR < MOT11_ADDRESS_COUNT)
     {
         this->i2cAddress = MOT11_I2C_ADDRESSES[ADDR];             
@@ -69,7 +69,13 @@ void HAL_MOT11::tick()
             case MOT11_DEVICE_STATE__RUNNING:   //Normalbetreb            
                 if(this->channels.p_ioObject->newDataAvailable())
                 {            
-                    this->sendDriveCommand(this->channels.p_ioObject->halCallback());
+                    u_HAL_DATA_t objectData = this->channels.p_ioObject->halCallback();
+
+                    if(this->debugOutputEnabled)
+                    {
+                        this->printExtensionCardDebugOutput("MOT11", String(this->bplcAddress), String(EC_CHANNEL_1), ("DIRECTION: " + String(objectData.dcDriveData.speed) + ", SPEED: " + String(objectData.dcDriveData.direction)));
+                    }
+                    this->sendDriveCommand(objectData);
                 }             
                 break;      
         }
@@ -82,11 +88,21 @@ void HAL_MOT11::controlCommand(const e_EC_COMMAND_t COMMAND)
         case EC_COMMAND__MOT11_START_CURRENT_TUNING:
             this->printLog("START CURRENT TUNING", __FILENAME__, __LINE__);
             this->startCurrentAutotuning();
-            break;
+        break;
+
+        case EC_COMMAND__ENABLE_DEBUG_OUTPUT:
+            this->debugOutputEnabled = true;
+            this->printLog("SIMUALATION OUTPUT ENABLED", __FILENAME__, __LINE__);
+        break;
         
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
+
         default:
             this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
-            break;
+        break;
     }
 }
 void HAL_MOT11::startCurrentAutotuning()

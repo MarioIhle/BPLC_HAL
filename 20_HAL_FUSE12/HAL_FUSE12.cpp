@@ -5,7 +5,7 @@ HAL_FUSE12::HAL_FUSE12()
 void HAL_FUSE12::init(const e_EC_ADDR_t ADDR)
 {
     this->bplcAddress = ADDR;
-    
+
     if(ADDR < FUSE12_ADDRESS_COUNT)
     {
         this->i2cAddress = FUSE12_I2C_ADDRESSES[ADDR];             
@@ -78,6 +78,11 @@ void HAL_FUSE12::controlCommand(const e_EC_COMMAND_t COMMAND)
     {       
         default:
             this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
-            break;
+        break;
+
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
     }
 }

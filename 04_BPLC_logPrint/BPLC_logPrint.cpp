@@ -52,7 +52,7 @@ void BPLC_logPrint::printRamUsage()
     Serial.print(", SPIRAM_SIZE: ");  Serial.println(ESP.getFreePsram()); 
 #endif
 }
-void BPLC_logPrint::printExtensionCardSimualtionOutput(String EXTENSIONCARD_TYPE, String ADDR, String CHANNEL, String VALUE)
+void BPLC_logPrint::printExtensionCardDebugOutput(String EXTENSIONCARD_TYPE, String ADDR, String CHANNEL, String VALUE)
 {
     Serial.println("");
     Serial.println("----------------EC DEBUG OUTPUT----------------");
