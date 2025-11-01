@@ -4,9 +4,11 @@ HAL_FUSE12::HAL_FUSE12()
 {}
 void HAL_FUSE12::init(const e_EC_ADDR_t ADDR)
 {
+    this->bplcAddress = ADDR;
+
     if(ADDR < FUSE12_ADDRESS_COUNT)
     {
-        this->deviceAddress = FUSE12_I2C_ADDRESSES[ADDR];             
+        this->i2cAddress = FUSE12_I2C_ADDRESSES[ADDR];             
     }
     else
     {
@@ -20,7 +22,7 @@ void HAL_FUSE12::init(const e_EC_ADDR_t ADDR)
     }   
       
     //I2C Verbindung prüfen
-    if(I2C_check::begin(this->deviceAddress) == false)
+    if(I2C_check::begin(this->i2cAddress) == false)
     {
         this->setError(FUSE12_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
@@ -28,11 +30,11 @@ void HAL_FUSE12::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {           
-        this->printLog("FUSE12revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
+        this->printLog("FUSE12revA CARD (" + String(this->i2cAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
     {    
-        this->printLog("FUSE12revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
+        this->printLog("FUSE12revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
 }
 void HAL_FUSE12::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
@@ -75,7 +77,12 @@ void HAL_FUSE12::controlCommand(const e_EC_COMMAND_t COMMAND)
     switch (COMMAND)
     {       
         default:
-            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
-            break;
+            this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
+        break;
+
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
     }
 }

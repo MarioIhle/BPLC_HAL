@@ -28,6 +28,8 @@ typedef enum
     BPLC_PLI_KEY__SET_DEVICE_ADDRESS = 0x20,
 
     //Hardware
+    BPLC_PLI_KEY__DISABLE_EC_ERROR_DETECTION = 0x28,
+    BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT = 0x29,
     BPLC_PLI_KEY__DEFINE_MCU = 0x30,
     BPLC_PLI_KEY__ADD_EC_AIN11revA,
     BPLC_PLI_KEY__ADD_EC_DIN11revA,
@@ -215,7 +217,7 @@ void BPLC_APP::tickControlPanel()
                 break;
 
 
-            //Applikation
+//Applikation
             case BPLC_PLI_KEY__DEVICE_MODE_STOP:
                 this->setDeviceModeInternal(APP_MODE__STOP);
                 break;
@@ -237,7 +239,7 @@ void BPLC_APP::tickControlPanel()
                 break;
 
             
-            //Kommunikation
+//Kommunikation
             case BPLC_PLI_KEY__SET_DEVICE_ADDRESS:
                 this->APP_APP.settings.device.communication.deviceAddress = COMMAND.command.payload;
                 this->saveDeviceSettings();
@@ -255,9 +257,29 @@ void BPLC_APP::tickControlPanel()
                     ESP.restart();
                 }                
                 break;
+ //Hardware  
+            case BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT:
+                if(this->ecmForSlowSpeed != nullptr)
+                {    
+                    this->ecmForSlowSpeed->enableECDebugOutput();
+                } 
+                if(this->ecmForHighSpeed != nullptr)
+                {
+                    this->ecmForHighSpeed->enableECDebugOutput();
+                }                               
+                break;
 
-
-            //Hardware                           
+            case BPLC_PLI_KEY__DISABLE_EC_ERROR_DETECTION:
+                if(this->ecmForSlowSpeed != nullptr)
+                {    
+                    this->ecmForSlowSpeed->disableECErrorDetection();
+                } 
+                if(this->ecmForHighSpeed != nullptr)
+                {
+                    this->ecmForHighSpeed->disableECErrorDetection();
+                }   
+                break;
+                                    
             case BPLC_PLI_KEY__DEFINE_MCU:
                 switch (COMMAND.command.payload)
                 {

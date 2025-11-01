@@ -5,10 +5,18 @@ BPLC_moduleErrorHandler::BPLC_moduleErrorHandler()
     this->p_firstError              = nullptr;
     this->p_superiorErrorManager    = nullptr;
     this->errorCount                = 0;
+    this->enabled                   = true;
 }
 uint8_t BPLC_moduleErrorHandler::getErrorCount()
 {
-    return this->errorCount;
+    if(this->enabled)
+    {
+        return this->errorCount;
+    }
+    else
+    {
+        return 0;
+    }    
 }  
 s_error_t* BPLC_moduleErrorHandler::getError(uint8_t ERROR_NUMBER)
 {
@@ -103,6 +111,17 @@ void BPLC_moduleErrorHandler::resetAllErrors(String FILE, const uint16_t LINE)
         this->resetError(this->p_firstError->getErrorData()->errorCode, FILE, LINE);
     }  
 }
+void BPLC_moduleErrorHandler::enableErrordetection(String FILE, const uint16_t LINE)
+{
+    this->enabled = true;
+    this->log.printLog("MODULE ERROR DETECTION ENABELD", FILE, LINE);
+}
+void BPLC_moduleErrorHandler::disableErrordetection(String FILE, const uint16_t LINE)
+{
+    this->enabled = false;
+    this->log.printLog("MODULE ERROR DETECTION DISABLED", FILE, LINE);
+}
+    
 //Private
 errorListElement* BPLC_moduleErrorHandler::searchError(const e_BPLC_ERROR_t ERROR_CODE)
 {

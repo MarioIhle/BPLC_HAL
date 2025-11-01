@@ -38,7 +38,7 @@ class BPLC_moduleErrorHandler
 {
     public:
                             BPLC_moduleErrorHandler ();
-    bool                    noErrorSet              (){return (bool)(this->errorCount == 0);}
+    bool                    noErrorSet              (){return ((this->errorCount == 0) || (!enabled));}
     uint8_t                 getErrorCount           ();
     s_error_t*              getError                (uint8_t ERROR_NUMBER = 0);
     e_BPLC_ERROR_t          getErrorCode            (){return this->p_firstError->getErrorData()->errorCode;}
@@ -46,9 +46,12 @@ class BPLC_moduleErrorHandler
     void                    setError                (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
     void                    resetError              (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
     void                    resetAllErrors          (String FILE, const uint16_t LINE);
-        
+    void                    enableErrordetection    (String FILE, const uint16_t LINE);
+    void                    disableErrordetection   (String FILE, const uint16_t LINE);
+
 
     private:
+    bool                    enabled;                 
     BPLC_logPrint           log;
     //Error Listen handling
     errorListElement*       searchError             (const e_BPLC_ERROR_t ERROR_CODE);

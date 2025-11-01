@@ -32,8 +32,7 @@ class HAL_REL11: public halInterface, private BPLC_moduleErrorHandler, private B
 
     private:    
     //Settings
-    PCF8574 PCF;
-    uint8_t deviceAddress;
+    PCF8574     PCF;
 
     struct
     {

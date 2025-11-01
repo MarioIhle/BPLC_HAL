@@ -30,7 +30,6 @@ class HAL_AIN11: public halInterface,  private BPLC_moduleErrorHandler, private 
     private:          
     //Settings
     Adafruit_ADS1115    ADC;
-    uint8_t             deviceAddress;
     adsGain_t           adcGain;
   
     //Object handling

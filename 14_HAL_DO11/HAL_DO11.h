@@ -34,9 +34,7 @@ class HAL_DO11: public halInterface, private BPLC_moduleErrorHandler, private BP
     
     private:
     //Settings          
-    PCA9685 PCA;
-    uint8_t deviceAddress;
-    
+    PCA9685     PCA;    
     struct
     {
         IO_Interface* p_ioObject  [DO11_CHANNEL_COUNT];         

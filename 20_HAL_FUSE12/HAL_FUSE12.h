@@ -29,9 +29,6 @@ class HAL_FUSE12: public halInterface, private BPLC_moduleErrorHandler, private 
 
   
     private:          
-    //Settings  
-    uint8_t deviceAddress;
-  
     //Object handling
     struct
     {

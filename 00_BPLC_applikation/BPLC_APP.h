@@ -93,6 +93,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     //Device Mode
     e_APP_MODE_t    getDeviceMode   (); 
     void            setDeviceMode   (const e_APP_MODE_t MODE);
+    bool            runUserApp      (){return (APP_MODE__RUN == this->APP_APP.deviceMode);}
 
     
     private:
@@ -112,7 +113,6 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     bool            loadDeviceSettings  ();
     void            loadDefaultParameter();     
     
-
     struct
     {
         e_APP_MODE_t   deviceMode;
@@ -127,9 +127,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
         union 
         {        
             struct 
-            {
-                
-
+            {            
                 e_EC_TYPE_t  mcuCard;
 
                 struct 
