@@ -85,7 +85,7 @@ void HAL_AIN11::tick()
         {            
             if(this->channels.p_ioObject[CH] != nullptr)
             {
-                if(this->channels.p_ioObject[CH]->newDataAvailable())
+                if(this->channels.p_ioObject[CH]->newDataAvailable())   //Wenn IO Objekt Daten anfordert diese von Hardware lesen
                 {
                     u_HAL_DATA_t tempBuffer;
                     int16_t      readSingleEnded;
@@ -95,6 +95,11 @@ void HAL_AIN11::tick()
                         case IO_TYPE__ANALOG_INPUT:    
                             readSingleEnded = this->ADC.readADC_SingleEnded(this->channels.PIN[CH]);
                             
+                            if(this->debugOutputEnabled)
+                            {
+                                this->printExtensionCardDebugOutput("AIN11", String(this->bplcAddress), String(CH), String(readSingleEnded));
+                            }
+
                             if(readSingleEnded >= 0)
                             {
                                 tempBuffer.analogIoData.value = readSingleEnded;
@@ -123,6 +128,11 @@ void HAL_AIN11::controlCommand(const e_EC_COMMAND_t COMMAND)
     {       
         default:
             this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
+        break;
+
+        case EC_COMMAND__ENABLE_DEBUG_OUTPUT: 
+            this->debugOutputEnabled = true;
+            this->printLog("DEBUG OUTPUT ENABLED", __FILENAME__, __LINE__);
         break;
 
         case EC_COMMAND__DISABLE_ERROR_DETECTION:

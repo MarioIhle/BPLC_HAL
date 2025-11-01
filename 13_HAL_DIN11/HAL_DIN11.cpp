@@ -105,6 +105,10 @@ void HAL_DIN11::tick()
                     case IO_TYPE__DIGITAL_COUNTER:
                         tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);         //pinstates bitweise aus Datenpaket filtern
                         this->channels.p_ioObject[CH]->halCallback(&tempBuffer); 
+                        if(this->debugOutputEnabled)
+                        {
+                            this->printExtensionCardDebugOutput("DIN11", String(this->bplcAddress), String(CH), String(tempBuffer.digitalIoData.state));
+                        }
                     break;
 
                     case IO_TYPE__ROTARY_ENCODER:
@@ -132,6 +136,11 @@ void HAL_DIN11::controlCommand(const e_EC_COMMAND_t COMMAND)
         default:
             this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
             this->bplcAddress;
+        break;
+
+        case EC_COMMAND__ENABLE_DEBUG_OUTPUT: 
+            this->debugOutputEnabled = true;
+            this->printLog("DEBUG OUTPUT ENABLED", __FILENAME__, __LINE__);
         break;
 
         case EC_COMMAND__DISABLE_ERROR_DETECTION:

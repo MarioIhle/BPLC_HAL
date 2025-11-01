@@ -67,8 +67,7 @@ void HAL_REL11::tick()
         this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
     }
     //Hal ticken
-    if(this->noErrorSet()
-    || this->debugOutputEnabled)
+    if(this->noErrorSet())
     {         
         for(int CH = 0; CH < REL11_CHANNEL_COUNT; CH++)
         {

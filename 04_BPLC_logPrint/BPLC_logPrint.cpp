@@ -57,6 +57,6 @@ void BPLC_logPrint::printExtensionCardDebugOutput(String EXTENSIONCARD_TYPE, Str
     Serial.println("");
     Serial.println("----------------EC DEBUG OUTPUT----------------");
     Serial.println("OS Time: " + String(millis()));
-    Serial.println("--> " + EXTENSIONCARD_TYPE + " ADDR:" + ADDR +  ", SET CHANNEL " + CHANNEL + " TO: " + VALUE);
+    Serial.println("--> " + EXTENSIONCARD_TYPE + " ADDR:" + ADDR +  ", CHANNEL" + CHANNEL + " CHANGED TO: " + VALUE);
     Serial.flush();
 }

@@ -90,8 +90,7 @@ void HAL_DO11::tick()
         this->setError(DO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
     }
     //Hal ticken    
-    if(this->noErrorSet()  
-    || this->debugOutputEnabled) 
+    if(this->noErrorSet()) 
     {  
         for(uint8_t CH = 0; CH < DO11_CHANNEL_COUNT; CH++)
         {       

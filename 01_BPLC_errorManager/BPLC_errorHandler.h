@@ -38,7 +38,7 @@ class BPLC_moduleErrorHandler
 {
     public:
                             BPLC_moduleErrorHandler ();
-    bool                    noErrorSet              (){return (this->errorCount == 0);}
+    bool                    noErrorSet              (){return ((this->errorCount == 0) || (!enabled));}
     uint8_t                 getErrorCount           ();
     s_error_t*              getError                (uint8_t ERROR_NUMBER = 0);
     e_BPLC_ERROR_t          getErrorCode            (){return this->p_firstError->getErrorData()->errorCode;}
