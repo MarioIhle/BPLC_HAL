@@ -2,6 +2,11 @@
 
 //Callback für Hardware Interrupt 
 volatile e_MCU_INT_ISR_t* P_ISR_STATE_MCU_REVB = nullptr;
+HAL_MCU11_revB* p_HAL_MCU;
+static void ENCODER_ISR()
+{
+    p_HAL_MCU->readEncoder();
+}
 
 static void INT_ISR_MCU_REV_B()
 {
@@ -22,9 +27,13 @@ void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
     this->p_oen     = nullptr;
 
     //encoder
+    p_HAL_MCU = this;
     pinMode(this->PIN.ENCODER_A, INPUT);
     pinMode(this->PIN.ENCODER_B, INPUT);
     pinMode(this->PIN.ENCODER_BUTTON, INPUT);
+    attachInterrupt(this->PIN.ENCODER_A, ENCODER_ISR, CHANGE);      
+    attachInterrupt(this->PIN.ENCODER_B, ENCODER_ISR, CHANGE); 
+    attachInterrupt(this->PIN.ENCODER_BUTTON, ENCODER_ISR, CHANGE);  
     //ld1-3
     pinMode(this->PIN.LD1, OUTPUT);
     pinMode(this->PIN.LD2, OUTPUT);
@@ -103,28 +112,14 @@ void HAL_MCU11_revB::tick()
     const bool NO_ERROR = (!this->tickSafety());
 
     if(NO_ERROR)
-    {
-        //encoder
-        u_HAL_DATA_t tempbuffer;
-        memset(&tempbuffer, 0, sizeof(u_HAL_DATA_t));
-        tempbuffer.encoderData.stateA = digitalRead(this->PIN.ENCODER_A);
-        tempbuffer.encoderData.stateB = digitalRead(this->PIN.ENCODER_B);
-        tempbuffer.encoderData.stateZ = digitalRead(this->PIN.ENCODER_BUTTON);
-        this->p_encoder->halCallback(&tempbuffer);
+    {        
+        u_HAL_DATA_t tempbuffer;       
+        memset(&tempbuffer, 0, sizeof(u_HAL_DATA_t)); 
         //p_oen schreiben       
         if(this->p_oen->newDataAvailable())
         {         
             const bool OEN_STATE = this->p_oen->halCallback().digitalIoData.state;  
-            //NPN PullUp schaltung, ausgang also invertieren
-            if(OEN_STATE > 0)
-            {
-                digitalWrite(this->PIN.OEN, HIGH);
-            }
-            else
-            {
-                digitalWrite(this->PIN.OEN, LOW);
-            }
-            
+            digitalWrite(this->PIN.OEN, OEN_STATE);             
         }
         //BUZZER
         if(this->p_buzzer->newDataAvailable())
@@ -155,6 +150,15 @@ void HAL_MCU11_revB::tick()
             INT_ISR_MCU_REV_B();
         }      
     }    
+}
+void HAL_MCU11_revB::readEncoder()
+{
+    u_HAL_DATA_t tempbuffer;  
+    memset(&tempbuffer, 0, sizeof(u_HAL_DATA_t));
+    tempbuffer.encoderData.stateA = digitalRead(this->PIN.ENCODER_A);
+    tempbuffer.encoderData.stateB = digitalRead(this->PIN.ENCODER_B);
+    tempbuffer.encoderData.stateZ = digitalRead(this->PIN.ENCODER_BUTTON);
+    this->p_encoder->halCallback(&tempbuffer);
 }
 void HAL_MCU11_revB::controlCommand(const e_EC_COMMAND_t COMMAND)
 {

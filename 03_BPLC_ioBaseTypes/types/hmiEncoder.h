@@ -20,19 +20,19 @@ typedef enum
 class hmiEncoder:public IO_Interface
 {
 	public:
-                        hmiEncoder              ()
+    hmiEncoder()
     {
         this->f_invertedDirection   = false;
         this->f_encoderLogicLevel   = false;
         this->ioType                = IO_TYPE__ROTARY_ENCODER; 
-        this->inputChannels[ENCODER_CHANNEL_A].setDebounceTime(10,10);
-        this->inputChannels[ENCODER_CHANNEL_B].setDebounceTime(10,10);
-        this->pushButton.setDebounceTime(10,10);
+        this->inputChannels[ENCODER_CHANNEL_A].setDebounceTime(50,50);
+        this->inputChannels[ENCODER_CHANNEL_B].setDebounceTime(50,50);
+        this->pushButton.setDebounceTime(50,50);
         this->channelState[ENCODER_CHANNEL_A] = HMI_ENCODER_CYCLE__IDLE;
         this->channelState[ENCODER_CHANNEL_B] = HMI_ENCODER_CYCLE__IDLE;
     }
     void                setLogicLevel           (const bool ENCODER_IS_HIGH_ACTIVE){this->f_encoderLogicLevel = ENCODER_IS_HIGH_ACTIVE;}
-    void                invertTurningDirection  (){this->f_invertedDirection = !this->f_invertedDirection;}
+    void                invertTurningDirection  (){this->f_invertedDirection = (!this->f_invertedDirection);}
     e_MOVEMENT_t        getTurningDirection     (){e_MOVEMENT_t DIRECTION = this->direction; this->direction = MOVEMENT__IDLE; return DIRECTION;}
     bool                buttonPressed           (){return this->pushButton.fallingEdge();}
     bool                buttonReleased          (){return this->pushButton.risingEdge();}

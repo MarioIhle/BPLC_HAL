@@ -10,26 +10,27 @@ class digitalInput: public IO_Interface, private BPLC_logPrint
 {
     public:
     //init
-                        digitalInput    (){this->ioType = IO_TYPE__DIGITAL_INPUT; this->state = false; this->previousState = false;}
-    void                setDebounceTime (const uint8_t LOW_TO_HIGH_MS, const uint8_t HIGH_TO_LOW_MS)
+    digitalInput(){this->ioType = IO_TYPE__DIGITAL_INPUT; this->state = false; this->previousState = false;}
+    void setDebounceTime (const uint8_t LOW_TO_HIGH_MS, const uint8_t HIGH_TO_LOW_MS)
     {
         this->debouncer.setDebounceTime(LOW_TO_HIGH_MS, HIGH_TO_LOW_MS);
         
-        if(LOW_TO_HIGH_MS >= 10 || HIGH_TO_LOW_MS >= 10)
+        if((LOW_TO_HIGH_MS >= 10) || (HIGH_TO_LOW_MS >= 10))
         {
             this->printLog("MAY_THE_ECM_CAN_NOT_DETECT_RISING_EDGE_ANYMORE", __FILENAME__, __LINE__);
         }
     }
     //Applikation
-    bool                stateChanged    (){const bool STATE_CHANGED = (this->f_stateChanged == true); this->f_stateChanged = false; return STATE_CHANGED;}
-    bool 	            high            (){return (this->state == true);}       //abwärtsKompatibel
-    bool	            low             (){return (this->state == false);}      //abwärtsKompatibel
-    bool 	            ishigh          (){return (this->state == true);}       //abwärtsKompatibel
-    bool	            islow           (){return (this->state == false);}      //abwärtsKompatibel
-    bool 	            isHigh          (){return (this->state == true);}
-    bool	            isLow           (){return (this->state == false);}
+    bool                stateChanged    (){const bool STATE_CHANGED = (this->f_stateChanged); this->f_stateChanged = false; return STATE_CHANGED;}
+    bool 	            high            (){return (this->state);}       //abwärtsKompatibel
+    bool	            low             (){return (!this->state);}      //abwärtsKompatibel
+    bool 	            ishigh          (){return (this->state );}       //abwärtsKompatibel
+    bool	            islow           (){return (!this->state);}      //abwärtsKompatibel
+    bool 	            isHigh          (){return (this->state);}
+    bool	            isLow           (){return (!this->state);}
     bool                getState        (){return this->state;}
-	bool 	            risingEdge      ()
+	
+    bool risingEdge()
     {
         if(this->f_risingEdgeOccoured)
         {   
@@ -38,7 +39,7 @@ class digitalInput: public IO_Interface, private BPLC_logPrint
         }        
         return false;
     }
-	bool 	            fallingEdge     ()
+	bool fallingEdge()
     {
         if(this->f_fallingEdgeOccoured)
         {   
@@ -87,5 +88,4 @@ class digitalInput: public IO_Interface, private BPLC_logPrint
     e_IO_TYPE_t         ioType;
     digitalDebouncer    debouncer;
 };
-
 #endif

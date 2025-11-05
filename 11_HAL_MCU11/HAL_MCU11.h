@@ -120,6 +120,7 @@ class HAL_MCU11_revB: public halInterface, protected BPLC_moduleErrorHandler, pr
     void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
     void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
 
+    void            readEncoder             ();
 
     private:
     bool            tickSafety();
