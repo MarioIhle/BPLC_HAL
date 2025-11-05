@@ -48,7 +48,6 @@ class digitalInput: public IO_Interface, private BPLC_logPrint
         return false;
     }
     //Hal handling
-    e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable(){return false;}    
     u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA)
     {    
@@ -84,7 +83,6 @@ class digitalInput: public IO_Interface, private BPLC_logPrint
     bool                f_stateChanged;
     bool                state;                      
     bool                previousState;
-    e_IO_TYPE_t         ioType;
     digitalDebouncer    debouncer;
 };
 

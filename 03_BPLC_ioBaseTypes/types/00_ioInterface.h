@@ -79,9 +79,12 @@ typedef enum
 class IO_Interface
 {
     public:
-    virtual e_IO_TYPE_t         getIoType           () = 0; 
+    e_IO_TYPE_t                 getIoType           (){return this->ioType;}
     virtual bool                newDataAvailable    () = 0;
     virtual u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* DATA = nullptr) = 0;
+
+    //Private
+    e_IO_TYPE_t ioType;	  
 };
 
 #endif

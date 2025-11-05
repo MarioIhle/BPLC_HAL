@@ -26,7 +26,6 @@ class counter: public IO_Interface
         }
     }
     //Hal handling
-    e_IO_TYPE_t         getIoType       (){return this->ioType;}
     bool                newDataAvailable(){this->count++;return false;} //cout++ ist ein kleiner Hack um über die INT isr direkt zählen zu können 
     u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA)
     {
@@ -42,7 +41,6 @@ class counter: public IO_Interface
 
     private:
     volatile uint64_t   count; 
-    e_IO_TYPE_t         ioType;
     volatile bool       previousState;
     bool                f_countingEnabled;  //Zählen für das auswerten der Drehzahl kurz pausieren
 };

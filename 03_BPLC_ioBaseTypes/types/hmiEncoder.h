@@ -37,7 +37,6 @@ class hmiEncoder:public IO_Interface
     bool                buttonPressed           (){return this->pushButton.fallingEdge();}
     bool                buttonReleased          (){return this->pushButton.risingEdge();}
     //Hal handling
-    e_IO_TYPE_t         getIoType               (){return this->ioType;}
     bool                newDataAvailable        (){return false;}
     u_HAL_DATA_t        halCallback             (u_HAL_DATA_t* P_DATA = nullptr)
     {              
@@ -165,8 +164,6 @@ class hmiEncoder:public IO_Interface
     
 
     private: 
-
-    e_IO_TYPE_t         ioType;
     bool                f_invertedDirection;
     bool                f_encoderLogicLevel;
     //Inputs

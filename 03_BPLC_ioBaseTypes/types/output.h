@@ -39,7 +39,7 @@ class output: public IO_Interface, private blink
     //Setup
     output(const e_IO_TYPE_t IO_TYPE = IO_TYPE__OUTPUT_PUSH, const e_outputSetting_t OUTPUT_TYPE = OUTPUT_SETTING__DIGITAL_NO, const uint8_t ON_VALUE = 255)
 	{
-		this->setting.ioType		= IO_TYPE;
+		this->ioType				= IO_TYPE;
 		this->setting.outputType	= OUTPUT_TYPE;
 		this->setting.onValue 		= ON_VALUE;		
 	
@@ -47,11 +47,11 @@ class output: public IO_Interface, private blink
 		{
 			this->value = 1;
 		}
-		this->mode 					= OUTPUTMODE__OFF;
+		this->mode = OUTPUTMODE__OFF;
 	}  
 	void begin(const e_IO_TYPE_t IO_TYPE = IO_TYPE__OUTPUT_PUSH, const e_outputSetting_t OUTPUT_TYPE = OUTPUT_SETTING__DIGITAL_NO, const uint8_t ON_VALUE = 255)	
 	{
-		this->setting.ioType		= IO_TYPE;
+		this->ioType				= IO_TYPE;
 		this->setting.outputType	= OUTPUT_TYPE;
 		this->setting.onValue 		= ON_VALUE;		
 	
@@ -59,23 +59,19 @@ class output: public IO_Interface, private blink
 		{
 			this->value = 1;
 		}
-		this->mode 					= OUTPUTMODE__OFF;
+		this->mode = OUTPUTMODE__OFF;
 	}  
 	//Setzt den maximalen Wert des Ausgangs
-    void setOnValue      (const uint8_t VALUE){this->setting.onValue = VALUE;}
-	//Invertiert das Ausgangsverhalten. SET= OUTPUTMODE_OFF, RESET= OUTPUTMODE_ON
-	void invert()
-	{
-
-	}
+    void setOnValue(const uint8_t VALUE){this->setting.onValue = VALUE;}
     //Applikation Handling
-	void blinkOnce		(const uint8_t BLINKS, const unsigned long BLINK_INTERVAL)			                        //Blinkt für angeforderte Anzahl und Interval
+	//Blinkt für angeforderte Anzahl und Interval
+	void blinkOnce(const uint8_t BLINKS, const unsigned long BLINK_INTERVAL) 
     {
 		this->setupBlink(BLINKS, BLINK_INTERVAL);		
 		this->mode = OUTPUTMODE__BLINK_ONCE;	
 	}
-	//Lässt den Ausgag endlos Blinken 
-	void blinkContinious (const uint8_t BLINKS, const unsigned long BLINK_INTERVAL, const unsigned long BREAK_TIME)  //Blinkt dauerhaft mit optinaler Pause
+	//Blinkt dauerhaft mit optinaler Pause
+	void blinkContinious(const uint8_t BLINKS, const unsigned long BLINK_INTERVAL, const unsigned long BREAK_TIME)  
 	{
 		if(this->mode != OUTPUTMODE__BLINK_ONCE)//Blinken zuerst fertig ausführen
 		{
@@ -104,7 +100,6 @@ class output: public IO_Interface, private blink
 		if(this->mode != OUTPUTMODE__ON)
 		{
 			this->mode = OUTPUTMODE__ON;
-			this->f_newDataAvailable = true;
 		}	
 	}
 	//Setzt den Ausgang zurück
@@ -113,7 +108,6 @@ class output: public IO_Interface, private blink
 		if(this->mode != OUTPUTMODE__OFF)
 		{
 			this->mode = OUTPUTMODE__OFF;
-			this->f_newDataAvailable = true;
 		}	
 	}
 	//Setzten/Rücksetzten über Parameter
@@ -135,19 +129,20 @@ class output: public IO_Interface, private blink
 		{
 			this->value 				= VALUE;
 			this->mode 					= OUTPUTMODE__VALUE;
-			this->f_newDataAvailable 	= true;
+			this->outputValueChanged 	= true;
 		}	
 	}
 	//Gibt den Aktuelllen State zurück
-	bool	 			getState		(){return (OUTPUTMODE__ON == this->mode);}
+	bool getState(){return (OUTPUTMODE__ON == this->mode);}
 	//Gibt den Aktuellen Wert zurück
-	uint8_t 			getValue		(){return this->value;}
+	uint8_t getValue(){return this->value;}
    
-    //Hal handling
-    e_IO_TYPE_t         getIoType       (){return this->setting.ioType;}
+    //Hal handling 
 	//HAL der Outputkarte prüft auf neue Daten zur ausgabe
-    bool                newDataAvailable()
+    bool newDataAvailable()
 	{
+		bool newDataAvailable = false;
+
 		switch(this->mode)
 		{
 			case OUTPUTMODE__OFF:
@@ -227,7 +222,7 @@ class output: public IO_Interface, private blink
 					{
 						//do nothing
 					}
-					this->f_newDataAvailable = true;
+					this->outputValueChanged = true;
 				}
 			break;
 
@@ -235,7 +230,7 @@ class output: public IO_Interface, private blink
 				this->mode = OUTPUTMODE__OFF;
 			break;
 		}
-		return this->f_newDataAvailable;
+		return this->outputValueChanged;
 	}
 	//Hal holt sich Daten zur Ausgabe 
     u_HAL_DATA_t halCallback(u_HAL_DATA_t* P_DATA)
@@ -254,7 +249,7 @@ class output: public IO_Interface, private blink
 			break;
 
 		}		
-		this->f_newDataAvailable 		= false;
+		this->outputValueChanged = false;
 		return tempBuffer;
 	}
 
@@ -262,46 +257,56 @@ class output: public IO_Interface, private blink
 	private:     
 	void setOutValue(const bool STATE)
 	{
-		switch(this->setting.outputType)
+		if(STATE != this->value)
 		{
-			//Normaler DigitalOut, schließer
-			case OUTPUT_SETTING__DIGITAL_NO:
-				if(STATE)
-				{
-					this->value = 1;
-				}
-				else
-				{
-					this->value = 0;
-				}
-			break;
-			//Invertiertes Verhalten, öffner
-			case OUTPUT_SETTING__DIGITAL_NC:
-				if(STATE)
-				{
-					this->value = 0;
-				}
-				else
-				{
-					this->value = 1;
-				}
-			break;
-			//Analog Out
-			default:
-			case OUTPUT_SETTING__ANALOG:
-				this->value = this->setting.onValue;	
-			break;
+			this->outputValueChanged = true;
 
+			switch(this->setting.outputType)
+			{
+				//Normaler DigitalOut, schließer
+				case OUTPUT_SETTING__DIGITAL_NO:
+					if(STATE)
+					{
+						this->value = 1;
+					}
+					else
+					{
+						this->value = 0;
+					}
+				break;
+				//Invertiertes Verhalten, öffner
+				case OUTPUT_SETTING__DIGITAL_NC:
+					if(STATE)
+					{
+						this->value = 0;
+					}
+					else
+					{
+						this->value = 1;
+					}
+				break;
+				//Analog Out
+				default:
+				case OUTPUT_SETTING__ANALOG:				
+					if(STATE)
+					{
+						this->value = this->setting.onValue;	
+					}
+					else
+					{
+						this->value = 0;
+					}
+				break;				
+			}
 		}	
 	}
 
     e_outputMode_t	    mode;           //Aktueller Modus
     uint8_t             value;  	    //Aktueller Wert
-    bool                f_newDataAvailable;
+	basename			outputValueChanged;
     struct 
     {
-        uint8_t 			onValue;
-		e_IO_TYPE_t         ioType;	  	
+        uint8_t 			onValue;			
 		e_outputSetting_t	outputType;
     }setting;    
 
