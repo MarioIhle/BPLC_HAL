@@ -8,9 +8,8 @@
 //Art des Output, hat nichts mit der Ansteurung PUSH/PULL zu tun
 typedef enum
 {
-	OUTPUT_SETTING__DIGITAL_NO,
-	OUTPUT_SETTING__DIGITAL_NC,
-	OUTPUT_SETTING__ANALOG
+	OUTPUT_SETTING__NORMALY_OPEN,
+	OUTPUT_SETTING__NORMALY_CLOSED
 }e_outputSetting_t;
 
 
@@ -37,28 +36,20 @@ class output: public IO_Interface, private blink
  {
 	public:
     //Setup
-    output(const e_IO_TYPE_t IO_TYPE = IO_TYPE__OUTPUT_PUSH, const e_outputSetting_t OUTPUT_TYPE = OUTPUT_SETTING__DIGITAL_NO, const uint8_t ON_VALUE = 255)
+    output(const e_IO_TYPE_t IO_TYPE = IO_TYPE__OUTPUT_PUSH, const e_outputSetting_t OUTPUT_TYPE = OUTPUT_SETTING__NORMALY_OPEN, const uint8_t ON_VALUE = 255)
 	{
 		this->ioType				= IO_TYPE;
 		this->setting.outputType	= OUTPUT_TYPE;
 		this->setting.onValue 		= ON_VALUE;		
 	
-		if(OUTPUT_TYPE != OUTPUT_SETTING__ANALOG)
-		{
-			this->value = 1;
-		}
 		this->mode = OUTPUTMODE__OFF;
 	}  
-	void begin(const e_IO_TYPE_t IO_TYPE = IO_TYPE__OUTPUT_PUSH, const e_outputSetting_t OUTPUT_TYPE = OUTPUT_SETTING__DIGITAL_NO, const uint8_t ON_VALUE = 255)	
+	void begin(const e_IO_TYPE_t IO_TYPE = IO_TYPE__OUTPUT_PUSH, const e_outputSetting_t OUTPUT_TYPE = OUTPUT_SETTING__NORMALY_OPEN, const uint8_t ON_VALUE = 255)	
 	{
 		this->ioType				= IO_TYPE;
 		this->setting.outputType	= OUTPUT_TYPE;
 		this->setting.onValue 		= ON_VALUE;		
-	
-		if(OUTPUT_TYPE != OUTPUT_SETTING__ANALOG)
-		{
-			this->value = 1;
-		}
+
 		this->mode = OUTPUTMODE__OFF;
 	}  
 	//Setzt den maximalen Wert des Ausgangs
@@ -100,6 +91,7 @@ class output: public IO_Interface, private blink
 		if(this->mode != OUTPUTMODE__ON)
 		{
 			this->mode = OUTPUTMODE__ON;
+			this->outputValueChanged = true;
 		}	
 	}
 	//Setzt den Ausgang zurück
@@ -108,6 +100,7 @@ class output: public IO_Interface, private blink
 		if(this->mode != OUTPUTMODE__OFF)
 		{
 			this->mode = OUTPUTMODE__OFF;
+			this->outputValueChanged = true;
 		}	
 	}
 	//Setzten/Rücksetzten über Parameter
@@ -141,8 +134,6 @@ class output: public IO_Interface, private blink
 	//HAL der Outputkarte prüft auf neue Daten zur ausgabe
     bool newDataAvailable()
 	{
-		bool newDataAvailable = false;
-
 		switch(this->mode)
 		{
 			case OUTPUTMODE__OFF:
@@ -167,11 +158,13 @@ class output: public IO_Interface, private blink
 					&&(this->value != this->setting.onValue))
 					{
 						setOutValue(true);		
+						this->outputValueChanged = true;
 					}	
 					else if((!this->tickBlink())
 						&& (this->value != 0))
 					{
-						setOutValue(false);			
+						setOutValue(false);		
+						this->outputValueChanged = true;	
 					}		
 				}
 				else
@@ -184,12 +177,14 @@ class output: public IO_Interface, private blink
 				if(this->tickBlink() 
 				&&(this->value != this->setting.onValue))
 				{
-					setOutValue(true);				
+					setOutValue(true);			
+					this->outputValueChanged = true;	
 				}	
 				else if((!this->tickBlink())
 					&& (this->value != 0))
 				{
-					setOutValue(false);					
+					setOutValue(false);		
+					this->outputValueChanged = true;			
 				}		
 			break;
 
@@ -236,20 +231,8 @@ class output: public IO_Interface, private blink
     u_HAL_DATA_t halCallback(u_HAL_DATA_t* P_DATA)
 	{
 		u_HAL_DATA_t tempBuffer;
-
-		switch(this->setting.outputType)
-		{
-			case OUTPUT_SETTING__DIGITAL_NO:
-			case OUTPUT_SETTING__DIGITAL_NC:
-				tempBuffer.digitalIoData.state = (1 == this->value);
-			break;
-
-			case OUTPUT_SETTING__ANALOG:
-				tempBuffer.analogIoData.value 	= this->value;
-			break;
-
-		}		
-		this->outputValueChanged = false;
+		tempBuffer.analogIoData.value 	= this->value;	
+		this->outputValueChanged 		= false;
 		return tempBuffer;
 	}
 
@@ -257,53 +240,38 @@ class output: public IO_Interface, private blink
 	private:     
 	void setOutValue(const bool STATE)
 	{
-		if(STATE != this->value)
+		switch(this->setting.outputType)
 		{
-			this->outputValueChanged = true;
+			//Invertiertes Verhalten, öffner
+			case OUTPUT_SETTING__NORMALY_CLOSED:
+				if(STATE)
+				{
+					this->value = 0;
+				}
+				else
+				{
+					this->value = this->setting.onValue;	
+				}
+			break;
 
-			switch(this->setting.outputType)
-			{
-				//Normaler DigitalOut, schließer
-				case OUTPUT_SETTING__DIGITAL_NO:
-					if(STATE)
-					{
-						this->value = 1;
-					}
-					else
-					{
-						this->value = 0;
-					}
-				break;
-				//Invertiertes Verhalten, öffner
-				case OUTPUT_SETTING__DIGITAL_NC:
-					if(STATE)
-					{
-						this->value = 0;
-					}
-					else
-					{
-						this->value = 1;
-					}
-				break;
-				//Analog Out
-				default:
-				case OUTPUT_SETTING__ANALOG:				
-					if(STATE)
-					{
-						this->value = this->setting.onValue;	
-					}
-					else
-					{
-						this->value = 0;
-					}
-				break;				
-			}
+			//Analog Out
+			default:
+			case OUTPUT_SETTING__NORMALY_OPEN:				
+				if(STATE)
+				{
+					this->value = this->setting.onValue;	
+				}
+				else
+				{
+					this->value = 0;
+				}
+			break;			
 		}	
 	}
 
     e_outputMode_t	    mode;           //Aktueller Modus
     uint8_t             value;  	    //Aktueller Wert
-	basename			outputValueChanged;
+	bool				outputValueChanged;
     struct 
     {
         uint8_t 			onValue;			
