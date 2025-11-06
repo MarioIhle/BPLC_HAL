@@ -52,7 +52,6 @@ class rpmSensor: public IO_Interface
     }
     
     //Hal handling
-    e_IO_TYPE_t         getIoType           (){return this->ioType;}
     bool                newDataAvailable    (){return false;}
     u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* P_DATA = nullptr)
     {        
@@ -62,7 +61,6 @@ class rpmSensor: public IO_Interface
 
 
     private:     
-    e_IO_TYPE_t ioType;
     counter     sampleCounter;
     uint64_t    startTime;
 

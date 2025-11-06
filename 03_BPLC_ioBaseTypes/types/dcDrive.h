@@ -76,7 +76,6 @@ class dcDrive: public IO_Interface
     e_DRIVE_STATE_t     getDriveState           (){return this->driveState;}
 
     //Hal handling
-    e_IO_TYPE_t         getIoType               (){return this->ioType;}
     bool                newDataAvailable        ()
 	{
 		const bool NEW_DATA_AVAILABLE 		= this->f_newDriveParametersAvailable;
@@ -111,7 +110,6 @@ class dcDrive: public IO_Interface
     private:
     e_DRIVE_STATE_t     driveState; 
     bool                f_newDriveParametersAvailable;
-    e_IO_TYPE_t         ioType;
     //Motor Parameter
     struct 
     {

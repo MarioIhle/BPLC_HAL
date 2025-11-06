@@ -38,7 +38,6 @@ class servoMotor: public IO_Interface
 		return this->positionInDegree;
 	}
     //Hal handling
-    e_IO_TYPE_t         getIoType           (){return this->ioType;}
     bool                newDataAvailable    (){return this->f_newPositionAvailable;}
     u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* P_DATA = nullptr)
 	{
@@ -50,7 +49,6 @@ class servoMotor: public IO_Interface
 	}
 
     private:    
-    e_IO_TYPE_t         ioType;
 	uint16_t			positionInDegree;
     uint16_t            minAngle;
     uint16_t            maxAngle;
