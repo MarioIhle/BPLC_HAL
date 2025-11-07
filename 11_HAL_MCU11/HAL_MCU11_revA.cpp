@@ -150,7 +150,7 @@ void HAL_MCU11_revA::controlCommand(const e_EC_COMMAND_t COMMAND)
     switch (COMMAND)
     {       
         default:
-            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
+            this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
             break;
     }
 }

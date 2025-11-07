@@ -69,6 +69,7 @@ void BPLC_APP::begin()
    this->setupHardware();      
    this->setupNetwork();  
    this->setupSafety();
+   this->setupControlPanel();
 
    //Fehlerprüfung bevor System startet
    this->APP_APP.setup.f_bplcSetupDone = true;

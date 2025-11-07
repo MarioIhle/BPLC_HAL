@@ -221,7 +221,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, cons
         p_newHalInterface->setSuperiorErrorManager(this->p_superiorErrorManager);
         //Hal inizialisieren
         p_newHalInterface->init(ADDR);          
-        const bool HAL_SUCCESSFUL_INITIALIZED = (p_newHalInterface->getModuleErrorCount() == 0);
+        const bool HAL_SUCCESSFUL_INITIALIZED = true;  //EC trotzdem in Liste aufnehmen (p_newHalInterface->getModuleErrorCount() == 0);
 
         if(HAL_SUCCESSFUL_INITIALIZED)
         {            
@@ -361,5 +361,33 @@ void BPLC_extensionCardManager::startCurrentTuningMot11(const e_EC_ADDR_t ADDR)
     else
     {
         this->printLog("EC NOT DEFINED", __FILENAME__, __LINE__);
+    }
+}
+void BPLC_extensionCardManager::enableECDebugOutput()
+{
+    if(this->p_firstExtensionCard!= nullptr)
+    {
+        extensionCard*  p_extensionCardToTick = this->p_firstExtensionCard;     
+
+        while(p_extensionCardToTick != nullptr)
+        {
+            halInterface* p_halInterface = p_extensionCardToTick->getHalInterface();
+            p_halInterface->controlCommand(EC_COMMAND__ENABLE_DEBUG_OUTPUT); 
+            p_extensionCardToTick = p_extensionCardToTick->getNext();      
+        }  
+    }
+}
+void BPLC_extensionCardManager::disableECErrorDetection()
+{
+    if(this->p_firstExtensionCard!= nullptr)
+    {
+        extensionCard*  p_extensionCardToTick = this->p_firstExtensionCard;     
+
+        while(p_extensionCardToTick != nullptr)
+        {
+            halInterface* p_halInterface = p_extensionCardToTick->getHalInterface();
+            p_halInterface->controlCommand(EC_COMMAND__DISABLE_ERROR_DETECTION); 
+            p_extensionCardToTick = p_extensionCardToTick->getNext();      
+        }  
     }
 }

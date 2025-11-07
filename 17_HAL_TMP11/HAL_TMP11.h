@@ -45,7 +45,6 @@ class HAL_TMP11: public halInterface, private BPLC_moduleErrorHandler, private B
   
     private:          
     //Settings
-    uint8_t     deviceAddress;
     MCP342x     adc;
   
     //Object handling

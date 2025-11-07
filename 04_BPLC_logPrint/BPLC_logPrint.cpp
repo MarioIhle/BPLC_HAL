@@ -52,3 +52,11 @@ void BPLC_logPrint::printRamUsage()
     Serial.print(", SPIRAM_SIZE: ");  Serial.println(ESP.getFreePsram()); 
 #endif
 }
+void BPLC_logPrint::printExtensionCardDebugOutput(String EXTENSIONCARD_TYPE, String ADDR, String CHANNEL, String VALUE)
+{
+    Serial.println("");
+    Serial.println("----------------EC DEBUG OUTPUT----------------");
+    Serial.println("OS Time: " + String(millis()));
+    Serial.println("--> " + EXTENSIONCARD_TYPE + " ADDR:" + ADDR +  ", CHANNEL" + CHANNEL + " CHANGED TO: " + VALUE);
+    Serial.flush();
+}

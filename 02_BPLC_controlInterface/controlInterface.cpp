@@ -1,10 +1,17 @@
 #include "BPLC_controlInterface.h"
 
 BPLC_controlInterface::BPLC_controlInterface()
-{}
+{
+
+}
+void BPLC_controlInterface::begin(const uint8_t PREFIX, const uint8_t SUFFIX)
+{
+    this->prefix    = PREFIX;
+    this->suffix    = SUFFIX;
+}
 bool BPLC_controlInterface::commandAvailable()
 {
-    while(Serial.available())
+    if(Serial.available())
     {      
         //Host heartbeat
         this->to_keepAlive.reset();
@@ -12,25 +19,20 @@ bool BPLC_controlInterface::commandAvailable()
         u_BPLC_PLI_COMMAND_t inCommand;
         memset(&inCommand, 0, sizeof(u_BPLC_PLI_COMMAND_t));
 
-        uint8_t startFrame              = Serial.read();
-        inCommand.command.key           = Serial.read();
-        inCommand.command.paramValue    = Serial.read();
-        uint8_t endFrame                = Serial.read();    
-
-        if (startFrame == hostStartFrame && endFrame == hostEndFrame)
+        if(Serial.peek() == this->prefix)
         {
-            const e_BPLC_PLI_KEY_t KEY = (e_BPLC_PLI_KEY_t)inCommand.command.key;
+            uint8_t startFrame              = Serial.read();
+            inCommand.command.key           = Serial.read();
+            inCommand.command.payload       = Serial.read();
+            uint8_t endFrame                = Serial.read();          
 
-            if(KEY < BPLC_PLI_KEY__COUNT)
-            {
+            if (startFrame == this->prefix && endFrame == this->suffix)
+            {                
                 this->mailbox.createNewElement(&inCommand.data[0], sizeof(u_BPLC_PLI_COMMAND_t));              
-            }
-            else
-            {
-                this->printLog("RECEIVED COMMAND KEY INVALID!", __FILENAME__, __LINE__);
-            }   
+            }               
         }
     }
+    
     return this->mailbox.isThereSomethingInTheBuffer();
 }
 u_BPLC_PLI_COMMAND_t BPLC_controlInterface::getCommand()
