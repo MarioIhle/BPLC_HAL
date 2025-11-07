@@ -19,6 +19,7 @@ typedef enum
     NANO11_COMMAND_KEY__COUNT
 }e_NANO11_COMMAND_KEY_t;
 
+#pragma pack (push, 1)
 typedef union 
 {
     struct 
@@ -31,7 +32,7 @@ typedef union
     uint8_t data[sizeof(extract)];
     
 }s_NANO11_COMMAND_t;
-
+#pragma pack (pop)
 //-------------------------------------------------------------
 //Normale HAL für BPLC Master um mit NANO11 zu kommunizieren
 class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint, private I2C_check

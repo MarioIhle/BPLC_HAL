@@ -20,6 +20,7 @@ typedef enum
 
 #define PAYLAOD_BYTES_MAX 128
 #define MESSAGE_HEAD      2
+
 #pragma pack (push, 1)
 typedef union 
 {   
