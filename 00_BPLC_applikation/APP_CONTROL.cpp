@@ -26,6 +26,7 @@ typedef enum
 
     //Kommunikation
     BPLC_PLI_KEY__SET_DEVICE_ADDRESS = 0x20,
+    BPLC_PLI_KEY__DEBUG_MODE,
 
     //Hardware
     BPLC_PLI_KEY__DISABLE_EC_ERROR_DETECTION = 0x28,
@@ -256,6 +257,17 @@ void BPLC_APP::tickControlPanel()
                     delay(2000);
                     ESP.restart();
                 }                
+                break;
+
+            case BPLC_PLI_KEY__DEBUG_MODE:
+                if(1 == COMMAND.command.payload)
+                {
+                    this->APP_COM.p_comNode->enableDebugmode();
+                }
+                else
+                {
+                    this->APP_COM.p_comNode->disableDebugmode();
+                }
                 break;
  //Hardware  
             case BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT:

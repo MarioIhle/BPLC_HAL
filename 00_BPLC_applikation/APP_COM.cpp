@@ -81,7 +81,7 @@ void BPLC_APP::tickNetwork()
             //this->systemErrorManager.setError(BPLC_ERROR__COMMUNICATION_FAILED, __FILENAME__, __LINE__);
         }                            
 
-        switch(this->APP_COM.p_comNode->getState())
+        switch(this->APP_COM.p_comNode->getNodeState())
         {
             case COM_NODE_STATE__AVAILABLE:
                 this->APP_HAL.LD2_COMMUNICATION_STATE.fade(2500, 2500);
@@ -97,6 +97,10 @@ void BPLC_APP::tickNetwork()
             case COM_NODE_STATE__RESYNC_PORTS:
                 this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 50, 50);
             break;               
+
+            case COM_NODE_STATE__AVAILABLE_DEBUG_MODE:
+                this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 100, 1000);
+                break;
         }              
     }
 }
