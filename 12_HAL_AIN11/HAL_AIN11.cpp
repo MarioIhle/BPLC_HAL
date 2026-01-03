@@ -67,8 +67,18 @@ void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         this->setError(AIN11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
     else
-    {
-        this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
+    {        
+        switch (P_IO_OBJECT->getIoType())
+        {          
+            case IO_TYPE__ANALOG_INPUT:
+                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT; 
+                break;
+
+            default:
+            case IO_TYPE__NOT_DEFINED:
+                this->setError(AIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                break;               
+        }  
     }
 }
 void HAL_AIN11::tick()
@@ -114,7 +124,7 @@ void HAL_AIN11::tick()
                         
                         default:
                         case IO_TYPE__NOT_DEFINED:
-                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                            this->setError(MOT11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
                         break;               
                     }
                 }       

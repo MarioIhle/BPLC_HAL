@@ -18,7 +18,7 @@ bool I2C_BPLC_Master::getSlaveData(const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_
         slaveData.data[inBytes] = Wire.read(); 
         inBytes++;
     }        
-    memcpy(P_DATA_BUFFER, slaveData.extract.payload, PAYLOAD_SIZE);  
+    memcpy(P_DATA_BUFFER, slaveData.extract.payload, PAYLOAD_SIZE);  //<-- das funktioniert??
     
     return (slaveData.extract.i2cBplcKey == I2C_BPLC_KEY__SLAVE_DATA);
 }

@@ -54,9 +54,9 @@ void BPLC_I2C_NODE::sendFrame(const uint8_t DESTINATION_ADDRESS, const e_I2C_BPL
     Wire.write(OUT_FRAME.data, (MESSAGE_HEAD+BYTE_COUNT));            
     Wire.endTransmission(true);          
 }
-e_I2C_BPLC_KEY_t BPLC_I2C_NODE::newFrameReceived()
+bool BPLC_I2C_NODE::newFrameReceived()
 {
-    return (e_I2C_BPLC_KEY_t)callback_inBuffer.extract.i2cBplcKey;
+    return (I2C_BPLC_KEY__NO_KEY != callback_inBuffer.extract.i2cBplcKey);
 }
 u_I2C_BPLC_NODE_FRAME_t BPLC_I2C_NODE::getFrame()
 {

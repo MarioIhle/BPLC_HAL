@@ -135,11 +135,12 @@ void LIB_NANO11::tick()
                     }
                     //Input über objekt aus der App lesen
                     else
-                    {
+                    {                  
                         if(this->channels[CH].p_ioObject->newDataAvailable())
-                    
-                        dataBuffer[CH]      = this->channels[CH].p_ioObject->halCallback();
-                        newDataAvailable    = true;                               
+                        {
+                            dataBuffer[CH]      = this->channels[CH].p_ioObject->halCallback();
+                            newDataAvailable    = true;    
+                        }                                
                     }                    
                     break;
 
@@ -153,9 +154,10 @@ void LIB_NANO11::tick()
                     else
                     {
                         if(this->channels[CH].p_ioObject->newDataAvailable())
-                    
-                        dataBuffer[CH]      = this->channels[CH].p_ioObject->halCallback();
-                        newDataAvailable    = true;                               
+                        {
+                            dataBuffer[CH]      = this->channels[CH].p_ioObject->halCallback();
+                            newDataAvailable    = true;    
+                        }                           
                     } 
                     break;
 

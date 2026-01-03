@@ -101,7 +101,7 @@ void HAL_NANO11::tick()
             u_HAL_DATA_t dataBuffer[NANO11_CHANNEL_COUNT];
             this->bplcNode.getSlaveData(this->deviceAddress, &dataBuffer[0].data[0], sizeof(dataBuffer));
             
-            //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschieben
+            //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschrieben
             for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
             {
                 if(this->channels.p_ioObject[CH] != nullptr)
@@ -151,9 +151,7 @@ void HAL_NANO11::tick()
                         }                       
                         break;
 
-                    default:
-                    case IO_TYPE__NOT_DEFINED:
-                        this->setError(NANO11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                    default:                    
                         break;  
                 }                           
             }

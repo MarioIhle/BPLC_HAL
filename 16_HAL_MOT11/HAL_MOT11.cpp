@@ -48,8 +48,18 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         this->setError(MOT11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
     else
-    {   
-        this->channels.p_ioObject = P_IO_OBJECT;
+    { 
+        switch (P_IO_OBJECT->getIoType())
+        {          
+            case IO_TYPE__DC_DRIVE:
+                this->channels.p_ioObject = P_IO_OBJECT;
+                break;
+
+            default:
+            case IO_TYPE__NOT_DEFINED:
+                this->setError(MOT11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                break;               
+        }
     }
 }
 void HAL_MOT11::tick()
@@ -64,9 +74,7 @@ void HAL_MOT11::tick()
         switch(this->state)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
         {
             default:
-            case IO_TYPE__NOT_DEFINED:
-                this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
-                break;  
+             
 
             case MOT11_DEVICE_STATE__RUNNING:   //Normalbetreb            
                 if(this->channels.p_ioObject->newDataAvailable())

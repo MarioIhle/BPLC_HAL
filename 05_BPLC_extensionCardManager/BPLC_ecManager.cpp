@@ -124,8 +124,11 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
     //Karte wurde in ecM Liste gefunden
     if(CARD_FOUND)
     {
-        p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);      
-        if(CARD == EC__DIN11revA)
+        p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);  
+
+        const bool EXTENSION_CARD_COULD_NEED_REALTIME_PROCESSING =   ((CARD == EC__DIN11revA)
+                                                                    || CARD == EC__NANO11revA);  
+        if(EXTENSION_CARD_COULD_NEED_REALTIME_PROCESSING)
         {
             switch(P_IO_OBJECT->getIoType())
             {
@@ -136,8 +139,10 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
                 break;
             }
         }
+
+        //Debug Ausgabe
         switch (CARD)
-        {   //Bei MCU uinterressant, da immer die gleichen Ports belegt werden
+        {   //Bei MCU uninterressant, da immer die gleichen Ports belegt werden
             case EC__MCU11revA:
             case EC__MCU11revB:
             case EC__MCU11revC:

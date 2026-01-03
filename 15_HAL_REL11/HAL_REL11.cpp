@@ -55,8 +55,18 @@ void HAL_REL11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         this->setError(REL11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
     else
-    {
-        this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;        
+    {          
+        switch (P_IO_OBJECT->getIoType())
+        {          
+            case IO_TYPE__OUTPUT_PUSH:
+                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT; 
+                break;
+
+            default:
+            case IO_TYPE__NOT_DEFINED:
+                this->setError(REL11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                break;               
+        }     
     }
 }
 void HAL_REL11::tick()

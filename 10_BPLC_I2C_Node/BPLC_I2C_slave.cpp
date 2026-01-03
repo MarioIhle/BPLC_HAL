@@ -8,21 +8,24 @@ void I2C_BPLC_Slave::begin(const uint8_t ADDRESS)
 }
 bool I2C_BPLC_Slave::newCommandAvailable()
 {
-    bool NEW_COMMAND_TO_PROCESS = false;
-    
-    const e_I2C_BPLC_KEY_t BPLC_I2C_KEY = this->i2cNode.newFrameReceived();
-
-    switch(BPLC_I2C_KEY)
+    bool newFrameNeedsProcessing    = false;    
+    const bool NEW_FRAME_RECEIVED   = this->i2cNode.newFrameReceived();   
+   
+    if(NEW_FRAME_RECEIVED)
     {
-        case I2C_BPLC_KEY__SLAVE_COMMAND:            
-            NEW_COMMAND_TO_PROCESS = true;
-            break;        
+        const e_I2C_BPLC_KEY_t BPLC_I2C_KEY = (e_I2C_BPLC_KEY_t)this->i2cNode.getFrame().extract.i2cBplcKey; 
+    
+        switch(BPLC_I2C_KEY)
+        {
+            case I2C_BPLC_KEY__SLAVE_COMMAND:            
+                newFrameNeedsProcessing = true;
+                break;        
 
-        default:
-            break;
+            default:
+                break;
+        }
     }
-
-    return NEW_COMMAND_TO_PROCESS;
+    return newFrameNeedsProcessing;
 }
 uint8_t I2C_BPLC_Slave::getCommand(uint8_t* P_PAYLOADBUFFER)
 {         

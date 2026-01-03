@@ -19,7 +19,7 @@ typedef enum
 class dcDrive: public IO_Interface
 {
     public: 
-                        dcDrive                 (){};
+                        dcDrive                 (){this->initInternals();}
     //Drive Commands
     void                stop                    ()
 	{
@@ -108,6 +108,7 @@ class dcDrive: public IO_Interface
 
 
     private:
+
     e_DRIVE_STATE_t     driveState; 
     bool                f_newDriveParametersAvailable;
     //Motor Parameter
@@ -123,5 +124,13 @@ class dcDrive: public IO_Interface
         uint8_t         speed;
       }old;    
     }motParams;
+
+	void initInternals()
+	{
+		this->ioType 						= IO_TYPE__DC_DRIVE;
+		this->driveState 					= DRIVE_STATE__IDLE;
+		this->f_newDriveParametersAvailable = false;
+		memset(&this->motParams, 0, sizeof(this->motParams));
+	}
 };
 #endif

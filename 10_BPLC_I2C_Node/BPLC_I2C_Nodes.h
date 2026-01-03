@@ -8,12 +8,12 @@
 
 typedef enum
 {
-  I2C_BPLC_KEY__NO_KEY,
+  I2C_BPLC_KEY__NO_KEY,             //Idle
 
-  I2C_BPLC_KEY__REQUEST_SLAVE_DATA,
-  I2C_BPLC_KEY__SLAVE_DATA,
+  I2C_BPLC_KEY__REQUEST_SLAVE_DATA, //Master hat Slavedaten angefragt (z.B. Status von Eingang versenden)
+  I2C_BPLC_KEY__SLAVE_DATA,         //Slave versendet Daten an Master
 
-  I2C_BPLC_KEY__SLAVE_COMMAND,  
+  I2C_BPLC_KEY__SLAVE_COMMAND,      //Kommando von Master an Slave (z.B. Ausgang schreiben, Motor ansteuern..)  
 
 }e_I2C_BPLC_KEY_t;
 
@@ -43,7 +43,7 @@ class BPLC_I2C_NODE
                             BPLC_I2C_NODE     ();
     void                    begin             (const uint8_t ADDRESS = 0, u_I2C_BPLC_NODE_FRAME_t* p_cb_request = nullptr);  
    
-    e_I2C_BPLC_KEY_t        newFrameReceived  ();
+    bool                    newFrameReceived  ();
     u_I2C_BPLC_NODE_FRAME_t getFrame          ();
     
     void                    sendFrame         (const uint8_t DESTINATION_ADDRESS, const e_I2C_BPLC_KEY_t KEY, const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT);  
