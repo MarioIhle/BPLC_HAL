@@ -43,7 +43,7 @@ class BPLC_I2C_NODE
                             BPLC_I2C_NODE     ();
     void                    begin             (const uint8_t ADDRESS = 0, u_I2C_BPLC_NODE_FRAME_t* p_cb_request = nullptr);  
    
-    bool                    newFrameReceived  ();
+    bool                    newSlaveCommandReceived  ();
     u_I2C_BPLC_NODE_FRAME_t getFrame          ();
     
     void                    sendFrame         (const uint8_t DESTINATION_ADDRESS, const e_I2C_BPLC_KEY_t KEY, const uint8_t* PAYLOAD, const uint8_t BYTE_COUNT);  

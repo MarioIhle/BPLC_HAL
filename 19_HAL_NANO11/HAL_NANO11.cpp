@@ -117,7 +117,7 @@ void HAL_NANO11::tick()
                         case IO_TYPE__PTC:
                         case IO_TYPE__ROTARY_ENCODER:
                         case IO_TYPE__RPM_SENS:       
-                            this->channels.p_ioObject[CH]->halCallback(&dataBuffer[CH]);
+                            this->channels.p_ioObject[CH]->setHalData(&dataBuffer[CH]);
                             break;
                         
                         default:
@@ -128,7 +128,7 @@ void HAL_NANO11::tick()
         }       
 
         //Outputs schreiben
-        for(int CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
+        for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
         {
             if(this->channels.p_ioObject[CH] != nullptr)
             {    
@@ -140,13 +140,24 @@ void HAL_NANO11::tick()
                     case IO_TYPE__OUTPUT_PUSH_PULL_INVERT:
                     case IO_TYPE__SERVO:
                     case IO_TYPE__DC_DRIVE:
-                        if(this->channels.p_ioObject[CH]->newDataAvailable())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
-                        {                       
+                        if(this->channels.p_ioObject[CH]->newDataAvailable())   //Nur Wert abrufen und schreiben, falls dieser sich geändert hat
+                        {                      
                             s_NANO11_COMMAND_t command;
-                            command.extract.key         = NANO11_COMMAND_KEY__WRITE;
-                            command.extract.channel     = CH;
-                            command.extract.payload     = this->channels.p_ioObject[CH]->halCallback();
-                            const uint8_t BYTE_COUNT    = sizeof(command);
+                            memset(&command, 0, sizeof(s_NANO11_COMMAND_t));
+                           
+                            command.extract.key         = (uint8_t)NANO11_COMMAND_KEY__WRITE;
+                            command.extract.channel     = CH;     
+
+                            const u_HAL_DATA_t DATA = this->channels.p_ioObject[CH]->getHalData();                           
+                            memcpy(command.extract.payload, DATA.data, 12);
+                           
+                           /*
+                            for(int i = 0; i< 14; i++)
+                            {
+                                Serial.print(command.data[i]);
+                            }*/
+
+                            const uint8_t BYTE_COUNT = sizeof(s_NANO11_COMMAND_t);
                             this->bplcNode.sendCommand(this->deviceAddress, &command.data[0], BYTE_COUNT);
                         }                       
                         break;

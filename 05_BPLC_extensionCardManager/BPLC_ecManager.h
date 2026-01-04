@@ -12,7 +12,7 @@
 #include "HAL_TMP11.h"
 #include "HAL_PPO11.h"
 #include "HAL_NANO11.h"
-#include "HAL_FUSE12.h"
+
 #ifndef ARDUINO_AVR_NANO
 #include <esp_task_wdt.h>
 #endif

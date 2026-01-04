@@ -113,12 +113,12 @@ void HAL_AIN11::tick()
                             if(readSingleEnded >= 0)
                             {
                                 tempBuffer.analogIoData.value = readSingleEnded;
-                                this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                        
+                                this->channels.p_ioObject[CH]->setHalData(&tempBuffer);                        
                             }     
                             else
                             {
                                 tempBuffer.analogIoData.value = 0;
-                                this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
+                                this->channels.p_ioObject[CH]->setHalData(&tempBuffer);
                             }         
                         break;
                         

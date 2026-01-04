@@ -157,7 +157,6 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
                     bool                tmp11revACards [TMP11_ADDRESS_COUNT];
                     bool                ppo11revACards [PPO11_ADDRESS_COUNT];
                     bool                nano11revACards[NANO11_ADDRESS_COUNT];
-                    bool                fuse12revACards[FUSE12_ADDRESS_COUNT];
                 }extensionCards;
 
             }device;               

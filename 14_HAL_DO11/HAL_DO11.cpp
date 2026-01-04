@@ -99,7 +99,7 @@ void HAL_DO11::tick()
                 if(this->channels.p_ioObject[CH]->newDataAvailable())
                 {
                     //PWM von 0-255 laden und umrechnen
-                    const uint16_t APPLICATION_VALUE    = (uint16_t)this->channels.p_ioObject[CH]->halCallback().analogIoData.value;
+                    const uint16_t APPLICATION_VALUE    = (uint16_t)this->channels.p_ioObject[CH]->getHalData().analogIoData.value;
                     const uint16_t TARGET_PWM_VALUE     = map(APPLICATION_VALUE, 0, 255, 0, 4095);                                     
                     
                     if(this->debugOutputEnabled)

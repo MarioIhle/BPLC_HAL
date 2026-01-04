@@ -1,7 +1,19 @@
 #include "HAL_NANO11.h"
 
 LIB_NANO11::LIB_NANO11()
-{}
+{
+    initInternals();
+}
+void LIB_NANO11::initInternals()
+{
+    this->deviceAddress = 0;
+    this->error         = 0;
+    for(uint8_t channel = 0; channel < NANO11_CHANNEL_COUNT; channel++)
+    {
+        this->channels[channel].pin        = 0;
+        this->channels[channel].p_ioObject = nullptr;
+    } 
+} 
 void LIB_NANO11::begin(const e_EC_ADDR_t ADDR)
 {    
     pinMode(this->pins.INT, OUTPUT); 
@@ -53,7 +65,8 @@ void LIB_NANO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNE
 }
 void LIB_NANO11::mapPinToChannel(const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL, const e_IO_TYPE_t IO_TYPE)
 {
-    const uint8_t CHANNEL_INSTANCE = (uint8_t)CHANNEL - 1;
+    const uint8_t CHANNEL_INSTANCE = ((uint8_t)CHANNEL - 1);
+    
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > NANO11_CHANNEL_COUNT)
     {
         this->error = true;
@@ -73,11 +86,13 @@ void LIB_NANO11::mapPinToChannel(const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL
             case IO_TYPE__ANALOG_INPUT:  
                 this->channels[CHANNEL].p_ioObject  = new analogInput();
                 this->channels[CHANNEL].pin         = PIN;
+                pinMode(PIN, INPUT);
                 break;
 
             case IO_TYPE__DIGITAL_INPUT:
                 this->channels[CHANNEL].p_ioObject  = new digitalInput();
                 this->channels[CHANNEL].pin         = PIN;
+                pinMode(PIN, INPUT);
                 break;
 
             case IO_TYPE__OUTPUT_PUSH:                    
@@ -86,6 +101,7 @@ void LIB_NANO11::mapPinToChannel(const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL
             case IO_TYPE__OUTPUT_PUSH_PULL_INVERT:      
                 this->channels[CHANNEL].p_ioObject  = new output(IO_TYPE);
                 this->channels[CHANNEL].pin         = PIN;
+                pinMode(PIN, OUTPUT);
                 break;
 
             default:
@@ -102,20 +118,32 @@ void LIB_NANO11::tick()
     if(NEW_COMMAND_FROM_MASTER)
     {
         s_NANO11_COMMAND_t command;
-        this->bplcNode.getCommand(&command.data[0]);
+        memset(&command, 0, sizeof(s_NANO11_COMMAND_t));
+        const uint8_t MESSAGE_SIZE = this->bplcNode.getCommand(command.data);
+        Serial.println("BYTES RECEIVED: "+ String(MESSAGE_SIZE));
+
+        for(int i = 0; i< MESSAGE_SIZE; i++)
+        {
+            Serial.print(command.data[i]);
+        }
+    
 
         switch (command.extract.key)
         {   
             //Output setzen
             case NANO11_COMMAND_KEY__WRITE:
-                this->channels[command.extract.channel].p_ioObject->halCallback(&command.extract.payload);
+                {                   
+                    u_HAL_DATA_t halData;
+                    memcpy(halData.data, command.extract.payload, 12);
+                    this->channels[command.extract.channel].p_ioObject->setHalData(&halData);        
+                }
                 break;
             
             default:
                 break;
         }
     }
-
+/*
     //Channels aktualisieren
     bool newDataAvailable = false;
     u_HAL_DATA_t dataBuffer[NANO11_CHANNEL_COUNT];
@@ -177,14 +205,16 @@ void LIB_NANO11::tick()
 
                 case IO_TYPE__OUTPUT_PUSH:    
                     if(this->channels[CH].pin != 0)
-                    {
+                    {                 
                         if(this->channels[CH].p_ioObject->halCallback().analogIoData.value == 255)
                         {
                             digitalWrite(this->channels[CH].pin, HIGH);
+                            //Serial.println("Write Output: high");
                         }
                         else if (this->channels[CH].p_ioObject->halCallback().analogIoData.value == 0)
                         {
                             digitalWrite(this->channels[CH].pin, LOW);
+                           // Serial.println("Write Output: low");
                         }          
                         else
                         {
@@ -214,4 +244,5 @@ void LIB_NANO11::tick()
     {
         //Warten auf timeout oder neue Daten zum versenden
     }
+        */
 }

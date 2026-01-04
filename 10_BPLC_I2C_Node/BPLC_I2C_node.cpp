@@ -9,6 +9,7 @@ void receiveCallback(int howMany)
         for(uint8_t BYTE = 0; BYTE < howMany; BYTE++)
         {    
             callback_inBuffer.data[BYTE] = Wire.read();    
+            //Serial.print(callback_inBuffer.data[BYTE]);
         }
     }             
 }
@@ -50,18 +51,35 @@ void BPLC_I2C_NODE::sendFrame(const uint8_t DESTINATION_ADDRESS, const e_I2C_BPL
     {        
         memcpy(OUT_FRAME.extract.payload, PAYLOAD, BYTE_COUNT);
     }   
+
+    Serial.println("key: " + String(OUT_FRAME.extract.i2cBplcKey));
+    Serial.println("size: " + String(OUT_FRAME.extract.payloadSize));
+    Serial.println("payload: ");
+    for(int i = 0; i< (BYTE_COUNT); i++)
+    {
+        Serial.print(OUT_FRAME.extract.payload[i]);
+    }
+    Serial.println("");
+    Serial.print("frame: ");
+    for(int i = 0; i< (BYTE_COUNT + MESSAGE_HEAD); i++)
+    {
+        Serial.print(OUT_FRAME.data[i]);
+    }
+    Serial.println("");
+
     Wire.beginTransmission(DESTINATION_ADDRESS);
     Wire.write(OUT_FRAME.data, (MESSAGE_HEAD+BYTE_COUNT));            
     Wire.endTransmission(true);          
 }
-bool BPLC_I2C_NODE::newFrameReceived()
+bool BPLC_I2C_NODE::newSlaveCommandReceived()
 {
-    return (I2C_BPLC_KEY__NO_KEY != callback_inBuffer.extract.i2cBplcKey);
+    return (I2C_BPLC_KEY__SLAVE_COMMAND == callback_inBuffer.extract.i2cBplcKey);
 }
 u_I2C_BPLC_NODE_FRAME_t BPLC_I2C_NODE::getFrame()
 {
     u_I2C_BPLC_NODE_FRAME_t NEW_FRAME = callback_inBuffer;
     memset(&callback_inBuffer, 0, sizeof(callback_inBuffer));
+    callback_inBuffer.extract.i2cBplcKey = I2C_BPLC_KEY__NO_KEY;
 
     return NEW_FRAME;
 }

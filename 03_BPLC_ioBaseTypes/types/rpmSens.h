@@ -52,11 +52,20 @@ class rpmSensor: public IO_Interface
     }
     
     //Hal handling
-    bool                newDataAvailable    (){return false;}
-    u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* P_DATA = nullptr)
+    bool            newDataAvailable(){return false;}
+    void            setHalData      (u_HAL_DATA_t* P_DATA)
     {        
-        this->sampleCounter.halCallback(P_DATA);      
-        return *P_DATA;
+        if(P_DATA != nullptr)
+        { 
+            this->sampleCounter.setHalData(P_DATA);      
+        }
+    }
+    u_HAL_DATA_t    getHalData      ()
+    {
+        u_HAL_DATA_t DATA; 
+        memset(&DATA, 0, sizeof(u_HAL_DATA_t));
+
+        return DATA;
     }
 
 

@@ -93,7 +93,7 @@ void HAL_PPO11::tick()
                 if(this->channels.p_ioObject[CH]->newDataAvailable())
                 {
                     //PWM von 0-255 laden und umrechnen
-                    uint16_t TARGET_PWM_VALUE = map(this->channels.p_ioObject[CH]->halCallback().analogIoData.value, 0, 255, 0, 4095);
+                    uint16_t TARGET_PWM_VALUE = map(this->channels.p_ioObject[CH]->getHalData().analogIoData.value, 0, 255, 0, 4095);
                 
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {                    

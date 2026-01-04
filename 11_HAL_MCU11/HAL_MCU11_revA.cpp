@@ -109,31 +109,31 @@ void HAL_MCU11_revA::tick()
         encoderInput.encoderData.stateA    = digitalRead(this->PIN.ENCODER_A);
         encoderInput.encoderData.stateB    = digitalRead(this->PIN.ENCODER_B);
         encoderInput.encoderData.stateZ    = digitalRead(this->PIN.ENCODER_BUTTON);        
-        this->p_encoder->halCallback(&encoderInput);
+        this->p_encoder->setHalData(&encoderInput);
         //p_oen schreiben
         if(this->p_oen->newDataAvailable())
         {
-            digitalWrite(this->PIN.OEN, this->p_oen->halCallback().digitalIoData.state);
+            digitalWrite(this->PIN.OEN, this->p_oen->getHalData().digitalIoData.state);
         }
         //BUZZER
         if(this->p_buzzer->newDataAvailable())
         {
-            analogWrite(this->PIN.BUZZER, this->p_buzzer->halCallback().analogIoData.value);
+            analogWrite(this->PIN.BUZZER, this->p_buzzer->getHalData().analogIoData.value);
         }
         //p_ld1
         if(this->p_ld1->newDataAvailable())
         {
-            analogWrite(this->PIN.LD1, this->p_ld1->halCallback().analogIoData.value);
+            analogWrite(this->PIN.LD1, this->p_ld1->getHalData().analogIoData.value);
         }
         //LD_COMMUNACTION_STATE
         if(this->p_ld2->newDataAvailable())
         {
-            analogWrite(this->PIN.LD2, this->p_ld2->halCallback().analogIoData.value);
+            analogWrite(this->PIN.LD2, this->p_ld2->getHalData().analogIoData.value);
         }
         //p_ld3
         if(this->p_ld3->newDataAvailable())
         {
-            analogWrite(this->PIN.LD3, this->p_ld3->halCallback().analogIoData.value);
+            analogWrite(this->PIN.LD3, this->p_ld3->getHalData().analogIoData.value);
         } 
     }   
     //!Super schrott fix, geht aber nicht anders

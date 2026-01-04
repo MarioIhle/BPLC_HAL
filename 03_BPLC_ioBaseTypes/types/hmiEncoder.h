@@ -37,131 +37,139 @@ class hmiEncoder:public IO_Interface
     bool                buttonPressed           (){return this->pushButton.fallingEdge();}
     bool                buttonReleased          (){return this->pushButton.risingEdge();}
     //Hal handling
-    bool                newDataAvailable        (){return false;}
-    u_HAL_DATA_t        halCallback             (u_HAL_DATA_t* P_DATA = nullptr)
+    bool            newDataAvailable        (){return false;}
+    void            setHalData              (u_HAL_DATA_t* P_DATA)
     {              
-        u_HAL_DATA_t EXTRACTED_HAL_DATA__A;
-        EXTRACTED_HAL_DATA__A.digitalIoData.state = P_DATA->encoderData.stateA;
-        u_HAL_DATA_t EXTRACTED_HAL_DATA__B ;
-        EXTRACTED_HAL_DATA__B.digitalIoData.state = P_DATA->encoderData.stateB;
-        u_HAL_DATA_t EXTRACTED_HAL_DATA__Z;
-        EXTRACTED_HAL_DATA__Z.digitalIoData.state = P_DATA->encoderData.stateZ;
-
-        this->inputChannels[ENCODER_CHANNEL_A].halCallback(&EXTRACTED_HAL_DATA__A);   
-        this->inputChannels[ENCODER_CHANNEL_B].halCallback(&EXTRACTED_HAL_DATA__B);   
-        this->pushButton.halCallback(&EXTRACTED_HAL_DATA__Z);  
-
-        const bool ENCODER_IS_HIGH_ACTIVE = this->f_encoderLogicLevel;
-        
-        for(uint8_t i = 0; i<2; i++)
+        if(P_DATA != nullptr)
         {
-            switch (this->channelState[i])
+            u_HAL_DATA_t EXTRACTED_HAL_DATA__A;
+            EXTRACTED_HAL_DATA__A.digitalIoData.state = P_DATA->encoderData.stateA;
+            u_HAL_DATA_t EXTRACTED_HAL_DATA__B ;
+            EXTRACTED_HAL_DATA__B.digitalIoData.state = P_DATA->encoderData.stateB;
+            u_HAL_DATA_t EXTRACTED_HAL_DATA__Z;
+            EXTRACTED_HAL_DATA__Z.digitalIoData.state = P_DATA->encoderData.stateZ;
+
+            this->inputChannels[ENCODER_CHANNEL_A].setHalData(&EXTRACTED_HAL_DATA__A);   
+            this->inputChannels[ENCODER_CHANNEL_B].setHalData(&EXTRACTED_HAL_DATA__B);   
+            this->pushButton.setHalData(&EXTRACTED_HAL_DATA__Z);  
+
+            const bool ENCODER_IS_HIGH_ACTIVE = this->f_encoderLogicLevel;
+            
+            for(uint8_t i = 0; i<2; i++)
             {
-                default:
-                case HMI_ENCODER_CYCLE__IDLE:
+                switch (this->channelState[i])
+                {
+                    default:
+                    case HMI_ENCODER_CYCLE__IDLE:
+                        if(ENCODER_IS_HIGH_ACTIVE)
+                        {
+                            if(this->inputChannels[i].risingEdge())
+                            {
+                                this->channelState[i] = HMI_ENCODER_CYCLE__FIRST_EDGE;
+                            }
+                        }
+                        else
+                        {
+                            if(this->inputChannels[i].fallingEdge())
+                            {
+                                this->channelState[i] = HMI_ENCODER_CYCLE__FIRST_EDGE;
+                            }
+                        }                    
+                    break;
+
+                    case  HMI_ENCODER_CYCLE__FIRST_EDGE:
                     if(ENCODER_IS_HIGH_ACTIVE)
-                    {
-                        if(this->inputChannels[i].risingEdge())
                         {
-                            this->channelState[i] = HMI_ENCODER_CYCLE__FIRST_EDGE;
+                            if(this->inputChannels[i].ishigh())
+                            {
+                                this->channelState[i] = HMI_ENCODER_CYCLE__ACTIVE_STATE;
+                            }
                         }
-                    }
-                    else
-                    {
-                        if(this->inputChannels[i].fallingEdge())
+                        else
                         {
-                            this->channelState[i] = HMI_ENCODER_CYCLE__FIRST_EDGE;
+                            if(this->inputChannels[i].islow())
+                            {
+                                this->channelState[i] = HMI_ENCODER_CYCLE__ACTIVE_STATE;
+                            }
                         }
-                    }                    
-                break;
+                    break;
 
-                case  HMI_ENCODER_CYCLE__FIRST_EDGE:
-                if(ENCODER_IS_HIGH_ACTIVE)
-                    {
-                        if(this->inputChannels[i].ishigh())
+                    case HMI_ENCODER_CYCLE__ACTIVE_STATE:
+                        if(ENCODER_IS_HIGH_ACTIVE)
                         {
-                            this->channelState[i] = HMI_ENCODER_CYCLE__ACTIVE_STATE;
+                            if(this->inputChannels[i].fallingEdge())
+                            {
+                                this->channelState[i] = HMI_ENCODER_CYCLE__SECOND_EDGE;
+                            }
                         }
-                    }
-                    else
-                    {
-                        if(this->inputChannels[i].islow())
+                        else
                         {
-                            this->channelState[i] = HMI_ENCODER_CYCLE__ACTIVE_STATE;
+                            if(this->inputChannels[i].risingEdge())
+                            {
+                                this->channelState[i] = HMI_ENCODER_CYCLE__SECOND_EDGE;
+                            }
                         }
-                    }
-                break;
+                    break;
+                    
+                    //Auswertung abgeschlossen beide Channel zurück setzen
+                    case HMI_ENCODER_CYCLE__SECOND_EDGE:                    
+                        this->channelState[0] = HMI_ENCODER_CYCLE__IDLE;
+                        this->channelState[1] = HMI_ENCODER_CYCLE__IDLE;
+                    break;
+                }            
+            }                
 
-                case HMI_ENCODER_CYCLE__ACTIVE_STATE:
-                    if(ENCODER_IS_HIGH_ACTIVE)
-                    {
-                        if(this->inputChannels[i].fallingEdge())
-                        {
-                            this->channelState[i] = HMI_ENCODER_CYCLE__SECOND_EDGE;
-                        }
-                    }
-                    else
-                    {
-                        if(this->inputChannels[i].risingEdge())
-                        {
-                            this->channelState[i] = HMI_ENCODER_CYCLE__SECOND_EDGE;
-                        }
-                    }
-                break;
-                
-                //Auswertung abgeschlossen beide Channel zurück setzen
-                case HMI_ENCODER_CYCLE__SECOND_EDGE:                    
-                    this->channelState[0] = HMI_ENCODER_CYCLE__IDLE;
-                    this->channelState[1] = HMI_ENCODER_CYCLE__IDLE;
-                break;
-            }            
-        }                
-
-        //Richutngsauswertung sobald eine der beiden Spuren einen Zyklus abgeschlossen hat
-        if(this->channelState[0] == HMI_ENCODER_CYCLE__SECOND_EDGE)
-        {
-            if(this->f_invertedDirection)
+            //Richutngsauswertung sobald eine der beiden Spuren einen Zyklus abgeschlossen hat
+            if(this->channelState[0] == HMI_ENCODER_CYCLE__SECOND_EDGE)
             {
-                this->direction = MOVEMENT__LEFT;
+                if(this->f_invertedDirection)
+                {
+                    this->direction = MOVEMENT__LEFT;
+                }
+                else
+                {
+                    this->direction = MOVEMENT__RIGHT;
+                } 
+            }
+            else if(this->channelState[1] == HMI_ENCODER_CYCLE__SECOND_EDGE)
+            {   
+                if(this->f_invertedDirection)
+                {
+                    this->direction = MOVEMENT__RIGHT;
+                }
+                else
+                {
+                    this->direction = MOVEMENT__LEFT;
+                } 
             }
             else
             {
-                this->direction = MOVEMENT__RIGHT;
-            } 
-        }
-        else if(this->channelState[1] == HMI_ENCODER_CYCLE__SECOND_EDGE)
-        {   
-            if(this->f_invertedDirection)
-            {
-                this->direction = MOVEMENT__RIGHT;
-            }
-            else
-            {
-                this->direction = MOVEMENT__LEFT;
-            } 
-        }
-        else
-        {
-            this->direction = MOVEMENT__IDLE;
-        }       
+                this->direction = MOVEMENT__IDLE;
+            }       
 
-        /*
-        //Debug output
-            Serial.print("ENCODER_DIRECTION: ");
+            /*
+            //Debug output
+                Serial.print("ENCODER_DIRECTION: ");
 
-            if(this->direction = MOVEMENT__LEFT)
-            {                 
-                Serial.println("LEFT");
-            }
-            if(this->direction = MOVEMENT__RIGHT)
-            {                 
-                Serial.println("RIGHT");
-            }     
-        */
-
-        return *P_DATA;    
+                if(this->direction = MOVEMENT__LEFT)
+                {                 
+                    Serial.println("LEFT");
+                }
+                if(this->direction = MOVEMENT__RIGHT)
+                {                 
+                    Serial.println("RIGHT");
+                }     
+            */
+        }    
     }
-    
+    u_HAL_DATA_t 	getHalData			    ()
+	{	
+		u_HAL_DATA_t DATA;
+        memset(&DATA, 0, sizeof(u_HAL_DATA_t));
+		
+		return DATA; 
+	}
+
 
     private: 
     bool                f_invertedDirection;

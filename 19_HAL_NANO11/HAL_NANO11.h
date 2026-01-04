@@ -24,12 +24,12 @@ typedef union
 {
     struct 
     {
-        e_NANO11_COMMAND_KEY_t  key;
-        uint8_t                 channel;
-        u_HAL_DATA_t            payload;
+        uint8_t key;
+        uint8_t channel;
+        uint8_t payload[12];
     }extract;
     
-    uint8_t data[sizeof(extract)];
+    uint8_t data[14];
     
 }s_NANO11_COMMAND_t;
 #pragma pack (pop)
@@ -78,7 +78,8 @@ class LIB_NANO11
     void            mapPinToChannel         (const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL, const e_IO_TYPE_t IO_TYPE);   //pins direkt auf channel mappen, geht nur mit einfachen io objekten 
     void            tick                    ();        
 
-    private:          
+    private:    
+    void            initInternals           ();      
     //Settings  
     uint8_t             deviceAddress;
     I2C_BPLC_Slave      bplcNode;

@@ -91,7 +91,7 @@ class output: public IO_Interface, private blink
 		if(this->mode != OUTPUTMODE__ON)
 		{
 			this->mode = OUTPUTMODE__ON;
-			this->outputValueChanged = true;
+			this->f_newDataAvailable = true;
 		}	
 	}
 	//Setzt den Ausgang zurück
@@ -100,7 +100,7 @@ class output: public IO_Interface, private blink
 		if(this->mode != OUTPUTMODE__OFF)
 		{
 			this->mode = OUTPUTMODE__OFF;
-			this->outputValueChanged = true;
+			this->f_newDataAvailable = true;
 		}	
 	}
 	//Setzten/Rücksetzten über Parameter
@@ -122,7 +122,7 @@ class output: public IO_Interface, private blink
 		{
 			this->value 				= VALUE;
 			this->mode 					= OUTPUTMODE__VALUE;
-			this->outputValueChanged 	= true;
+			this->f_newDataAvailable 	= true;
 		}	
 	}
 	//Gibt den Aktuelllen State zurück
@@ -132,7 +132,7 @@ class output: public IO_Interface, private blink
    
     //Hal handling 
 	//HAL der Outputkarte prüft auf neue Daten zur ausgabe
-    bool newDataAvailable()
+    bool 			newDataAvailable	()
 	{
 		switch(this->mode)
 		{
@@ -158,13 +158,13 @@ class output: public IO_Interface, private blink
 					&&(this->value != this->setting.onValue))
 					{
 						setOutValue(true);		
-						this->outputValueChanged = true;
+						this->f_newDataAvailable = true;
 					}	
 					else if((!this->tickBlink())
 						&& (this->value != 0))
 					{
 						setOutValue(false);		
-						this->outputValueChanged = true;	
+						this->f_newDataAvailable = true;	
 					}		
 				}
 				else
@@ -178,13 +178,13 @@ class output: public IO_Interface, private blink
 				&&(this->value != this->setting.onValue))
 				{
 					setOutValue(true);			
-					this->outputValueChanged = true;	
+					this->f_newDataAvailable = true;	
 				}	
 				else if((!this->tickBlink())
 					&& (this->value != 0))
 				{
 					setOutValue(false);		
-					this->outputValueChanged = true;			
+					this->f_newDataAvailable = true;			
 				}		
 			break;
 
@@ -217,7 +217,7 @@ class output: public IO_Interface, private blink
 					{
 						//do nothing
 					}
-					this->outputValueChanged = true;
+					this->f_newDataAvailable = true;
 				}
 			break;
 
@@ -225,22 +225,22 @@ class output: public IO_Interface, private blink
 				this->mode = OUTPUTMODE__OFF;
 			break;
 		}
-		return this->outputValueChanged;
+		return this->f_newDataAvailable;
 	}
-    u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA = nullptr)
+	u_HAL_DATA_t 	getHalData			(void)
 	{
-		//Daten über Hal empfangen(BPLC_I2C_NODE)
-		if(P_DATA != nullptr)
-		{
-			this->value = P_DATA->analogIoData.value;
-		}		
 		//Daten an HAL übergeben
-		u_HAL_DATA_t tempBuffer;
-		tempBuffer.analogIoData.value 	= this->value;	
-		this->outputValueChanged 		= false;
-		return tempBuffer;
+		u_HAL_DATA_t DATA;
+		memset(&DATA, 0, sizeof(DATA));
+		DATA.analogIoData.value 	= this->value;	
+		this->f_newDataAvailable 	= false;
+		return DATA;
 	}
-
+	void 			setHalData			(u_HAL_DATA_t* DATA)
+	{
+		this->value 				= DATA->analogIoData.value;
+		this->f_newDataAvailable 	= true;
+	}
 
 	private:     
 	void setOutValue(const bool STATE)
@@ -276,7 +276,7 @@ class output: public IO_Interface, private blink
 
     e_outputMode_t	    mode;           //Aktueller Modus
     uint8_t             value;  	    //Aktueller Wert
-	bool				outputValueChanged;
+
     struct 
     {
         uint8_t 			onValue;			

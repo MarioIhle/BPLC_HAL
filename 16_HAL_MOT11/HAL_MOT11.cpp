@@ -5,7 +5,7 @@ HAL_MOT11::HAL_MOT11()
 void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
 {
     this->bplcAddress = ADDR;
-
+    
     if(ADDR < MOT11_ADDRESS_COUNT)
     {
         this->i2cAddress = MOT11_I2C_ADDRESSES[ADDR];             
@@ -36,6 +36,7 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
         this->state = MOT11_DEVICE_STATE__SAFE_STATE;
         this->printLog("MOT11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
+    this->debugOutputEnabled = false;
 }
 void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
@@ -79,7 +80,7 @@ void HAL_MOT11::tick()
             case MOT11_DEVICE_STATE__RUNNING:   //Normalbetreb            
                 if(this->channels.p_ioObject->newDataAvailable())
                 {            
-                    u_HAL_DATA_t objectData = this->channels.p_ioObject->halCallback();
+                    u_HAL_DATA_t objectData = this->channels.p_ioObject->getHalData();
 
                     if(this->debugOutputEnabled)
                     {
@@ -149,7 +150,7 @@ void HAL_MOT11::requestDriveParameter()
         inDATA.dcDriveData.direction    = (e_MOVEMENT_t)BUFFER.extract.direction;
         inDATA.dcDriveData.speed        = BUFFER.extract.speed;
         inDATA.dcDriveData.current      = BUFFER.extract.current;
-        this->channels.p_ioObject->halCallback(&inDATA);
+        this->channels.p_ioObject->setHalData(&inDATA);
     }
     else
     {

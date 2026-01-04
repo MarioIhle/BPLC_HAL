@@ -104,7 +104,7 @@ void HAL_DIN11::tick()
                     case IO_TYPE__RPM_SENS:
                     case IO_TYPE__DIGITAL_COUNTER:
                         tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);         //pinstates bitweise aus Datenpaket filtern
-                        this->channels.p_ioObject[CH]->halCallback(&tempBuffer); 
+                        this->channels.p_ioObject[CH]->setHalData(&tempBuffer); 
                         if(this->debugOutputEnabled)
                         {
                             this->printExtensionCardDebugOutput("DIN11", String(this->bplcAddress), String(CH), String(tempBuffer.digitalIoData.state));
@@ -116,7 +116,7 @@ void HAL_DIN11::tick()
                         tempBuffer.encoderData.stateA  = !PCF.read(this->channels.PIN[CH]);          //pinstates bitweise aus Datenpaket filtern
                         tempBuffer.encoderData.stateB  = !PCF.read(this->channels.PIN[CH + 1]);      //pinstates bitweise aus Datenpaket filtern
                         tempBuffer.encoderData.stateZ  = !PCF.read(this->channels.PIN[CH + 2]);      //pinstates bitweise aus Datenpaket filtern
-                        this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
+                        this->channels.p_ioObject[CH]->setHalData(&tempBuffer);
                         CH +=3;//Sonst wird encoder 3x gelesen...
                     break;
 

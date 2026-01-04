@@ -102,12 +102,12 @@ void HAL_TMP11::tick()
                         case IO_TYPE__PT100:  
                             Uab_nV = UabAtZeroDegrePT100_nV - Uab_nV;
                             tempBuffer.tempSensData.temperatur = (float)(Uab_nV/nVperDegreePT100);
-                            this->channels.p_ioObject[CH]->halCallback(&tempBuffer);      
+                            this->channels.p_ioObject[CH]->setHalData(&tempBuffer);      
                         break;
                            
                         case IO_TYPE__PT1000:    
                             tempBuffer.tempSensData.temperatur = (float)(Uab_nV/nVperDegreePT1000);
-                            this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                       
+                            this->channels.p_ioObject[CH]->setHalData(&tempBuffer);                       
                         break;
                         
                         default:

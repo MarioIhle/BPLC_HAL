@@ -90,14 +90,6 @@ void BPLC_APP::setupHardware()
          }
       }
    }
-   //FUSE12revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < FUSE12_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      if(this->APP_APP.settings.device.extensionCards.fuse12revACards[CARD_ADDR])
-      {
-         this->ecmForSlowSpeed->addNewExtensionCard(EC__FUSE12revA, (e_EC_ADDR_t)CARD_ADDR);
-      }
-   }
    //Input Karten
    //DIN11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < DIN11_ADDRESS_COUNT; CARD_ADDR++)
