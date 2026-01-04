@@ -103,7 +103,7 @@ void ecmTask(void* taskParameter)
 BPLC_extensionCardManager::BPLC_extensionCardManager()
 {    
     memset(this, 0, sizeof(BPLC_extensionCardManager));
-    this->to_readInputsCooldown.setInterval(100);   //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 500ms
+    this->to_readInputsCooldown.setInterval(500);   //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 500ms
     this->to_readInputs.setInterval(10);            //Wenn Interrupt errignis, dann 50ms Input Karten lesen
 }
 void BPLC_extensionCardManager::begin(const uint8_t TASK_DELAY_TIME, const char* TASK_NAME)

@@ -91,6 +91,7 @@ void LIB_NANO11::tick()
         const uint8_t MESSAGE_SIZE = this->bplcNode.getCommand(command.data);
       
         //Debug output
+        /*
         Serial.println("BYTES RECEIVED: "+ String(MESSAGE_SIZE));        
         for(int i = 0; i< MESSAGE_SIZE; i++)
         {
@@ -99,6 +100,7 @@ void LIB_NANO11::tick()
         Serial.println("");
         Serial.println("Key: "+ String(command.extract.key));
         Serial.println("Channel: "+ String(command.extract.channel));
+        */
 
         switch (command.extract.key)
         {   
@@ -106,8 +108,7 @@ void LIB_NANO11::tick()
             case NANO11_COMMAND_KEY__WRITE:
                 {                   
                     u_HAL_DATA_t halData;
-                    memcpy(halData.data, command.extract.payload, 12);                          
-                    Serial.println("extracted: "+ String(halData.analogIoData.value));                   
+                    memcpy(halData.data, command.extract.payload, 12);                        
                     this->channels[command.extract.channel].data = halData;      
                     this->channels[command.extract.channel].f_newDataAvailable = true;                                                          
                 }
@@ -138,7 +139,10 @@ void LIB_NANO11::tick()
                 if(this->channels[CH].pin != 0)
                 {
                     const bool NEW_STATE = digitalRead(this->channels[CH].pin);
-                    newDataAvailable     = (this->channels[CH].data.digitalIoData.state != NEW_STATE);
+                    if(this->channels[CH].data.digitalIoData.state != NEW_STATE)
+                    {
+                        newDataAvailable = true;
+                    }
                     this->channels[CH].data.digitalIoData.state = NEW_STATE;                        
                 }                   
                 break;
@@ -160,13 +164,11 @@ void LIB_NANO11::tick()
                     {                             
                         if(this->channels[CH].data.analogIoData.value == 255)
                         {
-                            digitalWrite(this->channels[CH].pin, HIGH);
-                            Serial.println("Write Output: high");
+                            digitalWrite(this->channels[CH].pin, HIGH);                            
                         }
                         else if (this->channels[CH].data.analogIoData.value == 0)
                         {
                             digitalWrite(this->channels[CH].pin, LOW);
-                            Serial.println("Write Output: low");
                         }          
                         else
                         {
@@ -197,13 +199,13 @@ void LIB_NANO11::tick()
         this->bplcNode.setSlaveData(&dataBuffer[0].data[0], sizeof(dataBuffer));
 
         //Master über Int neue Daten melden
-        this->intOutput.blinkOnce(1, 10);
+        this->intOutput.blinkOnce(1, 100);
     }      
     
     //Int schreiben       
     if(this->intOutput.newDataAvailable())
     {         
-        const bool INT_STATE = this->intOutput.getHalData().digitalIoData.state;  
-        digitalWrite(this->pins.INT, INT_STATE);               
+        const bool INT_STATE = (1 == this->intOutput.getHalData().analogIoData.value);  
+        digitalWrite(this->pins.INT, INT_STATE);          
     }
 }

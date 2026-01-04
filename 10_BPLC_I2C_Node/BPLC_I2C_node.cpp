@@ -18,6 +18,7 @@ void receiveCallback(int howMany)
 u_I2C_BPLC_NODE_FRAME_t* p_callback_outBuffer;  //pointer auf Daten, die bei Master Request versendet werden
 void requestCallback()
 {    
+    Serial.println("Master request");
     const uint8_t BYTES_REQUESTED = (p_callback_outBuffer->extract.payloadSize + MESSAGE_HEAD);
     Wire.write(p_callback_outBuffer->data, BYTES_REQUESTED);  //PAYLOAD_SIZE + i2cBplcKey + paylaodSize  
 }

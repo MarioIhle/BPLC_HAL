@@ -7,15 +7,15 @@ void I2C_BPLC_Master::begin()
 bool I2C_BPLC_Master::getSlaveData(const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t PAYLOAD_SIZE)
 {    
     const uint8_t BYTES_REQUESTED = (PAYLOAD_SIZE + MESSAGE_HEAD);   //PAYLOAD_SIZE + i2cBplcKey + palyoadSize
-    Wire.requestFrom(SLAVE_ADDRESS, BYTES_REQUESTED);    
-  
+    
     u_I2C_BPLC_NODE_FRAME_t slaveData;
     memset(&slaveData, 0, sizeof(slaveData));
     uint8_t inBytes = 0;
-
+    Wire.requestFrom(SLAVE_ADDRESS, BYTES_REQUESTED, false);       
     while(Wire.available())
     {      
         slaveData.data[inBytes] = Wire.read(); 
+        Serial.print(slaveData.data[inBytes]);
         inBytes++;
     }        
     memcpy(P_DATA_BUFFER, slaveData.extract.payload, PAYLOAD_SIZE);  //<-- das funktioniert??
