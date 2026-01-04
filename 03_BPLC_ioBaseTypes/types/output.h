@@ -92,20 +92,12 @@ class output: public IO_Interface, private blink
 	//Setzt den Ausgang 
 	void set()		              
 	{
-		if(this->mode != OUTPUTMODE__ON)
-		{
-			this->mode = OUTPUTMODE__ON;
-			this->f_newDataAvailable = true;
-		}	
+		this->mode = OUTPUTMODE__ON;	
 	}
 	//Setzt den Ausgang zurück
 	void reset()		           
 	{
-		if(this->mode != OUTPUTMODE__OFF)
-		{
-			this->mode = OUTPUTMODE__OFF;
-			this->f_newDataAvailable = true;
-		}	
+		this->mode = OUTPUTMODE__OFF;		
 	}
 	//Setzten/Rücksetzten über Parameter
     void setState(const bool STATE)      
@@ -157,19 +149,9 @@ class output: public IO_Interface, private blink
 
 			case OUTPUTMODE__BLINK_ONCE:	 
 				if(this->getBlinkCycleCount() == 0)   
-				{
-					if(this->tickBlink() 
-					&&(this->value != this->setting.onValue))
-					{
-						setOutValue(true);		
-						this->f_newDataAvailable = true;
-					}	
-					else if((!this->tickBlink())
-						&& (this->value != 0))
-					{
-						setOutValue(false);		
-						this->f_newDataAvailable = true;	
-					}		
+				{	
+					const bool BLINK_STATE 		= this->tickBlink();				
+					this->f_newDataAvailable 	= setOutValue(BLINK_STATE);		
 				}
 				else
 				{
@@ -178,18 +160,10 @@ class output: public IO_Interface, private blink
 			break;
 
 			case OUTPUTMODE__BLINK_CONTINIOUS:
-				if(this->tickBlink() 
-				&&(this->value != this->setting.onValue))
-				{
-					setOutValue(true);			
-					this->f_newDataAvailable = true;	
-				}	
-				else if((!this->tickBlink())
-					&& (this->value != 0))
-				{
-					setOutValue(false);		
-					this->f_newDataAvailable = true;			
-				}		
+			{
+				const bool BLINK_STATE 		= this->tickBlink();			
+				this->f_newDataAvailable 	= setOutValue(BLINK_STATE);			
+			}		
 			break;
 
 			case OUTPUTMODE__FADE:
@@ -242,43 +216,72 @@ class output: public IO_Interface, private blink
 	}
 	void 			setHalData			(u_HAL_DATA_t* DATA)
 	{
-		this->value 				= DATA->analogIoData.value;
-		Serial.println("OutValue: " + String(DATA->analogIoData.value));
+		this->value 				= DATA->analogIoData.value;		
 		this->f_newDataAvailable 	= true;
 	}
 
 	private:     
-	void setOutValue(const bool STATE)
+	bool setOutValue(const bool STATE)
 	{
+		bool stateChanged = false;
+		//Ausgangstatus hat sich geändert->übernehmen
+		if(STATE != this->getLogicState())
+		{
+			switch(this->setting.outputType)
+			{
+				//Invertiertes Verhalten, öffner
+				case OUTPUT_SETTING__NORMALY_CLOSED:
+					if(STATE)
+					{
+						this->value = 0;
+					}
+					else
+					{
+						this->value = this->setting.onValue;	
+					}
+				break;
+
+				//Schließer
+				default:
+				case OUTPUT_SETTING__NORMALY_OPEN:				
+					if(STATE)
+					{
+						this->value = this->setting.onValue;	
+					}
+					else
+					{
+						this->value = 0;
+					}
+				break;		
+			}
+			stateChanged = true;	
+		}	
+		return stateChanged;
+	}
+	bool getLogicState()
+	{
+		bool logicState = false;
 		switch(this->setting.outputType)
 		{
 			//Invertiertes Verhalten, öffner
 			case OUTPUT_SETTING__NORMALY_CLOSED:
-				if(STATE)
+				if(this->value == 0)
 				{
-					this->value = 0;
-				}
-				else
-				{
-					this->value = this->setting.onValue;	
-				}
+					logicState = true;
+				}				
 			break;
 
 			//Analog Out
 			default:
 			case OUTPUT_SETTING__NORMALY_OPEN:				
-				if(STATE)
+				if(this->value == 0)
 				{
-					this->value = this->setting.onValue;	
-				}
-				else
-				{
-					this->value = 0;
+					logicState = false;
 				}
 			break;			
 		}	
+		return logicState;
 	}
-
     e_outputMode_t	    mode;           //Aktueller Modus
     uint8_t             value;  	    //Aktueller Wert
 
