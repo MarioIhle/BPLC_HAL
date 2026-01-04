@@ -41,7 +41,9 @@ class output: public IO_Interface, private blink
 		this->ioType				= IO_TYPE;
 		this->setting.outputType	= OUTPUT_TYPE;
 		this->setting.onValue 		= ON_VALUE;		
-	
+		this->f_newDataAvailable	= false;
+		this->value					= 0;
+
 		this->mode = OUTPUTMODE__OFF;
 	}  
 	void begin(const e_IO_TYPE_t IO_TYPE = IO_TYPE__OUTPUT_PUSH, const e_outputSetting_t OUTPUT_TYPE = OUTPUT_SETTING__NORMALY_OPEN, const uint8_t ON_VALUE = 255)	
@@ -49,6 +51,8 @@ class output: public IO_Interface, private blink
 		this->ioType				= IO_TYPE;
 		this->setting.outputType	= OUTPUT_TYPE;
 		this->setting.onValue 		= ON_VALUE;		
+		this->f_newDataAvailable	= false;
+		this->value					= 0;
 
 		this->mode = OUTPUTMODE__OFF;
 	}  
@@ -239,6 +243,7 @@ class output: public IO_Interface, private blink
 	void 			setHalData			(u_HAL_DATA_t* DATA)
 	{
 		this->value 				= DATA->analogIoData.value;
+		Serial.println("OutValue: " + String(DATA->analogIoData.value));
 		this->f_newDataAvailable 	= true;
 	}
 

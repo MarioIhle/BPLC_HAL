@@ -74,7 +74,6 @@ class LIB_NANO11
                     LIB_NANO11              ();
     //Hal interface 
     void            begin                   (const e_EC_ADDR_t ADDR);
-    void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);    
     void            mapPinToChannel         (const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL, const e_IO_TYPE_t IO_TYPE);   //pins direkt auf channel mappen, geht nur mit einfachen io objekten 
     void            tick                    ();        
 
@@ -86,13 +85,15 @@ class LIB_NANO11
     bool                error;
 
     //INT
-    Timeout to_INTout;
+    output intOutput;
 
     //Object handling
     struct
     {
+        e_IO_TYPE_t     ioType;
         uint8_t         pin;
-        IO_Interface*   p_ioObject;    
+        u_HAL_DATA_t    data;    
+        bool            f_newDataAvailable;
     }channels[NANO11_CHANNEL_COUNT];     
     
     struct 

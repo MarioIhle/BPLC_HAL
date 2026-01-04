@@ -123,8 +123,7 @@ void HAL_MCU11_revB::tick()
             else
             {
                 digitalWrite(this->PIN.OEN, LOW);
-            }
-            
+            }            
         }
         //BUZZER
         if(this->p_buzzer->newDataAvailable())
