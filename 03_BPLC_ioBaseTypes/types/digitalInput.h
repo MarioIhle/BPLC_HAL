@@ -48,8 +48,8 @@ class digitalInput: public IO_Interface, private BPLC_logPrint
         return false;
     }
     //Hal handling
-    bool                newDataAvailable(){return false;}    
-    u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA)
+    bool            newDataAvailable(){return false;}    
+    void            setHalData      (u_HAL_DATA_t* P_DATA)
     {    
         const bool  PIN_STATE               = this->state;
         const bool  NEW_PIN_STATE           = this->debouncer.tick(P_DATA->digitalIoData.state);
@@ -72,8 +72,14 @@ class digitalInput: public IO_Interface, private BPLC_logPrint
             {
                 this->f_stateChanged = true;
             }
-        }        
-        return *P_DATA;
+        }               
+    }
+    u_HAL_DATA_t    getHalData      ()
+    {
+        u_HAL_DATA_t DATA; 
+        memset(&DATA, 0, sizeof(u_HAL_DATA_t));
+        DATA.digitalIoData.state = this->state;
+        return DATA;
     }
 
     private:

@@ -73,8 +73,24 @@ class analogInput: public IO_Interface
     void                setSampleTime       (const uint64_t SAMPLE_TIME){this->to_sampleTime.setInterval(SAMPLE_TIME);}
     
     //Hal handling
-    bool                newDataAvailable    (){return (this->to_sampleTime.checkAndReset());}
-    u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* P_DATA){this->value = P_DATA->analogIoData.value; return *P_DATA;}
+    bool            newDataAvailable    ()
+    {
+        return this->to_sampleTime.checkAndReset();
+    }
+    void            setHalData          (u_HAL_DATA_t* P_DATA)
+    {
+        if(P_DATA != nullptr)
+        {
+            this->value = P_DATA->analogIoData.value;
+        }
+    }
+    u_HAL_DATA_t    getHalData          ()
+    {
+        u_HAL_DATA_t DATA; 
+        memset(&DATA, 0, sizeof(u_HAL_DATA_t));
+        DATA.analogIoData.value = this->value;
+        return DATA;
+    }
 
 
     private:

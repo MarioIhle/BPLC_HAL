@@ -103,8 +103,8 @@ void ecmTask(void* taskParameter)
 BPLC_extensionCardManager::BPLC_extensionCardManager()
 {    
     memset(this, 0, sizeof(BPLC_extensionCardManager));
-    this->to_readInputsCooldown.setInterval(100);   //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 500ms
-    this->to_readInputs.setInterval(10);            //Wenn Interrupt errignis, dann 50ms Input Karten lesen
+    this->to_readInputsCooldown.setInterval(100);    //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 100ms
+    this->to_readInputs.setInterval(10);             //Wenn Interrupt errignis, dann 50ms Input Karten lesen
 }
 void BPLC_extensionCardManager::begin(const uint8_t TASK_DELAY_TIME, const char* TASK_NAME)
 {    
@@ -124,8 +124,11 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
     //Karte wurde in ecM Liste gefunden
     if(CARD_FOUND)
     {
-        p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);      
-        if(CARD == EC__DIN11revA)
+        p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL);  
+
+        const bool EXTENSION_CARD_COULD_NEED_REALTIME_PROCESSING =   ((CARD == EC__DIN11revA)
+                                                                    || CARD == EC__NANO11revA);  
+        if(EXTENSION_CARD_COULD_NEED_REALTIME_PROCESSING)
         {
             switch(P_IO_OBJECT->getIoType())
             {
@@ -136,8 +139,10 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
                 break;
             }
         }
+
+        //Debug Ausgabe
         switch (CARD)
-        {   //Bei MCU uinterressant, da immer die gleichen Ports belegt werden
+        {   //Bei MCU uninterressant, da immer die gleichen Ports belegt werden
             case EC__MCU11revA:
             case EC__MCU11revB:
             case EC__MCU11revC:
@@ -205,6 +210,10 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, cons
             case EC__PPO11revA:                
                 p_newHalInterface = new HAL_PPO11();                                                                         
                 break;
+
+            case EC__NANO11revA:
+                p_newHalInterface = new HAL_NANO11();                                                                         
+                break;
                 
             default:
             case EC__NO_TYPE_DEFINED:
@@ -250,12 +259,14 @@ void BPLC_extensionCardManager::tick()
         const bool NEW_INPUTSTATES_AVAILABLE    = (intIsrState != MCU_INT_ISR__IDLE);     
         const bool COOL_DOWN_TIME_PASSED        = (this->to_readInputsCooldown.check());    
 
+        //Minimale Wartezeit für langsame DIN Cards abglaufen und neue Inputstates verfügbar
         if(COOL_DOWN_TIME_PASSED && NEW_INPUTSTATES_AVAILABLE)
         {    
             intIsrState = MCU_INT_ISR__IDLE;                   
             this->to_readInputsCooldown.reset();             
             this->to_readInputs.reset();
         }
+        //Inputs lesen bis Timeout abgelaufen
         const bool TIME_TO_READ_INPUTS = (!this->to_readInputs.check());
                
         while(p_extensionCardToTick != nullptr)
@@ -274,12 +285,12 @@ void BPLC_extensionCardManager::tick()
                     case EC__DIN11revA:        
                         if(TICK_DIN_CARD)
                         {
-                            p_halInterface->tick();                    
+                            p_halInterface->tick(false);                    
                         }                               
                     break;
 
                     default:
-                        p_halInterface->tick();
+                        p_halInterface->tick(TICK_DIN_CARD);
                     break;
                 }      
             }      

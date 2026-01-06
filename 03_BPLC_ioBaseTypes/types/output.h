@@ -16,6 +16,7 @@ typedef enum
 // Modus der Ausgeführt wird
 typedef enum
 {
+	OUTPUTMODE__INIT,
 	OUTPUTMODE__OFF,
 	OUTPUTMODE__ON, 
     OUTPUTMODE__VALUE,
@@ -41,16 +42,20 @@ class output: public IO_Interface, private blink
 		this->ioType				= IO_TYPE;
 		this->setting.outputType	= OUTPUT_TYPE;
 		this->setting.onValue 		= ON_VALUE;		
-	
-		this->mode = OUTPUTMODE__OFF;
+		this->f_newDataAvailable	= true;
+		this->value					= 0;
+
+		this->mode = OUTPUTMODE__INIT;
 	}  
 	void begin(const e_IO_TYPE_t IO_TYPE = IO_TYPE__OUTPUT_PUSH, const e_outputSetting_t OUTPUT_TYPE = OUTPUT_SETTING__NORMALY_OPEN, const uint8_t ON_VALUE = 255)	
 	{
 		this->ioType				= IO_TYPE;
 		this->setting.outputType	= OUTPUT_TYPE;
 		this->setting.onValue 		= ON_VALUE;		
+		this->f_newDataAvailable	= true;
+		this->value					= 0;
 
-		this->mode = OUTPUTMODE__OFF;
+		this->mode = OUTPUTMODE__INIT;
 	}  
 	//Setzt den maximalen Wert des Ausgangs
     void setOnValue(const uint8_t VALUE){this->setting.onValue = VALUE;}
@@ -88,20 +93,12 @@ class output: public IO_Interface, private blink
 	//Setzt den Ausgang 
 	void set()		              
 	{
-		if(this->mode != OUTPUTMODE__ON)
-		{
-			this->mode = OUTPUTMODE__ON;
-			this->outputValueChanged = true;
-		}	
+		this->mode = OUTPUTMODE__ON;	
 	}
 	//Setzt den Ausgang zurück
 	void reset()		           
 	{
-		if(this->mode != OUTPUTMODE__OFF)
-		{
-			this->mode = OUTPUTMODE__OFF;
-			this->outputValueChanged = true;
-		}	
+		this->mode = OUTPUTMODE__OFF;		
 	}
 	//Setzten/Rücksetzten über Parameter
     void setState(const bool STATE)      
@@ -122,7 +119,7 @@ class output: public IO_Interface, private blink
 		{
 			this->value 				= VALUE;
 			this->mode 					= OUTPUTMODE__VALUE;
-			this->outputValueChanged 	= true;
+			this->f_newDataAvailable 	= true;
 		}	
 	}
 	//Gibt den Aktuelllen State zurück
@@ -132,17 +129,17 @@ class output: public IO_Interface, private blink
    
     //Hal handling 
 	//HAL der Outputkarte prüft auf neue Daten zur ausgabe
-    bool newDataAvailable()
+    bool 			newDataAvailable	()
 	{
 		switch(this->mode)
 		{
 			case OUTPUTMODE__OFF:
-				setOutValue(false);
+				this->f_newDataAvailable = setOutValue(false);
 				this->resetBlink();
 			break;
 
 			case OUTPUTMODE__ON:
-				setOutValue(true);
+				this->f_newDataAvailable = setOutValue(true);
 				this->resetBlink();
 			break;
 
@@ -153,19 +150,9 @@ class output: public IO_Interface, private blink
 
 			case OUTPUTMODE__BLINK_ONCE:	 
 				if(this->getBlinkCycleCount() == 0)   
-				{
-					if(this->tickBlink() 
-					&&(this->value != this->setting.onValue))
-					{
-						setOutValue(true);		
-						this->outputValueChanged = true;
-					}	
-					else if((!this->tickBlink())
-						&& (this->value != 0))
-					{
-						setOutValue(false);		
-						this->outputValueChanged = true;	
-					}		
+				{	
+					const bool BLINK_STATE 		= this->tickBlink();				
+					this->f_newDataAvailable 	= setOutValue(BLINK_STATE);		
 				}
 				else
 				{
@@ -174,18 +161,10 @@ class output: public IO_Interface, private blink
 			break;
 
 			case OUTPUTMODE__BLINK_CONTINIOUS:
-				if(this->tickBlink() 
-				&&(this->value != this->setting.onValue))
-				{
-					setOutValue(true);			
-					this->outputValueChanged = true;	
-				}	
-				else if((!this->tickBlink())
-					&& (this->value != 0))
-				{
-					setOutValue(false);		
-					this->outputValueChanged = true;			
-				}		
+			{
+				const bool BLINK_STATE 		= this->tickBlink();			
+				this->f_newDataAvailable 	= setOutValue(BLINK_STATE);			
+			}		
 			break;
 
 			case OUTPUTMODE__FADE:
@@ -217,61 +196,99 @@ class output: public IO_Interface, private blink
 					{
 						//do nothing
 					}
-					this->outputValueChanged = true;
+					this->f_newDataAvailable = true;
 				}
 			break;
-
-			default:
-				this->mode = OUTPUTMODE__OFF;
+			case OUTPUTMODE__INIT:
+			default:				
+				this->f_newDataAvailable 	= true;
+				this->mode 					= OUTPUTMODE__OFF;
 			break;
 		}
-		return this->outputValueChanged;
+		return this->f_newDataAvailable;
 	}
-	//Hal holt sich Daten zur Ausgabe 
-    u_HAL_DATA_t halCallback(u_HAL_DATA_t* P_DATA)
+	u_HAL_DATA_t 	getHalData			(void)
 	{
-		u_HAL_DATA_t tempBuffer;
-		tempBuffer.analogIoData.value 	= this->value;	
-		this->outputValueChanged 		= false;
-		return tempBuffer;
+		//Daten an HAL übergeben
+		u_HAL_DATA_t DATA;
+		memset(&DATA, 0, sizeof(DATA));
+		DATA.analogIoData.value 	= this->value;	
+		this->f_newDataAvailable 	= false;
+		return DATA;
 	}
-
+	void 			setHalData			(u_HAL_DATA_t* DATA)
+	{
+		this->value 				= DATA->analogIoData.value;		
+		this->f_newDataAvailable 	= true;
+	}
 
 	private:     
-	void setOutValue(const bool STATE)
+	bool setOutValue(const bool STATE)
 	{
+		bool stateChanged = false;
+		//Ausgangstatus hat sich geändert->übernehmen
+		const bool LOGIC_STATE = this->getLogicState();
+
+		if(STATE != LOGIC_STATE)
+		{
+			switch(this->setting.outputType)
+			{
+				//Invertiertes Verhalten, öffner
+				case OUTPUT_SETTING__NORMALY_CLOSED:
+					if(STATE)
+					{
+						this->value = 0;
+					}
+					else
+					{
+						this->value = this->setting.onValue;	
+					}
+				break;
+
+				//Schließer
+				default:
+				case OUTPUT_SETTING__NORMALY_OPEN:				
+					if(STATE)
+					{
+						this->value = this->setting.onValue;	
+					}
+					else
+					{
+						this->value = 0;
+					}
+				break;		
+			}
+			stateChanged = true;	
+		}	
+		return stateChanged;
+	}
+	bool getLogicState()
+	{
+		bool logicState = false;
 		switch(this->setting.outputType)
 		{
 			//Invertiertes Verhalten, öffner
 			case OUTPUT_SETTING__NORMALY_CLOSED:
-				if(STATE)
+				if(this->value == 0)
 				{
-					this->value = 0;
-				}
-				else
-				{
-					this->value = this->setting.onValue;	
-				}
+					logicState = true;
+				}				
 			break;
 
 			//Analog Out
 			default:
 			case OUTPUT_SETTING__NORMALY_OPEN:				
-				if(STATE)
+				if(this->value == this->setting.onValue)
 				{
-					this->value = this->setting.onValue;	
-				}
-				else
-				{
-					this->value = 0;
+					logicState = true;
 				}
 			break;			
 		}	
+		return logicState;
 	}
-
     e_outputMode_t	    mode;           //Aktueller Modus
     uint8_t             value;  	    //Aktueller Wert
-	bool				outputValueChanged;
+
     struct 
     {
         uint8_t 			onValue;			

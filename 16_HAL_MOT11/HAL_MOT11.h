@@ -48,7 +48,7 @@ typedef union
     float   current;      //5+4 = 9
   }extract; 
 
-  uint8_t data[9];
+  uint8_t data[sizeof(extract)];
 
 }u_MOT11_DATA_FRAME_t;
 #pragma pack (pop)
@@ -64,7 +64,7 @@ class HAL_MOT11: public halInterface, private BPLC_moduleErrorHandler, private B
     //Hal interface 
     void            init                    (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
-    void            tick                    ();   
+    void            tick                    (const bool READ_INPUTS);   
     void            controlCommand          (const e_EC_COMMAND_t COMMAND);        
     //Modul Error Interface   
     uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}

@@ -76,16 +76,12 @@ void BPLC_APP::setupHardware()
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < NANO11_ADDRESS_COUNT; CARD_ADDR++)
    {
       if(this->APP_APP.settings.device.extensionCards.nano11revACards[CARD_ADDR])
-      {
-         this->ecmForSlowSpeed->addNewExtensionCard(EC__NANO11revA, (e_EC_ADDR_t)CARD_ADDR);
-      }
-   }
-   //FUSE12revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < FUSE12_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      if(this->APP_APP.settings.device.extensionCards.fuse12revACards[CARD_ADDR])
-      {
-         this->ecmForSlowSpeed->addNewExtensionCard(EC__FUSE12revA, (e_EC_ADDR_t)CARD_ADDR);
+      {   
+         const bool EC_SUCCESFUL_INITIALIZED = this->ecmForSlowSpeed->addNewExtensionCard(EC__NANO11revA, (e_EC_ADDR_t)CARD_ADDR);  
+         if(!EC_SUCCESFUL_INITIALIZED)
+         {
+            this->systemErrorManager.setError(NANO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+         }
       }
    }
    //Input Karten
@@ -100,8 +96,8 @@ void BPLC_APP::setupHardware()
             this->ecmForHighSpeed = new BPLC_extensionCardManager();    
             this->ecmForHighSpeed->begin(0, "ECM_DIN11_TASK");          
          }
-         const bool EC_SUCCSEFUL_INITIALIZED = this->ecmForHighSpeed->addNewExtensionCard(EC__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  
-         if(!EC_SUCCSEFUL_INITIALIZED)
+         const bool EC_SUCCESFUL_INITIALIZED = this->ecmForHighSpeed->addNewExtensionCard(EC__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  
+         if(!EC_SUCCESFUL_INITIALIZED)
          {
             this->systemErrorManager.setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
          }
@@ -129,7 +125,7 @@ void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, cons
    //Prüfen ob Input       
    switch(CARD)
    {        
-      case EC__DIN11revA:      
+      case EC__DIN11revA:    
          if(this->ecmForHighSpeed != nullptr)
          {
             this->ecmForHighSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL); 
