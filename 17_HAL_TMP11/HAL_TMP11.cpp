@@ -73,7 +73,7 @@ void HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         }        
     }
 }
-void HAL_TMP11::tick()
+void HAL_TMP11::tick(const bool READ_INPUTS)
 {   
     //I2C Verbindung zyklisch prüfen
     if(!this->tickHeartbeat())

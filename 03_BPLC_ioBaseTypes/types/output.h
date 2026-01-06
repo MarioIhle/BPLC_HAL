@@ -133,12 +133,12 @@ class output: public IO_Interface, private blink
 		switch(this->mode)
 		{
 			case OUTPUTMODE__OFF:
-				setOutValue(false);
+				this->f_newDataAvailable = setOutValue(false);
 				this->resetBlink();
 			break;
 
 			case OUTPUTMODE__ON:
-				setOutValue(true);
+				this->f_newDataAvailable = setOutValue(true);
 				this->resetBlink();
 			break;
 

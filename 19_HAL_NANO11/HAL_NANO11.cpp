@@ -4,7 +4,6 @@ HAL_NANO11::HAL_NANO11()
 {}
 void HAL_NANO11::init(const e_EC_ADDR_t ADDR)
 {    
-    this->to_readInputs.setInterval(1000);
     this->bplcAddress = ADDR;
     
     if(ADDR < NANO11_ADDRESS_COUNT)
@@ -64,7 +63,7 @@ void HAL_NANO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNE
         // this->bplcNode.setRequestPayloadSize(this->i2cAddress, BYTE_COUNT);
     }
 }
-void HAL_NANO11::tick()
+void HAL_NANO11::tick(const bool READ_INPUTS)
 {          
     //I2C Verbindung zyklisch prüfen    
     if(!this->tickHeartbeat())
@@ -76,16 +75,16 @@ void HAL_NANO11::tick()
     if(this->noErrorSet())
     {            
         //Inputs anfragen
-        if(this->to_readInputs.checkAndReset())
+        if(READ_INPUTS)
         {
             //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschrieben
             for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
             {
                 u_HAL_DATA_t dataBuffer;
                 if(this->channels.p_ioObject[CH] != nullptr)
-                {  
+                {                      
                     this->bplcNode.getSlaveData(this->i2cAddress, CH, &dataBuffer.data[0], sizeof(dataBuffer));
-                    Serial.println("Channel" +String(CH) + "Data: " + String(dataBuffer.digitalIoData.state));
+                    //Serial.println("Channel " +String(CH) + " Data: " + String(dataBuffer.digitalIoData.state));
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {
                         case IO_TYPE__ANALOG_INPUT:

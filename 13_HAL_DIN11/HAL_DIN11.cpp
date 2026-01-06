@@ -79,7 +79,7 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         }
     }
 }
-void HAL_DIN11::tick()
+void HAL_DIN11::tick(const bool READ_INPUTS)
 {   
     //I2C Verbindung zyklisch prüfen
     if(!this->tickHeartbeat())

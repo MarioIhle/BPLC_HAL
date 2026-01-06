@@ -97,7 +97,7 @@ void HAL_MCU11_revA::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             break;
     }
 }
-void HAL_MCU11_revA::tick()
+void HAL_MCU11_revA::tick(const bool READ_INPUTS)
 {  
     const bool NO_ERROR = (!this->tickSafety());
     

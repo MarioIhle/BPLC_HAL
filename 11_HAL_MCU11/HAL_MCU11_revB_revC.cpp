@@ -97,7 +97,7 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             break;
     }
 }
-void HAL_MCU11_revB::tick()
+void HAL_MCU11_revB::tick(const bool READ_INPUTS)
 {  
     //Hier prüfen bevor Pointer = NULL
     const bool NO_ERROR = (!this->tickSafety());

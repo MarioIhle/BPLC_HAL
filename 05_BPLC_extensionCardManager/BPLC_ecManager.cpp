@@ -103,8 +103,8 @@ void ecmTask(void* taskParameter)
 BPLC_extensionCardManager::BPLC_extensionCardManager()
 {    
     memset(this, 0, sizeof(BPLC_extensionCardManager));
-    this->to_readInputsCooldown.setInterval(1500);   //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 500ms
-    this->to_readInputs.setInterval(15);             //Wenn Interrupt errignis, dann 50ms Input Karten lesen
+    this->to_readInputsCooldown.setInterval(100);    //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 100ms
+    this->to_readInputs.setInterval(10);             //Wenn Interrupt errignis, dann 50ms Input Karten lesen
 }
 void BPLC_extensionCardManager::begin(const uint8_t TASK_DELAY_TIME, const char* TASK_NAME)
 {    
@@ -285,12 +285,12 @@ void BPLC_extensionCardManager::tick()
                     case EC__DIN11revA:        
                         if(TICK_DIN_CARD)
                         {
-                            p_halInterface->tick();                    
+                            p_halInterface->tick(false);                    
                         }                               
                     break;
 
                     default:
-                        p_halInterface->tick();
+                        p_halInterface->tick(TICK_DIN_CARD);
                     break;
                 }      
             }      

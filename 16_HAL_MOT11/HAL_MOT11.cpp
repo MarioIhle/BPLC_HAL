@@ -63,7 +63,7 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         }
     }
 }
-void HAL_MOT11::tick()
+void HAL_MOT11::tick(const bool READ_INPUTS)
 {          
     //Zyklisch Parameter abfragen, wird über Callback bei Slave behandelt, daher Timing unabhänig
     if(this->to_parameterPoll.checkAndReset())

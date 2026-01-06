@@ -51,7 +51,7 @@ class halInterface: public BPLC_moduleErrorInterface
 {
     public:
     virtual void init                   (const e_EC_ADDR_t ADDR) = 0;
-    virtual void tick                   () = 0;
+    virtual void tick                   (const bool READ_INPUTS) = 0;
     virtual void mapObjectToChannel     (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL) = 0;
     virtual void controlCommand         (const e_EC_COMMAND_t COMMAND) = 0;
 
