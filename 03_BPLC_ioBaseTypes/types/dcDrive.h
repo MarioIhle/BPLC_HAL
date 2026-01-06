@@ -19,7 +19,7 @@ typedef enum
 class dcDrive: public IO_Interface
 {
     public: 
-                        dcDrive                 (){};
+                        dcDrive                 (){this->initInternals();}
     //Drive Commands
     void                stop                    ()
 	{
@@ -76,15 +76,14 @@ class dcDrive: public IO_Interface
     e_DRIVE_STATE_t     getDriveState           (){return this->driveState;}
 
     //Hal handling
-    bool                newDataAvailable        ()
+    bool 			newDataAvailable	()
 	{
 		const bool NEW_DATA_AVAILABLE 		= this->f_newDriveParametersAvailable;
 		this->f_newDriveParametersAvailable = false;
 		return NEW_DATA_AVAILABLE;
 	}
-    u_HAL_DATA_t        halCallback             (u_HAL_DATA_t* P_DATA = nullptr)
-	{	
-		//Es können(muss aber nicht) auch daten gelesen weredn, ohne neues Kommando
+	void 			setHalData			(u_HAL_DATA_t* P_DATA)
+	{		
 		if(P_DATA != nullptr)
 		{
 			const bool DIRECTION_IS_DIFFERENT_ON_HARDWARE 	= this->motParams.direction != P_DATA->dcDriveData.direction;		//Vielleicht für Fehlererkennung?? sollte immmer der geschriebene Wert sein
@@ -97,17 +96,21 @@ class dcDrive: public IO_Interface
 				this->f_newDriveParametersAvailable = true;
 			}
 		}
-
+	}
+    u_HAL_DATA_t 	getHalData			()
+	{	
 		//Befehle ausgeben
-		u_HAL_DATA_t BUFFER;
-		BUFFER.dcDriveData.direction 	= this->motParams.direction;
-		BUFFER.dcDriveData.speed 		= this->motParams.speed;  
+		u_HAL_DATA_t DATA;
+		DATA.dcDriveData.direction 	= this->motParams.direction;
+		DATA.dcDriveData.speed 		= this->motParams.speed;  
+		DATA.dcDriveData.current 	= this->motParams.current;
 		
-		return BUFFER; 
+		return DATA; 
 	}
 
 
     private:
+
     e_DRIVE_STATE_t     driveState; 
     bool                f_newDriveParametersAvailable;
     //Motor Parameter
@@ -123,5 +126,13 @@ class dcDrive: public IO_Interface
         uint8_t         speed;
       }old;    
     }motParams;
+
+	void initInternals()
+	{
+		this->ioType 						= IO_TYPE__DC_DRIVE;
+		this->driveState 					= DRIVE_STATE__IDLE;
+		this->f_newDriveParametersAvailable = false;
+		memset(&this->motParams, 0, sizeof(this->motParams));
+	}
 };
 #endif

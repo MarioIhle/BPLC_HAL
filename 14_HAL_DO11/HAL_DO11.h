@@ -23,7 +23,7 @@ class HAL_DO11: public halInterface, private BPLC_moduleErrorHandler, private BP
     //Hal interface 
     void            init                    (const e_EC_ADDR_t ADDR);
     void            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
-    void            tick                    ();  
+    void            tick                    (const bool READ_INPUTS);  
     void            controlCommand          (const e_EC_COMMAND_t COMMAND);         
     //Modul Error Interface   
     uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}

@@ -139,13 +139,6 @@ void BPLC_APP::tickControlPanel()
                         Serial.print("NANO11revA ADDR "); Serial.print(card); Serial.println(" defined ");
                     }           
                 }
-                for(uint8_t card = 0; card < FUSE12_ADDRESS_COUNT; card++)
-                {
-                    if(this->APP_APP.settings.device.extensionCards.fuse12revACards[card])
-                    {
-                        Serial.print("FUSE12revA ADDR "); Serial.print(card); Serial.println(" defined ");
-                    }           
-                }
                 Serial.println("APPLIKATION SETTINGS:");
                 Serial.print("encoder beep: ");         Serial.println(this->APP_APP.settings.device.application.f_beepOnEncoderInput);
                 Serial.print("encoder inverted:  ");    Serial.println(this->APP_APP.settings.device.application.f_encoderInverted);
@@ -369,13 +362,7 @@ void BPLC_APP::tickControlPanel()
                 this->APP_APP.settings.device.extensionCards.nano11revACards[COMMAND.command.payload] = true;    
                 this->saveDeviceSettings();
                 this->setupHardware();
-                break;
-
-            case BPLC_PLI_KEY__ADD_EC_FUSE12revA:
-                this->APP_APP.settings.device.extensionCards.fuse12revACards[COMMAND.command.payload] = true;    
-                this->saveDeviceSettings();
-                this->setupHardware();
-                break;        
+                break;      
 
             default:
                 this->printLog("host command not executable!", __FILENAME__, __LINE__);

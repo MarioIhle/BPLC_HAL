@@ -97,7 +97,7 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             break;
     }
 }
-void HAL_MCU11_revB::tick()
+void HAL_MCU11_revB::tick(const bool READ_INPUTS)
 {  
     //Hier prüfen bevor Pointer = NULL
     const bool NO_ERROR = (!this->tickSafety());
@@ -110,41 +110,40 @@ void HAL_MCU11_revB::tick()
         tempbuffer.encoderData.stateA = digitalRead(this->PIN.ENCODER_A);
         tempbuffer.encoderData.stateB = digitalRead(this->PIN.ENCODER_B);
         tempbuffer.encoderData.stateZ = digitalRead(this->PIN.ENCODER_BUTTON);
-        this->p_encoder->halCallback(&tempbuffer);
+        this->p_encoder->setHalData(&tempbuffer);
         //p_oen schreiben       
         if(this->p_oen->newDataAvailable())
         {         
-            const bool OEN_STATE = this->p_oen->halCallback().digitalIoData.state;  
+            const bool OEN_STATE = this->p_oen->getHalData().digitalIoData.state;  
             //NPN PullUp schaltung, ausgang also invertieren
             if(OEN_STATE > 0)
             {
-                digitalWrite(this->PIN.OEN, HIGH);
+                digitalWrite(this->PIN.OEN, LOW);
             }
             else
             {
-                digitalWrite(this->PIN.OEN, LOW);
-            }
-            
+                digitalWrite(this->PIN.OEN, HIGH);
+            }            
         }
         //BUZZER
         if(this->p_buzzer->newDataAvailable())
         {
-            analogWrite(this->PIN.BUZZER, this->p_buzzer->halCallback().analogIoData.value);
+            analogWrite(this->PIN.BUZZER, this->p_buzzer->getHalData().analogIoData.value);
         }
         //p_ld1
         if(this->p_ld1->newDataAvailable())
         {
-            analogWrite(this->PIN.LD1, this->p_ld1->halCallback().analogIoData.value);
+            analogWrite(this->PIN.LD1, this->p_ld1->getHalData().analogIoData.value);
         }
         //LD_COMMUNACTION_STATE
         if(this->p_ld2->newDataAvailable())
         {
-            analogWrite(this->PIN.LD2, this->p_ld2->halCallback().analogIoData.value);
+            analogWrite(this->PIN.LD2, this->p_ld2->getHalData().analogIoData.value);
         }
         //p_ld3
         if(this->p_ld3->newDataAvailable())
         {
-            analogWrite(this->PIN.LD3, this->p_ld3->halCallback().analogIoData.value);
+            analogWrite(this->PIN.LD3, this->p_ld3->getHalData().analogIoData.value);
         } 
         //!Super schrott fix, geht aber nicht anders
         //Problemstellung: Interruptpins der PCF sind mitinander verbunden daher kommt es manchmal zu einem Fehlerzustand auf den PCF und die INT leitung bleibt dann low
