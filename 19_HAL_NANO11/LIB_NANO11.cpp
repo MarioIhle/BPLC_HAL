@@ -156,13 +156,14 @@ void LIB_NANO11::tick()
                 {
                     if(this->channels[CH].pin != 0)
                     {                             
-                        if(this->channels[CH].data.analogIoData.value == 255)
+                        if((this->channels[CH].data.analogIoData.value == 0)
+                        || (!this->getOEN())) 
                         {
-                            digitalWrite(this->channels[CH].pin, HIGH);                            
+                            digitalWrite(this->channels[CH].pin, LOW);                            
                         }
-                        else if (this->channels[CH].data.analogIoData.value == 0)
+                        else if(this->channels[CH].data.analogIoData.value == 255)
                         {
-                            digitalWrite(this->channels[CH].pin, LOW);
+                            digitalWrite(this->channels[CH].pin, HIGH);
                         }          
                         else
                         {

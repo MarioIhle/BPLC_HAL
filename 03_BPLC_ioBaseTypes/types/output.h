@@ -16,6 +16,7 @@ typedef enum
 // Modus der Ausgeführt wird
 typedef enum
 {
+	OUTPUTMODE__INIT,
 	OUTPUTMODE__OFF,
 	OUTPUTMODE__ON, 
     OUTPUTMODE__VALUE,
@@ -41,20 +42,20 @@ class output: public IO_Interface, private blink
 		this->ioType				= IO_TYPE;
 		this->setting.outputType	= OUTPUT_TYPE;
 		this->setting.onValue 		= ON_VALUE;		
-		this->f_newDataAvailable	= false;
+		this->f_newDataAvailable	= true;
 		this->value					= 0;
 
-		this->mode = OUTPUTMODE__OFF;
+		this->mode = OUTPUTMODE__INIT;
 	}  
 	void begin(const e_IO_TYPE_t IO_TYPE = IO_TYPE__OUTPUT_PUSH, const e_outputSetting_t OUTPUT_TYPE = OUTPUT_SETTING__NORMALY_OPEN, const uint8_t ON_VALUE = 255)	
 	{
 		this->ioType				= IO_TYPE;
 		this->setting.outputType	= OUTPUT_TYPE;
 		this->setting.onValue 		= ON_VALUE;		
-		this->f_newDataAvailable	= false;
+		this->f_newDataAvailable	= true;
 		this->value					= 0;
 
-		this->mode = OUTPUTMODE__OFF;
+		this->mode = OUTPUTMODE__INIT;
 	}  
 	//Setzt den maximalen Wert des Ausgangs
     void setOnValue(const uint8_t VALUE){this->setting.onValue = VALUE;}
@@ -198,9 +199,10 @@ class output: public IO_Interface, private blink
 					this->f_newDataAvailable = true;
 				}
 			break;
-
-			default:
-				this->mode = OUTPUTMODE__OFF;
+			case OUTPUTMODE__INIT:
+			default:				
+				this->f_newDataAvailable 	= true;
+				this->mode 					= OUTPUTMODE__OFF;
 			break;
 		}
 		return this->f_newDataAvailable;

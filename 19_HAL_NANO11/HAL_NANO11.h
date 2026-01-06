@@ -74,6 +74,8 @@ class LIB_NANO11
     void            begin                   (const e_EC_ADDR_t ADDR);
     void            mapPinToChannel         (const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL, const e_IO_TYPE_t IO_TYPE);   //pins direkt auf channel mappen, geht nur mit einfachen io objekten 
     void            tick                    ();        
+    bool            getOEN                  (){return digitalRead(this->pins.OEN);}
+
 
     private:    
     void            initInternals           ();      
