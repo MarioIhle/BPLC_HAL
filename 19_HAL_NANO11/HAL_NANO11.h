@@ -13,8 +13,7 @@ const uint8_t NANO11_I2C_ADDRESSES[NANO11_ADDRESS_COUNT] = {0xB0, 0xB1, 0xB2, 0x
 
 typedef enum
 {
-    NANO11_COMMAND_KEY__WRITE,
-    NANO11_COMMAND_KEY__SET_CHANNEL_COUNT,
+    NANO11_COMMAND_KEY__WRITE,    
 
     NANO11_COMMAND_KEY__COUNT
 }e_NANO11_COMMAND_KEY_t;
@@ -54,8 +53,8 @@ class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private 
   
     private:          
     //Settings  
-    uint8_t             deviceAddress;
     I2C_BPLC_Master     bplcNode;
+    Timeout             to_readInputs;
   
     //Object handling
     struct
@@ -79,8 +78,8 @@ class LIB_NANO11
 
     private:    
     void            initInternals           ();      
+   
     //Settings  
-    uint8_t             deviceAddress;
     I2C_BPLC_Slave      bplcNode;
     bool                error;
 

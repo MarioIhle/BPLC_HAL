@@ -4,9 +4,12 @@ HAL_NANO11::HAL_NANO11()
 {}
 void HAL_NANO11::init(const e_EC_ADDR_t ADDR)
 {    
+    this->to_readInputs.setInterval(1000);
+    this->bplcAddress = ADDR;
+    
     if(ADDR < NANO11_ADDRESS_COUNT)
     {
-        this->deviceAddress = NANO11_I2C_ADDRESSES[ADDR];             
+        this->i2cAddress = NANO11_I2C_ADDRESSES[ADDR];             
     }
     else
     {
@@ -19,22 +22,20 @@ void HAL_NANO11::init(const e_EC_ADDR_t ADDR)
     }   
         
     //I2C Verbindung prüfen
-    /*
-    if(I2C_check::begin(this->deviceAddress) == false)
+    if(!I2C_check::begin(this->i2cAddress))
     {
-        //this->setError(NANO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
+        this->setError(NANO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
-    */
 
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {   
-        this->bplcNode.begin();
-        this->printLog("NANO11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
+        this->bplcNode.begin();        
+        this->printLog("NANO11revA CARD (" + String(this->bplcAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
     {
-        this->printLog("NANO11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
+        this->printLog("NANO11revA CARD (" + String(this->bplcAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
 }
 void HAL_NANO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
@@ -57,58 +58,54 @@ void HAL_NANO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNE
     {
         this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;   
 
+        //IMMER ALLE CHANNEL VERSENDEN 
         //Neue anzahl an Channels komunizieren, damit bei Abfrage auch genügned Daten geschickt werden
-      /*
-        s_NANO11_COMMAND_t command;
-        command.extract.key                         = NANO11_COMMAND_KEY__SET_CHANNEL_COUNT;
-        command.extract.payload.analogIoData.value  = (uint32_t)CHANNEL;
-        command.extract.channel                     = 0;
-        const uint8_t BYTE_COUNT                    = sizeof(command);
-        this->bplcNode.sendCommand(this->deviceAddress, &command.data[0], BYTE_COUNT);    */ 
+        // const uint8_t BYTE_COUNT                    = (CHANNEL * sizeof(u_HAL_DATA_t));
+        // this->bplcNode.setRequestPayloadSize(this->i2cAddress, BYTE_COUNT);
     }
 }
 void HAL_NANO11::tick()
 {          
-    //I2C Verbindung zyklisch prüfen
-    /*
+    //I2C Verbindung zyklisch prüfen    
     if(!this->tickHeartbeat())
     {
         this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);      
-    }
-    */
+    }    
     
     //Hal ticken
     if(this->noErrorSet())
-    {    
-        //Daten anfragen
-        u_HAL_DATA_t dataBuffer[NANO11_CHANNEL_COUNT];
-        this->bplcNode.getSlaveData(this->deviceAddress, &dataBuffer[0].data[0], sizeof(dataBuffer));
-        
-        //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschrieben
-        for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
+    {            
+        //Inputs anfragen
+        if(this->to_readInputs.checkAndReset())
         {
-            if(this->channels.p_ioObject[CH] != nullptr)
-            {  
-                switch (this->channels.p_ioObject[CH]->getIoType())
-                {
-                    case IO_TYPE__ANALOG_INPUT:
-                    case IO_TYPE__DIGITAL_COUNTER:
-                    case IO_TYPE__DIGITAL_INPUT:
-                    case IO_TYPE__POSITION_ENCODER:
-                    case IO_TYPE__PT1000:
-                    case IO_TYPE__PT100:
-                    case IO_TYPE__PTC:
-                    case IO_TYPE__ROTARY_ENCODER:
-                    case IO_TYPE__RPM_SENS:       
-                        this->channels.p_ioObject[CH]->setHalData(&dataBuffer[CH]);
-                        break;
-                    
-                    default:
-                        break;
-                }          
-            }  
+            //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschrieben
+            for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
+            {
+                u_HAL_DATA_t dataBuffer;
+                if(this->channels.p_ioObject[CH] != nullptr)
+                {  
+                    this->bplcNode.getSlaveData(this->i2cAddress, CH, &dataBuffer.data[0], sizeof(dataBuffer));
+                    Serial.println("Channel" +String(CH) + "Data: " + String(dataBuffer.digitalIoData.state));
+                    switch (this->channels.p_ioObject[CH]->getIoType())
+                    {
+                        case IO_TYPE__ANALOG_INPUT:
+                        case IO_TYPE__DIGITAL_COUNTER:
+                        case IO_TYPE__DIGITAL_INPUT:
+                        case IO_TYPE__POSITION_ENCODER:
+                        case IO_TYPE__PT1000:
+                        case IO_TYPE__PT100:
+                        case IO_TYPE__PTC:
+                        case IO_TYPE__ROTARY_ENCODER:
+                        case IO_TYPE__RPM_SENS:       
+                            this->channels.p_ioObject[CH]->setHalData(&dataBuffer);
+                            break;
+                        
+                        default:
+                            break;
+                    }          
+                }  
+            }
         }
-           
         //Outputs schreiben
         for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
         {
@@ -140,7 +137,7 @@ void HAL_NANO11::tick()
                             }*/
 
                             const uint8_t BYTE_COUNT = sizeof(s_NANO11_COMMAND_t);
-                            this->bplcNode.sendCommand(this->deviceAddress, &command.data[0], BYTE_COUNT);
+                            this->bplcNode.sendCommand(this->i2cAddress, &command.data[0], BYTE_COUNT);
                         }                       
                         break;
 

@@ -139,24 +139,16 @@ void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
 void HAL_MOT11::requestDriveParameter()
 {
     u_MOT11_DATA_FRAME_t BUFFER;
-    const bool SLAVE_DATA_RECEIVED = this->i2c.getSlaveData(this->i2cAddress, BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));
-    
-    if(SLAVE_DATA_RECEIVED)
-    {
-        this->state         = (e_MOT11_DEVICE_STATE_t) BUFFER.extract.deviceState;    
-        this->error         = (e_BPLC_ERROR_t)BUFFER.extract.error;
-        //Daten an IO Objekt weiter geben
-        u_HAL_DATA_t inDATA;    
-        inDATA.dcDriveData.direction    = (e_MOVEMENT_t)BUFFER.extract.direction;
-        inDATA.dcDriveData.speed        = BUFFER.extract.speed;
-        inDATA.dcDriveData.current      = BUFFER.extract.current;
-        this->channels.p_ioObject->setHalData(&inDATA);
-    }
-    else
-    {
-        //irgendwas anders empfangen
-    }
-    
+    this->i2c.getSlaveData(this->i2cAddress, 1, BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));    
+   
+    this->state         = (e_MOT11_DEVICE_STATE_t) BUFFER.extract.deviceState;    
+    this->error         = (e_BPLC_ERROR_t)BUFFER.extract.error;
+    //Daten an IO Objekt weiter geben
+    u_HAL_DATA_t inDATA;    
+    inDATA.dcDriveData.direction    = (e_MOVEMENT_t)BUFFER.extract.direction;
+    inDATA.dcDriveData.speed        = BUFFER.extract.speed;
+    inDATA.dcDriveData.current      = BUFFER.extract.current;
+    this->channels.p_ioObject->setHalData(&inDATA);
 
 #ifdef DEBUG_HAL_MOT11 
 Serial.println("Drive Parameter:");

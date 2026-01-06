@@ -103,8 +103,8 @@ void ecmTask(void* taskParameter)
 BPLC_extensionCardManager::BPLC_extensionCardManager()
 {    
     memset(this, 0, sizeof(BPLC_extensionCardManager));
-    this->to_readInputsCooldown.setInterval(500);   //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 500ms
-    this->to_readInputs.setInterval(10);            //Wenn Interrupt errignis, dann 50ms Input Karten lesen
+    this->to_readInputsCooldown.setInterval(1500);   //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 500ms
+    this->to_readInputs.setInterval(15);             //Wenn Interrupt errignis, dann 50ms Input Karten lesen
 }
 void BPLC_extensionCardManager::begin(const uint8_t TASK_DELAY_TIME, const char* TASK_NAME)
 {    
@@ -259,12 +259,14 @@ void BPLC_extensionCardManager::tick()
         const bool NEW_INPUTSTATES_AVAILABLE    = (intIsrState != MCU_INT_ISR__IDLE);     
         const bool COOL_DOWN_TIME_PASSED        = (this->to_readInputsCooldown.check());    
 
+        //Minimale Wartezeit für langsame DIN Cards abglaufen und neue Inputstates verfügbar
         if(COOL_DOWN_TIME_PASSED && NEW_INPUTSTATES_AVAILABLE)
         {    
             intIsrState = MCU_INT_ISR__IDLE;                   
             this->to_readInputsCooldown.reset();             
             this->to_readInputs.reset();
         }
+        //Inputs lesen bis Timeout abgelaufen
         const bool TIME_TO_READ_INPUTS = (!this->to_readInputs.check());
                
         while(p_extensionCardToTick != nullptr)

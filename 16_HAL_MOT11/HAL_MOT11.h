@@ -48,7 +48,7 @@ typedef union
     float   current;      //5+4 = 9
   }extract; 
 
-  uint8_t data[9];
+  uint8_t data[sizeof(extract)];
 
 }u_MOT11_DATA_FRAME_t;
 #pragma pack (pop)

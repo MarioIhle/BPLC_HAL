@@ -75,15 +75,9 @@ void BPLC_APP::setupHardware()
    //NANO11revA Cards initialisieren
    for (uint8_t CARD_ADDR = 0; CARD_ADDR < NANO11_ADDRESS_COUNT; CARD_ADDR++)
    {
-      const bool EC_CARD_DEFINED_IN_SETTINGS = this->APP_APP.settings.device.extensionCards.nano11revACards[CARD_ADDR];
-      if(EC_CARD_DEFINED_IN_SETTINGS)
+      if(this->APP_APP.settings.device.extensionCards.nano11revACards[CARD_ADDR])
       {   
-         if(this->ecmForHighSpeed == nullptr)
-         {
-            this->ecmForHighSpeed = new BPLC_extensionCardManager();    
-            this->ecmForHighSpeed->begin(0, "ECM_DIN11_TASK");          
-         }
-         const bool EC_SUCCESFUL_INITIALIZED = this->ecmForHighSpeed->addNewExtensionCard(EC__NANO11revA, (e_EC_ADDR_t)CARD_ADDR);  
+         const bool EC_SUCCESFUL_INITIALIZED = this->ecmForSlowSpeed->addNewExtensionCard(EC__NANO11revA, (e_EC_ADDR_t)CARD_ADDR);  
          if(!EC_SUCCESFUL_INITIALIZED)
          {
             this->systemErrorManager.setError(NANO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
@@ -131,8 +125,7 @@ void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, cons
    //Prüfen ob Input       
    switch(CARD)
    {        
-      case EC__DIN11revA: 
-      case EC__NANO11revA:     
+      case EC__DIN11revA:    
          if(this->ecmForHighSpeed != nullptr)
          {
             this->ecmForHighSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL); 

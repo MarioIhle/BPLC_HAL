@@ -225,7 +225,9 @@ class output: public IO_Interface, private blink
 	{
 		bool stateChanged = false;
 		//Ausgangstatus hat sich geändert->übernehmen
-		if(STATE != this->getLogicState())
+		const bool LOGIC_STATE = this->getLogicState();
+
+		if(STATE != LOGIC_STATE)
 		{
 			switch(this->setting.outputType)
 			{
@@ -274,9 +276,9 @@ class output: public IO_Interface, private blink
 			//Analog Out
 			default:
 			case OUTPUT_SETTING__NORMALY_OPEN:				
-				if(this->value == 0)
+				if(this->value == this->setting.onValue)
 				{
-					logicState = false;
+					logicState = true;
 				}
 			break;			
 		}	

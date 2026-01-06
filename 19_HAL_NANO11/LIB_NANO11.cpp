@@ -6,7 +6,6 @@ LIB_NANO11::LIB_NANO11()
 }
 void LIB_NANO11::initInternals()
 {
-    this->deviceAddress = 0;
     this->error         = 0;
     this->intOutput.begin(IO_TYPE__OUTPUT_PUSH, OUTPUT_SETTING__NORMALY_CLOSED, 1);
 
@@ -16,6 +15,7 @@ void LIB_NANO11::initInternals()
         this->channels[channel].ioType              = IO_TYPE__NOT_DEFINED;
         this->channels[channel].f_newDataAvailable  = false;
         memset(&this->channels[channel].data, 0, sizeof(u_HAL_DATA_t));
+
     } 
 } 
 void LIB_NANO11::begin(const e_EC_ADDR_t ADDR)
@@ -26,7 +26,7 @@ void LIB_NANO11::begin(const e_EC_ADDR_t ADDR)
 
     if(ADDR < NANO11_ADDRESS_COUNT)
     {
-        this->deviceAddress = NANO11_I2C_ADDRESSES[ADDR];             
+        this->bplcNode.begin(NANO11_I2C_ADDRESSES[ADDR]);             
     }
     else
     {
@@ -36,7 +36,7 @@ void LIB_NANO11::begin(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(!this->error)
     {   
-        this->bplcNode.begin(this->deviceAddress);   
+         
     }    
 }
 void LIB_NANO11::mapPinToChannel(const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL, const e_IO_TYPE_t IO_TYPE)
@@ -46,6 +46,12 @@ void LIB_NANO11::mapPinToChannel(const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL
     if((CHANNEL < EC_CHANNEL_1)
     || (CHANNEL > NANO11_CHANNEL_COUNT))
     {
+        //Channel out of range
+        this->error = true;
+    }
+    else if(this->channels[CHANNEL_INSTANCE].ioType != IO_TYPE__NOT_DEFINED)
+    {
+        //Channel schon belegt
         this->error = true;
     }
     else
@@ -70,7 +76,7 @@ void LIB_NANO11::mapPinToChannel(const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL
             case IO_TYPE__OUTPUT_PUSH_PULL_INVERT:      
                 this->channels[CHANNEL_INSTANCE].pin = PIN;
                 pinMode(PIN, OUTPUT);
-                Serial.println("Channel: " + String(CHANNEL) +  ", Output mapped to pin: " + String(PIN));
+                //Serial.println("Channel: " + String(CHANNEL) +  ", Output mapped to pin: " + String(PIN));
                 break;
 
             default:
@@ -88,20 +94,8 @@ void LIB_NANO11::tick()
     {
         s_NANO11_COMMAND_t command;
         memset(&command, 0, sizeof(s_NANO11_COMMAND_t));
-        const uint8_t MESSAGE_SIZE = this->bplcNode.getCommand(command.data);
+        this->bplcNode.getCommand(command.data);
       
-        //Debug output
-        /*
-        Serial.println("BYTES RECEIVED: "+ String(MESSAGE_SIZE));        
-        for(int i = 0; i< MESSAGE_SIZE; i++)
-        {
-            Serial.print(command.data[i]);
-        }
-        Serial.println("");
-        Serial.println("Key: "+ String(command.extract.key));
-        Serial.println("Channel: "+ String(command.extract.channel));
-        */
-
         switch (command.extract.key)
         {   
             //Output setzen
@@ -189,17 +183,12 @@ void LIB_NANO11::tick()
     if(newDataAvailable)
     {   
         //Daten für abfrage bereit stellen
-        u_HAL_DATA_t dataBuffer[NANO11_CHANNEL_COUNT];
-        memset(&dataBuffer, 0, sizeof(dataBuffer));
-      
         for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
         {    
-            dataBuffer[CH] = this->channels[CH].data;
-        }       
-        this->bplcNode.setSlaveData(&dataBuffer[0].data[0], sizeof(dataBuffer));
-
+            this->bplcNode.setSlaveData(CH, this->channels[CH].data.data, sizeof(u_HAL_DATA_t));
+        }
         //Master über Int neue Daten melden
-        this->intOutput.blinkOnce(1, 100);
+        this->intOutput.blinkOnce(1, 10);
     }      
     
     //Int schreiben       
