@@ -1,4 +1,4 @@
-#include "BPLC_APP.h"
+#include "BPLC.h"
 
 #define hostStartFrame  36  //ASCII $
 #define hostEndFrame    37  //ASCII %
