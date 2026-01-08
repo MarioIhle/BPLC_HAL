@@ -88,6 +88,7 @@ void BPLC_APP::tickNetwork()
                 this->APP_COM.to_communicationError.reset();
             break;
 
+            default:
             case COM_NODE_STATE__NO_SLAVE_AVAILABLE:   
             case COM_NODE_STATE__NOT_AVAILABLE:
                 this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 100, 100);

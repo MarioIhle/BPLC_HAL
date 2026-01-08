@@ -1,14 +1,14 @@
-#ifndef BPLC_APP_h
-#define BPLC_APP_H
+#ifndef BPLC_h
+#define BPLC_h
 //------------------------------------------------------------
 /**
- * @file BPLC_APP.h
- * @author MIE * 
+ * @file BPLC.h
+ * @author MIE 
  * @version 1.0
  */
 //-------------------------------------------------------------
 #define VERSION_MAJOR 2
-#define VERSION_MINOR 0
+#define VERSION_MINOR 4
 //-------------------------------------------------------------
 //INCLUDES
 //-------------------------------------------------------------
