@@ -144,15 +144,7 @@ class BPLC: BPLC_logPrint, CRC16Calculator
 
                 struct 
                 {          
-                    bool                oledAvailable;
-                    bool                ain11revACards [AIN11_ADDRESS_COUNT];
-                    bool                din11revACards [DIN11_ADDRESS_COUNT];                
-                    bool                do11revACards  [DO11_ADDRESS_COUNT];
-                    bool                rel11revACards [REL11_ADDRESS_COUNT];
-                    bool                mot11revAcards [MOT11_ADDRESS_COUNT];
-                    bool                tmp11revACards [TMP11_ADDRESS_COUNT];
-                    bool                ppo11revACards [PPO11_ADDRESS_COUNT];
-                    bool                nano11revACards[NANO11_ADDRESS_COUNT];
+                    bool                oledAvailable;     
                 }extensionCards;
 
             }device;               
