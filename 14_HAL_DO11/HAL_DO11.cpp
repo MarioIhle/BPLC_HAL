@@ -6,7 +6,7 @@ HAL_DO11::HAL_DO11()
     this->i2cAddress            = 0;
     this->debugOutputEnabled    = false;
 }
-void HAL_DO11::init(const e_EC_ADDR_t ADDR)
+bool HAL_DO11::init(const e_EC_ADDR_t ADDR)
 {
     this->bplcAddress = ADDR;
 
@@ -37,12 +37,14 @@ void HAL_DO11::init(const e_EC_ADDR_t ADDR)
         PCA.init();
         PCA.setPWMFrequency(200);   //Falls Servos verwendet werden, wird automatisch PWM freuenz auf 25Hz gesenkt!
         PCA.setAllChannelsPWM(0);
-        this->printLog("DO11revA CARD (" + String(this->i2cAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
+        this->printLog("DO11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
     {
-        this->printLog("DO11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
+        this->printLog("DO11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
+
+    return this->noErrorSet();
 }
 bool HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {

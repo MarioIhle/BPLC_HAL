@@ -3,9 +3,22 @@
 BPLC_moduleErrorHandler::BPLC_moduleErrorHandler()
 {
     this->p_firstError              = nullptr;
-    this->p_superiorErrorManager    = nullptr;
+    this->p_superiorErrorHandler    = nullptr;
     this->errorCount                = 0;
     this->enabled                   = true;
+}
+bool BPLC_moduleErrorHandler::noErrorSet()
+{    
+    //wenn übergeordneter Errorhandler ausgeschaltet, diesen auch ausschalten
+    if(this->p_superiorErrorHandler != nullptr)
+    {
+        this->enabled = this->p_superiorErrorHandler->errorDetectionisEnabled();
+    }  
+
+    const bool  NO_ERROR_SET                     = (this->errorCount == 0);
+    const bool  THIS_ERROR_HANDLER_DISABLED      = (!this->enabled);
+    
+    return (NO_ERROR_SET || THIS_ERROR_HANDLER_DISABLED);
 }
 uint8_t BPLC_moduleErrorHandler::getErrorCount()
 {
@@ -51,33 +64,38 @@ s_error_t* BPLC_moduleErrorHandler::getError(uint8_t ERROR_NUMBER)
 //setError("TEXT", __FILENAME__, __LINE__);
 void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE)
 {
-    //Nur speichern, wenn noch nicht vorhanden
-    if(this->searchError(ERROR_CODE) == nullptr)
+    if(this->enabled)
     {
-        s_error_t ERROR_DATA;
-        ERROR_DATA.errorCode    = ERROR_CODE;
-        ERROR_DATA.timestamp    = millis();
-        ERROR_DATA.file         = FILE;
-        ERROR_DATA.line         = LINE;
-
-        //Error buffer voll, keine Error objekte mehr erzeugem, da sonst Ram überläuft
-        if(this->errorCount < ERROR_BUFFER_SIZE)
+        //Nur speichern, wenn noch nicht vorhanden
+        const bool ERROR_NOT_SET_YET = (this->searchError(ERROR_CODE) == nullptr);
+       
+        if(ERROR_NOT_SET_YET)
         {
-            errorListElement* p_newError = new errorListElement;        
-            p_newError->setErrorData(ERROR_DATA);
-            //Lokalen Error setzen
-            this->addErrorToList(p_newError);
+            s_error_t ERROR_DATA;
+            ERROR_DATA.errorCode    = ERROR_CODE;
+            ERROR_DATA.timestamp    = millis();
+            ERROR_DATA.file         = FILE;
+            ERROR_DATA.line         = LINE;
 
-            if(this->p_superiorErrorManager != nullptr)
+            //Error buffer voll, keine Error objekte mehr erzeugem, da sonst Ram überläuft
+            if(this->errorCount < ERROR_BUFFER_SIZE)
             {
-                //Log eintrag wird in superiorErrorManager ausgegeben
-                p_superiorErrorManager->setError(ERROR_CODE, FILE, LINE);
+                errorListElement* p_newError = new errorListElement;        
+                p_newError->setErrorData(ERROR_DATA);
+                //Lokalen Error setzen
+                this->addErrorToList(p_newError);
+
+                if(this->p_superiorErrorHandler != nullptr)
+                {
+                    //Log eintrag wird in superiorErrorManager ausgegeben
+                    p_superiorErrorHandler->setError(ERROR_CODE, FILE, LINE);
+                }
+                else
+                {
+                    this->log.printErrorSet(ERROR_CODE, FILE, LINE);
+                }                
+                this->errorCount++;
             }
-            else
-            {
-                this->log.printErrorSet(ERROR_CODE, FILE, LINE);
-            }
-            this->errorCount++;
         }
     }
 }
@@ -90,10 +108,10 @@ void BPLC_moduleErrorHandler::resetError(const e_BPLC_ERROR_t ERROR_CODE, String
         //Lokalen Error rücksetzen
         this->deleteErrorFromList(p_errorToDelete);        
 
-        if(this->p_superiorErrorManager != nullptr)
+        if(this->p_superiorErrorHandler != nullptr)
         {
             //Log eintrag wird in superiorErrorManager ausgegeben
-            p_superiorErrorManager->resetError(ERROR_CODE, FILE, LINE);
+            p_superiorErrorHandler->resetError(ERROR_CODE, FILE, LINE);
         }
         else
         {
@@ -117,12 +135,21 @@ void BPLC_moduleErrorHandler::enableErrordetection(String FILE, const uint16_t L
     this->log.printLog("MODULE ERROR DETECTION ENABELD", FILE, LINE);
 }
 void BPLC_moduleErrorHandler::disableErrordetection(String FILE, const uint16_t LINE)
-{
-    this->enabled = false;
+{    
     this->log.printLog("MODULE ERROR DETECTION DISABLED", FILE, LINE);
+    this->enabled = false;
+    this->resetAllErrors(FILE, LINE);
 }
-    
-//Private
+//Übergeordneter Errorhandler 
+void BPLC_moduleErrorHandler::setSuperiorErrorHandler (BPLC_moduleErrorHandler* p_errorHandler)
+{
+  this->p_superiorErrorHandler = p_errorHandler;
+}
+BPLC_moduleErrorHandler*  BPLC_moduleErrorHandler::getSuperiorErrorHandler ()
+{
+    return this->p_superiorErrorHandler;
+}
+//Private Listenhandling
 errorListElement* BPLC_moduleErrorHandler::searchError(const e_BPLC_ERROR_t ERROR_CODE)
 {
     errorListElement* p_searchedError = this->p_firstError;

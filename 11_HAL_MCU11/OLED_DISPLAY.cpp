@@ -280,7 +280,7 @@ uint8_t OLED_MCU11::getMenuText(const uint8_t LAST_AVAILABLE_TEXT, const uint8_t
 //---------------------------------------------------
 // MENU AUSGABE
 // Texte 2. Zeile
-String DEVICE_MODE[] = {{"stop"}, {"start"}, {"safestate"}, {"running"}, {"running no safety"}, {"running no HAL"}, {"running no COM"}};
+String DEVICE_MODE[] = {{"init"}, {"stop"}, {"running"}, {"safestate"}};
 
 void OLED_MCU11::showScreenSaver()
 {

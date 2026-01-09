@@ -51,7 +51,7 @@ class halInterface: public BPLC_moduleErrorInterface
 {
     public:
     halInterface                        (){this->bplcAddress = EC_ADDR_NOT_DEFINED; this->i2cAddress = 0; this->debugOutputEnabled = false;}
-    virtual void init                   (const e_EC_ADDR_t ADDR) = 0;
+    virtual bool init                   (const e_EC_ADDR_t ADDR) = 0;
     virtual void tick                   (const bool READ_INPUTS) = 0;
     virtual bool mapObjectToChannel     (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL) = 0;
     virtual void controlCommand         (const e_EC_COMMAND_t COMMAND) = 0;

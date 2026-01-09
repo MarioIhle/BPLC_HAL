@@ -49,21 +49,17 @@ typedef enum
 
 typedef enum
 {    
-    APP_MODE__STOP,    
-    APP_MODE__START,
-    APP_MODE__SAFE_STATE,
-    APP_MODE__RUN,
-    APP_MODE__RUN_WITHOUT_SAFETY,
-    APP_MODE__RUN_WITHOUT_EC_CARDS,
-    APP_MODE__RUN_WITHOUT_COM,
     APP_MODE__INIT,
-    
-    APP_MODE__COUNT,
+    APP_MODE__STOP,        
+    APP_MODE__RUN,
+    APP_MODE__SAFE_STATE,
+
+    APP_MODE__COUNT
 }e_APP_MODE_t;
 
 
 //-------------------------------------------------------------
-//BPLC_APP KLASSE
+//BPLC KLASSE
 //-------------------------------------------------------------
 #define HARDWARE_ERROR_BUFFER_SIZE 10
 #define RUNTIME_ERRORS_MAX 3
@@ -71,11 +67,11 @@ typedef enum
 
 #define I2C_CLOCK_SPEED_400_KHZ 400000
 
-class BPLC_APP: BPLC_logPrint, CRC16Calculator
+class BPLC: BPLC_logPrint, CRC16Calculator
 {
     public:
     //Setup des BPLC Systems
-            BPLC_APP                ();
+            BPLC                    ();
     void    begin                   ();      
     void    resetDeviceParameter    ();
     //Network PORT
@@ -148,15 +144,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
 
                 struct 
                 {          
-                    bool                oledAvailable;
-                    bool                ain11revACards [AIN11_ADDRESS_COUNT];
-                    bool                din11revACards [DIN11_ADDRESS_COUNT];                
-                    bool                do11revACards  [DO11_ADDRESS_COUNT];
-                    bool                rel11revACards [REL11_ADDRESS_COUNT];
-                    bool                mot11revAcards [MOT11_ADDRESS_COUNT];
-                    bool                tmp11revACards [TMP11_ADDRESS_COUNT];
-                    bool                ppo11revACards [PPO11_ADDRESS_COUNT];
-                    bool                nano11revACards[NANO11_ADDRESS_COUNT];
+                    bool                oledAvailable;     
                 }extensionCards;
 
             }device;               
@@ -168,7 +156,7 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     
     //APP_HMI
     void setupHMI           ();
-    void handleDisplay      ();
+    void tickHMI            ();
     void editDeviceMode     (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
     void hardwareErrorOut   (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
     void displaySettings    (const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION);
@@ -178,11 +166,8 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     {        
         int16_t     temp_ParameterStorage;         
     }APP_HMI;    
-  
-
-    //Externer aufruf, wenn HAL Objekt ein Error meldet
+     
     BPLC_moduleErrorHandler systemErrorManager;
-
     void setupSafety             ();
     void tickSafety              ();
   
@@ -194,8 +179,6 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
             Timeout         to_runnntime;
             uint8_t         runtimeExeeded;
         }runntimeControl;          
-
-        Timeout             to_scanI2Cbus;
     }APP_SAFETY;
 
 
