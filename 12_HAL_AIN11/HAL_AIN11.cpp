@@ -50,8 +50,10 @@ void HAL_AIN11::init(const e_EC_ADDR_t ADDR)
         this->printLog("AIN11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
 }
-void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+ 
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > AIN11_CHANNEL_COUNT)
@@ -72,6 +74,7 @@ void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         {          
             case IO_TYPE__ANALOG_INPUT:
                 this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT; 
+                error = false;
                 break;
 
             default:
@@ -80,6 +83,7 @@ void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
                 break;               
         }  
     }
+    return error;
 }
 void HAL_AIN11::tick(const bool READ_INPUTS)
 {   

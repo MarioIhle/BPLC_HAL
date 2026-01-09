@@ -45,14 +45,16 @@ void HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
 
     this->printLog("MCU11revB INIT SUCCESSFUL", __FILENAME__, __LINE__);  
 }
-void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
     switch(CHANNEL)
     {
         case MCU_CHANNEL__ENCODER:
             if(P_IO_OBJECT->getIoType() == IO_TYPE__ROTARY_ENCODER)
             {
                 this->p_encoder = P_IO_OBJECT;
+                error = false;
             }
             break;
 
@@ -60,6 +62,7 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
             {
                 this->p_buzzer = P_IO_OBJECT;
+                error = false;
             }            
             break;
 
@@ -67,6 +70,7 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
             {
                 this->p_oen = P_IO_OBJECT;
+                error = false;
             }
             break;
 
@@ -74,6 +78,7 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
             {
                 this->p_ld1 = P_IO_OBJECT;
+                error = false;
             }
             break;
 
@@ -81,6 +86,7 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
             {
                 this->p_ld2 = P_IO_OBJECT;
+                error = false;
             }
             break;
 
@@ -88,6 +94,7 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             if(P_IO_OBJECT->getIoType() == IO_TYPE__OUTPUT_PUSH)
             {
                 this->p_ld3 = P_IO_OBJECT;
+                error = false;
             }
             break;
 
@@ -96,6 +103,7 @@ void HAL_MCU11_revB::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
             this->setError(MCU11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
             break;
     }
+    return error;
 }
 void HAL_MCU11_revB::tick(const bool READ_INPUTS)
 {  

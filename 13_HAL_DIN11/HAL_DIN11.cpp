@@ -38,8 +38,10 @@ void HAL_DIN11::init(const e_EC_ADDR_t ADDR)
         this->printLog("DIN11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);
     }
 }
-void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > DIN11_CHANNEL_COUNT)
@@ -62,6 +64,7 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__RPM_SENS:
             case IO_TYPE__DIGITAL_COUNTER:
                 this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
+                error = false;
                 break;
 
             case IO_TYPE__ROTARY_ENCODER:
@@ -70,6 +73,7 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
                 this->channels.p_ioObject[OBJECT_INSTANCE]      = P_IO_OBJECT;  //A
                 this->channels.p_ioObject[OBJECT_INSTANCE + 1]  = P_IO_OBJECT;  //B
                 this->channels.p_ioObject[OBJECT_INSTANCE + 2]  = P_IO_OBJECT;  //Z
+                error = false;
                 break;
 
             default:
@@ -78,6 +82,7 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
                 break;               
         }
     }
+    return error;
 }
 void HAL_DIN11::tick(const bool READ_INPUTS)
 {   

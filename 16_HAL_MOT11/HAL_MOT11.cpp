@@ -38,8 +38,10 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     } 
     this->debugOutputEnabled = false;
 }
-void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > MOT11_CHANNEL_COUNT)
     {
         this->setError(MOT11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
@@ -54,6 +56,7 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         {          
             case IO_TYPE__DC_DRIVE:
                 this->channels.p_ioObject = P_IO_OBJECT;
+                error = false;
                 break;
 
             default:
@@ -62,6 +65,7 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
                 break;               
         }
     }
+    return error;
 }
 void HAL_MOT11::tick(const bool READ_INPUTS)
 {          

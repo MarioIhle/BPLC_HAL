@@ -44,8 +44,10 @@ void HAL_DO11::init(const e_EC_ADDR_t ADDR)
         this->printLog("DO11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
 }
-void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > DO11_CHANNEL_COUNT)
@@ -69,11 +71,13 @@ void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_
             case IO_TYPE__OUTPUT_PUSH_PULL:                         
             case IO_TYPE__OUTPUT_PUSH_PULL_INVERT: 
                 this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
+                error = false;
             break;
 
             case IO_TYPE__SERVO:
                 this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
                 this->PCA.setPWMFrequency(25);
+                error = false;
             break;
 
             default:
@@ -81,6 +85,7 @@ void HAL_DO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_
             break;
         }
     }
+    return error;
 }
 void HAL_DO11::tick(const bool READ_INPUTS)
 {
