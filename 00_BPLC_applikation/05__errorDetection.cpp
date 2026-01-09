@@ -4,11 +4,6 @@ void BPLC_APP::setupSafety()
 {
    this->APP_SAFETY.runntimeControl.to_runnntime.setInterval(RUNNTIME);
    this->APP_SAFETY.runntimeControl.to_runnntime.reset();
-   this->APP_SAFETY.to_scanI2Cbus.setInterval(60000);
-   this->APP_SAFETY.to_scanI2Cbus.now();     //Wird nach Setup bei ersten tick ausgeführt, bevor OEN aktiv wird!               
-   
-   //SystemErrorHandler an Untergeordnete Module weitergeben für Callback 
-   //this->extensionCardManager.setSuperiorErrorManager(&this->systemErrorManager);   //Gibts pointer an Hal objekte weiter
 }
 void BPLC_APP::tickSafety()
 {

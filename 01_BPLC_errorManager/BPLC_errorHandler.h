@@ -48,7 +48,9 @@ class BPLC_moduleErrorHandler
     void                    resetAllErrors          (String FILE, const uint16_t LINE);
     void                    enableErrordetection    (String FILE, const uint16_t LINE);
     void                    disableErrordetection   (String FILE, const uint16_t LINE);
-
+    //Übergeordneter Errorhandler 
+    void                        setSuperiorErrorHandler (BPLC_moduleErrorHandler* p_errorHandler);
+    BPLC_moduleErrorHandler*    getSuperiorErrorHandler ();
 
     private:
     bool                    enabled;                 
@@ -60,19 +62,17 @@ class BPLC_moduleErrorHandler
     errorListElement*       p_firstError;  
     uint8_t                 errorCount;  
 
-    protected:
-    //Optional error an übergeordneter ErrorHandler weiter geben
-    BPLC_moduleErrorHandler* p_superiorErrorManager;
+    BPLC_moduleErrorHandler* p_superiorErrorHandler;
 };
 
 
-//Zugriff von übergeordneten Modul auf ModulErrorManager
+//Zugriff von übergeordneten Modul auf ModulErrorHandler
 class BPLC_moduleErrorInterface
 {
     public:
-    virtual uint8_t         getModuleErrorCount     () = 0;
-    virtual e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER) = 0;    
-    virtual void            resetAllModuleErrors    (String FILE, const uint16_t LINE) = 0;
-    virtual void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER) = 0;
+    virtual uint8_t         getModuleErrorCount                 () = 0;
+    virtual e_BPLC_ERROR_t  getModuleErrorCode                  (uint8_t ERROR_NUMBER) = 0;    
+    virtual void            resetAllModuleErrors                (String FILE, const uint16_t LINE) = 0;
+    virtual void            setSuperiorErrorHandlerForModule    (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER) = 0;
 };
 #endif

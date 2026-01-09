@@ -36,11 +36,10 @@ class HAL_TMP11: public halInterface, private BPLC_moduleErrorHandler, private B
     void            tick                    (const bool READ_INPUTS);        
     void            controlCommand          (const e_EC_COMMAND_t COMMAND);   
     //Modul Error Interface   
-    uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
-    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
-    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
-    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
-
+    uint8_t         getModuleErrorCount     ()                                                          {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                      {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                          {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorHandlerForModule (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER){this->setSuperiorErrorHandler(P_SUPERIOR_ERROR_MANAGER);}
 
   
     private:          

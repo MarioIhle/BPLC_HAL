@@ -230,7 +230,7 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, cons
         }         
         
         //System Error Manager an Hal moduleErrorManager übergeben
-        p_newHalInterface->setSuperiorErrorManager(this->p_superiorErrorManager);
+        p_newHalInterface->setSuperiorErrorHandlerForModule(this->getSuperiorErrorHandler());
         //Hal inizialisieren
         p_newHalInterface->init(ADDR);          
         const bool HAL_SUCCESSFUL_INITIALIZED = true;  //EC trotzdem in Liste aufnehmen (p_newHalInterface->getModuleErrorCount() == 0);

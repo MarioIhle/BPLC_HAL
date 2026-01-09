@@ -55,12 +55,12 @@ class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, priv
     bool            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
     void            tick                    (const bool READ_INPUTS);    
     void            controlCommand          (const e_EC_COMMAND_t COMMAND);    
-    //Modulerror Interface   
-    uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
-    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
-    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
-    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
-
+    //Modul Error Interface   
+    uint8_t         getModuleErrorCount     ()                                                          {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                      {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                          {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorHandlerForModule (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER){this->setSuperiorErrorHandler(P_SUPERIOR_ERROR_MANAGER);}
+    
 
     private:   
     bool            tickSafety              ();
@@ -114,11 +114,11 @@ class HAL_MCU11_revB: public halInterface, protected BPLC_moduleErrorHandler, pr
     bool            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
     void            tick                    (const bool READ_INPUTS);        
     void            controlCommand          (const e_EC_COMMAND_t COMMAND);   
-    //Modulerror Interface   
-    uint8_t         getModuleErrorCount     ()                                                      {return this->getErrorCount();}
-    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                  {return this->getError(ERROR_NUMBER)->errorCode;}
-    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                      {this->resetAllErrors(FILE, LINE);}
-    void            setSuperiorErrorManager (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
+    //Modul Error Interface   
+    uint8_t         getModuleErrorCount     ()                                                          {return this->getErrorCount();}
+    e_BPLC_ERROR_t  getModuleErrorCode      (uint8_t ERROR_NUMBER)                                      {return this->getError(ERROR_NUMBER)->errorCode;}
+    void            resetAllModuleErrors    (String FILE, const uint16_t LINE)                          {this->resetAllErrors(FILE, LINE);}
+    void            setSuperiorErrorHandlerForModule (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER){this->setSuperiorErrorHandler(P_SUPERIOR_ERROR_MANAGER);}
 
 
     private:

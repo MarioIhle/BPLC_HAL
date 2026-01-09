@@ -3,7 +3,7 @@
 BPLC_moduleErrorHandler::BPLC_moduleErrorHandler()
 {
     this->p_firstError              = nullptr;
-    this->p_superiorErrorManager    = nullptr;
+    this->p_superiorErrorHandler    = nullptr;
     this->errorCount                = 0;
     this->enabled                   = true;
 }
@@ -52,7 +52,8 @@ s_error_t* BPLC_moduleErrorHandler::getError(uint8_t ERROR_NUMBER)
 void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE)
 {
     //Nur speichern, wenn noch nicht vorhanden
-    if(this->searchError(ERROR_CODE) == nullptr)
+    const bool ERROR_NOT_SET_YET = (this->searchError(ERROR_CODE) == nullptr);
+    if(ERROR_NOT_SET_YET)
     {
         s_error_t ERROR_DATA;
         ERROR_DATA.errorCode    = ERROR_CODE;
@@ -68,10 +69,10 @@ void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String F
             //Lokalen Error setzen
             this->addErrorToList(p_newError);
 
-            if(this->p_superiorErrorManager != nullptr)
+            if(this->p_superiorErrorHandler != nullptr)
             {
                 //Log eintrag wird in superiorErrorManager ausgegeben
-                p_superiorErrorManager->setError(ERROR_CODE, FILE, LINE);
+                p_superiorErrorHandler->setError(ERROR_CODE, FILE, LINE);
             }
             else
             {
@@ -90,10 +91,10 @@ void BPLC_moduleErrorHandler::resetError(const e_BPLC_ERROR_t ERROR_CODE, String
         //Lokalen Error rücksetzen
         this->deleteErrorFromList(p_errorToDelete);        
 
-        if(this->p_superiorErrorManager != nullptr)
+        if(this->p_superiorErrorHandler != nullptr)
         {
             //Log eintrag wird in superiorErrorManager ausgegeben
-            p_superiorErrorManager->resetError(ERROR_CODE, FILE, LINE);
+            p_superiorErrorHandler->resetError(ERROR_CODE, FILE, LINE);
         }
         else
         {
@@ -121,7 +122,16 @@ void BPLC_moduleErrorHandler::disableErrordetection(String FILE, const uint16_t 
     this->enabled = false;
     this->log.printLog("MODULE ERROR DETECTION DISABLED", FILE, LINE);
 }
-    
+        //Übergeordneter Errorhandler 
+void BPLC_moduleErrorHandler::setSuperiorErrorHandler (BPLC_moduleErrorHandler* p_errorHandler)
+{
+    this->log.printLog("set superior ErrorManager", __FILENAME__, __LINE__);
+    this->p_superiorErrorHandler = p_errorHandler;
+}
+BPLC_moduleErrorHandler*  BPLC_moduleErrorHandler::getSuperiorErrorHandler ()
+{
+    return this->p_superiorErrorHandler;
+}
 //Private
 errorListElement* BPLC_moduleErrorHandler::searchError(const e_BPLC_ERROR_t ERROR_CODE)
 {

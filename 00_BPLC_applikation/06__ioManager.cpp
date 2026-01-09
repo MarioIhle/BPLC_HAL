@@ -3,8 +3,8 @@
 void BPLC_APP::setupHardware()
 {  
    this->ecmForSlowSpeed = new BPLC_extensionCardManager();
-   this->ecmForSlowSpeed->begin(5, "ECM_GENERAL_TASK");
-   
+   this->ecmForSlowSpeed->setSuperiorErrorHandlerForModule(&this->systemErrorManager);
+   this->ecmForSlowSpeed->begin(5, "ECM_GENERAL_TASK");   
    const e_EC_TYPE_t MCU_TYPE = this->APP_APP.settings.device.mcuCard;  
 
    if(MCU_TYPE != EC__NO_TYPE_DEFINED)
@@ -94,6 +94,7 @@ void BPLC_APP::setupHardware()
          if(this->ecmForHighSpeed == nullptr)
          {
             this->ecmForHighSpeed = new BPLC_extensionCardManager();    
+            this->ecmForSlowSpeed->setSuperiorErrorHandlerForModule(&this->systemErrorManager);
             this->ecmForHighSpeed->begin(0, "ECM_DIN11_TASK");          
          }
          const bool EC_SUCCESFUL_INITIALIZED = this->ecmForHighSpeed->addNewExtensionCard(EC__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  

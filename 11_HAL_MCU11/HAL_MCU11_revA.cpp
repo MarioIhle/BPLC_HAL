@@ -3,7 +3,7 @@
 //Callback für Hardware Interrupt 
 volatile e_MCU_INT_ISR_t*  P_ISR_STATE_MCU_REVA = nullptr;
 
-static void INT_ISR_MCU_REV_A()
+void IRAM_ATTR  INT_ISR_MCU_REV_A()
 {
     *P_ISR_STATE_MCU_REVA = MCU_INT_ISR__NEW_INT;
 }

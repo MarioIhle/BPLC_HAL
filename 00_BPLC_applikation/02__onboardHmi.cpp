@@ -1,6 +1,6 @@
 #include"BPLC.h"
 
-void BPLC_APP::handleDisplay()
+void BPLC_APP::tickHMI()
 {  
    const bool           ENCODER_BUTTON_PRESSED  = this->APP_HAL.ENCODER.buttonPressed();
    const e_MOVEMENT_t   ENCODER_DIRETION        = this->APP_HAL.ENCODER.getTurningDirection();   

@@ -6,7 +6,7 @@ void bplcTask(void* taskParameter)
    esp_task_wdt_init(2, true);                
    esp_task_wdt_add(NULL);      
 
-   BPLC_APP* P_APP = (BPLC_APP*)taskParameter;             
+   BPLC* P_APP = (BPLC*)taskParameter;             
 
   while(1)
   {
@@ -29,12 +29,12 @@ void bplcTask(void* taskParameter)
    }
 }    
 
-BPLC_APP::BPLC_APP()
+BPLC::BPLC()
 {   
    memset(&this->APP_APP, 0, sizeof(this->APP_APP));
    this->APP_APP.deviceMode = APP_MODE__INIT;
 }
-void BPLC_APP::begin()
+void BPLC::begin()
 {   
    Serial.begin(115200);
    this->printLog("SETUP BPLC SYSTEM", __FILENAME__, __LINE__);
@@ -85,74 +85,50 @@ void BPLC_APP::begin()
       this->setDeviceModeInternal(APP_MODE__SAFE_STATE);
    }      
 }
-void BPLC_APP::resetDeviceParameter()
+void BPLC::resetDeviceParameter()
 {
    this->setupParameterFlash();
    this->parameterFlash.clear();
    this->printResetReason("RESET FLASH PARAMETER", __FILENAME__, __LINE__);
    ESP.restart();
 }
-void BPLC_APP::setupApplication()
+void BPLC::setupApplication()
 {   
-   BPLC_APP* P_APP = this;
+   BPLC* P_APP = this;
    xTaskCreatePinnedToCore(bplcTask, "bplcTask", 4096, P_APP, 1, nullptr, 1);
    Wire.begin();   
 }
-void BPLC_APP::tick()
+void BPLC::tick()
 {   
    this->tickControlPanel();        
-   this->handleDisplay();          
+   this->tickHMI();          
      
    //BPLC MAIN STATEMACHINE
    switch(this->APP_APP.deviceMode)
    {
-      case APP_MODE__STOP:
-         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 500, 500);      
-         this->APP_HAL.OEN.reset(); 
+      case APP_MODE__STOP:         
          this->tickSafety();   
          this->tickHardware(); 
          this->tickNetwork();
          break;
 
-      case APP_MODE__START: 
-         this->APP_HAL.OEN.reset();        
-         this->begin();         
-         break;
-
-      case APP_MODE__RUN:             
-         this->APP_HAL.OEN.set();           
-         this->APP_HAL.LD1_DEVICE_STATE.fade(2500, 2500);  
+      case APP_MODE__RUN:            
          this->tickSafety();
          this->tickHardware();    
          this->tickNetwork();      
          break;
 
-      case APP_MODE__RUN_WITHOUT_SAFETY:   
-         this->APP_HAL.OEN.set();       
-         this->APP_HAL.LD1_DEVICE_STATE.fade(1000, 1000);  
+      case APP_MODE__RUN_WITHOUT_SAFETY:            
          this->tickHardware();   
          this->tickNetwork();                
          break;
 
-      case APP_MODE__RUN_WITHOUT_EC_CARDS:
-         this->APP_HAL.OEN.reset();
-         this->APP_HAL.LD1_DEVICE_STATE.fade(1000, 1000);
+      case APP_MODE__RUN_WITHOUT_EC_CARDS:         
          this->tickSafety();
          this->tickNetwork();
          break;
 
-      case APP_MODE__RUN_WITHOUT_COM:
-         this->APP_HAL.OEN.set();        
-         this->APP_HAL.LD1_DEVICE_STATE.fade(1000, 1000);   
-         this->tickHardware();
-         this->tickSafety();
-         break;     
-
-      case APP_MODE__SAFE_STATE:
-         this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 100, 100);     
-         this->APP_HAL.LD3_ERROR_OUT.blinkContinious((uint8_t)this->systemErrorManager.getError()->errorCode , 500, 1500);    
-         this->APP_HAL.BUZZER.blinkContinious(3, 100, 30000);
-         this->APP_HAL.OEN.reset();   
+      case APP_MODE__SAFE_STATE:          
          this->tickHardware(); 
          this->tickSafety(); 
          this->tickNetwork();        
@@ -165,7 +141,7 @@ void BPLC_APP::tick()
 }
 
 //DeviceMode
-void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
+void BPLC::setDeviceMode(const e_APP_MODE_t MODE)
 {
    if(this->getDeviceMode() != APP_MODE__SAFE_STATE)
    {
@@ -177,58 +153,61 @@ void BPLC_APP::setDeviceMode(const e_APP_MODE_t MODE)
       log.printLog("APPLICATION CAN NOT EDIT DEVICE MODE, DEVICE IS IN SAFEMODE", __FILENAME__, __LINE__);
    }
 }
-e_APP_MODE_t BPLC_APP::getDeviceMode()
+e_APP_MODE_t BPLC::getDeviceMode()
 {
    return this->APP_APP.deviceMode;
 }
-void BPLC_APP::setDeviceModeInternal(const e_APP_MODE_t MODE)
+void BPLC::setDeviceModeInternal(const e_APP_MODE_t MODE)
 {
    if(this->APP_APP.deviceMode != MODE)
    {
-      //Alle LEDs und Buzzer zurück setzten
-      this->APP_HAL.BUZZER.reset();
-      this->APP_HAL.LD1_DEVICE_STATE.reset();
-      this->APP_HAL.LD2_COMMUNICATION_STATE.reset();
-      this->APP_HAL.LD3_ERROR_OUT.reset();
-      this->APP_HAL.OEN.reset();
-
       this->APP_APP.deviceMode = MODE;
 
       switch(MODE)
       {
          case APP_MODE__STOP:
             this->printLog("DEVICEMODE: STOP", __FILENAME__, __LINE__);
+            this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 500, 500);      
+            this->APP_HAL.OEN.reset(); 
+            this->beep(1, 500);
             break; 
-         case APP_MODE__START:
-            this->printLog("DEVICEMODE: START", __FILENAME__, __LINE__);
-            break;
+
          case APP_MODE__SAFE_STATE:
             this->printLog("DEVICEMODE: SAFE STATE", __FILENAME__, __LINE__);
+            this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 100, 100);     
+            this->APP_HAL.LD3_ERROR_OUT.blinkContinious((uint8_t)this->systemErrorManager.getError()->errorCode , 500, 1500);    
+            this->APP_HAL.BUZZER.blinkContinious(3, 100, 30000);
+            this->APP_HAL.OEN.reset();  
             break;
+
          case APP_MODE__RUN:
             this->printLog("DEVICEMODE: RUN ", __FILENAME__, __LINE__);
+            this->APP_HAL.OEN.set();           
+            this->APP_HAL.LD1_DEVICE_STATE.fade(2500, 500); 
+            this->APP_HAL.BUZZER.blinkOnce(1, 50);
             break;
+
          case APP_MODE__RUN_WITHOUT_SAFETY:
             this->printLog("DEVICEMODE: RUN CONFIG WITOUT SAFETY", __FILENAME__, __LINE__);
             this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);
+            this->APP_HAL.OEN.set();       
+            this->APP_HAL.LD1_DEVICE_STATE.fade(500, 500);  
             break;
+
          case APP_MODE__RUN_WITHOUT_EC_CARDS:
             this->printLog("DEVICEMODE: RUN WITHOUT EC CARDS", __FILENAME__, __LINE__);
-            break;
-         case APP_MODE__RUN_WITHOUT_COM:
-            this->printLog("DEVICEMODE: RUN WITHOUT COM", __FILENAME__, __LINE__);
-            this->APP_APP.settings.device.communication.deviceAddress = 0;
-            this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);
+            this->APP_HAL.OEN.reset();
+            this->APP_HAL.LD1_DEVICE_STATE.fade(500, 500);
             break;
       }      
    }   
 }
 //Dip handling
-void BPLC_APP::setVDip(const e_V_DIP_t DIP_NUM, const int16_t VALUE)
+void BPLC::setVDip(const e_V_DIP_t DIP_NUM, const int16_t VALUE)
 {
    this->APP_APP.virtualDipSwitch[DIP_NUM] = VALUE;
 }
-int16_t BPLC_APP::getVDip(const e_V_DIP_t DIP_NUM)
+int16_t BPLC::getVDip(const e_V_DIP_t DIP_NUM)
 {
    return this->APP_APP.virtualDipSwitch[DIP_NUM];
 }
