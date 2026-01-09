@@ -22,7 +22,7 @@ void bplcTask(void* taskParameter)
       else
       {
          BPLC_logPrint log;         
-         log.printResetReason("p_BPLC_APP is nullptr", __FILENAME__, __LINE__);
+         log.printResetReason("p_BPLC is nullptr", __FILENAME__, __LINE__);
          abort();
       }
       delay(5);
@@ -118,16 +118,6 @@ void BPLC::tick()
          this->tickNetwork();      
          break;
 
-      case APP_MODE__RUN_WITHOUT_SAFETY:            
-         this->tickHardware();   
-         this->tickNetwork();                
-         break;
-
-      case APP_MODE__RUN_WITHOUT_EC_CARDS:         
-         this->tickSafety();
-         this->tickNetwork();
-         break;
-
       case APP_MODE__SAFE_STATE:          
          this->tickHardware(); 
          this->tickSafety(); 
@@ -183,21 +173,8 @@ void BPLC::setDeviceModeInternal(const e_APP_MODE_t MODE)
          case APP_MODE__RUN:
             this->printLog("DEVICEMODE: RUN ", __FILENAME__, __LINE__);
             this->APP_HAL.OEN.set();           
-            this->APP_HAL.LD1_DEVICE_STATE.fade(2500, 500); 
+            this->APP_HAL.LD1_DEVICE_STATE.fade(500, 500); 
             this->APP_HAL.BUZZER.blinkOnce(1, 50);
-            break;
-
-         case APP_MODE__RUN_WITHOUT_SAFETY:
-            this->printLog("DEVICEMODE: RUN CONFIG WITOUT SAFETY", __FILENAME__, __LINE__);
-            this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);
-            this->APP_HAL.OEN.set();       
-            this->APP_HAL.LD1_DEVICE_STATE.fade(500, 500);  
-            break;
-
-         case APP_MODE__RUN_WITHOUT_EC_CARDS:
-            this->printLog("DEVICEMODE: RUN WITHOUT EC CARDS", __FILENAME__, __LINE__);
-            this->APP_HAL.OEN.reset();
-            this->APP_HAL.LD1_DEVICE_STATE.fade(500, 500);
             break;
       }      
    }   

@@ -49,20 +49,17 @@ typedef enum
 
 typedef enum
 {    
-    APP_MODE__STOP,    
-    APP_MODE__SAFE_STATE,
-    APP_MODE__RUN,
-    APP_MODE__RUN_WITHOUT_SAFETY,
-    APP_MODE__RUN_WITHOUT_EC_CARDS,
-    APP_MODE__RUN_WITHOUT_COM,
     APP_MODE__INIT,
-    
+    APP_MODE__STOP,        
+    APP_MODE__RUN,
+    APP_MODE__SAFE_STATE,
+
     APP_MODE__COUNT
 }e_APP_MODE_t;
 
 
 //-------------------------------------------------------------
-//BPLC_APP KLASSE
+//BPLC KLASSE
 //-------------------------------------------------------------
 #define HARDWARE_ERROR_BUFFER_SIZE 10
 #define RUNTIME_ERRORS_MAX 3
@@ -74,7 +71,7 @@ class BPLC: BPLC_logPrint, CRC16Calculator
 {
     public:
     //Setup des BPLC Systems
-            BPLC                ();
+            BPLC                    ();
     void    begin                   ();      
     void    resetDeviceParameter    ();
     //Network PORT

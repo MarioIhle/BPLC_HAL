@@ -40,7 +40,7 @@ class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private 
     //Hal constructor
                     HAL_NANO11              ();
     //Hal interface 
-    void            init                    (const e_EC_ADDR_t ADDR);
+    bool            init                    (const e_EC_ADDR_t ADDR);
     bool            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
     void            tick                    (const bool READ_INPUTS);        
     void            controlCommand          (const e_EC_COMMAND_t COMMAND);   

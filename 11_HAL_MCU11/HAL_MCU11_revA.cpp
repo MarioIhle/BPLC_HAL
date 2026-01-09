@@ -11,7 +11,7 @@ HAL_MCU11_revA::HAL_MCU11_revA(volatile e_MCU_INT_ISR_t* P_ISR_STATE)
 {
     P_ISR_STATE_MCU_REVA = P_ISR_STATE;
 }
-void HAL_MCU11_revA::init(const e_EC_ADDR_t ADDR)
+bool HAL_MCU11_revA::init(const e_EC_ADDR_t ADDR)
 {
     //Alles Initialisieren
     this->p_buzzer  = nullptr;
@@ -44,6 +44,7 @@ void HAL_MCU11_revA::init(const e_EC_ADDR_t ADDR)
     Wire.begin();
 
     this->printLog("MCU11revA INIT SUCCESSFUL", __FILENAME__, __LINE__);  
+    return true;
 }
 bool HAL_MCU11_revA::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {

@@ -119,28 +119,28 @@ void BPLC_extensionCardManager::begin(const uint8_t TASK_DELAY_TIME, const char*
 void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)                                
 {
     extensionCard*  p_cardToMapChannelTo    = this->getExtensionCard(CARD, ADDR);  
-    const bool      CARD_FOUND              = (p_cardToMapChannelTo != nullptr);
+    const bool      CARD_NOT_KNOWN          = (p_cardToMapChannelTo == nullptr);
  
-    //Karte wurde in ecM Liste gefunden
-    if(CARD_FOUND)
+    //Karte noch nicht bekannt
+    if(CARD_NOT_KNOWN)
+    {
+        this->printLog("TRY TO SETUP " + getEcName(CARD) +  "(" + String(ADDR + 1) + ")" , __FILENAME__, __LINE__);
+        const bool EC_SUCCESFUL_INITIALIZED = this->addNewExtensionCard(CARD, ADDR);   
+        if(EC_SUCCESFUL_INITIALIZED)
+        {
+            p_cardToMapChannelTo = this->getExtensionCard(CARD, ADDR);  
+        }        
+    }
+    const bool NEW_CARD_NOW_AVAILABLE = (p_cardToMapChannelTo != nullptr);
+    
+    if(NEW_CARD_NOW_AVAILABLE)
     {
         const bool OBJECT_SUCCESSFULY_MAPPED_TO_CHANNEL = (!p_cardToMapChannelTo->getHalInterface()->mapObjectToChannel(P_IO_OBJECT, CHANNEL));  
-
-        const bool EXTENSION_CARD_COULD_NEED_REALTIME_PROCESSING =   ((CARD == EC__DIN11revA)
-                                                                    || CARD == EC__NANO11revA);  
-        if(EXTENSION_CARD_COULD_NEED_REALTIME_PROCESSING)
-        {
-            switch(P_IO_OBJECT->getIoType())
-            {
-                case IO_TYPE__DIGITAL_COUNTER:
-                case IO_TYPE__POSITION_ENCODER:
-                case IO_TYPE__RPM_SENS:
-                    this->ecCardNeedRealTimeProcessing[ADDR] = true;        //Diese EC als Echtzeitfähig makieren
-                break;
-            }
-        }
+    
         if(OBJECT_SUCCESSFULY_MAPPED_TO_CHANNEL)
         {
+            const bool EXTENSION_CARD_COULD_NEED_REALTIME_PROCESSING =   ((CARD == EC__DIN11revA)
+                                                                        || CARD == EC__NANO11revA);  
             //Debug Ausgabe
             switch (CARD)
             {   //Bei MCU uninterressant, da immer die gleichen Ports belegt werden
@@ -151,20 +151,27 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
                 
                 default:
                     String ECM_NAME = getEcName(CARD);
-                    this->printLog("OBJECT MAPPED TO " + ECM_NAME + " WITH ADDR " + String(ADDR + 1)+ " AT CHANNEL "+ String(CHANNEL) + " ->SUCCESSFUL!", __FILENAME__, __LINE__);          
+                    this->printLog("OBJECT MAPPED TO " + ECM_NAME + " (" + String(ADDR + 1) + ") AT CHANNEL "+ String(CHANNEL) + " ->SUCCESSFUL!", __FILENAME__, __LINE__);          
                     break;
             }
+            if(EXTENSION_CARD_COULD_NEED_REALTIME_PROCESSING)
+            {
+                switch(P_IO_OBJECT->getIoType())
+                {
+                    case IO_TYPE__DIGITAL_COUNTER:
+                    case IO_TYPE__POSITION_ENCODER:
+                    case IO_TYPE__RPM_SENS:
+                        this->ecCardNeedRealTimeProcessing[ADDR] = true;        //Diese EC als Echtzeitfähig makieren
+                    break;
+                }
+            }
         }
-        else
-        {
-            String ECM_NAME = getEcName(CARD);
-            this->printLog("MAPPED IO OBJEKT TO " + ECM_NAME + " WITH ADDR " + String(ADDR + 1)+ " AT CHANNEL "+ String(CHANNEL) + " ->FAILED!", __FILENAME__, __LINE__);          
-        } 
-    }   
+    }
     else
-    {//Error Setzen        
-        this->setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);       
-    }       
+    {
+        String ECM_NAME = getEcName(CARD);
+        this->printLog("OBJECT MAPPED TO " + ECM_NAME + " (" + String(ADDR + 1) + ") AT CHANNEL "+ String(CHANNEL) + " ->FAILED!", __FILENAME__, __LINE__);          
+    } 
 }  
 
 //Übergreifend für alle ECM instanzen
@@ -172,8 +179,8 @@ static volatile e_MCU_INT_ISR_t intIsrState = MCU_INT_ISR__IDLE;
 //EC Karten Handling
 bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR)
 {
-    bool newEcAdded = false;   
-    const bool EC_NOT_CREATED_YET = (this->getExtensionCard(CARD, ADDR) == nullptr);
+    bool        newEcAdded          = false;   
+    const bool  EC_NOT_CREATED_YET  = (this->getExtensionCard(CARD, ADDR) == nullptr);
     
     if(EC_NOT_CREATED_YET)
     {
@@ -231,9 +238,8 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, cons
         
         //System Error Manager an Hal moduleErrorManager übergeben
         p_newHalInterface->setSuperiorErrorHandlerForModule(this->getSuperiorErrorHandler());
-        //Hal inizialisieren
-        p_newHalInterface->init(ADDR);          
-        const bool HAL_SUCCESSFUL_INITIALIZED = true;  //EC trotzdem in Liste aufnehmen (p_newHalInterface->getModuleErrorCount() == 0);
+        //Hal initialisieren                 
+        const bool HAL_SUCCESSFUL_INITIALIZED = p_newHalInterface->init(ADDR); 
 
         if(HAL_SUCCESSFUL_INITIALIZED)
         {            
@@ -247,13 +253,12 @@ bool BPLC_extensionCardManager::addNewExtensionCard(const e_EC_TYPE_t CARD, cons
             this->addExtensionCardToList(p_extensionCard);  
             newEcAdded = true;
 
-            String EC_NAME = getEcName(CARD);
-            this->printLog(EC_NAME + " WITH ADDR " + String(ADDR) + " ADDED TO " + (this->ECM_NAME), __FILENAME__, __LINE__);
+            this->printLog(getEcName(CARD) + "(" + String(ADDR + 1) + ") ADDED TO " + (this->ECM_NAME), __FILENAME__, __LINE__);
         }       
     }
     else
     {
-        this->printLog("EC ALREADY ADDED TO ECM", __FILENAME__, __LINE__);
+        this->printLog("EC ALREADY ADDED TO ECM", __FILENAME__, __LINE__);        
     }    
     return newEcAdded;
 }
@@ -387,20 +392,6 @@ void BPLC_extensionCardManager::enableECDebugOutput()
         {
             halInterface* p_halInterface = p_extensionCardToTick->getHalInterface();
             p_halInterface->controlCommand(EC_COMMAND__ENABLE_DEBUG_OUTPUT); 
-            p_extensionCardToTick = p_extensionCardToTick->getNext();      
-        }  
-    }
-}
-void BPLC_extensionCardManager::disableECErrorDetection()
-{
-    if(this->p_firstExtensionCard!= nullptr)
-    {
-        extensionCard*  p_extensionCardToTick = this->p_firstExtensionCard;     
-
-        while(p_extensionCardToTick != nullptr)
-        {
-            halInterface* p_halInterface = p_extensionCardToTick->getHalInterface();
-            p_halInterface->controlCommand(EC_COMMAND__DISABLE_ERROR_DETECTION); 
             p_extensionCardToTick = p_extensionCardToTick->getNext();      
         }  
     }

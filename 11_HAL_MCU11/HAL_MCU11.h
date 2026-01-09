@@ -51,7 +51,7 @@ class HAL_MCU11_revA: public halInterface, private BPLC_moduleErrorHandler, priv
     //Hal constructor
                     HAL_MCU11_revA          (volatile e_MCU_INT_ISR_t* P_ISR_STATE);    
     //Hal interface 
-    void            init                    (const e_EC_ADDR_t ADDR);
+    bool            init                    (const e_EC_ADDR_t ADDR);
     bool            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
     void            tick                    (const bool READ_INPUTS);    
     void            controlCommand          (const e_EC_COMMAND_t COMMAND);    
@@ -110,7 +110,7 @@ class HAL_MCU11_revB: public halInterface, protected BPLC_moduleErrorHandler, pr
     //Hal constructor
                     HAL_MCU11_revB          (volatile e_MCU_INT_ISR_t* P_ISR_STATE);    
     //Hal interface 
-    void            init                    (const e_EC_ADDR_t ADDR);
+    bool            init                    (const e_EC_ADDR_t ADDR);
     bool            mapObjectToChannel      (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL);        
     void            tick                    (const bool READ_INPUTS);        
     void            controlCommand          (const e_EC_COMMAND_t COMMAND);   

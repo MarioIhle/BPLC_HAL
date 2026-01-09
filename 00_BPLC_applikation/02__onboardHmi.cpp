@@ -1,6 +1,6 @@
 #include"BPLC.h"
 
-void BPLC_APP::tickHMI()
+void BPLC::tickHMI()
 {  
    const bool           ENCODER_BUTTON_PRESSED  = this->APP_HAL.ENCODER.buttonPressed();
    const e_MOVEMENT_t   ENCODER_DIRETION        = this->APP_HAL.ENCODER.getTurningDirection();   
@@ -61,7 +61,7 @@ void BPLC_APP::tickHMI()
    }   
 }
 
-void BPLC_APP::setupHMI()
+void BPLC::setupHMI()
 {
    if (this->APP_APP.settings.device.application.f_encoderInverted)
    {
@@ -70,7 +70,7 @@ void BPLC_APP::setupHMI()
 }
 
 //Display handling
-void BPLC_APP::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
+void BPLC::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
 {
    if(ENCODER_BUTTON_PRESSED)
    {                 
@@ -135,7 +135,7 @@ void BPLC_APP::editDeviceMode(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMEN
    }   
 }
 
-void BPLC_APP::hardwareErrorOut(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
+void BPLC::hardwareErrorOut(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
 {
    const uint8_t ERROR_CODE_DISPLAYED = (this->APP_HAL.oled.getActiveMenuTextNum() == 0);
 
@@ -165,7 +165,7 @@ void BPLC_APP::hardwareErrorOut(const bool ENCODER_BUTTON_PRESSED, const e_MOVEM
    }    
 }
 
-void BPLC_APP::displaySettings(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
+void BPLC::displaySettings(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
 {
    const uint8_t DISPLAYED_SETTING = this->APP_HAL.oled.getActiveMenuTextNum();
 
@@ -201,7 +201,7 @@ void BPLC_APP::displaySettings(const bool ENCODER_BUTTON_PRESSED, const e_MOVEME
    } 
 }
 
-void BPLC_APP::handle_vDip(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
+void BPLC::handle_vDip(const bool ENCODER_BUTTON_PRESSED, const e_MOVEMENT_t ENCODER_DIRETION)
 {  
    const bool           IS_ENCODER_BUTTON_PRESSED  = ENCODER_BUTTON_PRESSED;
    const e_MOVEMENT_t   TURNING_DIRECTION          = ENCODER_DIRETION;

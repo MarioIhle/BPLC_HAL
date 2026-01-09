@@ -84,7 +84,6 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_
         //Mot11 spezial Call
     void                startCurrentTuningMot11             (const e_EC_ADDR_t ADDR);
     void                enableECDebugOutput                 ();
-    void                disableECErrorDetection             ();
 
     private:        
     //ExtensionCard List

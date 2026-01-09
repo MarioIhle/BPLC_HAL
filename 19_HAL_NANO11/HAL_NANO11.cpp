@@ -2,7 +2,7 @@
 
 HAL_NANO11::HAL_NANO11()
 {}
-void HAL_NANO11::init(const e_EC_ADDR_t ADDR)
+bool HAL_NANO11::init(const e_EC_ADDR_t ADDR)
 {    
     this->bplcAddress = ADDR;
     
@@ -30,12 +30,13 @@ void HAL_NANO11::init(const e_EC_ADDR_t ADDR)
     if(this->noErrorSet())
     {   
         this->bplcNode.begin();        
-        this->printLog("NANO11revA CARD (" + String(this->bplcAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
+        this->printLog("NANO11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
     {
-        this->printLog("NANO11revA CARD (" + String(this->bplcAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
+        this->printLog("NANO11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
+    return this->noErrorSet();
 }
 bool HAL_NANO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {

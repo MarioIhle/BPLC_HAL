@@ -1,6 +1,6 @@
 #include "BPLC.h"
 
-void BPLC_APP::setupHardware()
+void BPLC::setupHardware()
 {  
    this->ecmForSlowSpeed = new BPLC_extensionCardManager();
    this->ecmForSlowSpeed->setSuperiorErrorHandlerForModule(&this->systemErrorManager);
@@ -39,97 +39,28 @@ void BPLC_APP::setupHardware()
    {
       this->systemErrorManager.setError(BPLC_ERROR__NO_MCU_DEFINED, __FILENAME__, __LINE__);
    }
-   //Zuerst die Output Karten initialisieren
-   //REL11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < REL11_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      if(this->APP_APP.settings.device.extensionCards.rel11revACards[CARD_ADDR])
-      {
-         this->ecmForSlowSpeed->addNewExtensionCard(EC__REL11revA, (e_EC_ADDR_t)CARD_ADDR);
-      }
-   }   
-   //DO11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < DO11_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      if(this->APP_APP.settings.device.extensionCards.do11revACards[CARD_ADDR])
-      {        
-         this->ecmForSlowSpeed->addNewExtensionCard(EC__DO11revA, (e_EC_ADDR_t)CARD_ADDR);           
-      }
-   }   
-   //MOT11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < MOT11_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      if(this->APP_APP.settings.device.extensionCards.mot11revAcards[CARD_ADDR])
-      {
-         this->ecmForSlowSpeed->addNewExtensionCard(EC__MOT11revA, (e_EC_ADDR_t)CARD_ADDR);
-      }
-   }
-   //PPO11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < PPO11_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      if(this->APP_APP.settings.device.extensionCards.ppo11revACards[CARD_ADDR])
-      {
-         this->ecmForSlowSpeed->addNewExtensionCard(EC__PPO11revA, (e_EC_ADDR_t)CARD_ADDR);
-      }
-   }
-   //NANO11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < NANO11_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      if(this->APP_APP.settings.device.extensionCards.nano11revACards[CARD_ADDR])
-      {   
-         const bool EC_SUCCESFUL_INITIALIZED = this->ecmForSlowSpeed->addNewExtensionCard(EC__NANO11revA, (e_EC_ADDR_t)CARD_ADDR);  
-         if(!EC_SUCCESFUL_INITIALIZED)
-         {
-            this->systemErrorManager.setError(NANO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
-         }
-      }
-   }
-   //Input Karten
-   //DIN11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < DIN11_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      const bool EC_CARD_DEFINED_IN_SETTINGS = this->APP_APP.settings.device.extensionCards.din11revACards[CARD_ADDR];
-      if(EC_CARD_DEFINED_IN_SETTINGS)
-      {   
-         if(this->ecmForHighSpeed == nullptr)
-         {
-            this->ecmForHighSpeed = new BPLC_extensionCardManager();    
-            this->ecmForSlowSpeed->setSuperiorErrorHandlerForModule(&this->systemErrorManager);
-            this->ecmForHighSpeed->begin(0, "ECM_DIN11_TASK");          
-         }
-         const bool EC_SUCCESFUL_INITIALIZED = this->ecmForHighSpeed->addNewExtensionCard(EC__DIN11revA, (e_EC_ADDR_t)CARD_ADDR);  
-         if(!EC_SUCCESFUL_INITIALIZED)
-         {
-            this->systemErrorManager.setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
-         }
-      }             
-   }
-   //AIN11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < AIN11_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      if(this->APP_APP.settings.device.extensionCards.ain11revACards[CARD_ADDR])
-      {  
-         this->ecmForSlowSpeed->addNewExtensionCard(EC__AIN11revA, (e_EC_ADDR_t)CARD_ADDR);
-      }
-   }      
-   //TMP11revA Cards initialisieren
-   for (uint8_t CARD_ADDR = 0; CARD_ADDR < TMP11_ADDRESS_COUNT; CARD_ADDR++)
-   {
-      if(this->APP_APP.settings.device.extensionCards.tmp11revACards[CARD_ADDR])
-      {
-         this->ecmForSlowSpeed->addNewExtensionCard(EC__TMP11revA, (e_EC_ADDR_t)CARD_ADDR);
-      }
-   }   
 }
-void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)
+void BPLC::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)
 {     
    //Prüfen ob Input       
    switch(CARD)
    {        
       case EC__DIN11revA:    
-         if(this->ecmForHighSpeed != nullptr)
+         if(this->ecmForHighSpeed == nullptr)
          {
-            this->ecmForHighSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL); 
+            this->ecmForHighSpeed = new BPLC_extensionCardManager();    
+            this->ecmForSlowSpeed->setSuperiorErrorHandlerForModule(&this->systemErrorManager);
+            this->ecmForHighSpeed->begin(0, "ECM_DIN11_TASK");          
+        
+            const bool EC_SUCCESFUL_INITIALIZED = this->ecmForHighSpeed->addNewExtensionCard(CARD, ADDR);  
+            if(!EC_SUCCESFUL_INITIALIZED)
+            {
+               this->systemErrorManager.setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+            }
+            else
+            {
+               this->ecmForHighSpeed->mapObjectToExtensionCard(P_IO_OBJECT, CARD, ADDR, CHANNEL); 
+            }
          }      
          else
          {
@@ -149,7 +80,7 @@ void BPLC_APP::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, cons
          break;
    } 
 }
-void BPLC_APP::tickHardware()
+void BPLC::tickHardware()
 {  
    //I2C taktfrequenz auf 400kHz erhöhen
    if(Wire.getClock() != I2C_CLOCK_SPEED_400_KHZ)
@@ -157,7 +88,7 @@ void BPLC_APP::tickHardware()
       Wire.setClock(I2C_CLOCK_SPEED_400_KHZ);
    }
 }
-void BPLC_APP::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
+void BPLC::beep(const uint8_t BEEPS, const int BEEP_INTERVAL)
 {
    if(this->APP_APP.settings.device.application.f_useBuzzer)
    {

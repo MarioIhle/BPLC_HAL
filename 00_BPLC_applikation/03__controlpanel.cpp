@@ -7,7 +7,7 @@ typedef enum
 {   
     //System
     BPLC_PLI_KEY__GET_SYSTEM_ERRORS,
-    BPLC_PLI_KEY__RESET_ALL_ERRORS,
+    BPLC_PLI_KEY__RESET_ALL_ERRORS,    
     BPLC_PLI_KEY__GET_DEVICE_SETTINGS,
     BPLC_PLI_KEY__RESET_ALL_SETTINGS,
     BPLC_PLI_KEY__RESET_EXTENSION_CARDS,
@@ -16,19 +16,16 @@ typedef enum
     BPLC_PLI_KEY__USE_BUZZER,
     BPLC_PLI_KEY__BEEP_ON_ENCODER_INPUT,
     BPLC_PLI_KEY__GET_RAM_USAGE,
+    BPLC_PLI_KEY__DISABLE_ERROR_DETECTION,
 
     //Applikation
     BPLC_PLI_KEY__DEVICE_MODE_STOP = 0x10,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_SAFETY,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_HARDWARE,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_COMMUNICATION,
+    BPLC_PLI_KEY__DEVICE_MODE_RUN,    
 
     //Kommunikation
     BPLC_PLI_KEY__SET_DEVICE_ADDRESS = 0x20,
 
     //Hardware
-    BPLC_PLI_KEY__DISABLE_EC_ERROR_DETECTION = 0x28,
     BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT = 0x29,
     BPLC_PLI_KEY__DEFINE_MCU = 0x30,
     BPLC_PLI_KEY__ADD_EC_AIN11revA,
@@ -46,11 +43,11 @@ typedef enum
 }e_BPLC_PLI_KEY_t;
 
 
-void BPLC_APP::setupControlPanel()
+void BPLC::setupControlPanel()
 {
     this->hostPc.begin(hostStartFrame, hostEndFrame);
 }
-void BPLC_APP::tickControlPanel()
+void BPLC::tickControlPanel()
 {
     if(this->hostPc.commandAvailable())
     {      
@@ -219,18 +216,9 @@ void BPLC_APP::tickControlPanel()
                 this->setDeviceModeInternal(APP_MODE__RUN);
                 break;
 
-            case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_SAFETY:
-                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_SAFETY);
+            case BPLC_PLI_KEY__DISABLE_ERROR_DETECTION:
+                this->systemErrorManager.disableErrordetection(__FILENAME__, __LINE__);
                 break;
-
-            case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_HARDWARE:
-                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_EC_CARDS);
-                break;
-
-            case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_COMMUNICATION:
-                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_COM);
-                break;
-
             
 //Kommunikation
             case BPLC_PLI_KEY__SET_DEVICE_ADDRESS:
@@ -260,17 +248,6 @@ void BPLC_APP::tickControlPanel()
                 {
                     this->ecmForHighSpeed->enableECDebugOutput();
                 }                               
-                break;
-
-            case BPLC_PLI_KEY__DISABLE_EC_ERROR_DETECTION:
-                if(this->ecmForSlowSpeed != nullptr)
-                {    
-                    this->ecmForSlowSpeed->disableECErrorDetection();
-                } 
-                if(this->ecmForHighSpeed != nullptr)
-                {
-                    this->ecmForHighSpeed->disableECErrorDetection();
-                }   
                 break;
                                     
             case BPLC_PLI_KEY__DEFINE_MCU:
