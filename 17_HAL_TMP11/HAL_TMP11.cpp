@@ -2,7 +2,7 @@
 
 HAL_TMP11::HAL_TMP11()
 {}
-void HAL_TMP11::init(const e_EC_ADDR_t ADDR)
+bool HAL_TMP11::init(const e_EC_ADDR_t ADDR)
 {    
     this->bplcAddress = ADDR;
 
@@ -31,15 +31,19 @@ void HAL_TMP11::init(const e_EC_ADDR_t ADDR)
     {           
 
         this->adc.begin(0);   
-        this->printLog("TMP11revA CARD (" + String(this->i2cAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);   
+        this->printLog("TMP11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);   
     }    
     else
     {
-        this->printLog("TMP11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
+        this->printLog("TMP11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
+
+    return this->noErrorSet();
 }
-void HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > TMP11_CHANNEL_COUNT)
@@ -65,6 +69,7 @@ void HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__PT100:       
             case IO_TYPE__PT1000:    
                 this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;              
+                error = false;
             break;
             
             default:
@@ -72,6 +77,7 @@ void HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             break;               
         }        
     }
+    return error;
 }
 void HAL_TMP11::tick(const bool READ_INPUTS)
 {   

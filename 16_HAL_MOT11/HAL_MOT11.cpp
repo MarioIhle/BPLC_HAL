@@ -2,7 +2,7 @@
 
 HAL_MOT11::HAL_MOT11()
 {}
-void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
+bool HAL_MOT11::init(const e_EC_ADDR_t ADDR)
 {
     this->bplcAddress = ADDR;
     
@@ -29,17 +29,20 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     {   
         this->i2c.begin();
         this->state = MOT11_DEVICE_STATE__INIT;  
-        this->printLog("MOT11revA CARD (" + String(this->i2cAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
+        this->printLog("MOT11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
     {
         this->state = MOT11_DEVICE_STATE__SAFE_STATE;
-        this->printLog("MOT11revA CARD (" + String(this->i2cAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
+        this->printLog("MOT11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
-    this->debugOutputEnabled = false;
+
+    return this->noErrorSet();
 }
-void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > MOT11_CHANNEL_COUNT)
     {
         this->setError(MOT11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
@@ -54,6 +57,7 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         {          
             case IO_TYPE__DC_DRIVE:
                 this->channels.p_ioObject = P_IO_OBJECT;
+                error = false;
                 break;
 
             default:
@@ -62,6 +66,7 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
                 break;               
         }
     }
+    return error;
 }
 void HAL_MOT11::tick(const bool READ_INPUTS)
 {          

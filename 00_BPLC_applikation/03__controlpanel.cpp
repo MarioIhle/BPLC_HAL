@@ -1,4 +1,4 @@
-#include "BPLC_APP.h"
+#include "BPLC.h"
 
 #define hostStartFrame  36  //ASCII $
 #define hostEndFrame    37  //ASCII %
@@ -7,7 +7,7 @@ typedef enum
 {   
     //System
     BPLC_PLI_KEY__GET_SYSTEM_ERRORS,
-    BPLC_PLI_KEY__RESET_ALL_ERRORS,
+    BPLC_PLI_KEY__RESET_ALL_ERRORS,    
     BPLC_PLI_KEY__GET_DEVICE_SETTINGS,
     BPLC_PLI_KEY__RESET_ALL_SETTINGS,
     BPLC_PLI_KEY__RESET_EXTENSION_CARDS,
@@ -16,20 +16,17 @@ typedef enum
     BPLC_PLI_KEY__USE_BUZZER,
     BPLC_PLI_KEY__BEEP_ON_ENCODER_INPUT,
     BPLC_PLI_KEY__GET_RAM_USAGE,
+    BPLC_PLI_KEY__DISABLE_ERROR_DETECTION,
 
     //Applikation
     BPLC_PLI_KEY__DEVICE_MODE_STOP = 0x10,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_SAFETY,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_HARDWARE,
-    BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_COMMUNICATION,
+    BPLC_PLI_KEY__DEVICE_MODE_RUN,    
 
     //Kommunikation
     BPLC_PLI_KEY__SET_DEVICE_ADDRESS = 0x20,
     BPLC_PLI_KEY__DEBUG_MODE,
 
     //Hardware
-    BPLC_PLI_KEY__DISABLE_EC_ERROR_DETECTION = 0x28,
     BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT = 0x29,
     BPLC_PLI_KEY__DEFINE_MCU = 0x30,
     BPLC_PLI_KEY__ADD_EC_AIN11revA,
@@ -47,11 +44,11 @@ typedef enum
 }e_BPLC_PLI_KEY_t;
 
 
-void BPLC_APP::setupControlPanel()
+void BPLC::setupControlPanel()
 {
     this->hostPc.begin(hostStartFrame, hostEndFrame);
 }
-void BPLC_APP::tickControlPanel()
+void BPLC::tickControlPanel()
 {
     if(this->hostPc.commandAvailable())
     {      
@@ -78,68 +75,16 @@ void BPLC_APP::tickControlPanel()
                 this->systemErrorManager.resetAllErrors(__FILENAME__, __LINE__);                 
                 break;
 
+            case BPLC_PLI_KEY__DISABLE_ERROR_DETECTION:
+                this->systemErrorManager.disableErrordetection(__FILENAME__, __LINE__);
+                break;
+
             case BPLC_PLI_KEY__GET_DEVICE_SETTINGS:
                 Serial.println("HARDWARE SETTINGS: ");
                 
                 Serial.print("MCU:          "); Serial.println(this->APP_APP.settings.device.mcuCard);
-                Serial.print("oledAvailable:"); Serial.println(this->APP_APP.settings.device.extensionCards.oledAvailable);              
-
-                for(uint8_t card = 0; card < AIN11_ADDRESS_COUNT; card++)
-                {
-                    if(this->APP_APP.settings.device.extensionCards.ain11revACards[card])
-                    {
-                        Serial.print("AIN11revA ADDR "); Serial.print(card); Serial.println(" defined ");
-                    }                    
-                }                          
-                for(uint8_t card = 0; card < DIN11_ADDRESS_COUNT; card++)
-                {
-                    if(this->APP_APP.settings.device.extensionCards.din11revACards[card])
-                    {
-                        Serial.print("DIN11revA ADDR "); Serial.print(card); Serial.println(" defined ");
-                    }
-                } 
-                for(uint8_t card = 0; card < DO11_ADDRESS_COUNT; card++)
-                {
-                    if(this->APP_APP.settings.device.extensionCards.do11revACards[card])
-                    {
-                        Serial.print("DO11revA ADDR "); Serial.print(card); Serial.println(" defined ");
-                    }           
-                } 
-                for(uint8_t card = 0; card < REL11_ADDRESS_COUNT; card++)
-                {
-                    if(this->APP_APP.settings.device.extensionCards.rel11revACards[card])
-                    {
-                        Serial.print("REL11revA ADDR "); Serial.print(card); Serial.println(" defined ");
-                    }           
-                } 
-                for(uint8_t card = 0; card < MOT11_ADDRESS_COUNT; card++)
-                {
-                    if(this->APP_APP.settings.device.extensionCards.mot11revAcards[card])
-                    {
-                        Serial.print("MOT11revA ADDR "); Serial.print(card); Serial.println(" defined ");
-                    }           
-                } 
-                for(uint8_t card = 0; card < TMP11_ADDRESS_COUNT; card++)
-                {
-                    if(this->APP_APP.settings.device.extensionCards.tmp11revACards[card])
-                    {
-                        Serial.print("TMP11revA ADDR "); Serial.print(card); Serial.println(" defined ");
-                    }           
-                } 
-                for(uint8_t card = 0; card < PPO11_ADDRESS_COUNT; card++)
-                {
-                    if(this->APP_APP.settings.device.extensionCards.ppo11revACards[card])
-                    {
-                        Serial.print("PPO11revA ADDR "); Serial.print(card); Serial.println(" defined ");
-                    }           
-                }
-                for(uint8_t card = 0; card < NANO11_ADDRESS_COUNT; card++)
-                {
-                    if(this->APP_APP.settings.device.extensionCards.nano11revACards[card])
-                    {
-                        Serial.print("NANO11revA ADDR "); Serial.print(card); Serial.println(" defined ");
-                    }           
-                }
+                Serial.print("oledAvailable:"); Serial.println(this->APP_APP.settings.device.extensionCards.oledAvailable);          
+              
                 Serial.println("APPLIKATION SETTINGS:");
                 Serial.print("encoder beep: ");         Serial.println(this->APP_APP.settings.device.application.f_beepOnEncoderInput);
                 Serial.print("encoder inverted:  ");    Serial.println(this->APP_APP.settings.device.application.f_encoderInverted);
@@ -218,20 +163,7 @@ void BPLC_APP::tickControlPanel()
 
             case BPLC_PLI_KEY__DEVICE_MODE_RUN:
                 this->setDeviceModeInternal(APP_MODE__RUN);
-                break;
-
-            case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_SAFETY:
-                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_SAFETY);
-                break;
-
-            case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_HARDWARE:
-                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_EC_CARDS);
-                break;
-
-            case BPLC_PLI_KEY__DEVICE_MODE_RUN_WITHOUT_COMMUNICATION:
-                this->setDeviceModeInternal(APP_MODE__RUN_WITHOUT_COM);
-                break;
-
+                break;            
             
 //Kommunikation
             case BPLC_PLI_KEY__SET_DEVICE_ADDRESS:
@@ -273,17 +205,6 @@ void BPLC_APP::tickControlPanel()
                     this->ecmForHighSpeed->enableECDebugOutput();
                 }                               
                 break;
-
-            case BPLC_PLI_KEY__DISABLE_EC_ERROR_DETECTION:
-                if(this->ecmForSlowSpeed != nullptr)
-                {    
-                    this->ecmForSlowSpeed->disableECErrorDetection();
-                } 
-                if(this->ecmForHighSpeed != nullptr)
-                {
-                    this->ecmForHighSpeed->disableECErrorDetection();
-                }   
-                break;
                                     
             case BPLC_PLI_KEY__DEFINE_MCU:
                 switch (COMMAND.command.payload)
@@ -306,76 +227,7 @@ void BPLC_APP::tickControlPanel()
                 delay(2000);
                 ESP.restart();    
                 break;     
-
-            case BPLC_PLI_KEY__ADD_EC_AIN11revA:                
-                this->APP_APP.settings.device.extensionCards.ain11revACards[COMMAND.command.payload] = true;    
-                this->saveDeviceSettings();
-                this->setupHardware();             
-                break;
-
-            case BPLC_PLI_KEY__ADD_EC_DIN11revA:
-                this->APP_APP.settings.device.extensionCards.din11revACards[COMMAND.command.payload] = true;    
-                this->saveDeviceSettings();
-                this->setupHardware();             
-                break;
-            
-            case BPLC_PLI_KEY__ADD_EC_DO11revA:
-                this->APP_APP.settings.device.extensionCards.do11revACards[COMMAND.command.payload] = true;    
-                this->saveDeviceSettings();
-                this->setupHardware();             
-                break;       
-
-            case BPLC_PLI_KEY__ADD_EC_REL11revA:
-                this->APP_APP.settings.device.extensionCards.rel11revACards[COMMAND.command.payload] = true;    
-                this->saveDeviceSettings();
-                this->setupHardware();
-                break;
-
-            case BPLC_PLI_KEY__ADD_EC_MOT111revA:                                
-                switch(COMMAND.command.payload)
-                {
-                    default:
-                    //neue Mot11 hinzufügen
-                        if(COMMAND.command.payload < MOT11_ADDRESS_COUNT)
-                        {
-                            this->APP_APP.settings.device.extensionCards.mot11revAcards[COMMAND.command.payload] = true;    
-                            this->saveDeviceSettings();
-                            this->setupHardware();
-                        }
-                        break;
-                    case 4:
-                        this->ecmForSlowSpeed->startCurrentTuningMot11(EC_ADDR_1);
-                        break;
-                    case 5:
-                        this->ecmForSlowSpeed->startCurrentTuningMot11(EC_ADDR_2);
-                        break;
-                    case 6:
-                        this->ecmForSlowSpeed->startCurrentTuningMot11(EC_ADDR_3);
-                        break;
-                    case 7:
-                        this->ecmForSlowSpeed->startCurrentTuningMot11(EC_ADDR_4);
-                        break;
-                }                          
-                break;
-
-            case BPLC_PLI_KEY__ADD_EC_TMP11revA:
-                this->APP_APP.settings.device.extensionCards.tmp11revACards[COMMAND.command.payload] = true;    
-                this->saveDeviceSettings();
-                this->setupHardware();
-                break;
-
-            case BPLC_PLI_KEY__ADD_EC_PPO11revA:
-                this->APP_APP.settings.device.extensionCards.ppo11revACards[COMMAND.command.payload] = true;    
-                this->saveDeviceSettings();
-                this->setupHardware();
-                break;
-
-            case BPLC_PLI_KEY__ADD_EC_NANOrevA:
-                this->APP_APP.settings.device.extensionCards.nano11revACards[COMMAND.command.payload] = true;    
-                this->saveDeviceSettings();
-                this->setupHardware();
-                break;      
-
+          
             default:
                 this->printLog("host command not executable!", __FILENAME__, __LINE__);
                 break;
