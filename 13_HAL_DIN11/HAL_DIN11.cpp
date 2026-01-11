@@ -69,7 +69,7 @@ bool HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
                 error = false;
                 break;
 
-            case IO_TYPE__ROTARY_ENCODER:
+            case IO_TYPE__HMI_ENCODER:
             case IO_TYPE__POSITION_ENCODER:
                 //3 pinPorts belegen mit gleichen objekt
                 this->channels.p_ioObject[OBJECT_INSTANCE]      = P_IO_OBJECT;  //A
@@ -118,7 +118,7 @@ void HAL_DIN11::tick(const bool READ_INPUTS)
                         }
                     break;
 
-                    case IO_TYPE__ROTARY_ENCODER:
+                    case IO_TYPE__HMI_ENCODER:
                     case IO_TYPE__POSITION_ENCODER:
                         tempBuffer.encoderData.stateA  = !PCF.read(this->channels.PIN[CH]);          //pinstates bitweise aus Datenpaket filtern
                         tempBuffer.encoderData.stateB  = !PCF.read(this->channels.PIN[CH + 1]);      //pinstates bitweise aus Datenpaket filtern

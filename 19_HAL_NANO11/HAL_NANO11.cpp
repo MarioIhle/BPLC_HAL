@@ -74,44 +74,31 @@ void HAL_NANO11::tick(const bool READ_INPUTS)
     //Hal ticken
     if(this->noErrorSet())
     {            
-        //Inputs anfragen
-        if(READ_INPUTS)
-        {
-            //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschrieben
-            for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
-            {
-                u_HAL_DATA_t dataBuffer;
-                if(this->channels.p_ioObject[CH] != nullptr)
-                {                      
-                    this->bplcNode.getSlaveData(this->i2cAddress, CH, &dataBuffer.data[0], sizeof(dataBuffer));
-                    //Serial.println("Channel " +String(CH) + " Data: " + String(dataBuffer.digitalIoData.state));
-                    switch (this->channels.p_ioObject[CH]->getIoType())
-                    {
-                        case IO_TYPE__ANALOG_INPUT:
-                        case IO_TYPE__DIGITAL_COUNTER:
-                        case IO_TYPE__DIGITAL_INPUT:
-                        case IO_TYPE__POSITION_ENCODER:
-                        case IO_TYPE__PT1000:
-                        case IO_TYPE__PT100:
-                        case IO_TYPE__PTC:
-                        case IO_TYPE__ROTARY_ENCODER:
-                        case IO_TYPE__RPM_SENS:       
-                            this->channels.p_ioObject[CH]->setHalData(&dataBuffer);
-                            break;
-                        
-                        default:
-                            break;
-                    }          
-                }  
-            }
-        }
-        //Outputs schreiben
+        //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschrieben
         for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
-        {
+        {           
+            u_HAL_DATA_t dataBuffer;
             if(this->channels.p_ioObject[CH] != nullptr)
-            {    
+            {                      
                 switch (this->channels.p_ioObject[CH]->getIoType())
                 {
+                    case IO_TYPE__ANALOG_INPUT:
+                    case IO_TYPE__DIGITAL_COUNTER:
+                    case IO_TYPE__DIGITAL_INPUT:
+                    case IO_TYPE__POSITION_ENCODER:
+                    case IO_TYPE__PT1000:
+                    case IO_TYPE__PT100:
+                    case IO_TYPE__PTC:
+                    case IO_TYPE__HMI_ENCODER:
+                    case IO_TYPE__RPM_SENS:   
+                        if(READ_INPUTS || this->channels.p_ioObject[CH]->newDataAvailable())
+                        {                    
+                            this->bplcNode.getSlaveData(this->i2cAddress, CH, &dataBuffer.data[0], sizeof(dataBuffer));
+                            Serial.println("Channel " +String(CH) + " Data: " + String(dataBuffer.digitalIoData.state));    
+                            this->channels.p_ioObject[CH]->setHalData(&dataBuffer);
+                        }
+                        break;      
+                       
                     case IO_TYPE__OUTPUT_PUSH:                    
                     case IO_TYPE__OUTPUT_PULL:
                     case IO_TYPE__OUTPUT_PUSH_PULL:

@@ -73,6 +73,7 @@ class LIB_NANO11
     //Hal interface 
     void            begin                   (const e_EC_ADDR_t ADDR);
     void            mapPinToChannel         (const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL, const e_IO_TYPE_t IO_TYPE);   //pins direkt auf channel mappen, geht nur mit einfachen io objekten 
+    void            mapHalDataToChannel     (u_HAL_DATA_t* P_DATA, const e_EC_CHANNEL_t CHANNEL, const e_IO_TYPE_t IO_TYPE);
     void            tick                    ();        
     bool            getOEN                  (){return digitalRead(this->pins.OEN);}
 
@@ -93,6 +94,7 @@ class LIB_NANO11
         e_IO_TYPE_t     ioType;
         uint8_t         pin;
         u_HAL_DATA_t    data;    
+        u_HAL_DATA_t*   p_externalData;  
         bool            f_newDataAvailable;
     }channels[NANO11_CHANNEL_COUNT];     
     

@@ -42,10 +42,11 @@ void BPLC::setupHardware()
 }
 void BPLC::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)
 {     
-   //Prüfen ob Input       
-   switch(CARD)
-   {        
-      case EC__DIN11revA:    
+   switch(P_IO_OBJECT->getIoType())
+   {
+      case IO_TYPE__DIGITAL_COUNTER:
+      case IO_TYPE__POSITION_ENCODER:
+      case IO_TYPE__RPM_SENS:
          if(this->ecmForHighSpeed == nullptr)
          {
             this->ecmForHighSpeed = new BPLC_extensionCardManager();    
@@ -67,7 +68,7 @@ void BPLC::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_
             this->systemErrorManager.setError(ECM_ERROR__EC_NOT_DEFINED, __FILENAME__, __LINE__);
          }                             
          break;
-
+   
       default:
          if(this->ecmForSlowSpeed != nullptr)
          {

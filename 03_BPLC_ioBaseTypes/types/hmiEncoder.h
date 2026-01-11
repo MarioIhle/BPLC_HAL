@@ -24,7 +24,7 @@ class hmiEncoder:public IO_Interface
     {
         this->f_invertedDirection   = false;
         this->f_encoderLogicLevel   = false;
-        this->ioType                = IO_TYPE__ROTARY_ENCODER; 
+        this->ioType                = IO_TYPE__HMI_ENCODER; 
         this->inputChannels[ENCODER_CHANNEL_A].setDebounceTime(10,10);
         this->inputChannels[ENCODER_CHANNEL_B].setDebounceTime(10,10);
         this->pushButton.setDebounceTime(10,10);

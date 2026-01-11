@@ -139,8 +139,7 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
     
         if(OBJECT_SUCCESSFULY_MAPPED_TO_CHANNEL)
         {
-            const bool EXTENSION_CARD_COULD_NEED_REALTIME_PROCESSING =   ((CARD == EC__DIN11revA)
-                                                                        || CARD == EC__NANO11revA);  
+            const bool EXTENSION_CARD_COULD_NEED_REALTIME_PROCESSING = (CARD == EC__DIN11revA);  
             //Debug Ausgabe
             switch (CARD)
             {   //Bei MCU uninterressant, da immer die gleichen Ports belegt werden

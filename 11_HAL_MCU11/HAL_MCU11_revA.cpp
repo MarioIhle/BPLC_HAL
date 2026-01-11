@@ -53,7 +53,7 @@ bool HAL_MCU11_revA::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CH
     switch(CHANNEL)
     {
         case MCU_CHANNEL__ENCODER:
-            if(P_IO_OBJECT->getIoType() == IO_TYPE__ROTARY_ENCODER)
+            if(P_IO_OBJECT->getIoType() == IO_TYPE__HMI_ENCODER)
             {
                 this->p_encoder = P_IO_OBJECT;
                 error = false;
