@@ -2,12 +2,14 @@
 
 HAL_TMP11::HAL_TMP11()
 {}
-void HAL_TMP11::init(const e_EC_ADDR_t ADDR)
+bool HAL_TMP11::init(const e_EC_ADDR_t ADDR)
 {    
+    this->bplcAddress = ADDR;
+
     if(ADDR < TMP11_ADDRESS_COUNT)
     {
-        this->deviceAddress = TMP11_I2C_ADDRESSES[ADDR];    
-        this->adc.setAddress(this->deviceAddress);     
+        this->i2cAddress = TMP11_I2C_ADDRESSES[ADDR];    
+        this->adc.setAddress(this->i2cAddress);     
     }
     else
     {
@@ -20,7 +22,7 @@ void HAL_TMP11::init(const e_EC_ADDR_t ADDR)
     }       
     
     //I2C Verbindung prüfen
-    if(!I2C_check::begin(this->deviceAddress))
+    if(!I2C_check::begin(this->i2cAddress))
     {
        this->setError(TMP11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
@@ -29,15 +31,19 @@ void HAL_TMP11::init(const e_EC_ADDR_t ADDR)
     {           
 
         this->adc.begin(0);   
-        this->printLog("TMP11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);   
+        this->printLog("TMP11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);   
     }    
     else
     {
-        this->printLog("TMP11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
+        this->printLog("TMP11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
+
+    return this->noErrorSet();
 }
-void HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > TMP11_CHANNEL_COUNT)
@@ -63,6 +69,7 @@ void HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__PT100:       
             case IO_TYPE__PT1000:    
                 this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;              
+                error = false;
             break;
             
             default:
@@ -70,8 +77,9 @@ void HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             break;               
         }        
     }
+    return error;
 }
-void HAL_TMP11::tick()
+void HAL_TMP11::tick(const bool READ_INPUTS)
 {   
     //I2C Verbindung zyklisch prüfen
     if(!this->tickHeartbeat())
@@ -100,12 +108,12 @@ void HAL_TMP11::tick()
                         case IO_TYPE__PT100:  
                             Uab_nV = UabAtZeroDegrePT100_nV - Uab_nV;
                             tempBuffer.tempSensData.temperatur = (float)(Uab_nV/nVperDegreePT100);
-                            this->channels.p_ioObject[CH]->halCallback(&tempBuffer);      
+                            this->channels.p_ioObject[CH]->setHalData(&tempBuffer);      
                         break;
                            
                         case IO_TYPE__PT1000:    
                             tempBuffer.tempSensData.temperatur = (float)(Uab_nV/nVperDegreePT1000);
-                            this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                       
+                            this->channels.p_ioObject[CH]->setHalData(&tempBuffer);                       
                         break;
                         
                         default:
@@ -123,7 +131,12 @@ void HAL_TMP11::controlCommand(const e_EC_COMMAND_t COMMAND)
     switch (COMMAND)
     {       
         default:
-            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
-            break;
+            this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
+        break;
+        
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
     }
 }

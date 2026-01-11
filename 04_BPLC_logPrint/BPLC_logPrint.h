@@ -16,5 +16,6 @@ class BPLC_logPrint
     void    printErrorReset     (const e_BPLC_ERROR_t ERROR_CODE,  String FILE, const uint16_t LINE);
     void    printResetReason    (String TEXT, String FILE, const uint16_t LINE);
     void    printRamUsage       ();    
+    void    printExtensionCardDebugOutput(String EXTENSIONCARD_TYPE, String ADDR, String CHANNEL, String VALUE);
 };
 #endif 

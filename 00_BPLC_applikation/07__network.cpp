@@ -1,4 +1,4 @@
-#include"BPLC_APP.h"
+#include"BPLC.h"
 
 void comTask(void* taskParameter)
 {
@@ -23,7 +23,7 @@ void comTask(void* taskParameter)
         }
     }    
 }
-void BPLC_APP::setupNetwork()
+void BPLC::setupNetwork()
 {    
     const bool ADDRESS_VALIDE = (this->APP_APP.settings.device.communication.deviceAddress != 0);
     
@@ -59,7 +59,7 @@ void BPLC_APP::setupNetwork()
         }
     }
 }
-void BPLC_APP::mapPortToNetwork(portInterface_APP* P_PORT)
+void BPLC::mapPortToNetwork(portInterface_APP* P_PORT)
 {    
     //Network setup
     if(this->APP_COM.p_comNode == nullptr)
@@ -71,7 +71,7 @@ void BPLC_APP::mapPortToNetwork(portInterface_APP* P_PORT)
         this->APP_COM.p_comNode->mapPortToNetwork(P_PORT);
     }
 }
-void BPLC_APP::tickNetwork()
+void BPLC::tickNetwork()
 {
     if(this->APP_COM.p_comNode != nullptr)
     {      
@@ -88,6 +88,7 @@ void BPLC_APP::tickNetwork()
                 this->APP_COM.to_communicationError.reset();
             break;
 
+            default:
             case COM_NODE_STATE__NO_SLAVE_AVAILABLE:   
             case COM_NODE_STATE__NOT_AVAILABLE:
                 this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 100, 100);

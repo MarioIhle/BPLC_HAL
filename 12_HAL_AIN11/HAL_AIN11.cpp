@@ -2,11 +2,13 @@
 
 HAL_AIN11::HAL_AIN11()
 {}
-void HAL_AIN11::init(const e_EC_ADDR_t ADDR)
+bool HAL_AIN11::init(const e_EC_ADDR_t ADDR)
 {    
+    this->bplcAddress = ADDR;
+
     if(ADDR < AIN11_ADDRESS_COUNT)
     {
-        this->deviceAddress = AIN11_I2C_ADDRESSES[ADDR];             
+        this->i2cAddress = AIN11_I2C_ADDRESSES[ADDR];             
     }
     else
     {
@@ -19,7 +21,7 @@ void HAL_AIN11::init(const e_EC_ADDR_t ADDR)
     }       
     
     //I2C Verbindung prüfen
-    if(!I2C_check::begin(this->deviceAddress))
+    if(!I2C_check::begin(this->i2cAddress))
     {
        this->setError(AIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
@@ -40,16 +42,20 @@ void HAL_AIN11::init(const e_EC_ADDR_t ADDR)
         //this->adcGain = GAIN_SIXTEEN;         // 16x gain  +/- 0.256V  1 bit = 0.125mV  0.0078125mV
         
         this->ADC.setGain(this->adcGain);
-        this->ADC.begin(this->deviceAddress);
-        this->printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
+        this->ADC.begin(this->i2cAddress);
+        this->printLog("AIN11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
     {
-        this->printLog("AIN11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
+        this->printLog("AIN11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
+
+    return this->noErrorSet();
 }
-void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+ 
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > AIN11_CHANNEL_COUNT)
@@ -65,11 +71,23 @@ void HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         this->setError(AIN11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
     else
-    {
-        this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
+    {        
+        switch (P_IO_OBJECT->getIoType())
+        {          
+            case IO_TYPE__ANALOG_INPUT:
+                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT; 
+                error = false;
+                break;
+
+            default:
+            case IO_TYPE__NOT_DEFINED:
+                this->setError(AIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                break;               
+        }  
     }
+    return error;
 }
-void HAL_AIN11::tick()
+void HAL_AIN11::tick(const bool READ_INPUTS)
 {   
     //I2C Verbindung zyklisch prüfen
     if(!this->tickHeartbeat())
@@ -83,7 +101,7 @@ void HAL_AIN11::tick()
         {            
             if(this->channels.p_ioObject[CH] != nullptr)
             {
-                if(this->channels.p_ioObject[CH]->newDataAvailable())
+                if(this->channels.p_ioObject[CH]->newDataAvailable())   //Wenn IO Objekt Daten anfordert diese von Hardware lesen
                 {
                     u_HAL_DATA_t tempBuffer;
                     int16_t      readSingleEnded;
@@ -93,21 +111,26 @@ void HAL_AIN11::tick()
                         case IO_TYPE__ANALOG_INPUT:    
                             readSingleEnded = this->ADC.readADC_SingleEnded(this->channels.PIN[CH]);
                             
+                            if(this->debugOutputEnabled)
+                            {
+                                this->printExtensionCardDebugOutput("AIN11", String(this->bplcAddress), String(CH), String(readSingleEnded));
+                            }
+
                             if(readSingleEnded >= 0)
                             {
                                 tempBuffer.analogIoData.value = readSingleEnded;
-                                this->channels.p_ioObject[CH]->halCallback(&tempBuffer);                        
+                                this->channels.p_ioObject[CH]->setHalData(&tempBuffer);                        
                             }     
                             else
                             {
                                 tempBuffer.analogIoData.value = 0;
-                                this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
+                                this->channels.p_ioObject[CH]->setHalData(&tempBuffer);
                             }         
                         break;
                         
                         default:
                         case IO_TYPE__NOT_DEFINED:
-                            this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                            this->setError(MOT11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
                         break;               
                     }
                 }       
@@ -121,6 +144,16 @@ void HAL_AIN11::controlCommand(const e_EC_COMMAND_t COMMAND)
     {       
         default:
             this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
-            break;
+        break;
+
+        case EC_COMMAND__ENABLE_DEBUG_OUTPUT: 
+            this->debugOutputEnabled = true;
+            this->printLog("DEBUG OUTPUT ENABLED", __FILENAME__, __LINE__);
+        break;
+
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
     }
 }

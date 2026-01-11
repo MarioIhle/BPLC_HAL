@@ -2,11 +2,13 @@
 
 HAL_DIN11::HAL_DIN11()
 {}
-void HAL_DIN11::init(const e_EC_ADDR_t ADDR)
+bool HAL_DIN11::init(const e_EC_ADDR_t ADDR)
 { 
+    this->bplcAddress = ADDR;
+
     if(ADDR < DIN11_ADDRESS_COUNT)
     {
-        this->deviceAddress = DIN11_I2C_ADDRESSES[ADDR];             
+        this->i2cAddress = DIN11_I2C_ADDRESSES[ADDR];             
     }
     else
     {
@@ -19,7 +21,7 @@ void HAL_DIN11::init(const e_EC_ADDR_t ADDR)
     }       
 
     //I2C verbindung prüfen
-    if(!I2C_check::begin(this->deviceAddress))
+    if(!I2C_check::begin(this->i2cAddress))
     {
         this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);     
     }
@@ -27,17 +29,21 @@ void HAL_DIN11::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {   
-        PCF.setAddress(this->deviceAddress);   
+        PCF.setAddress(this->i2cAddress);   
         PCF.begin();      
-        this->printLog("DIN11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
+        this->printLog("DIN11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
     {
-        this->printLog("DIN11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);
+        this->printLog("DIN11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT FAILED", __FILENAME__, __LINE__);
     }
+
+    return this->noErrorSet();
 }
-void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > DIN11_CHANNEL_COUNT)
@@ -60,6 +66,7 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__RPM_SENS:
             case IO_TYPE__DIGITAL_COUNTER:
                 this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
+                error = false;
                 break;
 
             case IO_TYPE__ROTARY_ENCODER:
@@ -68,6 +75,7 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
                 this->channels.p_ioObject[OBJECT_INSTANCE]      = P_IO_OBJECT;  //A
                 this->channels.p_ioObject[OBJECT_INSTANCE + 1]  = P_IO_OBJECT;  //B
                 this->channels.p_ioObject[OBJECT_INSTANCE + 2]  = P_IO_OBJECT;  //Z
+                error = false;
                 break;
 
             default:
@@ -76,8 +84,9 @@ void HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
                 break;               
         }
     }
+    return error;
 }
-void HAL_DIN11::tick()
+void HAL_DIN11::tick(const bool READ_INPUTS)
 {   
     //I2C Verbindung zyklisch prüfen
     if(!this->tickHeartbeat())
@@ -102,7 +111,11 @@ void HAL_DIN11::tick()
                     case IO_TYPE__RPM_SENS:
                     case IO_TYPE__DIGITAL_COUNTER:
                         tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);         //pinstates bitweise aus Datenpaket filtern
-                        this->channels.p_ioObject[CH]->halCallback(&tempBuffer); 
+                        this->channels.p_ioObject[CH]->setHalData(&tempBuffer); 
+                        if(this->debugOutputEnabled)
+                        {
+                            this->printExtensionCardDebugOutput("DIN11", String(this->bplcAddress), String(CH), String(tempBuffer.digitalIoData.state));
+                        }
                     break;
 
                     case IO_TYPE__ROTARY_ENCODER:
@@ -110,7 +123,7 @@ void HAL_DIN11::tick()
                         tempBuffer.encoderData.stateA  = !PCF.read(this->channels.PIN[CH]);          //pinstates bitweise aus Datenpaket filtern
                         tempBuffer.encoderData.stateB  = !PCF.read(this->channels.PIN[CH + 1]);      //pinstates bitweise aus Datenpaket filtern
                         tempBuffer.encoderData.stateZ  = !PCF.read(this->channels.PIN[CH + 2]);      //pinstates bitweise aus Datenpaket filtern
-                        this->channels.p_ioObject[CH]->halCallback(&tempBuffer);
+                        this->channels.p_ioObject[CH]->setHalData(&tempBuffer);
                         CH +=3;//Sonst wird encoder 3x gelesen...
                     break;
 
@@ -128,7 +141,18 @@ void HAL_DIN11::controlCommand(const e_EC_COMMAND_t COMMAND)
     switch (COMMAND)
     {       
         default:
-            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
-            break;
+            this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
+            this->bplcAddress;
+        break;
+
+        case EC_COMMAND__ENABLE_DEBUG_OUTPUT: 
+            this->debugOutputEnabled = true;
+            this->printLog("DEBUG OUTPUT ENABLED", __FILENAME__, __LINE__);
+        break;
+
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
     }
 }

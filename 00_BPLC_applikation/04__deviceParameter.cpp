@@ -1,6 +1,6 @@
-#include "BPLC_APP.h"
+#include "BPLC.h"
 
-void BPLC_APP::setupParameterFlash()
+void BPLC::setupParameterFlash()
 {
    if(this->APP_APP.setup.f_setupParameterFlash == false)
    {
@@ -14,7 +14,7 @@ void BPLC_APP::setupParameterFlash()
       this->APP_APP.setup.f_setupParameterFlash = true;  
    }
 }
-bool BPLC_APP::loadDeviceSettings()
+bool BPLC::loadDeviceSettings()
 {      
    bool parameterOk = false;
    //Device Settings aus Flash laden
@@ -38,7 +38,7 @@ bool BPLC_APP::loadDeviceSettings()
    }
    return parameterOk;
 }
-void BPLC_APP::saveDeviceSettings()
+void BPLC::saveDeviceSettings()
 {   
    this->parameterFlash.putBytes("deviceSettings", this->APP_APP.settings.flashData, sizeof(this->APP_APP.settings.flashData));  
 
@@ -54,7 +54,7 @@ void BPLC_APP::saveDeviceSettings()
    
    this->printLog("DEVICE SETTING SAVED IN FLASH!", __FILENAME__, __LINE__);
 }
-void BPLC_APP::loadDefaultParameter()
+void BPLC::loadDefaultParameter()
 {
    this->APP_APP.settings.device.application.f_useBuzzer = true;
 }

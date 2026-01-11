@@ -26,23 +26,29 @@ class counter: public IO_Interface
         }
     }
     //Hal handling
-    e_IO_TYPE_t         getIoType       (){return this->ioType;}
-    bool                newDataAvailable(){this->count++;return false;} //cout++ ist ein kleiner Hack um über die INT isr direkt zählen zu können 
-    u_HAL_DATA_t        halCallback     (u_HAL_DATA_t* P_DATA)
+    bool newDataAvailable(){this->count++; return false;} //cout++ ist ein kleiner Hack um über die INT isr direkt zählen zu können 
+    void setHalData(u_HAL_DATA_t* P_DATA)
     {
-        if((P_DATA->digitalIoData.state == true) && (this->previousState == false)
-        && this->f_countingEnabled)
+        if(P_DATA != nullptr)
         {
-            this->count++;
-        } 
-        this->previousState = P_DATA->digitalIoData.state; 
-        return *P_DATA;
+            if((P_DATA->digitalIoData.state == true) && (this->previousState == false)
+            && this->f_countingEnabled)
+            {
+                this->count++;
+            } 
+            this->previousState = P_DATA->digitalIoData.state; 
+        }    
+    }
+    u_HAL_DATA_t getHalData()
+    {
+        u_HAL_DATA_t DATA; 
+        memset(&DATA, 0, sizeof(u_HAL_DATA_t));
+        return DATA;
     }
 
 
     private:
     volatile uint64_t   count; 
-    e_IO_TYPE_t         ioType;
     volatile bool       previousState;
     bool                f_countingEnabled;  //Zählen für das auswerten der Drehzahl kurz pausieren
 };

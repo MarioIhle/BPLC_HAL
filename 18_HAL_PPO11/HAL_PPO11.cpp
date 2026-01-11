@@ -2,11 +2,13 @@
 
 HAL_PPO11::HAL_PPO11()
 {}
-void HAL_PPO11::init(const e_EC_ADDR_t ADDR)
+bool HAL_PPO11::init(const e_EC_ADDR_t ADDR)
 {
+    this->bplcAddress = ADDR;
+
     if(ADDR < PPO11_ADDRESS_COUNT)
     {
-        this->deviceAddress = PPO11_I2C_ADDRESSES[ADDR];             
+        this->i2cAddress = PPO11_I2C_ADDRESSES[ADDR];             
     }
     else
     {
@@ -19,7 +21,7 @@ void HAL_PPO11::init(const e_EC_ADDR_t ADDR)
     }       
    
     //I2C verbindung prüfen
-    if(!I2C_check::begin(this->deviceAddress))
+    if(!I2C_check::begin(this->i2cAddress))
     {
         this->setError(PPO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);     
     }
@@ -27,19 +29,23 @@ void HAL_PPO11::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {        
-        PCA.setI2CAddress(this->deviceAddress);
+        PCA.setI2CAddress(this->i2cAddress);
         PCA.init();
         PCA.setPWMFrequency(200);   
         PCA.setAllChannelsPWM(0);
-        this->printLog("PPO11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
+        this->printLog("PPO11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);      
     }    
     else
     {
-        this->printLog("PPO11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);    
+        this->printLog("PPO11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT FAILED", __FILENAME__, __LINE__);    
     }
+
+    return this->noErrorSet();
 }
-void HAL_PPO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_PPO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+    
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > PPO11_CHANNEL_COUNT)
@@ -67,14 +73,16 @@ void HAL_PPO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__OUTPUT_PUSH_PULL:                         
             case IO_TYPE__OUTPUT_PUSH_PULL_INVERT: 
                 this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
+                error = false;
             break;
             default:
                 this->setError(PPO11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
             break;
         }
     }
+    return error;
 }
-void HAL_PPO11::tick()
+void HAL_PPO11::tick(const bool READ_INPUTS)
 {
     //I2C Verbindung zyklisch prüfen
     if(!this->tickHeartbeat())
@@ -91,7 +99,7 @@ void HAL_PPO11::tick()
                 if(this->channels.p_ioObject[CH]->newDataAvailable())
                 {
                     //PWM von 0-255 laden und umrechnen
-                    uint16_t TARGET_PWM_VALUE = map(this->channels.p_ioObject[CH]->halCallback().analogIoData.value, 0, 255, 0, 4095);
+                    uint16_t TARGET_PWM_VALUE = map(this->channels.p_ioObject[CH]->getHalData().analogIoData.value, 0, 255, 0, 4095);
                 
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {                    
@@ -172,7 +180,12 @@ void HAL_PPO11::controlCommand(const e_EC_COMMAND_t COMMAND)
     switch (COMMAND)
     {       
         default:
-            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
-            break;
+            this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
+        break;
+        
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
     }
 }

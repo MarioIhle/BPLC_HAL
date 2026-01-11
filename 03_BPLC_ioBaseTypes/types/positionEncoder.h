@@ -33,44 +33,50 @@ class positionEncoder:public IO_Interface
     }
 
     //Hal handling
-    e_IO_TYPE_t         getIoType                       (){return this->ioType;}
-    bool                newDataAvailable                (){return false;}
-    u_HAL_DATA_t        halCallback                     (u_HAL_DATA_t* P_DATA = nullptr)
+    bool            newDataAvailable(){return false;}
+    void            setHalData      (u_HAL_DATA_t* P_DATA)
     {
-        u_HAL_DATA_t BUFFER;
-        BUFFER.digitalIoData.state = P_DATA->encoderData.stateA;
-        this->A.halCallback(&BUFFER);
-        BUFFER.digitalIoData.state = P_DATA->encoderData.stateB;
-        this->B.halCallback(&BUFFER);
-        BUFFER.digitalIoData.state = P_DATA->encoderData.stateZ;
-        this->Z.halCallback(&BUFFER);
-        //"links"                                                
-        if((this->A.fallingEdge()   && this->B.ishigh())     
-        || (this->A.islow()         && this->B.fallingEdge())    
-        || (this->A.risingEdge()    && this->B.islow())    
-        || (this->A.ishigh()        && this->B.risingEdge()))   
+        if(P_DATA != nullptr)
         {
-            this->poitionIncrement.increment();
+            u_HAL_DATA_t BUFFER;
+            BUFFER.digitalIoData.state = P_DATA->encoderData.stateA;
+            this->A.setHalData(&BUFFER);
+            BUFFER.digitalIoData.state = P_DATA->encoderData.stateB;
+            this->B.setHalData(&BUFFER);
+            BUFFER.digitalIoData.state = P_DATA->encoderData.stateZ;
+            this->Z.setHalData(&BUFFER);
+            //"links"                                                
+            if((this->A.fallingEdge()   && this->B.ishigh())     
+            || (this->A.islow()         && this->B.fallingEdge())    
+            || (this->A.risingEdge()    && this->B.islow())    
+            || (this->A.ishigh()        && this->B.risingEdge()))   
+            {
+                this->poitionIncrement.increment();
+            }
+            //"rechts"                                            
+            if((this->A.ishigh()        && this->B.fallingEdge())    
+            || (this->A.fallingEdge()   && this->B.islow())    
+            || (this->A.islow()         && this->B.risingEdge())    
+            || (this->A.risingEdge()    && this->B.ishigh()))   
+            {
+                this->poitionIncrement.decrement();
+            }
+            //Z-index
+            if(this->Z.risingEdge())
+            {
+                this->poitionIncrement.resetCount();
+            }
         }
-        //"rechts"                                            
-        if((this->A.ishigh()        && this->B.fallingEdge())    
-        || (this->A.fallingEdge()   && this->B.islow())    
-        || (this->A.islow()         && this->B.risingEdge())    
-        || (this->A.risingEdge()    && this->B.ishigh()))   
-        {
-            this->poitionIncrement.decrement();
-        }
-        //Z-index
-        if(this->Z.risingEdge())
-        {
-            this->poitionIncrement.resetCount();
-        }
-        return BUFFER;
     }
+    u_HAL_DATA_t    getHalData      ()
+    {
+        u_HAL_DATA_t DATA; 
+        memset(&DATA, 0, sizeof(u_HAL_DATA_t));
     
+        return DATA;
+    }
 
     private: 
-    e_IO_TYPE_t         ioType;
     counter             poitionIncrement;
     uint16_t            pulsesPerRevolution;
     digitalInput        A;

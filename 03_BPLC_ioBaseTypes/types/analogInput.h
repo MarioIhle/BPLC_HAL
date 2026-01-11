@@ -11,7 +11,7 @@
 class analogInput: public IO_Interface
 {
     public:
-                        analogInput         (const float MAX_VOLTAGE = 5.00, const uint64_t SAMPLE_TIME = 1000)
+    analogInput(const float MAX_VOLTAGE = 5.00, const uint64_t SAMPLE_TIME = 1000)
     {
         this->maxVoltage 	= MAX_VOLTAGE;	
         this->ioType	 	= IO_TYPE__ANALOG_INPUT;
@@ -69,17 +69,31 @@ class analogInput: public IO_Interface
     void                setAdcGain          (const adsGain_t GAIN){this->adcGain = GAIN;}
 
     void                setAlarm            (const uint16_t ALARM_VALUE){this->alarmValue = ALARM_VALUE;}
-    bool                isAlarmValueReached (){return (bool)(this->value >= this->alarmValue);}
+    bool                isAlarmValueReached (){return (this->value >= this->alarmValue);}
     void                setSampleTime       (const uint64_t SAMPLE_TIME){this->to_sampleTime.setInterval(SAMPLE_TIME);}
     
     //Hal handling
-    e_IO_TYPE_t         getIoType           (){return this->ioType;}
-    bool                newDataAvailable    (){return (bool)(this->to_sampleTime.checkAndReset());}
-    u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* P_DATA){this->value = P_DATA->analogIoData.value; return *P_DATA;}
+    bool            newDataAvailable    ()
+    {
+        return this->to_sampleTime.checkAndReset();
+    }
+    void            setHalData          (u_HAL_DATA_t* P_DATA)
+    {
+        if(P_DATA != nullptr)
+        {
+            this->value = P_DATA->analogIoData.value;
+        }
+    }
+    u_HAL_DATA_t    getHalData          ()
+    {
+        u_HAL_DATA_t DATA; 
+        memset(&DATA, 0, sizeof(u_HAL_DATA_t));
+        DATA.analogIoData.value = this->value;
+        return DATA;
+    }
 
 
     private:
-    e_IO_TYPE_t         ioType;
     uint16_t            value;   
     uint16_t            alarmValue;
     float               maxVoltage;

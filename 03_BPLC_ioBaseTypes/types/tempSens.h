@@ -14,21 +14,27 @@ class TempSens: public IO_Interface
     bool                temeratureChanged   (){bool TEMP_CHANGED = (bool)(this->f_tempChanged == true); this->f_tempChanged = false; return TEMP_CHANGED;}
 
     //Hal handling                 
-    e_IO_TYPE_t         getIoType           (){return this->ioType;} 
-    bool                newDataAvailable    (){return this->to_sampleTime.checkAndReset();}
-    u_HAL_DATA_t        halCallback         (u_HAL_DATA_t* DATA = nullptr)
+    bool            newDataAvailable    (){return this->to_sampleTime.checkAndReset();}
+    void            setHalData          (u_HAL_DATA_t* P_DATA)
     {
-        if(this->temperature != DATA->tempSensData.temperatur)
+        if(P_DATA != nullptr)
         {
-            this->f_tempChanged = true;
-            this->temperature = DATA->tempSensData.temperatur;
-        }        
-        return *DATA;
+            if(this->temperature != P_DATA->tempSensData.temperatur)
+            {
+                this->f_tempChanged = true;
+                this->temperature = P_DATA->tempSensData.temperatur;
+            }   
+        }     
+    }
+    u_HAL_DATA_t    getHalData          ()
+    {
+        u_HAL_DATA_t DATA; 
+        memset(&DATA, 0, sizeof(u_HAL_DATA_t));
+        DATA.tempSensData.temperatur = this->temperature;
+        return DATA;
     }
 
-
     private:
-    e_IO_TYPE_t         ioType;
     float               temperature;
     Timeout             to_sampleTime;
     bool                f_tempChanged;

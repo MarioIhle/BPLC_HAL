@@ -2,11 +2,13 @@
 
 HAL_MOT11::HAL_MOT11()
 {}
-void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
+bool HAL_MOT11::init(const e_EC_ADDR_t ADDR)
 {
+    this->bplcAddress = ADDR;
+    
     if(ADDR < MOT11_ADDRESS_COUNT)
     {
-        this->deviceAddress = MOT11_I2C_ADDRESSES[ADDR];             
+        this->i2cAddress = MOT11_I2C_ADDRESSES[ADDR];             
     }
     else
     {
@@ -17,7 +19,7 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     this->to_parameterPoll.setInterval(2500);
      
     //I2C Verbindung prüfen
-    if(I2C_check::begin(this->deviceAddress) == false)
+    if(I2C_check::begin(this->i2cAddress) == false)
     {
         this->setError(MOT11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);        
     }
@@ -27,16 +29,20 @@ void HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     {   
         this->i2c.begin();
         this->state = MOT11_DEVICE_STATE__INIT;  
-        this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
+        this->printLog("MOT11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
     {
         this->state = MOT11_DEVICE_STATE__SAFE_STATE;
-        this->printLog("MOT11revA CARD (" + String(this->deviceAddress) + ") INIT FAILED", __FILENAME__, __LINE__);  
+        this->printLog("MOT11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT FAILED", __FILENAME__, __LINE__);  
     } 
+
+    return this->noErrorSet();
 }
-void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
+bool HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL)
 {
+    bool error = true;
+
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > MOT11_CHANNEL_COUNT)
     {
         this->setError(MOT11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
@@ -46,11 +52,23 @@ void HAL_MOT11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         this->setError(MOT11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
     else
-    {   
-        this->channels.p_ioObject = P_IO_OBJECT;
+    { 
+        switch (P_IO_OBJECT->getIoType())
+        {          
+            case IO_TYPE__DC_DRIVE:
+                this->channels.p_ioObject = P_IO_OBJECT;
+                error = false;
+                break;
+
+            default:
+            case IO_TYPE__NOT_DEFINED:
+                this->setError(MOT11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+                break;               
+        }
     }
+    return error;
 }
-void HAL_MOT11::tick()
+void HAL_MOT11::tick(const bool READ_INPUTS)
 {          
     //Zyklisch Parameter abfragen, wird über Callback bei Slave behandelt, daher Timing unabhänig
     if(this->to_parameterPoll.checkAndReset())
@@ -61,13 +79,19 @@ void HAL_MOT11::tick()
     {
         switch(this->state)   //Durch MOT11 Controller vorgegeben, darf hier nicht gesetzt werden da sonst asynchon. Im Fehlerfall wird in safestate gewechselt, dadurch nimmt APP.MCU OEN zurück und MOT11 Controller geht auch in Safestate
         {
-            default:            
-            break;
+            default:
+             
 
             case MOT11_DEVICE_STATE__RUNNING:   //Normalbetreb            
                 if(this->channels.p_ioObject->newDataAvailable())
                 {            
-                    this->sendDriveCommand(this->channels.p_ioObject->halCallback());
+                    u_HAL_DATA_t objectData = this->channels.p_ioObject->getHalData();
+
+                    if(this->debugOutputEnabled)
+                    {
+                        this->printExtensionCardDebugOutput("MOT11", String(this->bplcAddress), String(EC_CHANNEL_1), ("DIRECTION: " + String(objectData.dcDriveData.speed) + ", SPEED: " + String(objectData.dcDriveData.direction)));
+                    }
+                    this->sendDriveCommand(objectData);
                 }             
                 break;      
         }
@@ -80,11 +104,21 @@ void HAL_MOT11::controlCommand(const e_EC_COMMAND_t COMMAND)
         case EC_COMMAND__MOT11_START_CURRENT_TUNING:
             this->printLog("START CURRENT TUNING", __FILENAME__, __LINE__);
             this->startCurrentAutotuning();
-            break;
+        break;
+
+        case EC_COMMAND__ENABLE_DEBUG_OUTPUT:
+            this->debugOutputEnabled = true;
+            this->printLog("SIMUALATION OUTPUT ENABLED", __FILENAME__, __LINE__);
+        break;
         
+        case EC_COMMAND__DISABLE_ERROR_DETECTION:
+            this->printLog("ERROR DETECTION DISABLED", __FILENAME__, __LINE__);
+            this->disableErrordetection(__FILENAME__, __LINE__);
+        break;
+
         default:
-            this->printLog("WRONG COMMAND FOR THIS EXTENSION CARD", __FILENAME__, __LINE__);
-            break;
+            this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
+        break;
     }
 }
 void HAL_MOT11::startCurrentAutotuning()
@@ -94,7 +128,7 @@ void HAL_MOT11::startCurrentAutotuning()
     
     COMMAND.extract.key = (uint8_t)MOT11_I2C_KEY__START_CURRENT_AUTOTUNING;
 
-    this->i2c.sendCommand(this->deviceAddress, COMMAND.data, sizeof(COMMAND));
+    this->i2c.sendCommand(this->i2cAddress, COMMAND.data, sizeof(COMMAND));
 }
 void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
 {  
@@ -105,29 +139,21 @@ void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
     COMMAND.extract.direction   = (uint8_t)DRIVE_PARAMETER.dcDriveData.direction;
     COMMAND.extract.speed       = DRIVE_PARAMETER.dcDriveData.speed;
     
-    this->i2c.sendCommand(this->deviceAddress, COMMAND.data, sizeof(COMMAND));
+    this->i2c.sendCommand(this->i2cAddress, COMMAND.data, sizeof(COMMAND));
 }
 void HAL_MOT11::requestDriveParameter()
 {
     u_MOT11_DATA_FRAME_t BUFFER;
-    const bool SLAVE_DATA_RECEIVED = this->i2c.getSlaveData(this->deviceAddress, BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));
-    
-    if(SLAVE_DATA_RECEIVED)
-    {
-        this->state         = (e_MOT11_DEVICE_STATE_t) BUFFER.extract.deviceState;    
-        this->error         = (e_BPLC_ERROR_t)BUFFER.extract.error;
-        //Daten an IO Objekt weiter geben
-        u_HAL_DATA_t inDATA;    
-        inDATA.dcDriveData.direction    = (e_MOVEMENT_t)BUFFER.extract.direction;
-        inDATA.dcDriveData.speed        = BUFFER.extract.speed;
-        inDATA.dcDriveData.current      = BUFFER.extract.current;
-        this->channels.p_ioObject->halCallback(&inDATA);
-    }
-    else
-    {
-        //irgendwas anders empfangen
-    }
-    
+    this->i2c.getSlaveData(this->i2cAddress, 1, BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));    
+   
+    this->state         = (e_MOT11_DEVICE_STATE_t) BUFFER.extract.deviceState;    
+    this->error         = (e_BPLC_ERROR_t)BUFFER.extract.error;
+    //Daten an IO Objekt weiter geben
+    u_HAL_DATA_t inDATA;    
+    inDATA.dcDriveData.direction    = (e_MOVEMENT_t)BUFFER.extract.direction;
+    inDATA.dcDriveData.speed        = BUFFER.extract.speed;
+    inDATA.dcDriveData.current      = BUFFER.extract.current;
+    this->channels.p_ioObject->setHalData(&inDATA);
 
 #ifdef DEBUG_HAL_MOT11 
 Serial.println("Drive Parameter:");
