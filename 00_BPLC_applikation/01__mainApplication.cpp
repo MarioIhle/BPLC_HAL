@@ -71,25 +71,6 @@ void BPLC::begin()
    this->setupErrorDetection();
    this->setupControlPanel();
 
-   if(this->APP_APP.settings.device.autoStart)
-   {           
-      this->setupHardware();      
-      this->setupNetwork();  
-      this->setupSafety();
-      
-      this->APP_APP.operationMode.userApplication  = APP_MODULE_STATE__ENABLED;
-      this->APP_APP.operationMode.extensionCards   = APP_MODULE_STATE__ENABLED;
-      this->APP_APP.operationMode.network          = APP_MODULE_STATE__ENABLED;
-      this->APP_APP.operationMode.errorOut           = APP_MODULE_STATE__ENABLED;
-   }
-   else
-   {
-      this->APP_APP.operationMode.userApplication  = APP_MODULE_STATE__NOT_INITILIZED;
-      this->APP_APP.operationMode.extensionCards   = APP_MODULE_STATE__NOT_INITILIZED;
-      this->APP_APP.operationMode.network          = APP_MODULE_STATE__NOT_INITILIZED;
-      this->APP_APP.operationMode.errorOut           = APP_MODULE_STATE__NOT_INITILIZED;
-   }
-
    //Fehlerprüfung bevor System startet
    this->APP_APP.setup.f_bplcSetupDone = true;
 

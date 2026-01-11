@@ -84,7 +84,7 @@ void BPLC::tickNetwork()
         switch(this->APP_COM.p_comNode->getNodeState())
         {
             case COM_NODE_STATE__AVAILABLE:
-                this->APP_HAL.LD2_COMMUNICATION_STATE.fade(2500, 2500);
+                this->APP_HAL.LD2_COMMUNICATION_STATE.fade(500, 500);
                 this->APP_COM.to_communicationError.reset();
             break;
 
