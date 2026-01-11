@@ -102,6 +102,11 @@ void BPLC::tickNetwork()
             case COM_NODE_STATE__AVAILABLE_DEBUG_MODE:
                 this->APP_HAL.LD2_COMMUNICATION_STATE.blinkContinious(1, 100, 1000);
                 break;
-        }              
+        }     
+        
+        if(this->APP_COM.p_comNode->resetAllNodesRequested())
+        {
+            this->triggerSoftReset();
+        }
     }
 }

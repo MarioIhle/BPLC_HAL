@@ -100,7 +100,8 @@ class BPLC: BPLC_logPrint, CRC16Calculator
     void                    setupControlPanel   ();
 
     //APP_APP 
-    void            setupApplication    ();
+    void setupApplication();
+    void triggerSoftReset();
 
     void            setDeviceModeInternal(const e_APP_MODE_t MODE);
     //DeviceSettings
@@ -115,6 +116,11 @@ class BPLC: BPLC_logPrint, CRC16Calculator
         e_APP_MODE_t   deviceMode;
         int16_t        virtualDipSwitch[vDIP_COUNT]; 
 
+        struct 
+        {
+            Timeout to_resetDelay;
+        }softReset;
+        
         struct
         {
             bool f_setupParameterFlash;
@@ -168,8 +174,8 @@ class BPLC: BPLC_logPrint, CRC16Calculator
     }APP_HMI;    
      
     BPLC_moduleErrorHandler systemErrorManager;
-    void setupSafety             ();
-    void tickSafety              ();
+    void setupErrorDetection ();
+    void tickErrorDetection  ();
   
    
     struct  
