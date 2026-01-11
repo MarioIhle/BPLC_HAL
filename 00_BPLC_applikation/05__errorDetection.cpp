@@ -1,11 +1,11 @@
 #include "BPLC.h"
 
-void BPLC::setupSafety()
+void BPLC::setupErrorDetection()
 {
    this->APP_SAFETY.runntimeControl.to_runnntime.setInterval(RUNNTIME);
    this->APP_SAFETY.runntimeControl.to_runnntime.reset();
 }
-void BPLC::tickSafety()
+void BPLC::tickErrorDetection()
 {
    if(this->systemErrorManager.errorDetectionisEnabled())
    {

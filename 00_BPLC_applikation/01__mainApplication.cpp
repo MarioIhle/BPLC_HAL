@@ -66,6 +66,9 @@ void BPLC::begin()
    //Module initialisieren   
    this->setupApplication();      
    this->setupHMI();   
+   this->setupHardware();      
+   this->setupNetwork();  
+   this->setupErrorDetection();
    this->setupControlPanel();
 
    if(this->APP_APP.settings.device.autoStart)
@@ -113,6 +116,7 @@ void BPLC::setupApplication()
    BPLC* P_APP = this;
    xTaskCreatePinnedToCore(bplcTask, "bplcTask", 4096, P_APP, 1, nullptr, 1);
    Wire.begin();   
+   this->APP_APP.softReset.to_resetDelay.setInterval(1500, false);
 }
 void BPLC::tick()
 {   
@@ -122,28 +126,35 @@ void BPLC::tick()
    //BPLC MAIN STATEMACHINE
    switch(this->APP_APP.deviceMode)
    {
+      case APP_MODE__RUN:           
+      case APP_MODE__SAFE_STATE: 
       case APP_MODE__STOP:         
-         this->tickSafety();   
+         this->tickErrorDetection();   
          this->tickHardware(); 
          this->tickNetwork();
-         break;
-
-      case APP_MODE__RUN:            
-         this->tickSafety();
-         this->tickHardware();    
-         this->tickNetwork();      
-         break;
-
-      case APP_MODE__SAFE_STATE:          
-         this->tickHardware(); 
-         this->tickSafety(); 
-         this->tickNetwork();        
          break;
 
       default:
          this->setDeviceModeInternal(APP_MODE__SAFE_STATE);
          break;
    }    
+
+   const bool SOFT_RESET_TRIGGERD = this->APP_APP.softReset.to_resetDelay.check();
+   if(SOFT_RESET_TRIGGERD)
+   {     
+      abort();
+   }
+}
+//Softreset
+void BPLC::triggerSoftReset()
+{
+   if(TIMEOUT_STATE__NOT_STATED == this->APP_APP.softReset.to_resetDelay.getState())
+   {
+      this->printLog("SOFT RESET TRIGGERD", __FILENAME__, __LINE__);
+      this->APP_HAL.LD1_DEVICE_STATE.blinkOnce(20, 50);
+      this->beep(20, 50);
+      this->APP_APP.softReset.to_resetDelay.reset();
+   }
 }
 
 //DeviceMode

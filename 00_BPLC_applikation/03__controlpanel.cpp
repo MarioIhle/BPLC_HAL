@@ -10,7 +10,7 @@ typedef enum
     BPLC_PLI_KEY__RESET_ALL_ERRORS,    
     BPLC_PLI_KEY__GET_DEVICE_SETTINGS,
     BPLC_PLI_KEY__RESET_ALL_SETTINGS,
-    BPLC_PLI_KEY__RESET_EXTENSION_CARDS,
+    BPLC_PLI_KEY__PLATZHALTER_PLATZHALTER_PLATZHALTER,
     BPLC_PLI_KEY__SOFT_RESET,
     BPLC_PLI_KEY__INVERT_ENCODER,
     BPLC_PLI_KEY__USE_BUZZER,
@@ -23,7 +23,9 @@ typedef enum
     BPLC_PLI_KEY__DEVICE_MODE_RUN,    
 
     //Kommunikation
-    BPLC_PLI_KEY__SET_DEVICE_ADDRESS = 0x20,
+    BPLC_PLI_KEY__NETWORK_SET_DEVICE_ADDRESS = 0x20,
+    BPLC_PLI_KEY__NETWORK_DEBUG_MODE,
+    BPLC_PLI_KEY__NETWORK_RESET_ALL_NODES,
 
     //Hardware
     BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT = 0x29,
@@ -98,22 +100,12 @@ void BPLC::tickControlPanel()
                 this->loadDefaultParameter();
                 this->saveDeviceSettings();
                 Serial.println("RESET DEVICE TO CLEAR FLASH, reboot...");
-                delay(2000);
-                ESP.restart();
-                break;
-
-            case BPLC_PLI_KEY__RESET_EXTENSION_CARDS:
-                memset(&this->APP_APP.settings.device.extensionCards, 0, sizeof(this->APP_APP.settings.device.extensionCards));
-                this->saveDeviceSettings();
-                Serial.println("RESET EXTENSIONCARDS, reboot...");
-                delay(2000);
-                ESP.restart();
+                this->triggerSoftReset();
                 break;
 
             case BPLC_PLI_KEY__SOFT_RESET:
                 Serial.println("SOFT RESET");
-                delay(1000);
-                ESP.restart();
+                this->triggerSoftReset();
                 break;
 
             case BPLC_PLI_KEY__INVERT_ENCODER:
@@ -165,22 +157,40 @@ void BPLC::tickControlPanel()
                 break;            
             
 //Kommunikation
-            case BPLC_PLI_KEY__SET_DEVICE_ADDRESS:
-                this->APP_APP.settings.device.communication.deviceAddress = COMMAND.command.payload;
-                this->saveDeviceSettings();
-                Serial.print("DEVICE ADDRESS SET TO "); Serial.println(this->APP_APP.settings.device.communication.deviceAddress);
-                
-                if(this->APP_COM.p_comNode == nullptr)
+            case BPLC_PLI_KEY__NETWORK_SET_DEVICE_ADDRESS:
+                if(COMMAND.command.payload == 0)
                 {
+                    Serial.println("DISABLE NETWORK NODE, need to reboot");
+                    this->APP_APP.settings.device.communication.deviceAddress = 0;
+                    this->saveDeviceSettings();
+                    this->triggerSoftReset();
+                }                
+                else if(this->APP_COM.p_comNode == nullptr)
+                {
+                    this->APP_APP.settings.device.communication.deviceAddress = COMMAND.command.payload;
+                    this->saveDeviceSettings();
+                    Serial.print("DEVICE ADDRESS SET TO "); Serial.println(this->APP_APP.settings.device.communication.deviceAddress);
                     //Warmstart
                     this->setupNetwork();
                 }
                 else
                 {
-                    Serial.println("NODE ALREADY DEFINED, device needs to reboot...");
-                    delay(2000);
-                    ESP.restart();
+                    Serial.println("NODE ALREADY DEFINED");
                 }                
+                break;
+
+            case BPLC_PLI_KEY__NETWORK_DEBUG_MODE:
+                if(this->APP_COM.p_comNode != nullptr)
+                { 
+                    this->APP_COM.p_comNode->enableDebugmode();          
+                }
+                break;
+
+            case BPLC_PLI_KEY__NETWORK_RESET_ALL_NODES:
+                if(this->APP_COM.p_comNode != nullptr)
+                {    
+                    this->APP_COM.p_comNode->resetAllNodes();
+                }
                 break;
  //Hardware  
             case BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT:
@@ -212,8 +222,7 @@ void BPLC::tickControlPanel()
                 }
                 this->saveDeviceSettings();
                 Serial.println("device needs to reboot...");
-                delay(2000);
-                ESP.restart();    
+                this->triggerSoftReset();  
                 break;     
           
             default:
