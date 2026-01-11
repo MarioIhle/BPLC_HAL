@@ -83,18 +83,30 @@ void HAL_NANO11::tick(const bool READ_INPUTS)
                 switch (this->channels.p_ioObject[CH]->getIoType())
                 {
                     case IO_TYPE__ANALOG_INPUT:
-                    case IO_TYPE__DIGITAL_COUNTER:
-                    case IO_TYPE__DIGITAL_INPUT:
-                    case IO_TYPE__POSITION_ENCODER:
                     case IO_TYPE__PT1000:
                     case IO_TYPE__PT100:
                     case IO_TYPE__PTC:
-                    case IO_TYPE__HMI_ENCODER:
-                    case IO_TYPE__RPM_SENS:   
-                        if(READ_INPUTS || this->channels.p_ioObject[CH]->newDataAvailable())
+                        if(this->channels.p_ioObject[CH]->newDataAvailable())
                         {                    
                             this->bplcNode.getSlaveData(this->i2cAddress, CH, &dataBuffer.data[0], sizeof(dataBuffer));
-                            Serial.println("Channel " +String(CH) + " Data: " + String(dataBuffer.digitalIoData.state));    
+                            this->channels.p_ioObject[CH]->setHalData(&dataBuffer);
+                           /*
+                            Serial.print("Channel " + String(CH) + " Data: ");
+                            for(uint8_t i = 0; i <  sizeof(u_HAL_DATA_t); i++)
+                            {
+                                Serial.print(dataBuffer.data[i]);
+                            }   
+                            Serial.println("");
+                            */                            
+                        }
+                    case IO_TYPE__DIGITAL_COUNTER:
+                    case IO_TYPE__DIGITAL_INPUT:
+                    case IO_TYPE__POSITION_ENCODER:                    
+                    case IO_TYPE__HMI_ENCODER:
+                    case IO_TYPE__RPM_SENS:   
+                        if(READ_INPUTS)
+                        {                    
+                            this->bplcNode.getSlaveData(this->i2cAddress, CH, &dataBuffer.data[0], sizeof(dataBuffer));                            
                             this->channels.p_ioObject[CH]->setHalData(&dataBuffer);
                         }
                         break;      
