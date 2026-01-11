@@ -67,7 +67,7 @@ class output: public IO_Interface, private blink
 			this->fadeSettings.to_fade.setInterval(this->fadeSettings.inTime, false);
 
 			this->mode = OUTPUTMODE__FADE;
-		}		
+		}	
 	}
 	void set()		                //output ON
 	{

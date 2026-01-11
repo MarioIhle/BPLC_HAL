@@ -1,7 +1,6 @@
 #ifndef BPLC_extensionCardManager_h
 #define BPLC_extensionCardManager_h
 
-#include "BPLC_moduleInterface.h"
 //HAL´s
 #include "HAL_MCU11.h"
 #include "HAL_AIN11.h"
@@ -62,7 +61,7 @@ class extensionCard
 };
 
 
-class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, public moduleInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint 
+class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint
 {
     public:
                         BPLC_extensionCardManager           ();    
@@ -77,16 +76,8 @@ class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, public module
     void                setSuperiorErrorManager             (BPLC_moduleErrorHandler* P_SUPERIOR_ERROR_MANAGER)     {this->p_superiorErrorManager = P_SUPERIOR_ERROR_MANAGER;}
     //Mot11 spezial Call
     void                startCurrentTuningMot11             (const e_EC_ADDR_t ADDR);
-    //Modul Kommando 
-    void                enable                              (){this->state = true;}
-    void                disable                             (){this->state = false;}
-    bool                enabled                             (){return this->state;}
 
-    
     private:        
-    //Internal
-    bool                state;
-
     //ExtensionCard List
     extensionCard*      p_firstExtensionCard;    
     void                addExtensionCardToList              (extensionCard* CARD_TO_ADD);

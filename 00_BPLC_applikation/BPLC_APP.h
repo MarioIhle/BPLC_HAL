@@ -53,18 +53,15 @@ typedef enum
     APP_MODE__START,
     APP_MODE__SAFE_STATE,
     APP_MODE__RUN,
+    APP_MODE__RUN_WITHOUT_SAFETY,
+    APP_MODE__RUN_WITHOUT_EC_CARDS,
+    APP_MODE__RUN_WITHOUT_COM,
     APP_MODE__INIT,
     
     APP_MODE__COUNT,
 }e_APP_MODE_t;
 
-typedef enum
-{
-    APP_MODULE_STATE__NOT_INITILIZED,
-    APP_MODULE_STATE__DISABLED,
-    APP_MODULE_STATE__ENABLED
 
-}e_APP_MODULE_STATE_t;
 //-------------------------------------------------------------
 //BPLC_APP KLASSE
 //-------------------------------------------------------------
@@ -86,7 +83,6 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     void    mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL);
     //Rountine aufruf
     void    tick                    ();    
-    bool    runApplikation          ();
     //Buzzer aus Applikation heraus nutzen
     void    beep                    (const uint8_t BEEPS, const int BEEP_INTERVAL);    
     //Dip Controll
@@ -120,14 +116,6 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
     struct
     {
         e_APP_MODE_t   deviceMode;
-        struct 
-        {
-            e_APP_MODULE_STATE_t network;           //Network enabled
-            e_APP_MODULE_STATE_t userApplication;       //applikation enabled
-            e_APP_MODULE_STATE_t extensionCards;    //Extensioncards enabled
-            e_APP_MODULE_STATE_t errorOut;            //Safteylib enbaled           
-        }operationMode;
-        
         int16_t        virtualDipSwitch[vDIP_COUNT]; 
 
         struct
@@ -139,9 +127,10 @@ class BPLC_APP: BPLC_logPrint, CRC16Calculator
         union 
         {        
             struct 
-            {               
-                e_EC_TYPE_t  mcuCard;   //MCU Version
-                bool autoStart;         //Applikation startet direkt durch nach reset
+            {
+                
+
+                e_EC_TYPE_t  mcuCard;
 
                 struct 
                 {
