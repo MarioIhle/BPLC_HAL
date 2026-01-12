@@ -68,7 +68,7 @@ void HAL_NANO11::tick(const bool READ_INPUTS)
     //I2C Verbindung zyklisch prüfen    
     if(!this->tickHeartbeat())
     {
-        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);      
+        this->setError(NANO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);      
     }    
     
     //Hal ticken
@@ -116,7 +116,8 @@ void HAL_NANO11::tick(const bool READ_INPUTS)
                             //Daten abfragen
                             u_HAL_DATA_t dataBuffer;                                 
                             this->bplcNode.getSlaveData(&dataBuffer.data[0], sizeof(dataBuffer));
-                            this->channels.p_ioObject[CH]->setHalData(&dataBuffer);
+                            this->channels.p_ioObject[CH]->setHalData(&dataBuffer);                            
+                            //Serial.println("CH " +String(CH) + "state: "+ String(dataBuffer.digitalIoData.state));
                         } 
                         break;      
                     
@@ -137,7 +138,7 @@ void HAL_NANO11::tick(const bool READ_INPUTS)
                             const u_HAL_DATA_t DATA = this->channels.p_ioObject[CH]->getHalData();                           
                             memcpy(command.extract.payload, DATA.data, 12);
                         
-                        /*
+                            /*
                             for(int i = 0; i< 14; i++)
                             {
                                 Serial.print(command.data[i]);

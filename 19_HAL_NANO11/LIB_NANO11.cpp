@@ -216,7 +216,7 @@ void LIB_NANO11::tick()
     if(newDataAvailable)
     {   
         //Master über Int neue Daten melden
-        this->intOutput.blinkOnce(1, 10);
+        this->intOutput.blinkOnce(1, 1);
     }      
     
     //Int schreiben       
