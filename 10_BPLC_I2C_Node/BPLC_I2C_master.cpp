@@ -10,7 +10,7 @@ void I2C_BPLC_Master::getSlaveData(uint8_t* P_DATA_BUFFER, const uint8_t PAYLOAD
     //richtiges paket empfangen?   
     if(BYTES_RECEIVED == PAYLOAD_SIZE)
     {
-        Serial.println("alle bytes empfangen");
+        //Serial.println("alle bytes erfolgreich empfangen!");
     }
 }
 void I2C_BPLC_Master::sendCommand(uint8_t* P_DATA_BUFFER, const uint8_t PAYLOAD_SIZE)

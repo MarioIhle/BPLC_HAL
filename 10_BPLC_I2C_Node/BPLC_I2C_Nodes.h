@@ -12,8 +12,7 @@ typedef enum
 
   I2C_BPLC_KEY__SLAVE_COMMAND,          //Kommando von Master an Slave (z.B. Ausgang schreiben, Motor ansteuern..)  
 
-  I2C_BPLC_KEY__SET_REQUESTED_PAYLOADSIZE,  //Wie viele Bytes werden insgesamt angefragt  
-  I2C_BPLC_KEY__SET_REQUESTED_PACKET,       //Welches Byte Packet(32 bytes) wird angefargt
+  I2C_BPLC_KEY__SET_REQUESTED_PAYLOAD,  //Wie viele Bytes werden insgesamt angefragt  
   I2C_BPLC_KEY__REQUEST_SLAVE_DATA,         //Master hat Slavedaten angefragt (z.B. Status von Eingang versenden)
   I2C_BPLC_KEY__SLAVE_DATA                  //Slave versendet Daten an Master
 
@@ -51,23 +50,27 @@ class BPLC_I2C_NODE: private BPLC_logPrint
     u_I2C_BPLC_NODE_FRAME_t getCommand                ();
     void                    sendFrame                 (const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLOAD, const uint8_t PAYLOAD_SIZE);  
     //Request Handling  
-    uint8_t*  getSlaveDataPacket       (uint8_t* p_packetSize)       {p_packetSize = &this->request.packetSize; return &this->request.p_dataBuffer[(this->request.packet * MAX_FRAME_SIZE)];} 
-    uint8_t   requestFromNode          (uint8_t* p_payloadBuffer, const uint8_t PAYLOAD_SIZE);
-
+    uint8_t   requestFromNode             (uint8_t* p_payloadBuffer, const uint8_t PAYLOAD_SIZE);
+    uint8_t*  getSlaveDataPacket          (){return this->request.p_dataBuffer;} 
+    uint8_t   getFirstByte                (){return this->request.firstByte;}
+    uint8_t   getLastByte                 (){return this->request.lastByte;}    
+    void      requestedDataSend           (){this->request.firstByte = 0; this->request.lastByte = 0;}
+   
+   
     private:
     uint8_t nodeAddress; //Addresse der Node egal ob Master instanz oder Slave instanz
 
     struct
     {
       uint8_t*  p_dataBuffer;      //pointer auf Daten, die bei Master Request versendet werden
-      uint8_t   packetSize;
-      uint8_t   packet;
+      uint8_t   firstByte;   
+      uint8_t   lastByte;  
     }request;
 
     struct 
     {
       bool                    f_newFrameReceived; 
-      u_I2C_BPLC_NODE_FRAME_t frame;
+      u_I2C_BPLC_NODE_FRAME_t commandToProcess;
     }command;    
   };
 

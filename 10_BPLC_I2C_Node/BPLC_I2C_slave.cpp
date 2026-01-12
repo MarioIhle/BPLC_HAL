@@ -30,14 +30,15 @@ bool I2C_BPLC_Slave::setSlaveData(uint8_t* BUFFER, const uint8_t SIZE)
     {
         memset(&this->slaveDataBuffer[0], 0, sizeof(this->slaveDataBuffer));
         memcpy(&this->slaveDataBuffer[0], BUFFER, SIZE);
+        
         /*
-        Serial.println("Set Slave packet: " + String(DATA_PACKET));
-        for(uint8_t i = 0; i < 30; i++)
+        Serial.println("Set Slave packet: ");
+        for(uint8_t i = 0; i < SIZE; i++)
         {
-            Serial.print(this->slaveDataPackets[DATA_PACKET].extract.payload[i]);
+            Serial.print(this->slaveDataBuffer[i]);
         }
         Serial.println("");
-        */
+        */        
     }
     return error;
 }

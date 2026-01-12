@@ -4,9 +4,10 @@ BPLC_I2C_NODE* p_i2cNode;
 
 void receiveCallback(int howMany)
 {
+    //Serial.println("recevie Callback");
     u_I2C_BPLC_NODE_FRAME_t callback_inBuffer;
-    memset(&callback_inBuffer, 0, sizeof(callback_inBuffer));
-
+    memset(&callback_inBuffer, 0, sizeof(callback_inBuffer));    
+    
     while(Wire.available())
     {
         for(uint8_t BYTE = 0; BYTE < howMany; BYTE++)
@@ -14,34 +15,37 @@ void receiveCallback(int howMany)
             callback_inBuffer.data[BYTE] = Wire.read();    
             //Serial.print(callback_inBuffer.data[BYTE]);
         }
-    }      
-    const bool LAST_COMMAND_NOT_PROCESSED = p_i2cNode->newSlaveCommandReceived();
-    //Letztes Kommando wurde verarbeitet-> neues Kommando speichern  
-    if(LAST_COMMAND_NOT_PROCESSED)
-    {
-        Serial.println("Kommando empfangen, kann nicht gespeichert werden, da Buffer voll");
-    }
-    else
-    {
-        p_i2cNode->handleNewFrame(&callback_inBuffer);
-    }
+    }     
+    p_i2cNode->handleNewFrame(&callback_inBuffer);    
 }
 void requestCallback()
 {    
-    uint8_t* p_packetSize = nullptr;
-    uint8_t* p_dataBuffer = p_i2cNode->getSlaveDataPacket(p_packetSize);
-    
+    //Serial.println("request Callback");
+    const uint8_t FIRST_BYTE      = p_i2cNode->getFirstByte();     
+    const uint8_t LAST_BYTE       = p_i2cNode->getLastByte(); 
+    uint8_t* p_dataBuffer         = p_i2cNode->getSlaveDataPacket();
+
     if(p_dataBuffer != nullptr)
-    {       
-        for(uint8_t BYTE = 0; BYTE < *p_packetSize; BYTE++)
+    {     
+        if((FIRST_BYTE == 0)
+        && (LAST_BYTE == 0))
         {
-            //Serial.println(p_dataBuffer->data[BYTE]);
+            Serial.println("error: No Slave Data Set");
+        }
+        for(uint8_t BYTE = FIRST_BYTE; BYTE < LAST_BYTE; BYTE++)
+        {
+            //Serial.println(p_dataBuffer[BYTE]);
             Wire.write(p_dataBuffer[BYTE]); 
         } 
     }
     else
     {
-        Serial.println("Slave Data Buffer is nullptr");
+        Serial.println("error: Slave Data Buffer is nullptr");
+    }
+    //Sobald alle Daten versendet, Zeiger löschen als bestätigung
+    if(LAST_BYTE < MAX_FRAME_SIZE)
+    {
+        p_i2cNode->requestedDataSend();
     }
 }
 BPLC_I2C_NODE::BPLC_I2C_NODE()
@@ -52,15 +56,19 @@ void BPLC_I2C_NODE::begin(const uint8_t NODE_ADDRESS, uint8_t* p_slaveDataBuffer
     //I2C Kommunikation aufbauen
     if(p_slaveDataBuffer == nullptr)
     {
+        Serial.println("Setup I2C node as Master");
         Wire.begin();
     }
     else
     {
+        Serial.println("Setup I2C node as Slave");
         //Slave Konfig
         Wire.begin(NODE_ADDRESS);
         Wire.onReceive(receiveCallback);
         Wire.onRequest(requestCallback); 
-        this->request.p_dataBuffer = p_slaveDataBuffer; 
+        this->request.p_dataBuffer  = p_slaveDataBuffer; 
+        this->request.firstByte     = 0;
+        this->request.lastByte      = 0;
     }
     //I2C taktfrequenz auf 400kHz erhöhen
     Wire.setClock(400000);
@@ -91,7 +99,7 @@ void BPLC_I2C_NODE::sendFrame(const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLO
         Serial.print(OUT_FRAME.extract.payload[i]);
     }
     Serial.println("");
-    Serial.print("frame: ");
+    Serial.print("commandToProcess: ");
     for(int i = 0; i< (PAYLOAD_SIZE + MESSAGE_HEAD); i++)
     {
         Serial.print(OUT_FRAME.data[i]);
@@ -108,17 +116,24 @@ void BPLC_I2C_NODE::handleNewFrame(u_I2C_BPLC_NODE_FRAME_t* p_newFrame)
     switch (p_newFrame->extract.i2cBplcKey)
     {
         case I2C_BPLC_KEY__SLAVE_COMMAND:
-            memcpy(&this->command.frame, p_newFrame, sizeof(u_I2C_BPLC_NODE_FRAME_t));
-            this->command.f_newFrameReceived = true;
-            break;                
+            if(this->command.f_newFrameReceived)
+            {
+                Serial.println("error: Kommando empfangen, kann nicht gespeichert werden, da Buffer voll");
+            }
+            else
+            {
+                memcpy(&this->command.commandToProcess, p_newFrame, sizeof(u_I2C_BPLC_NODE_FRAME_t));
+                this->command.f_newFrameReceived = true;
+            }            
+            break;   
 
-        case I2C_BPLC_KEY__SET_REQUESTED_PAYLOADSIZE:
-        case I2C_BPLC_KEY__SET_REQUESTED_PACKET:
-            this->request.packet        = p_newFrame->extract.payload[0];
-            this->request.packetSize    = p_newFrame->extract.payload[1];
-        default:
+        case I2C_BPLC_KEY__REQUEST_SLAVE_DATA:
+            this->request.firstByte = p_newFrame->extract.payload[0];
+            this->request.lastByte  = p_newFrame->extract.payload[1];
+            break;
+
+            default:
         case I2C_BPLC_KEY__NO_KEY:              
-        case I2C_BPLC_KEY__REQUEST_SLAVE_DATA:   
         case I2C_BPLC_KEY__SLAVE_DATA:    
             //nichts tun    
             break;
@@ -130,23 +145,17 @@ bool BPLC_I2C_NODE::newSlaveCommandReceived()
 }
 u_I2C_BPLC_NODE_FRAME_t BPLC_I2C_NODE::getCommand()
 {
-    u_I2C_BPLC_NODE_FRAME_t NEW_FRAME = this->command.frame;
-    memset(&this->command.frame, 0, sizeof(this->command.frame));
+    u_I2C_BPLC_NODE_FRAME_t NEW_FRAME = this->command.commandToProcess;
+    memset(&this->command.commandToProcess, 0, sizeof(this->command.commandToProcess));
     this->command.f_newFrameReceived = false;
 
     return NEW_FRAME;
 }
 uint8_t BPLC_I2C_NODE::requestFromNode(uint8_t* p_payloadBuffer, const uint8_t PAYLOAD_SIZE)
-{
-    const   uint8_t BYTES_REQUESTED     = this->request.packetSize;   //PAYLOAD_SIZE + i2cBplcKey + palyoadSize    
-    const   uint8_t PACKETS_TO_RECEIVE  = (BYTES_REQUESTED / MAX_FRAME_SIZE);
-   
+{ 
     uint8_t inByte = 0;    
-    this->request.packet = 0;
     //alle Bytes erhalten 
-    while ((inByte < BYTES_REQUESTED)
-        //buffer überlauf vermeiden 
-        || (inByte == 255))
+    while (inByte < PAYLOAD_SIZE) 
     {    
         //Immer in 32byte Paketen von Slavenode anfragen, da i2c Buffer nicht größer
         if((inByte == 0)
@@ -157,41 +166,31 @@ uint8_t BPLC_I2C_NODE::requestFromNode(uint8_t* p_payloadBuffer, const uint8_t P
         || (inByte == 160)
         || (inByte == 192)
         || (inByte == 224))
-        {     
-            const uint8_t PACKET            = (inByte / MAX_FRAME_SIZE);              
-            const bool REQUEST_NEXT_PACKET  = (this->request.packet != PACKET);
-
-            if(REQUEST_NEXT_PACKET)       
-            {                          
-                //Berechnen wie viele Bytes in diesem Packet ankommen  
-                uint8_t requestedBytes = 0;
-                //Insgemant weniger als 32 bytes zu empfangen
-                if(BYTES_REQUESTED <= MAX_FRAME_SIZE)
-                {
-                    requestedBytes = BYTES_REQUESTED;
-                }
-                //Insgemant und in diesem Packet mehr als 32bytes
-                else if(PACKET < PACKETS_TO_RECEIVE)
-                {
-                    requestedBytes = MAX_FRAME_SIZE;
-                }
-                //Insgemant mehr als 32ybtes, in diesem Packet aber weniger als 32 bytes zu empfangen
-                else
-                {
-                    requestedBytes = (BYTES_REQUESTED % (PACKET * MAX_FRAME_SIZE)); 
-                }
-                const uint8_t PACKET_DEFINITION[2] = {PACKET, requestedBytes};
-
-                this->sendFrame(I2C_BPLC_KEY__SET_REQUESTED_PACKET, &PACKET_DEFINITION[0], 2);
-                Wire.requestFrom(this->nodeAddress, requestedBytes);   
-                this->request.packet = PACKET;
+        {                        
+            //Berechnen wie viele Bytes in diesem Packet ankommen  
+                    uint8_t requestedBytes          = 0;
+            const   uint8_t BYTES_LEFT_TO_RECEIVE   = (PAYLOAD_SIZE - inByte);
+            if(BYTES_LEFT_TO_RECEIVE > MAX_FRAME_SIZE)
+            {
+                requestedBytes = MAX_FRAME_SIZE;                
             }
+            else 
+            {
+                requestedBytes = BYTES_LEFT_TO_RECEIVE;
+            }
+            const uint8_t FIRST_BYTE    = inByte; 
+            const uint8_t LAST_BYTE     = (inByte + requestedBytes);                
+            const uint8_t PACKET_DEFINITION[2] = {FIRST_BYTE, LAST_BYTE};               
+
+            this->sendFrame(I2C_BPLC_KEY__REQUEST_SLAVE_DATA, &PACKET_DEFINITION[0], 2);
+            delay(1);   //Sicherheit, kann wahrscheinlich weg aber nur wenn es nötig ist 
+            Wire.requestFrom(this->nodeAddress, requestedBytes);              
         }
 
         while(Wire.available())
         {      
             p_payloadBuffer[inByte] = Wire.read(); 
-            //Serial.println("byte: " + String(inBytes) + ": "+ String(slaveDataBuffer.data[inBytes]));
+            //Serial.println("byte: " + String(inByte) + ": "+ String(p_payloadBuffer[inByte]));
             inByte++;
         }        
     }

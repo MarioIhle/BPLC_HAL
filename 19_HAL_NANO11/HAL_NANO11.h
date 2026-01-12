@@ -13,7 +13,8 @@ const uint8_t NANO11_I2C_ADDRESSES[NANO11_ADDRESS_COUNT] = {0xB0, 0xB1, 0xB2, 0x
 
 typedef enum
 {
-    NANO11_COMMAND_KEY__WRITE,    
+    NANO11_COMMAND_KEY__WRITE_CHANNEL,          //Channel schreiben
+    NANO11_COMMAND_KEY__SET_CHANNEL_TO_READ,   //Channel lesen
 
     NANO11_COMMAND_KEY__COUNT
 }e_NANO11_COMMAND_KEY_t;
