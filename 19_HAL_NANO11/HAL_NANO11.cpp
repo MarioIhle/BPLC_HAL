@@ -29,7 +29,7 @@ bool HAL_NANO11::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {   
-        this->bplcNode.begin();        
+        this->bplcNode.begin(this->i2cAddress);        
         this->printLog("NANO11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
     else
@@ -76,41 +76,50 @@ void HAL_NANO11::tick(const bool READ_INPUTS)
     {            
         //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschrieben
         for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
-        {           
-            u_HAL_DATA_t dataBuffer;
+        {         
             if(this->channels.p_ioObject[CH] != nullptr)
-            {                      
+            {     
                 switch (this->channels.p_ioObject[CH]->getIoType())
                 {
                     case IO_TYPE__ANALOG_INPUT:
                     case IO_TYPE__PT1000:
                     case IO_TYPE__PT100:
-                    case IO_TYPE__PTC:
+                    case IO_TYPE__PTC:   
                         if(this->channels.p_ioObject[CH]->newDataAvailable())
-                        {                    
-                            this->bplcNode.getSlaveData(this->i2cAddress, CH, &dataBuffer.data[0], sizeof(dataBuffer));
+                        {        
+                            //Node channel zur abfrage setzen 
+                            s_NANO11_COMMAND_t command;
+                            memset(&command, 0, sizeof(s_NANO11_COMMAND_t));
+                            command.extract.key         = (uint8_t)NANO11_COMMAND_KEY__SET_CHANNEL_TO_READ;
+                            command.extract.channel     = CH;                                   
+                            this->bplcNode.sendCommand(&command.data[0], sizeof(command));
+                            //Daten abfragen
+                            u_HAL_DATA_t dataBuffer;                                 
+                            this->bplcNode.getSlaveData(&dataBuffer.data[0], sizeof(dataBuffer));
                             this->channels.p_ioObject[CH]->setHalData(&dataBuffer);
-                           /*
-                            Serial.print("Channel " + String(CH) + " Data: ");
-                            for(uint8_t i = 0; i <  sizeof(u_HAL_DATA_t); i++)
-                            {
-                                Serial.print(dataBuffer.data[i]);
-                            }   
-                            Serial.println("");
-                            */                            
-                        }
+                        }                                                         
+                        break;   
+
                     case IO_TYPE__DIGITAL_COUNTER:
                     case IO_TYPE__DIGITAL_INPUT:
                     case IO_TYPE__POSITION_ENCODER:                    
                     case IO_TYPE__HMI_ENCODER:
-                    case IO_TYPE__RPM_SENS:   
+                    case IO_TYPE__RPM_SENS:     
                         if(READ_INPUTS)
-                        {                    
-                            this->bplcNode.getSlaveData(this->i2cAddress, CH, &dataBuffer.data[0], sizeof(dataBuffer));                            
+                        {        
+                            //Node channel zur abfrage setzen 
+                            s_NANO11_COMMAND_t command;
+                            memset(&command, 0, sizeof(s_NANO11_COMMAND_t));
+                            command.extract.key         = (uint8_t)NANO11_COMMAND_KEY__SET_CHANNEL_TO_READ;
+                            command.extract.channel     = CH;                                   
+                            this->bplcNode.sendCommand(&command.data[0], sizeof(command));
+                            //Daten abfragen
+                            u_HAL_DATA_t dataBuffer;                                 
+                            this->bplcNode.getSlaveData(&dataBuffer.data[0], sizeof(dataBuffer));
                             this->channels.p_ioObject[CH]->setHalData(&dataBuffer);
-                        }
+                        } 
                         break;      
-                       
+                    
                     case IO_TYPE__OUTPUT_PUSH:                    
                     case IO_TYPE__OUTPUT_PULL:
                     case IO_TYPE__OUTPUT_PUSH_PULL:
@@ -121,27 +130,28 @@ void HAL_NANO11::tick(const bool READ_INPUTS)
                         {                      
                             s_NANO11_COMMAND_t command;
                             memset(&command, 0, sizeof(s_NANO11_COMMAND_t));
-                           
-                            command.extract.key         = (uint8_t)NANO11_COMMAND_KEY__WRITE;
+                        
+                            command.extract.key         = (uint8_t)NANO11_COMMAND_KEY__WRITE_CHANNEL;
                             command.extract.channel     = CH;     
 
                             const u_HAL_DATA_t DATA = this->channels.p_ioObject[CH]->getHalData();                           
                             memcpy(command.extract.payload, DATA.data, 12);
-                           
-                           /*
+                        
+                        /*
                             for(int i = 0; i< 14; i++)
                             {
                                 Serial.print(command.data[i]);
                             }*/
 
                             const uint8_t BYTE_COUNT = sizeof(s_NANO11_COMMAND_t);
-                            this->bplcNode.sendCommand(this->i2cAddress, &command.data[0], BYTE_COUNT);
+                            this->bplcNode.sendCommand(&command.data[0], BYTE_COUNT);
                         }                       
                         break;
 
                     default:                    
                         break;  
-                }                           
+                }
+                                           
             }
         }   
     }        

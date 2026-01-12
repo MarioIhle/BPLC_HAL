@@ -27,7 +27,7 @@ bool HAL_MOT11::init(const e_EC_ADDR_t ADDR)
     //Applikationsparameter initialisieren
     if(this->noErrorSet())
     {   
-        this->i2c.begin();
+        this->i2c.begin(this->i2cAddress);
         this->state = MOT11_DEVICE_STATE__INIT;  
         this->printLog("MOT11revA CARD (" + String(this->bplcAddress + 1 )  + ") INIT SUCCESSFUL", __FILENAME__, __LINE__);        
     }    
@@ -128,7 +128,7 @@ void HAL_MOT11::startCurrentAutotuning()
     
     COMMAND.extract.key = (uint8_t)MOT11_I2C_KEY__START_CURRENT_AUTOTUNING;
 
-    this->i2c.sendCommand(this->i2cAddress, COMMAND.data, sizeof(COMMAND));
+    this->i2c.sendCommand(COMMAND.data, sizeof(COMMAND));
 }
 void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
 {  
@@ -139,12 +139,12 @@ void HAL_MOT11::sendDriveCommand(const u_HAL_DATA_t DRIVE_PARAMETER)
     COMMAND.extract.direction   = (uint8_t)DRIVE_PARAMETER.dcDriveData.direction;
     COMMAND.extract.speed       = DRIVE_PARAMETER.dcDriveData.speed;
     
-    this->i2c.sendCommand(this->i2cAddress, COMMAND.data, sizeof(COMMAND));
+    this->i2c.sendCommand(COMMAND.data, sizeof(COMMAND));
 }
 void HAL_MOT11::requestDriveParameter()
 {
     u_MOT11_DATA_FRAME_t BUFFER;
-    this->i2c.getSlaveData(this->i2cAddress, 1, BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));    
+    this->i2c.getSlaveData(BUFFER.data, sizeof(u_MOT11_DATA_FRAME_t));    
    
     this->state         = (e_MOT11_DEVICE_STATE_t) BUFFER.extract.deviceState;    
     this->error         = (e_BPLC_ERROR_t)BUFFER.extract.error;

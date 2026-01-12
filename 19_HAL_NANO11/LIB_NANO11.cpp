@@ -31,13 +31,7 @@ void LIB_NANO11::begin(const e_EC_ADDR_t ADDR)
     else
     {
         this->error = true;
-    } 
-        
-    //Applikationsparameter initialisieren
-    if(!this->error)
-    {   
-         
-    }    
+    }   
 }
 void LIB_NANO11::mapPinToChannel(const uint8_t PIN, const e_EC_CHANNEL_t CHANNEL, const e_IO_TYPE_t IO_TYPE)
 {
@@ -120,7 +114,7 @@ void LIB_NANO11::tick()
         switch (command.extract.key)
         {   
             //Output setzen
-            case NANO11_COMMAND_KEY__WRITE:             
+            case NANO11_COMMAND_KEY__WRITE_CHANNEL:             
                 //Daten an loop übergeben 
                 if(this->channels[command.extract.channel].p_externalData != nullptr)
                 {                
@@ -131,6 +125,10 @@ void LIB_NANO11::tick()
                 this->channels[command.extract.channel].f_newDataAvailable = true;                                                          
                 break;
             
+            case NANO11_COMMAND_KEY__SET_CHANNEL_TO_READ:  
+                //Daten für Masterabfrage bereitstellen
+                this->bplcNode.setSlaveData(this->channels[command.extract.channel].data.data, sizeof(u_HAL_DATA_t));
+                break;
             default:
                 break;
         }
@@ -173,23 +171,17 @@ void LIB_NANO11::tick()
                     }                   
                     break;
 
-                case IO_TYPE__PT1000:
-                case IO_TYPE__PT100:
-                case IO_TYPE__DIGITAL_COUNTER:
-                case IO_TYPE__POSITION_ENCODER:         
-                case IO_TYPE__PTC:
-                case IO_TYPE__HMI_ENCODER:
-                case IO_TYPE__RPM_SENS:      
-                    break;
-                    
-
-                case IO_TYPE__OUTPUT_PUSH:    
-                    if(this->channels[CH].f_newDataAvailable)
-                    {
-                        if(this->channels[CH].pin != 0)
-                        {                             
-                            if((this->channels[CH].data.analogIoData.value == 0)
-                            || (!this->getOEN())) 
+                case IO_TYPE__OUTPUT_PUSH:   
+                    if(this->channels[CH].pin != 0)
+                    {        
+                        const bool OEN_DISABLED =   (!this->getOEN()) ;   
+                        if(OEN_DISABLED)
+                        {
+                            digitalWrite(this->channels[CH].pin, LOW);  
+                        }
+                        else if(this->channels[CH].f_newDataAvailable)
+                        {            
+                            if(this->channels[CH].data.analogIoData.value == 0)                           
                             {
                                 digitalWrite(this->channels[CH].pin, LOW);                            
                             }
@@ -206,6 +198,13 @@ void LIB_NANO11::tick()
                     break;
 
                 default:
+                case IO_TYPE__PT1000:
+                case IO_TYPE__PT100:
+                case IO_TYPE__DIGITAL_COUNTER:
+                case IO_TYPE__POSITION_ENCODER:         
+                case IO_TYPE__PTC:
+                case IO_TYPE__HMI_ENCODER:
+                case IO_TYPE__RPM_SENS:                    
                     break; 
             }
                 
@@ -216,11 +215,6 @@ void LIB_NANO11::tick()
     //Daten für Masterabfrage aufbereiten
     if(newDataAvailable)
     {   
-        //Daten für abfrage bereit stellen
-        for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
-        {    
-            this->bplcNode.setSlaveData(CH, this->channels[CH].data.data, sizeof(u_HAL_DATA_t));
-        }
         //Master über Int neue Daten melden
         this->intOutput.blinkOnce(1, 10);
     }      
