@@ -12,17 +12,12 @@ typedef enum
 
   I2C_BPLC_KEY__SLAVE_COMMAND,          //Kommando von Master an Slave (z.B. Ausgang schreiben, Motor ansteuern..)  
 
-  I2C_BPLC_KEY__SET_REQUESTED_CHANNEL,  //Channel und Größe des Erwarteten Datenpakets der an Master versendet wird, bei Anfrage von Daten
-  I2C_BPLC_KEY__REQUEST_SLAVE_DATA,     //Master hat Slavedaten angefragt (z.B. Status von Eingang versenden)
-  I2C_BPLC_KEY__SLAVE_DATA              //Slave versendet Daten an Master
+  I2C_BPLC_KEY__SET_REQUESTED_PAYLOADSIZE,  //Wie viele Bytes werden insgesamt angefragt  
+  I2C_BPLC_KEY__SET_REQUESTED_PACKET,       //Welches Byte Packet(32 bytes) wird angefargt
+  I2C_BPLC_KEY__REQUEST_SLAVE_DATA,         //Master hat Slavedaten angefragt (z.B. Status von Eingang versenden)
+  I2C_BPLC_KEY__SLAVE_DATA                  //Slave versendet Daten an Master
 
 }e_I2C_BPLC_KEY_t;
-
-typedef struct
-{
-  uint8_t index;
-  uint8_t payloadSize;
-}s_slaveDataPaketDefinition_t;
 
 #define MESSAGE_HEAD        2
 #define PAYLAOD_BYTES_MAX   30
@@ -49,29 +44,29 @@ class BPLC_I2C_NODE: private BPLC_logPrint
 {
     public:
          BPLC_I2C_NODE      ();
-    void begin              (const uint8_t ADDRESS = 0);  
-    void setPacketPointer   (const uint8_t PACKET, u_I2C_BPLC_NODE_FRAME_t* p_dataPacket);
+    void begin              (const uint8_t NODE_ADDRESS = 0, uint8_t* p_slaveDataBuffer = nullptr);  
     //Receive Handling 
     void                    handleNewFrame            (u_I2C_BPLC_NODE_FRAME_t* p_newFrame);
     bool                    newSlaveCommandReceived   ();
-    u_I2C_BPLC_NODE_FRAME_t getFrame                  ();
-    void                    sendFrame                 (const uint8_t DESTINATION_ADDRESS, const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLOAD, const uint8_t PAYLOAD_SIZE);  
-    //Request Handling
-    void                          requestFromSlave          (const uint8_t SLAVE_ADDRESS, uint8_t* p_payloadBuffer, const uint8_t PAYLOAD_SIZE);
-    u_I2C_BPLC_NODE_FRAME_t*      getSlaveDataBuffer        (const uint8_t PACKET){return this->request.p_slaveDataBuffer[PACKET];} 
-    s_slaveDataPaketDefinition_t  getSlaveDataDefinition    (){return this->request.requestedData;}
-    
+    u_I2C_BPLC_NODE_FRAME_t getCommand                ();
+    void                    sendFrame                 (const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLOAD, const uint8_t PAYLOAD_SIZE);  
+    //Request Handling  
+    uint8_t*  getSlaveDataPacket       (uint8_t* p_packetSize)       {p_packetSize = &this->request.packetSize; return &this->request.p_dataBuffer[(this->request.packet * MAX_FRAME_SIZE)];} 
+    uint8_t   requestFromNode          (uint8_t* p_payloadBuffer, const uint8_t PAYLOAD_SIZE);
 
     private:
+    uint8_t nodeAddress; //Addresse der Node egal ob Master instanz oder Slave instanz
+
     struct
     {
-      u_I2C_BPLC_NODE_FRAME_t*      p_slaveDataBuffer[SLAVE_DATA_PACKETS];      //pointer auf Daten, die bei Master Request versendet werden
-      s_slaveDataPaketDefinition_t  requestedData;
+      uint8_t*  p_dataBuffer;      //pointer auf Daten, die bei Master Request versendet werden
+      uint8_t   packetSize;
+      uint8_t   packet;
     }request;
 
     struct 
     {
-      bool f_newFrameReceived; 
+      bool                    f_newFrameReceived; 
       u_I2C_BPLC_NODE_FRAME_t frame;
     }command;    
   };
@@ -80,10 +75,10 @@ class I2C_BPLC_Master
 {
   public:
         I2C_BPLC_Master   (){};
-  void  begin             ();
+  void  begin             (const uint8_t NODE_ADDRESS);
 
-  void  getSlaveData          (const uint8_t SLAVE_ADDRESS,  const uint8_t SLAVE_PACKET, uint8_t* P_DATA_BUFFER, const uint8_t BYTE_COUNT); 
-  void  sendCommand           (const uint8_t SLAVE_ADDRESS, uint8_t* P_DATA_BUFFER, const uint8_t BYTE_COUNT);
+  void  getSlaveData      (uint8_t* P_DATA_BUFFER, const uint8_t PAYLOAD_SIZE); 
+  void  sendCommand       (uint8_t* P_DATA_BUFFER, const uint8_t PAYLOAD_SIZE);
 
   private:  
   BPLC_I2C_NODE i2cNode;
@@ -93,16 +88,15 @@ class I2C_BPLC_Slave
 {
   public:
           I2C_BPLC_Slave          ();
-  void    begin                   (const uint8_t ADDRESS);
+  void    begin                   (const uint8_t NODE_ADDRESS);
  
-  bool    setSlaveData            (const uint8_t DATA_PACKET, uint8_t* BUFFER, const uint8_t SIZE);
+  bool    setSlaveData            (uint8_t* BUFFER, const uint8_t SIZE);
   
   bool    newCommandAvailable     (); //Wie tick, muss zyklisch aufgerufen werden
   uint8_t getCommand              (uint8_t* P_BUFFER);
 
   private:
   BPLC_I2C_NODE i2cNode;
-
-  u_I2C_BPLC_NODE_FRAME_t slaveDataPackets[SLAVE_DATA_PACKETS];  
+  uint8_t       slaveDataBuffer[256];  
 };
 #endif

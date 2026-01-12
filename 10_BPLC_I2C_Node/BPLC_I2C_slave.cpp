@@ -4,14 +4,7 @@ I2C_BPLC_Slave::I2C_BPLC_Slave()
 {}
 void I2C_BPLC_Slave::begin(const uint8_t ADDRESS)
 {
-    this->i2cNode.begin(ADDRESS);
-    
-    //Slave Datenpaktet initialisieren
-    for(uint8_t packet = 0; packet < SLAVE_DATA_PACKETS; packet++)
-    {
-        memset(this->slaveDataPackets[packet].data, 0, sizeof(u_I2C_BPLC_NODE_FRAME_t));
-        this->i2cNode.setPacketPointer(packet, &this->slaveDataPackets[packet]);
-    }
+    this->i2cNode.begin(ADDRESS, &this->slaveDataBuffer[0]);
 }
 bool I2C_BPLC_Slave::newCommandAvailable()
 {
@@ -19,27 +12,24 @@ bool I2C_BPLC_Slave::newCommandAvailable()
 }
 uint8_t I2C_BPLC_Slave::getCommand(uint8_t* P_PAYLOADBUFFER)
 {         
-    u_I2C_BPLC_NODE_FRAME_t NEW_FRAME = this->i2cNode.getFrame();  
+    u_I2C_BPLC_NODE_FRAME_t NEW_FRAME = this->i2cNode.getCommand();  
     memcpy(P_PAYLOADBUFFER, NEW_FRAME.extract.payload, NEW_FRAME.extract.payloadSize);
 
     return NEW_FRAME.extract.payloadSize;
 }
-bool I2C_BPLC_Slave::setSlaveData(const uint8_t DATA_PACKET, uint8_t* BUFFER, const uint8_t SIZE)
+bool I2C_BPLC_Slave::setSlaveData(uint8_t* BUFFER, const uint8_t SIZE)
 {    
     bool error = false;
 
-    if(SIZE > PAYLAOD_BYTES_MAX)
+    if(SIZE > sizeof(this->slaveDataBuffer))
     {
         Serial.println("slave data too big");
         error = true;        
     } 
     else
     {
-        memset(this->slaveDataPackets[DATA_PACKET].data, 0, sizeof(u_I2C_BPLC_NODE_FRAME_t));
-        this->slaveDataPackets[DATA_PACKET].extract.i2cBplcKey    = I2C_BPLC_KEY__SLAVE_DATA;
-        this->slaveDataPackets[DATA_PACKET].extract.payloadSize   = SIZE;  
-        memcpy(&this->slaveDataPackets[DATA_PACKET].extract.payload[0], BUFFER, SIZE);
-
+        memset(&this->slaveDataBuffer[0], 0, sizeof(this->slaveDataBuffer));
+        memcpy(&this->slaveDataBuffer[0], BUFFER, SIZE);
         /*
         Serial.println("Set Slave packet: " + String(DATA_PACKET));
         for(uint8_t i = 0; i < 30; i++)

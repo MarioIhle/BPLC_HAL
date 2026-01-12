@@ -73,11 +73,14 @@ void HAL_NANO11::tick(const bool READ_INPUTS)
     
     //Hal ticken
     if(this->noErrorSet())
-    {            
+    {     
+        u_HAL_DATA_t dataBuffer[NANO11_CHANNEL_COUNT];
+        this->bplcNode.getSlaveData(this->i2cAddress, CH, &dataBuffer[0].data[0], sizeof(dataBuffer));
+
         //Daten auf Input IO Objekte übergeben, output Objekte dürfen nicht gecalled werden sonst werden States nicht geschrieben
         for(uint8_t CH = 0; CH < NANO11_CHANNEL_COUNT; CH++)
         {           
-            u_HAL_DATA_t dataBuffer;
+            
             if(this->channels.p_ioObject[CH] != nullptr)
             {                      
                 switch (this->channels.p_ioObject[CH]->getIoType())
@@ -87,8 +90,7 @@ void HAL_NANO11::tick(const bool READ_INPUTS)
                     case IO_TYPE__PT100:
                     case IO_TYPE__PTC:
                         if(this->channels.p_ioObject[CH]->newDataAvailable())
-                        {                    
-                            this->bplcNode.getSlaveData(this->i2cAddress, CH, &dataBuffer.data[0], sizeof(dataBuffer));
+                        {                  
                             this->channels.p_ioObject[CH]->setHalData(&dataBuffer);
                            /*
                             Serial.print("Channel " + String(CH) + " Data: ");
