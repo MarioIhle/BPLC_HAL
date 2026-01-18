@@ -124,7 +124,7 @@ void HAL_DIN11::tick(const bool READ_INPUTS)
                         tempBuffer.encoderData.stateB  = !PCF.read(this->channels.PIN[CH + 1]);      //pinstates bitweise aus Datenpaket filtern
                         tempBuffer.encoderData.stateZ  = !PCF.read(this->channels.PIN[CH + 2]);      //pinstates bitweise aus Datenpaket filtern
                         this->channels.p_ioObject[CH]->setHalData(&tempBuffer);
-                        CH +=3;//Sonst wird encoder 3x gelesen...
+                        CH += 2;//Nach break CH++ = CH3, //Sonst wird encoder 3x gelesen...
                     break;
 
                     default:

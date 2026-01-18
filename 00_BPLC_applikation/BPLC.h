@@ -86,7 +86,7 @@ class BPLC: BPLC_logPrint, CRC16Calculator
     void    setVDip                 (const e_V_DIP_t DIP_NUM, const int16_t VALUE);
     int16_t getVDip                 (const e_V_DIP_t DIP_NUM);
 
-    
+    hmiEncoder* getEncoder(){return &this->APP_HAL.ENCODER;}
     //Device Mode
     e_APP_MODE_t    getDeviceMode   (); 
     void            setDeviceMode   (const e_APP_MODE_t MODE);
@@ -150,7 +150,8 @@ class BPLC: BPLC_logPrint, CRC16Calculator
 
                 struct 
                 {          
-                    bool                oledAvailable;     
+                    bool oledAvailable;    
+                    bool debugOutputEnabled; 
                 }extensionCards;
 
             }device;               

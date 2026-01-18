@@ -217,12 +217,13 @@ void LIB_NANO11::tick()
     {   
         //Master über Int neue Daten melden
         this->intOutput.blinkOnce(1, 1);
+        Serial.println("INT");
     }      
     
     //Int schreiben       
     if(this->intOutput.newDataAvailable())
     {         
         const bool INT_STATE = (1 == this->intOutput.getHalData().analogIoData.value);  
-        digitalWrite(this->pins.INT, INT_STATE);          
+        digitalWrite(this->pins.INT, INT_STATE);      
     }
 }

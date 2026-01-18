@@ -194,6 +194,9 @@ void BPLC::tickControlPanel()
                 break;
  //Hardware  
             case BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT:
+                this->APP_APP.settings.device.extensionCards.debugOutputEnabled = (!this->APP_APP.settings.device.extensionCards.debugOutputEnabled);
+                this->saveDeviceSettings();
+                
                 if(this->ecmForSlowSpeed != nullptr)
                 {    
                     this->ecmForSlowSpeed->enableECDebugOutput();
