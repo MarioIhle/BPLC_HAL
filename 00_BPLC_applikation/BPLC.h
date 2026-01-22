@@ -219,4 +219,7 @@ class BPLC: BPLC_logPrint, CRC16Calculator
         Timeout         to_communicationError; 
     }APP_COM;  
 };
+
+static BPLC bplcBoard;
+
 #endif
