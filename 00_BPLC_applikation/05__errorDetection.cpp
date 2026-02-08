@@ -2,8 +2,9 @@
 
 void BPLC::setupErrorDetection()
 {
-   this->APP_SAFETY.runntimeControl.to_runnntime.setInterval(RUNNTIME);
-   this->APP_SAFETY.runntimeControl.to_runnntime.reset();
+   this->APP_ERROR.runntimeControl.to_runnntime.setInterval(RUNNTIME);
+   this->APP_ERROR.runntimeControl.to_runnntime.reset();
+   this->APP_ERROR.to_communicationError.setInterval(60000);
 }
 void BPLC::tickErrorDetection()
 {
@@ -16,21 +17,36 @@ void BPLC::tickErrorDetection()
       }
 
       //Runntime überwachung der Applikation   
-      if(this->APP_SAFETY.runntimeControl.to_runnntime.check())
+      if(this->APP_ERROR.runntimeControl.to_runnntime.check())
       {
-         this->APP_SAFETY.runntimeControl.runtimeExeeded++;
+         this->APP_ERROR.runntimeControl.runtimeExeeded++;
       }
-      if(this->APP_SAFETY.runntimeControl.runtimeExeeded >= RUNTIME_ERRORS_MAX)
+      if(this->APP_ERROR.runntimeControl.runtimeExeeded >= RUNTIME_ERRORS_MAX)
       {
          //this->systemErrorManager.setError(BPLC_ERROR__RUNNTIME, __FILENAME__, __LINE__);
-         this->APP_SAFETY.runntimeControl.runtimeExeeded = RUNTIME_ERRORS_MAX;
+         this->APP_ERROR.runntimeControl.runtimeExeeded = RUNTIME_ERRORS_MAX;
       }
-      this->APP_SAFETY.runntimeControl.to_runnntime.reset();
+      this->APP_ERROR.runntimeControl.to_runnntime.reset();
 
       //Auf gesetzte Errors prüfen
       if(!this->systemErrorManager.noErrorSet())
       {
          this->setDeviceModeInternal(APP_MODE__SAFE_STATE);
+      }
+
+      //Netzwerkverbindung überwachen
+      if(this->APP_APP.settings.device.communication.observeNetworkConnection
+         && (this->APP_COM.p_comNode != nullptr))
+      {
+         //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
+         if(this->APP_COM.p_comNode->getNodeState() == COM_NODE_STATE__AVAILABLE)
+         {
+            this->APP_ERROR.to_communicationError.reset();
+         }
+         if(this->APP_ERROR.to_communicationError.check())
+         {
+            this->systemErrorManager.setError(BPLC_ERROR__COMMUNICATION_FAILED, __FILENAME__, __LINE__);
+         }   
       }
    }
    else

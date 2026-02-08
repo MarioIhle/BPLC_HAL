@@ -4,7 +4,6 @@ void comTask(void* taskParameter)
 {
     nodeInterface* p_networkNode = (nodeInterface*) taskParameter;
 
-    disableCore1WDT();
     esp_task_wdt_init(2, true);                
     esp_task_wdt_add(NULL);    
 
@@ -53,9 +52,7 @@ void BPLC::setupNetwork()
             }
             //Task erstellen 
             xTaskCreatePinnedToCore(comTask, "comTask", 4096, this->APP_COM.p_comNode, 1, NULL, 1); //Core 1, da Core 0 schon mit HardwareInterrupt belastet
-            this->printLog("CREATE NEW COM TASK", __FILENAME__, __LINE__);
-            //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
-            this->APP_COM.to_communicationError.setInterval(60000);
+            this->printLog("CREATE NEW COM TASK", __FILENAME__, __LINE__);           
         }
     }
 }
@@ -70,22 +67,16 @@ void BPLC::mapPortToNetwork(portInterface_APP* P_PORT)
     {
         this->APP_COM.p_comNode->mapPortToNetwork(P_PORT);
     }
+    this->APP_APP.setup.to_setupDelay.reset();
 }
 void BPLC::tickNetwork()
 {
     if(this->APP_COM.p_comNode != nullptr)
-    {      
-        //BPLC error, wenn 1min keine Kommunikation stattgefunden hat
-        if(this->APP_COM.to_communicationError.check())
-        {
-            //this->systemErrorManager.setError(BPLC_ERROR__COMMUNICATION_FAILED, __FILENAME__, __LINE__);
-        }                            
-
+    {                                       
         switch(this->APP_COM.p_comNode->getNodeState())
         {
             case COM_NODE_STATE__AVAILABLE:
                 this->APP_HAL.LD2_COMMUNICATION_STATE.fade(500, 500);
-                this->APP_COM.to_communicationError.reset();
             break;
 
             default:

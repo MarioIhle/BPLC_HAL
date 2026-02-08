@@ -26,6 +26,7 @@ typedef enum
     BPLC_PLI_KEY__NETWORK_SET_DEVICE_ADDRESS = 0x20,
     BPLC_PLI_KEY__NETWORK_DEBUG_MODE,
     BPLC_PLI_KEY__NETWORK_RESET_ALL_NODES,
+    BPLC_PLI_KEY__NETWORK_OBSERVE_CONNECTION,
 
     //Hardware
     BPLC_PLI_KEY__ENABLE_DEBUG_OUTPUT = 0x29,
@@ -81,18 +82,21 @@ void BPLC::tickControlPanel()
                 break;
 
             case BPLC_PLI_KEY__GET_DEVICE_SETTINGS:
-                Serial.println("HARDWARE SETTINGS: ");
+                Serial.println("------SOFTWARE------");
+                Serial.print("Version: ");      Serial.println(String(this->APP_APP.settings.device.application.versionMajor) + "V" + String(this->APP_APP.settings.device.application.versionMinor));
                 
+                Serial.println("------HARDWARE------");                
                 Serial.print("MCU:          "); Serial.println(this->APP_APP.settings.device.mcuCard);
-                Serial.print("oledAvailable:"); Serial.println(this->APP_APP.settings.device.extensionCards.oledAvailable);          
+                Serial.print("oledAvailable:"); Serial.println(this->APP_APP.settings.device.extensionCards.oledAvailable);         
               
-                Serial.println("APPLIKATION SETTINGS:");
+                Serial.println("------APPLIKATION SETTINGS------");
                 Serial.print("encoder beep: ");         Serial.println(this->APP_APP.settings.device.application.f_beepOnEncoderInput);
                 Serial.print("encoder inverted:  ");    Serial.println(this->APP_APP.settings.device.application.f_encoderInverted);
                 Serial.print("buzzer used:  ");         Serial.println(this->APP_APP.settings.device.application.f_useBuzzer);
-                Serial.println("COMMUNICATION SETTINGS:");
+
+                Serial.println("------COMMUNICATION------");
                 Serial.print("Device adddress: ");      Serial.println(this->APP_APP.settings.device.communication.deviceAddress);
-                break;
+               break;
 
             case BPLC_PLI_KEY__RESET_ALL_SETTINGS:
                 this->parameterFlash.clear();
@@ -190,6 +194,20 @@ void BPLC::tickControlPanel()
                 if(this->APP_COM.p_comNode != nullptr)
                 {    
                     this->APP_COM.p_comNode->resetAllNodes();
+                }
+                break;
+
+            case BPLC_PLI_KEY__NETWORK_OBSERVE_CONNECTION:
+                this->APP_APP.settings.device.communication.observeNetworkConnection = (!this->APP_APP.settings.device.communication.observeNetworkConnection);
+                this->saveDeviceSettings();
+
+                if(this->APP_APP.settings.device.communication.observeNetworkConnection)                
+                {
+                    Serial.println("OBSERVE NETWORK CONNECTION");
+                }
+                else
+                {
+                    Serial.println("DONT OBSERVE NETWORK CONNECTION");
                 }
                 break;
  //Hardware  
