@@ -77,7 +77,7 @@ void BPLC::begin()
    if(this->systemErrorManager.noErrorSet())
    {
       this->printLog("BPLC SYSTEM INIT SUCCESSFUL", __FILENAME__, __LINE__);
-      this->setDeviceModeInternal(APP_MODE__RUN);
+      //this->setDeviceModeInternal(APP_MODE__RUN);
    }
    else
    {
@@ -98,6 +98,17 @@ void BPLC::setupApplication()
    xTaskCreatePinnedToCore(bplcTask, "bplcTask", 4096, P_APP, 1, nullptr, 1);
    Wire.begin();   
    this->APP_APP.softReset.to_resetDelay.setInterval(1500, false);
+   this->APP_APP.setup.to_setupDelay.setInterval(2500, true);
+}
+bool BPLC::runUserApp()
+{
+   //Nach ersten Loopaufruf ist setup abgeschlossen->app beginnt zu ticken
+   if(this->APP_APP.deviceMode == APP_MODE__INIT)
+   {
+      this->setDeviceMode(APP_MODE__RUN);
+   } 
+      
+   return (APP_MODE__RUN == this->APP_APP.deviceMode);
 }
 void BPLC::tick()
 {   
@@ -115,6 +126,13 @@ void BPLC::tick()
          this->tickNetwork();
          break;
 
+      case APP_MODE__INIT:
+         if(this->APP_APP.setup.to_setupDelay.check())
+         {
+            this->setDeviceModeInternal(APP_MODE__RUN);
+         }
+      break;
+      
       default:
          this->setDeviceModeInternal(APP_MODE__SAFE_STATE);
          break;
@@ -168,8 +186,9 @@ void BPLC::setDeviceModeInternal(const e_APP_MODE_t MODE)
             this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 500, 500);      
             this->APP_HAL.OEN.reset(); 
             this->beep(1, 500);
-            break; 
+            break;
 
+         default:
          case APP_MODE__SAFE_STATE:
             this->printLog("DEVICEMODE: SAFE STATE", __FILENAME__, __LINE__);
             this->APP_HAL.LD1_DEVICE_STATE.blinkContinious(1, 100, 100);     

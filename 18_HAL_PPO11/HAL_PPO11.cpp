@@ -101,6 +101,10 @@ void HAL_PPO11::tick(const bool READ_INPUTS)
                     //PWM von 0-255 laden und umrechnen
                     uint16_t TARGET_PWM_VALUE = map(this->channels.p_ioObject[CH]->getHalData().analogIoData.value, 0, 255, 0, 4095);
                 
+                    if(this->debugOutputEnabled)
+                    {
+                        this->printExtensionCardDebugOutput("PPO11", String(this->bplcAddress), String(CH), String(TARGET_PWM_VALUE));
+                    }   
                     switch (this->channels.p_ioObject[CH]->getIoType())
                     {                    
                         case IO_TYPE__OUTPUT_PULL:
@@ -181,6 +185,11 @@ void HAL_PPO11::controlCommand(const e_EC_COMMAND_t COMMAND)
     {       
         default:
             this->printLog("COMMAND NOT AVAILABLE", __FILENAME__, __LINE__);
+        break;
+        
+        case EC_COMMAND__ENABLE_DEBUG_OUTPUT: 
+            this->debugOutputEnabled = true;
+            this->printLog("DEBUG OUTPUT ENABLED", __FILENAME__, __LINE__);
         break;
         
         case EC_COMMAND__DISABLE_ERROR_DETECTION:

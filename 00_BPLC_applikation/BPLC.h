@@ -90,7 +90,7 @@ class BPLC: BPLC_logPrint, CRC16Calculator
     //Device Mode
     e_APP_MODE_t    getDeviceMode   (); 
     void            setDeviceMode   (const e_APP_MODE_t MODE);
-    bool            runUserApp      (){return (APP_MODE__RUN == this->APP_APP.deviceMode);}
+    bool            runUserApp      ();
 
     
     private:
@@ -125,6 +125,7 @@ class BPLC: BPLC_logPrint, CRC16Calculator
         {
             bool f_setupParameterFlash;
             bool f_bplcSetupDone;
+            Timeout to_setupDelay;
         }setup;       
         
         union 

@@ -19,9 +19,9 @@ typedef enum
 class dcDrive: public IO_Interface
 {
     public: 
-                        dcDrive                 (){this->initInternals();}
+    dcDrive(){this->initInternals();}
     //Drive Commands
-    void                stop                    ()
+    void stop()
 	{
 		//Bei Stopp letzte Parameter merken 
 		this->motParams.old.direction = this->motParams.direction; 
@@ -30,14 +30,14 @@ class dcDrive: public IO_Interface
 		this->motParams.speed     	  = 0;   
 		f_newDriveParametersAvailable = true;
 	}
-    void                start                   ()
+    void start()
 	{
 		//Bei Start letzte gemerkte Parameter laden 
 		this->motParams.direction     = this->motParams.old.direction; 
 		this->motParams.speed     	  = this->motParams.old.speed;   
 		f_newDriveParametersAvailable = true;
 	}
-    void                stopAndBreak            ()
+    void stopAndBreak()
 	{
 		//Bei Stopp letzte Parameter merken 
 		this->motParams.old.direction = this->motParams.direction; 
@@ -46,7 +46,7 @@ class dcDrive: public IO_Interface
 		this->motParams.speed     	  = 255;   
 		f_newDriveParametersAvailable = true;
 	}
-    void                setSpeed                (const uint8_t SPEED)
+    void setSpeed(const uint8_t SPEED)
 	{   
 		if(this->motParams.speed != SPEED)
 		{
@@ -54,7 +54,7 @@ class dcDrive: public IO_Interface
 			f_newDriveParametersAvailable = true; 
 		}	
 	}
-    void                setDirection            (const e_MOVEMENT_t DIRECTION)
+    void setDirection(const e_MOVEMENT_t DIRECTION)
 	{
 		if(this->motParams.direction != DIRECTION)
 		{
@@ -62,11 +62,10 @@ class dcDrive: public IO_Interface
 			f_newDriveParametersAvailable = true; 
 		}	   
 	}
-    void                setDirectionAndSpeed    (const e_MOVEMENT_t DIRECTION, const uint8_t SPEED)
+    void setDirectionAndSpeed(const e_MOVEMENT_t DIRECTION, const uint8_t SPEED)
 	{
-		this->motParams.direction     = DIRECTION; 
-		this->motParams.speed     	  = SPEED;   
-		f_newDriveParametersAvailable = true;
+		this->setDirection(DIRECTION);
+		this->setSpeed(SPEED); 
 	}
 
     //Getter 
@@ -76,13 +75,13 @@ class dcDrive: public IO_Interface
     e_DRIVE_STATE_t     getDriveState           (){return this->driveState;}
 
     //Hal handling
-    bool 			newDataAvailable	()
+    bool newDataAvailable()
 	{
 		const bool NEW_DATA_AVAILABLE 		= this->f_newDriveParametersAvailable;
 		this->f_newDriveParametersAvailable = false;
 		return NEW_DATA_AVAILABLE;
 	}
-	void 			setHalData			(u_HAL_DATA_t* P_DATA)
+	void setHalData(u_HAL_DATA_t* P_DATA)
 	{		
 		if(P_DATA != nullptr)
 		{
@@ -97,7 +96,7 @@ class dcDrive: public IO_Interface
 			}
 		}
 	}
-    u_HAL_DATA_t 	getHalData			()
+    u_HAL_DATA_t getHalData()
 	{	
 		//Befehle ausgeben
 		u_HAL_DATA_t DATA;
