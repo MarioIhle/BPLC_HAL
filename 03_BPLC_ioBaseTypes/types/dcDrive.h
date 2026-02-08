@@ -26,25 +26,24 @@ class dcDrive: public IO_Interface
 		//Bei Stopp letzte Parameter merken 
 		this->motParams.old.direction = this->motParams.direction; 
 		this->motParams.old.speed     = this->motParams.speed;
-		this->motParams.direction     = MOVEMENT__IDLE; 
-		this->motParams.speed     	  = 0;   
-		f_newDriveParametersAvailable = true;
+		this->setDirection(MOVEMENT__IDLE);
+		this->setSpeed(0);   
 	}
     void start()
 	{
 		//Bei Start letzte gemerkte Parameter laden 
 		this->motParams.direction     = this->motParams.old.direction; 
 		this->motParams.speed     	  = this->motParams.old.speed;   
-		f_newDriveParametersAvailable = true;
+		this->setDirection(this->motParams.direction);
+		this->setSpeed(this->motParams.speed);   
 	}
     void stopAndBreak()
 	{
 		//Bei Stopp letzte Parameter merken 
 		this->motParams.old.direction = this->motParams.direction; 
 		this->motParams.old.speed     = this->motParams.speed;
-		this->motParams.direction     = MOVEMENT__IDLE; 
-		this->motParams.speed     	  = 255;   
-		f_newDriveParametersAvailable = true;
+		this->setDirection(MOVEMENT__IDLE);
+		this->setSpeed(255); 
 	}
     void setSpeed(const uint8_t SPEED)
 	{   

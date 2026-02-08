@@ -4,7 +4,6 @@
 /**
  * @file BPLC.h
  * @author MIE 
- * @version 1.0
  */
 //-------------------------------------------------------------
 #define VERSION_MAJOR 2
@@ -86,12 +85,12 @@ class BPLC: BPLC_logPrint, CRC16Calculator
     void    setVDip                 (const e_V_DIP_t DIP_NUM, const int16_t VALUE);
     int16_t getVDip                 (const e_V_DIP_t DIP_NUM);
 
-    hmiEncoder* getEncoder(){return &this->APP_HAL.ENCODER;}
+    hmiEncoder*     getEncoder      (){return &this->APP_HAL.ENCODER;}
     //Device Mode
     e_APP_MODE_t    getDeviceMode   (); 
     void            setDeviceMode   (const e_APP_MODE_t MODE);
     bool            runUserApp      ();
-
+    void            observeNetwork  (){this->APP_APP.settings.device.communication.observeNetworkConnection = true;}
     
     private:
     //ControlPanel
@@ -147,6 +146,7 @@ class BPLC: BPLC_logPrint, CRC16Calculator
                 struct 
                 {
                     uint8_t deviceAddress;  
+                    bool    observeNetworkConnection;
                 }communication;               
 
                 struct 
@@ -186,8 +186,9 @@ class BPLC: BPLC_logPrint, CRC16Calculator
         {
             Timeout         to_runnntime;
             uint8_t         runtimeExeeded;
-        }runntimeControl;          
-    }APP_SAFETY;
+        }runntimeControl;   
+        Timeout             to_communicationError;        
+    }APP_ERROR;
 
 
     //APP_HAL
@@ -216,8 +217,7 @@ class BPLC: BPLC_logPrint, CRC16Calculator
 
     struct 
     {        
-        nodeInterface*  p_comNode;
-        Timeout         to_communicationError; 
+        nodeInterface*  p_comNode;        
     }APP_COM;  
 };
 

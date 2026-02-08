@@ -89,6 +89,8 @@ void BPLC::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_
          }
          break;
    } 
+
+   this->APP_APP.setup.to_setupDelay.reset();
 }
 void BPLC::tickHardware()
 {  

@@ -1,8 +1,7 @@
 #include "BPLC.h"
 
 void bplcTask(void* taskParameter)
-{
-   disableCore1WDT();
+{  
    esp_task_wdt_init(2, true);                
    esp_task_wdt_add(NULL);      
 
@@ -14,10 +13,7 @@ void bplcTask(void* taskParameter)
 
       if(P_APP != nullptr) 
       {
-         if(P_APP->getDeviceMode() != APP_MODE__INIT)
-         {
-            P_APP->tick();    
-         }    
+         P_APP->tick();              
       }
       else
       {
@@ -38,6 +34,7 @@ void BPLC::begin()
 {   
    Serial.begin(115200);
    this->printLog("SETUP BPLC SYSTEM", __FILENAME__, __LINE__);
+   this->setDeviceMode(APP_MODE__INIT);
 
    //Device Parameter aus Flash laden  
    this->setupParameterFlash();
@@ -48,6 +45,7 @@ void BPLC::begin()
    {
       //Auf Kommando warten, anschließend reset durchführen
       this->parameterFlash.clear();      
+      memset(this->APP_APP.settings.flashData, 0, sizeof(this->APP_APP.settings.flashData));
       this->printLog("CLEAR FLASH!", __FILENAME__, __LINE__);      
    }   
 
@@ -98,23 +96,14 @@ void BPLC::setupApplication()
    xTaskCreatePinnedToCore(bplcTask, "bplcTask", 4096, P_APP, 1, nullptr, 1);
    Wire.begin();   
    this->APP_APP.softReset.to_resetDelay.setInterval(1500, false);
-   this->APP_APP.setup.to_setupDelay.setInterval(2500, true);
+   this->APP_APP.setup.to_setupDelay.setInterval(500, true);
 }
 bool BPLC::runUserApp()
-{
-   //Nach ersten Loopaufruf ist setup abgeschlossen->app beginnt zu ticken
-   if(this->APP_APP.deviceMode == APP_MODE__INIT)
-   {
-      this->setDeviceMode(APP_MODE__RUN);
-   } 
-      
+{     
    return (APP_MODE__RUN == this->APP_APP.deviceMode);
 }
 void BPLC::tick()
-{   
-   this->tickControlPanel();        
-   this->tickHMI();          
-     
+{             
    //BPLC MAIN STATEMACHINE
    switch(this->APP_APP.deviceMode)
    {
@@ -124,9 +113,12 @@ void BPLC::tick()
          this->tickErrorDetection();   
          this->tickHardware(); 
          this->tickNetwork();
+         this->tickControlPanel();        
+         this->tickHMI();  
          break;
 
       case APP_MODE__INIT:
+      //Solange Netzwerk oder Hardware gemappt wird App nicht starten
          if(this->APP_APP.setup.to_setupDelay.check())
          {
             this->setDeviceModeInternal(APP_MODE__RUN);

@@ -129,7 +129,7 @@ class output: public IO_Interface, private blink
    
     //Hal handling 
 	//HAL der Outputkarte prüft auf neue Daten zur ausgabe
-    bool 			newDataAvailable	()
+    bool newDataAvailable()
 	{
 		switch(this->mode)
 		{
