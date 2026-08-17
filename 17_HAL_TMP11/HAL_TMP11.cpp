@@ -18,7 +18,6 @@ bool HAL_TMP11::init(const e_EC_ADDR_t ADDR)
 
     for(uint8_t CH =0; CH < TMP11_CHANNEL_COUNT; CH++)
     {
-        this->channels.p_ioObject[CH] = nullptr;
     }       
     
     //I2C Verbindung prüfen
@@ -46,11 +45,15 @@ bool HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
 
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
-    if(CHANNEL < EC_CHANNEL_1 || CHANNEL > TMP11_CHANNEL_COUNT)
+    if(P_IO_OBJECT == nullptr)
+    {
+        this->setError(TMP11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+    }
+    else if(CHANNEL < EC_CHANNEL_1 || CHANNEL > TMP11_CHANNEL_COUNT)
     {
         this->setError(TMP11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
-    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
+    else if(!this->channels.isChannelFree((uint8_t)CHANNEL, TMP11_CHANNEL_COUNT))
     {
         if(CHANNEL == TMP11_CHANNEL_COUNT)
         {
@@ -68,7 +71,7 @@ bool HAL_TMP11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__PTC:
             case IO_TYPE__PT100:       
             case IO_TYPE__PT1000:    
-                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;              
+                this->channels.set(OBJECT_INSTANCE, P_IO_OBJECT);
                 error = false;
             break;
             
@@ -91,16 +94,16 @@ void HAL_TMP11::tick(const bool READ_INPUTS)
     {          
         for(uint8_t CH = 0; CH < TMP11_CHANNEL_COUNT; CH++)
         {            
-            if(this->channels.p_ioObject[CH] != nullptr)
+            if(this->channels.get(CH) != nullptr)
             {
-                if(this->channels.p_ioObject[CH]->newDataAvailable())
+                if(this->channels.get(CH)->newDataAvailable())
                 {                     
-                    this->adc.setConfiguration(this->channels.PIN[CH], RESOLUTION_18_BITS, CONTINUOUS_MODE, PGA_X1);  
+                    this->adc.setConfiguration(this->PIN[CH], RESOLUTION_18_BITS, CONTINUOUS_MODE, PGA_X1);
                     int32_t Uab_nV = this->adc.measure();    
 
                     u_HAL_DATA_t tempBuffer;              
                     
-                    switch (this->channels.p_ioObject[CH]->getIoType())
+                    switch (this->channels.get(CH)->getIoType())
                     {         
                         case IO_TYPE__PTC:                                    
                         break;
@@ -108,12 +111,12 @@ void HAL_TMP11::tick(const bool READ_INPUTS)
                         case IO_TYPE__PT100:  
                             Uab_nV = UabAtZeroDegrePT100_nV - Uab_nV;
                             tempBuffer.tempSensData.temperatur = (float)(Uab_nV/nVperDegreePT100);
-                            this->channels.p_ioObject[CH]->setHalData(&tempBuffer);      
+                            this->channels.get(CH)->setHalData(&tempBuffer);
                         break;
                            
                         case IO_TYPE__PT1000:    
                             tempBuffer.tempSensData.temperatur = (float)(Uab_nV/nVperDegreePT1000);
-                            this->channels.p_ioObject[CH]->setHalData(&tempBuffer);                       
+                            this->channels.get(CH)->setHalData(&tempBuffer);
                         break;
                         
                         default:

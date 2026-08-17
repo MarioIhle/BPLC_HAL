@@ -47,10 +47,7 @@ class HAL_TMP11: public halInterface, private BPLC_moduleErrorHandler, private B
     MCP342x     adc;
   
     //Object handling
-    struct
-    {
-        IO_Interface* p_ioObject  [TMP11_CHANNEL_COUNT];   
-        const uint8_t PIN         [TMP11_CHANNEL_COUNT] = {0, 1, 3, 2};   
-    }channels;         
+    BPLC_channelMap channels;
+    const uint8_t PIN[TMP11_CHANNEL_COUNT] = {0, 1, 3, 2};
  };
 #endif

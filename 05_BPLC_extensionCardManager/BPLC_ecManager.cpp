@@ -113,6 +113,7 @@ BPLC_extensionCardManager::BPLC_extensionCardManager()
 }
 BPLC_extensionCardManager::~BPLC_extensionCardManager()
 {
+    this->resetAllErrors(__FILENAME__, __LINE__);
     while(this->p_firstExtensionCard != nullptr)
     {
         extensionCard* p_cardToDelete = this->p_firstExtensionCard;

@@ -57,11 +57,7 @@ class HAL_NANO11: public halInterface, private BPLC_moduleErrorHandler, private 
     I2C_BPLC_Master     bplcNode;
   
     //Object handling
-    struct
-    {
-        uint8_t         channelCount;
-        IO_Interface*   p_ioObject  [NANO11_CHANNEL_COUNT];    
-    }channels;        
+    BPLC_channelMap channels;
  };
 
 //-------------------------------------------------------------

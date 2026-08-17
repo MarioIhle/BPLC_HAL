@@ -17,7 +17,6 @@ bool HAL_DIN11::init(const e_EC_ADDR_t ADDR)
 
     for(uint8_t CH =0; CH < DIN11_CHANNEL_COUNT; CH++)
     {
-        this->channels.p_ioObject[CH] = nullptr;
     }       
 
     //I2C verbindung prüfen
@@ -54,11 +53,11 @@ bool HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
     {
         this->setError(DIN11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
-    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == DIN11_CHANNEL_COUNT)
+    else if(!this->channels.isChannelFree((uint8_t)CHANNEL, DIN11_CHANNEL_COUNT) && CHANNEL == DIN11_CHANNEL_COUNT)
     {
         this->setError(DIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
-    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
+    else if(!this->channels.isChannelFree((uint8_t)CHANNEL, DIN11_CHANNEL_COUNT))
     {
         this->setError(DIN11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
@@ -69,7 +68,7 @@ bool HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__DIGITAL_INPUT:
             case IO_TYPE__RPM_SENS:
             case IO_TYPE__DIGITAL_COUNTER:
-                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT;
+                this->channels.set(OBJECT_INSTANCE, P_IO_OBJECT);
                 error = false;
                 break;
 
@@ -77,16 +76,16 @@ bool HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__POSITION_ENCODER:
                 //3 pinPorts belegen mit gleichen objekt
                 if((OBJECT_INSTANCE + 2 >= DIN11_CHANNEL_COUNT)
-                || this->channels.p_ioObject[OBJECT_INSTANCE + 1] != nullptr
-                || this->channels.p_ioObject[OBJECT_INSTANCE + 2] != nullptr)
+                || this->channels.get(OBJECT_INSTANCE + 1) != nullptr
+                || this->channels.get(OBJECT_INSTANCE + 2) != nullptr)
                 {
                     this->setError(DIN11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);
                 }
                 else
                 {
-                    this->channels.p_ioObject[OBJECT_INSTANCE]      = P_IO_OBJECT;  //A
-                    this->channels.p_ioObject[OBJECT_INSTANCE + 1]  = P_IO_OBJECT;  //B
-                    this->channels.p_ioObject[OBJECT_INSTANCE + 2]  = P_IO_OBJECT;  //Z
+                    this->channels.set(OBJECT_INSTANCE, P_IO_OBJECT);      //A
+                    this->channels.set(OBJECT_INSTANCE + 1, P_IO_OBJECT);  //B
+                    this->channels.set(OBJECT_INSTANCE + 2, P_IO_OBJECT);  //Z
                     error = false;
                 }
                 break;
@@ -114,17 +113,17 @@ void HAL_DIN11::tick(const bool READ_INPUTS)
         
         for(uint8_t CH = 0; CH < DIN11_CHANNEL_COUNT; CH++)
         {      
-            if(this->channels.p_ioObject[CH] != nullptr)
+            if(this->channels.get(CH) != nullptr)
             {
                 u_HAL_DATA_t tempBuffer;                
 
-                switch (this->channels.p_ioObject[CH]->getIoType())
+                switch (this->channels.get(CH)->getIoType())
                 {                    
                     case IO_TYPE__DIGITAL_INPUT:
                     case IO_TYPE__RPM_SENS:
                     case IO_TYPE__DIGITAL_COUNTER:
-                        tempBuffer.digitalIoData.state = !PCF.read(this->channels.PIN[CH]);         //pinstates bitweise aus Datenpaket filtern
-                        this->channels.p_ioObject[CH]->setHalData(&tempBuffer); 
+                        tempBuffer.digitalIoData.state = !PCF.read(this->PIN[CH]);         //pinstates bitweise aus Datenpaket filtern
+                        this->channels.get(CH)->setHalData(&tempBuffer);
                         if(this->debugOutputEnabled)
                         {
                             this->printExtensionCardDebugOutput("DIN11", String(this->bplcAddress), String(CH), String(tempBuffer.digitalIoData.state));
@@ -133,10 +132,10 @@ void HAL_DIN11::tick(const bool READ_INPUTS)
 
                     case IO_TYPE__HMI_ENCODER:
                     case IO_TYPE__POSITION_ENCODER:
-                        tempBuffer.encoderData.stateA  = !PCF.read(this->channels.PIN[CH]);          //pinstates bitweise aus Datenpaket filtern
-                        tempBuffer.encoderData.stateB  = !PCF.read(this->channels.PIN[CH + 1]);      //pinstates bitweise aus Datenpaket filtern
-                        tempBuffer.encoderData.stateZ  = !PCF.read(this->channels.PIN[CH + 2]);      //pinstates bitweise aus Datenpaket filtern
-                        this->channels.p_ioObject[CH]->setHalData(&tempBuffer);
+                        tempBuffer.encoderData.stateA  = !PCF.read(this->PIN[CH]);          //pinstates bitweise aus Datenpaket filtern
+                        tempBuffer.encoderData.stateB  = !PCF.read(this->PIN[CH + 1]);      //pinstates bitweise aus Datenpaket filtern
+                        tempBuffer.encoderData.stateZ  = !PCF.read(this->PIN[CH + 2]);      //pinstates bitweise aus Datenpaket filtern
+                        this->channels.get(CH)->setHalData(&tempBuffer);
                         CH += 2;//Nach break CH++ = CH3, //Sonst wird encoder 3x gelesen...
                     break;
 

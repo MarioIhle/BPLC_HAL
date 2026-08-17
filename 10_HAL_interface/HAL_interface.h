@@ -6,6 +6,7 @@
 #include "BPLC_errorHandler.h"
 #include "I2C_check.h"
 #include "BPLC_logPrint.h"
+#include "BPLC_channelMap.h"
 
 
 typedef enum 

@@ -8,43 +8,35 @@
 //Verhindern dass Ram überläuft 
 #define ERROR_BUFFER_SIZE 10
 
+class BPLC_moduleErrorHandler;
+
 typedef struct 
 {
     e_BPLC_ERROR_t  errorCode;
     uint64_t        timestamp;
     String          file;
     uint16_t        line;
+    BPLC_moduleErrorHandler* p_source;
 
 }s_error_t;
-
-class errorListElement
-{
-    public:
-                            errorListElement    (){p_nextError = nullptr; memset(&this->errorData, 0, sizeof(this->errorData));}
-    void                    setNextError        (errorListElement* P_NEXT){this->p_nextError = P_NEXT;}
-    errorListElement*       getNextError        (){return this->p_nextError;}
-    void                    setErrorData        (s_error_t ERROR_DATA){this->errorData = ERROR_DATA;}
-    s_error_t*              getErrorData        (){return &this->errorData;}
-
-    private:
-    errorListElement*       p_nextError;
-
-    s_error_t errorData;
-};
-
 
 //Modulinternes Error Handling
 class BPLC_moduleErrorHandler
 {
     public:
                             BPLC_moduleErrorHandler ();
+                            ~BPLC_moduleErrorHandler();
+                            BPLC_moduleErrorHandler(const BPLC_moduleErrorHandler&) = delete;
+    BPLC_moduleErrorHandler& operator=(const BPLC_moduleErrorHandler&) = delete;
     bool                    noErrorSet              ();
     uint8_t                 getErrorCount           ();
     s_error_t*              getError                (uint8_t ERROR_NUMBER = 0);
-    e_BPLC_ERROR_t          getErrorCode            (){return this->p_firstError == nullptr ? BPLC_ERROR__NO_ERROR : this->p_firstError->getErrorData()->errorCode;}
+    e_BPLC_ERROR_t          getErrorCode            (){return this->getError()->errorCode;}
     
     void                    setError                (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
+    void                    setErrorFromModule      (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE, BPLC_moduleErrorHandler* P_SOURCE);
     void                    resetError              (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
+    void                    resetErrorFromModule    (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE, BPLC_moduleErrorHandler* P_SOURCE);
     void                    resetAllErrors          (String FILE, const uint16_t LINE);
     //enable/disbale
     void enableErrordetection       (String FILE, const uint16_t LINE);
@@ -58,10 +50,9 @@ class BPLC_moduleErrorHandler
     bool                    enabled;                 
     BPLC_logPrint           log;
     //Error Listen handling
-    errorListElement*       searchError             (const e_BPLC_ERROR_t ERROR_CODE);
-    void                    addErrorToList          (errorListElement* ERROR_TO_ADD);
-    void                    deleteErrorFromList     (errorListElement* ERROR_TO_DELETE);
-    errorListElement*       p_firstError;  
+    int8_t                  searchError             (const e_BPLC_ERROR_t ERROR_CODE, BPLC_moduleErrorHandler* P_SOURCE);
+    s_error_t               errorData[ERROR_BUFFER_SIZE];
+    bool                    f_errorActive[ERROR_BUFFER_SIZE];
     uint8_t                 errorCount;  
     s_error_t               noErrorData;
 

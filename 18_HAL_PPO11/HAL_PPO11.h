@@ -40,10 +40,7 @@ class HAL_PPO11: public halInterface, private BPLC_moduleErrorHandler, private B
     //Settings          
     PCA9685 PCA;
        
-    struct
-    {
-        IO_Interface* p_ioObject  [PPO11_CHANNEL_COUNT];         
-        const uint8_t PIN         [PPO11_CHANNEL_COUNT][2] = {{6, 7}, {4, 5}, {2, 3}, {0, 1}, {14, 15}, {12, 13}, {10, 11}, {8, 9}};     //{lowside, highside}
-    }channels; 
+    BPLC_channelMap channels;
+    const uint8_t PIN[PPO11_CHANNEL_COUNT][2] = {{6, 7}, {4, 5}, {2, 3}, {0, 1}, {14, 15}, {12, 13}, {10, 11}, {8, 9}};     //{lowside, highside}
 };
 #endif

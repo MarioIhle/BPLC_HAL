@@ -13,6 +13,10 @@ void receiveCallback(int howMany)
     {
         callback_inBuffer.data[BYTE] = Wire.read();
     }
+    while(Wire.available())
+    {
+        Wire.read();
+    }
     if(p_i2cNode != nullptr)
     {
         p_i2cNode->handleNewFrame(&callback_inBuffer);
@@ -89,7 +93,9 @@ void BPLC_I2C_NODE::begin(const uint8_t NODE_ADDRESS, uint8_t* p_slaveDataBuffer
 }
 bool BPLC_I2C_NODE::sendFrame(const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLOAD, const uint8_t PAYLOAD_SIZE)
 {
-    if(PAYLOAD_SIZE > PAYLAOD_BYTES_MAX || (PAYLOAD_SIZE > 0 && P_PAYLOAD == nullptr))
+    if((uint8_t)KEY >= I2C_BPLC_KEY__SLAVE_DATA + 1
+    || PAYLOAD_SIZE > PAYLAOD_BYTES_MAX
+    || (PAYLOAD_SIZE > 0 && P_PAYLOAD == nullptr))
     {
         return false;
     }
@@ -128,7 +134,9 @@ bool BPLC_I2C_NODE::sendFrame(const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLO
 }
 void BPLC_I2C_NODE::handleNewFrame(u_I2C_BPLC_NODE_FRAME_t* p_newFrame)
 {
-    if(p_newFrame == nullptr || p_newFrame->extract.payloadSize > PAYLAOD_BYTES_MAX)
+    if(p_newFrame == nullptr
+    || p_newFrame->extract.i2cBplcKey > I2C_BPLC_KEY__SLAVE_DATA
+    || p_newFrame->extract.payloadSize > PAYLAOD_BYTES_MAX)
     {
         return;
     }

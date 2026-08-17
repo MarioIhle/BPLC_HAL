@@ -35,10 +35,7 @@ class HAL_DO11: public halInterface, private BPLC_moduleErrorHandler, private BP
     private:
     //Settings          
     PCA9685     PCA;    
-    struct
-    {
-        IO_Interface* p_ioObject  [DO11_CHANNEL_COUNT];         
-        const uint8_t PIN         [DO11_CHANNEL_COUNT][2] = {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}
-    }channels; 
+    BPLC_channelMap channels;
+    const uint8_t PIN[DO11_CHANNEL_COUNT][2] = {{15, 4}, {14, 5}, {13, 6}, {12, 7}, {8, 0}, {9, 1}, {10, 2}, {11, 3}};     //{lowside, highside}
 };
 #endif
