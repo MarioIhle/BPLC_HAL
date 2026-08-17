@@ -1,0 +1,54 @@
+{
+    "name": "BPLC_HAL",
+    "version": "1.0.0",
+    "description": "BPLC hardware abstraction layer",
+    "keywords": [
+        "bplc",
+        "hal",
+        "esp32",
+        "arduino"
+    ],
+    "frameworks": "arduino",
+    "platforms": "espressif32",
+    "build": {
+        "srcDir": ".",
+        "includeDir": "include",
+        "srcFilter": [
+            "+<00_BPLC_applikation/*.cpp>",
+            "+<01_BPLC_errorManager/*.cpp>",
+            "+<02_BPLC_controlInterface/*.cpp>",
+            "+<04_BPLC_logPrint/*.cpp>",
+            "+<05_BPLC_extensionCardManager/*.cpp>",
+            "+<10_BPLC_I2C_Node/*.cpp>",
+            "+<11_HAL_MCU11/*.cpp>",
+            "+<12_HAL_AIN11/*.cpp>",
+            "+<13_HAL_DIN11/*.cpp>",
+            "+<14_HAL_DO11/*.cpp>",
+            "+<15_HAL_REL11/*.cpp>",
+            "+<16_HAL_MOT11/*.cpp>",
+            "+<17_HAL_TMP11/*.cpp>",
+            "+<18_HAL_PPO11/*.cpp>",
+            "+<19_HAL_NANO11/*.cpp>"
+        ],
+        "flags": [
+            "-I00_BPLC_applikation",
+            "-I01_BPLC_errorManager",
+            "-I02_BPLC_controlInterface",
+            "-I03_BPLC_ioBaseTypes",
+            "-I03_BPLC_ioBaseTypes/types",
+            "-I04_BPLC_logPrint",
+            "-I05_BPLC_extensionCardManager",
+            "-I10_BPLC_I2C_Node",
+            "-I10_HAL_interface",
+            "-I11_HAL_MCU11",
+            "-I12_HAL_AIN11",
+            "-I13_HAL_DIN11",
+            "-I14_HAL_DO11",
+            "-I15_HAL_REL11",
+            "-I16_HAL_MOT11",
+            "-I17_HAL_TMP11",
+            "-I18_HAL_PPO11",
+            "-I19_HAL_NANO11"
+        ]
+    }
+}
