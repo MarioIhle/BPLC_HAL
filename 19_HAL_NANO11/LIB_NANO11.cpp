@@ -109,7 +109,12 @@ void LIB_NANO11::tick()
     {
         s_NANO11_COMMAND_t command;
         memset(&command, 0, sizeof(s_NANO11_COMMAND_t));
-        this->bplcNode.getCommand(command.data);
+        this->bplcNode.getCommand(command.data, sizeof(command.data));
+        if(command.extract.channel >= NANO11_CHANNEL_COUNT)
+        {
+            this->error = true;
+            return;
+        }
       
         switch (command.extract.key)
         {   

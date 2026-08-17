@@ -46,15 +46,15 @@ bool HAL_NANO11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNE
 
     if(CHANNEL < EC_CHANNEL_1 || CHANNEL > NANO11_CHANNEL_COUNT)
     {
-        this->setError(REL11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
+        this->setError(NANO11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == NANO11_CHANNEL_COUNT)
     {
-        this->setError(REL11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
+        this->setError(NANO11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
     else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
     {
-        this->setError(REL11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
+        this->setError(NANO11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
     else
     {

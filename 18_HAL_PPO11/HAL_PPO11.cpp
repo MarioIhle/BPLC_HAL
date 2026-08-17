@@ -87,7 +87,7 @@ void HAL_PPO11::tick(const bool READ_INPUTS)
     //I2C Verbindung zyklisch prüfen
     if(!this->tickHeartbeat())
     {
-        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+        this->setError(PPO11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
     }
     //Hal ticken
     if(this->noErrorSet())

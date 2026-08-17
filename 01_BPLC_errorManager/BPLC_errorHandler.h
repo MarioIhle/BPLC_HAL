@@ -41,7 +41,7 @@ class BPLC_moduleErrorHandler
     bool                    noErrorSet              ();
     uint8_t                 getErrorCount           ();
     s_error_t*              getError                (uint8_t ERROR_NUMBER = 0);
-    e_BPLC_ERROR_t          getErrorCode            (){return this->p_firstError->getErrorData()->errorCode;}
+    e_BPLC_ERROR_t          getErrorCode            (){return this->p_firstError == nullptr ? BPLC_ERROR__NO_ERROR : this->p_firstError->getErrorData()->errorCode;}
     
     void                    setError                (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
     void                    resetError              (const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE);
@@ -63,6 +63,7 @@ class BPLC_moduleErrorHandler
     void                    deleteErrorFromList     (errorListElement* ERROR_TO_DELETE);
     errorListElement*       p_firstError;  
     uint8_t                 errorCount;  
+    s_error_t               noErrorData;
 
     BPLC_moduleErrorHandler* p_superiorErrorHandler;
 };

@@ -46,7 +46,11 @@ bool HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
 
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
-    if(CHANNEL < EC_CHANNEL_1 || CHANNEL > DIN11_CHANNEL_COUNT)
+    if(P_IO_OBJECT == nullptr)
+    {
+        this->setError(DIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+    }
+    else if(CHANNEL < EC_CHANNEL_1 || CHANNEL > DIN11_CHANNEL_COUNT)
     {
         this->setError(DIN11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
@@ -72,10 +76,19 @@ bool HAL_DIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
             case IO_TYPE__HMI_ENCODER:
             case IO_TYPE__POSITION_ENCODER:
                 //3 pinPorts belegen mit gleichen objekt
-                this->channels.p_ioObject[OBJECT_INSTANCE]      = P_IO_OBJECT;  //A
-                this->channels.p_ioObject[OBJECT_INSTANCE + 1]  = P_IO_OBJECT;  //B
-                this->channels.p_ioObject[OBJECT_INSTANCE + 2]  = P_IO_OBJECT;  //Z
-                error = false;
+                if((OBJECT_INSTANCE + 2 >= DIN11_CHANNEL_COUNT)
+                || this->channels.p_ioObject[OBJECT_INSTANCE + 1] != nullptr
+                || this->channels.p_ioObject[OBJECT_INSTANCE + 2] != nullptr)
+                {
+                    this->setError(DIN11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);
+                }
+                else
+                {
+                    this->channels.p_ioObject[OBJECT_INSTANCE]      = P_IO_OBJECT;  //A
+                    this->channels.p_ioObject[OBJECT_INSTANCE + 1]  = P_IO_OBJECT;  //B
+                    this->channels.p_ioObject[OBJECT_INSTANCE + 2]  = P_IO_OBJECT;  //Z
+                    error = false;
+                }
                 break;
 
             default:

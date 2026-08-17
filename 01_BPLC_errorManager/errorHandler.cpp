@@ -6,6 +6,10 @@ BPLC_moduleErrorHandler::BPLC_moduleErrorHandler()
     this->p_superiorErrorHandler    = nullptr;
     this->errorCount                = 0;
     this->enabled                   = true;
+    this->noErrorData.errorCode     = BPLC_ERROR__NO_ERROR;
+    this->noErrorData.timestamp     = 0;
+    this->noErrorData.file          = __FILENAME__;
+    this->noErrorData.line          = 0;
 }
 bool BPLC_moduleErrorHandler::noErrorSet()
 {    
@@ -35,31 +39,19 @@ s_error_t* BPLC_moduleErrorHandler::getError(uint8_t ERROR_NUMBER)
 {
     errorListElement* p_searchedError = this->p_firstError;
 
-    if(this->p_firstError != nullptr)
+    if(this->p_firstError != nullptr && ERROR_NUMBER < this->errorCount)
     {
-
-        if(ERROR_NUMBER < this->errorCount)
+        for(uint8_t errorNumber = 0; errorNumber < ERROR_NUMBER; errorNumber++)
         {
-            for(uint8_t errorNumber = 0; errorNumber < ERROR_NUMBER; errorNumber++)
-            {          
-                p_searchedError = p_searchedError->getNextError();     
-            }
+            p_searchedError = p_searchedError->getNextError();
         }
     }
     else
-    {//Fiktive ErrorObjekt erzeugen
-        s_error_t errorData;
-        errorData.errorCode = BPLC_ERROR__NO_ERROR;
-        errorData.timestamp = 0;
-        errorData.file      = __FILENAME__;
-        errorData.line      = __LINE__;
-
-        errorListElement    noError;
-        noError.setErrorData(errorData);
-        p_searchedError = &noError;
+    {
+        p_searchedError = nullptr;
     }
-        
-    return p_searchedError->getErrorData();      
+
+    return p_searchedError == nullptr ? &this->noErrorData : p_searchedError->getErrorData();
 }    
 //setError("TEXT", __FILENAME__, __LINE__);
 void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE)
@@ -138,7 +130,10 @@ void BPLC_moduleErrorHandler::disableErrordetection(String FILE, const uint16_t 
 {    
     this->log.printLog("MODULE ERROR DETECTION DISABLED", FILE, LINE);
     this->enabled = false;
-    this->resetAllErrors(FILE, LINE);
+    while (this->errorCount > 0)
+    {
+        this->resetError(this->p_firstError->getErrorData()->errorCode, FILE, LINE);
+    }
 }
 //Übergeordneter Errorhandler 
 void BPLC_moduleErrorHandler::setSuperiorErrorHandler (BPLC_moduleErrorHandler* p_errorHandler)

@@ -10,12 +10,16 @@ bool I2C_BPLC_Slave::newCommandAvailable()
 {
     return this->i2cNode.newSlaveCommandReceived();   
 }
-uint8_t I2C_BPLC_Slave::getCommand(uint8_t* P_PAYLOADBUFFER)
+uint8_t I2C_BPLC_Slave::getCommand(uint8_t* P_PAYLOADBUFFER, const uint8_t BUFFER_SIZE)
 {         
     u_I2C_BPLC_NODE_FRAME_t NEW_FRAME = this->i2cNode.getCommand();  
-    memcpy(P_PAYLOADBUFFER, NEW_FRAME.extract.payload, NEW_FRAME.extract.payloadSize);
+    const uint8_t BYTES_TO_COPY = min(NEW_FRAME.extract.payloadSize, BUFFER_SIZE);
+    if(P_PAYLOADBUFFER != nullptr)
+    {
+        memcpy(P_PAYLOADBUFFER, NEW_FRAME.extract.payload, BYTES_TO_COPY);
+    }
 
-    return NEW_FRAME.extract.payloadSize;
+    return BYTES_TO_COPY;
 }
 bool I2C_BPLC_Slave::setSlaveData(uint8_t* BUFFER, const uint8_t SIZE)
 {    

@@ -78,6 +78,7 @@ void ecmTask(void* taskParameter)
     s_ECM_TASK_PARAMETER_t*     p_taskParameter = (s_ECM_TASK_PARAMETER_t *) taskParameter;
     BPLC_extensionCardManager*  p_ecm       = p_taskParameter->p_ecm;
     const uint8_t               TASK_DELAY  = p_taskParameter->taskDelay;
+    delete p_taskParameter;
 
 
     while(true)
@@ -101,23 +102,46 @@ void ecmTask(void* taskParameter)
 
 //Public Interface
 BPLC_extensionCardManager::BPLC_extensionCardManager()
-{    
-    memset(this, 0, sizeof(BPLC_extensionCardManager));
+{
+    this->p_firstExtensionCard = nullptr;
+    for(uint8_t address = 0; address < DIN11_ADDRESS_COUNT; address++)
+    {
+        this->ecCardNeedRealTimeProcessing[address] = false;
+    }
     this->to_readInputsCooldown.setInterval(100);    //Bei meheren DIN Karten nur die Int Karte dauerhaft lesen, die langsame alle 100ms
     this->to_readInputs.setInterval(10);             //Wenn Interrupt errignis, dann 50ms Input Karten lesen
 }
+BPLC_extensionCardManager::~BPLC_extensionCardManager()
+{
+    while(this->p_firstExtensionCard != nullptr)
+    {
+        extensionCard* p_cardToDelete = this->p_firstExtensionCard;
+        this->p_firstExtensionCard = p_cardToDelete->getNext();
+        delete p_cardToDelete;
+    }
+}
 void BPLC_extensionCardManager::begin(const uint8_t TASK_DELAY_TIME, const char* TASK_NAME)
 {    
-    s_ECM_TASK_PARAMETER_t taskParameter;
-    taskParameter.p_ecm     = this;
-    taskParameter.taskDelay = TASK_DELAY_TIME;
+    s_ECM_TASK_PARAMETER_t* p_taskParameter = new s_ECM_TASK_PARAMETER_t;
+    p_taskParameter->p_ecm     = this;
+    p_taskParameter->taskDelay = TASK_DELAY_TIME;
     this->ECM_NAME          = String(TASK_NAME); 
 
-    xTaskCreatePinnedToCore(ecmTask, TASK_NAME, 4096, &taskParameter, 1, NULL, 0);
+    if(xTaskCreatePinnedToCore(ecmTask, TASK_NAME, 4096, p_taskParameter, 1, NULL, 0) != pdPASS)
+    {
+        delete p_taskParameter;
+        this->printLog("FAILED TO CREATE ECM TASK", __FILENAME__, __LINE__);
+        return;
+    }
     this->printLog("CREATE NEW ECM TASK: " + String(TASK_NAME), __FILENAME__, __LINE__);
 }
 void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL)                                
 {
+    if(P_IO_OBJECT == nullptr)
+    {
+        this->printLog("CANNOT MAP NULL IO OBJECT", __FILENAME__, __LINE__);
+        return;
+    }
     extensionCard*  p_cardToMapChannelTo    = this->getExtensionCard(CARD, ADDR);  
     const bool      CARD_NOT_KNOWN          = (p_cardToMapChannelTo == nullptr);
  
@@ -160,7 +184,10 @@ void BPLC_extensionCardManager::mapObjectToExtensionCard(IO_Interface* P_IO_OBJE
                     case IO_TYPE__DIGITAL_COUNTER:
                     case IO_TYPE__POSITION_ENCODER:
                     case IO_TYPE__RPM_SENS:
-                        this->ecCardNeedRealTimeProcessing[ADDR] = true;        //Diese EC als Echtzeitfähig makieren
+                        if(ADDR < DIN11_ADDRESS_COUNT)
+                        {
+                            this->ecCardNeedRealTimeProcessing[ADDR] = true;        //Diese EC als Echtzeitfähig makieren
+                        }
                     break;
                 }
             }
@@ -345,7 +372,7 @@ void BPLC_extensionCardManager::deleteExtensionCardFromList(extensionCard* CARD_
         extensionCard* p_searchedCard           = this->p_firstExtensionCard;
         extensionCard* p_cardBeforeSearchedCard = this->p_firstExtensionCard;   
 
-        while(p_searchedCard != CARD_TO_DELETE_FROM_LIST)
+        while(p_searchedCard != nullptr && p_searchedCard != CARD_TO_DELETE_FROM_LIST)
         {
             //Falls der nächste Port der gesuchte Port ist, pointer auf aktuellen speichern.         
             if(p_searchedCard->getNext() == CARD_TO_DELETE_FROM_LIST)
@@ -366,6 +393,7 @@ void BPLC_extensionCardManager::deleteExtensionCardFromList(extensionCard* CARD_
                 p_cardBeforeSearchedCard->setNext(p_searchedCard->getNext());        
             }   
             this->printLog(getEcName(CARD_TO_DELETE_FROM_LIST->getCardType()) + " ADDR:" + String(CARD_TO_DELETE_FROM_LIST->getAddr()) + " DELETED FROM ECM LIST", __FILENAME__, __LINE__);
+            delete p_searchedCard;
         }
     }       
 }

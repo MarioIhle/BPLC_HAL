@@ -8,31 +8,36 @@ void receiveCallback(int howMany)
     u_I2C_BPLC_NODE_FRAME_t callback_inBuffer;
     memset(&callback_inBuffer, 0, sizeof(callback_inBuffer));    
     
-    while(Wire.available())
+    const uint8_t BYTES_TO_READ = min((uint8_t)howMany, (uint8_t)MAX_FRAME_SIZE);
+    for(uint8_t BYTE = 0; BYTE < BYTES_TO_READ && Wire.available(); BYTE++)
     {
-        for(uint8_t BYTE = 0; BYTE < howMany; BYTE++)
-        {    
-            callback_inBuffer.data[BYTE] = Wire.read();    
-            //Serial.print(callback_inBuffer.data[BYTE]);
-        }
-    }     
-    p_i2cNode->handleNewFrame(&callback_inBuffer);    
+        callback_inBuffer.data[BYTE] = Wire.read();
+    }
+    if(p_i2cNode != nullptr)
+    {
+        p_i2cNode->handleNewFrame(&callback_inBuffer);
+    }
 }
 void requestCallback()
 {    
     //Serial.println("request Callback");
+    if(p_i2cNode == nullptr)
+    {
+        return;
+    }
     const uint8_t FIRST_BYTE      = p_i2cNode->getFirstByte();     
     const uint8_t LAST_BYTE       = p_i2cNode->getLastByte(); 
     uint8_t* p_dataBuffer         = p_i2cNode->getSlaveDataPacket();
 
     if(p_dataBuffer != nullptr)
     {     
-        if((FIRST_BYTE == 0)
-        && (LAST_BYTE == 0))
+        const bool VALID_REQUEST = (FIRST_BYTE < LAST_BYTE)
+                                 && (LAST_BYTE <= p_i2cNode->getSlaveDataBufferSize());
+        if(!VALID_REQUEST)
         {
-            Serial.println("error: No Slave Data Set");
+            Serial.println("error: Invalid Slave Data Request");
         }
-        for(uint8_t BYTE = FIRST_BYTE; BYTE < LAST_BYTE; BYTE++)
+        for(uint8_t BYTE = FIRST_BYTE; VALID_REQUEST && BYTE < LAST_BYTE; BYTE++)
         {
             //Serial.println(p_dataBuffer[BYTE]);
             Wire.write(p_dataBuffer[BYTE]); 
@@ -43,13 +48,18 @@ void requestCallback()
         Serial.println("error: Slave Data Buffer is nullptr");
     }
     //Sobald alle Daten versendet, Zeiger löschen als bestätigung
-    if(LAST_BYTE < MAX_FRAME_SIZE)
-    {
-        p_i2cNode->requestedDataSend();
-    }
+    p_i2cNode->requestedDataSend();
 }
 BPLC_I2C_NODE::BPLC_I2C_NODE()
-{}
+{
+    this->nodeAddress = 0;
+    this->request.p_dataBuffer = nullptr;
+    this->request.dataBufferSize = 0;
+    this->request.firstByte = 0;
+    this->request.lastByte = 0;
+    this->command.f_newFrameReceived = false;
+    memset(&this->command.commandToProcess, 0, sizeof(this->command.commandToProcess));
+}
 void BPLC_I2C_NODE::begin(const uint8_t NODE_ADDRESS, uint8_t* p_slaveDataBuffer)
 {
     this->nodeAddress = NODE_ADDRESS; 
@@ -67,6 +77,7 @@ void BPLC_I2C_NODE::begin(const uint8_t NODE_ADDRESS, uint8_t* p_slaveDataBuffer
         Wire.onReceive(receiveCallback);
         Wire.onRequest(requestCallback); 
         this->request.p_dataBuffer  = p_slaveDataBuffer; 
+        this->request.dataBufferSize = 256;
         this->request.firstByte     = 0;
         this->request.lastByte      = 0;
     }
@@ -76,8 +87,12 @@ void BPLC_I2C_NODE::begin(const uint8_t NODE_ADDRESS, uint8_t* p_slaveDataBuffer
     //Callback Pointer   
     p_i2cNode = this;
 }
-void BPLC_I2C_NODE::sendFrame(const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLOAD, const uint8_t PAYLOAD_SIZE)
+bool BPLC_I2C_NODE::sendFrame(const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLOAD, const uint8_t PAYLOAD_SIZE)
 {
+    if(PAYLOAD_SIZE > PAYLAOD_BYTES_MAX || (PAYLOAD_SIZE > 0 && P_PAYLOAD == nullptr))
+    {
+        return false;
+    }
     u_I2C_BPLC_NODE_FRAME_t OUT_FRAME;
     memset(&OUT_FRAME, 0, sizeof(OUT_FRAME));
 
@@ -109,10 +124,14 @@ void BPLC_I2C_NODE::sendFrame(const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLO
     
     Wire.beginTransmission(this->nodeAddress);
     Wire.write(OUT_FRAME.data, (MESSAGE_HEAD + PAYLOAD_SIZE));            
-    Wire.endTransmission(true);          
+    return (Wire.endTransmission(true) == 0);
 }
 void BPLC_I2C_NODE::handleNewFrame(u_I2C_BPLC_NODE_FRAME_t* p_newFrame)
 {
+    if(p_newFrame == nullptr || p_newFrame->extract.payloadSize > PAYLAOD_BYTES_MAX)
+    {
+        return;
+    }
     switch (p_newFrame->extract.i2cBplcKey)
     {
         case I2C_BPLC_KEY__SLAVE_COMMAND:
@@ -128,8 +147,11 @@ void BPLC_I2C_NODE::handleNewFrame(u_I2C_BPLC_NODE_FRAME_t* p_newFrame)
             break;   
 
         case I2C_BPLC_KEY__REQUEST_SLAVE_DATA:
-            this->request.firstByte = p_newFrame->extract.payload[0];
-            this->request.lastByte  = p_newFrame->extract.payload[1];
+            if(p_newFrame->extract.payloadSize >= 2)
+            {
+                this->request.firstByte = p_newFrame->extract.payload[0];
+                this->request.lastByte  = p_newFrame->extract.payload[1];
+            }
             break;
 
             default:
@@ -155,7 +177,12 @@ uint8_t BPLC_I2C_NODE::requestFromNode(uint8_t* p_payloadBuffer, const uint8_t P
 { 
     uint8_t inByte = 0;    
     //alle Bytes erhalten 
-    while (inByte < PAYLOAD_SIZE) 
+    if(p_payloadBuffer == nullptr)
+    {
+        return 0;
+    }
+    const uint32_t TIMEOUT_AT = millis() + 20;
+    while (inByte < PAYLOAD_SIZE && (int32_t)(millis() - TIMEOUT_AT) < 0)
     {    
         //Immer in 32byte Paketen von Slavenode anfragen, da i2c Buffer nicht größer
         if((inByte == 0)
@@ -182,7 +209,10 @@ uint8_t BPLC_I2C_NODE::requestFromNode(uint8_t* p_payloadBuffer, const uint8_t P
             const uint8_t LAST_BYTE     = (inByte + requestedBytes);                
             const uint8_t PACKET_DEFINITION[2] = {FIRST_BYTE, LAST_BYTE};               
 
-            this->sendFrame(I2C_BPLC_KEY__REQUEST_SLAVE_DATA, &PACKET_DEFINITION[0], 2);
+            if(!this->sendFrame(I2C_BPLC_KEY__REQUEST_SLAVE_DATA, &PACKET_DEFINITION[0], 2))
+            {
+                break;
+            }
             delay(1);   //Sicherheit, kann wahrscheinlich weg aber nur wenn es nötig ist 
             Wire.requestFrom(this->nodeAddress, requestedBytes);              
         }
