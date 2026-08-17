@@ -1,7 +1,7 @@
 #ifndef BPLC_channelMap_h
 #define BPLC_channelMap_h
 
-#include "00_ioInterface.h"
+#include "types/00_ioInterface.h"
 
 #define BPLC_CHANNEL_MAP_MAX_SIZE 8
 
@@ -18,13 +18,13 @@ class BPLC_channelMap
     bool                    isChannelInRange     (const uint8_t CHANNEL, const uint8_t CHANNEL_COUNT) const
                             {
                                 return (CHANNEL >= 1)
-                                    && ((uint8_t)CHANNEL <= CHANNEL_COUNT)
+                                    && (CHANNEL <= CHANNEL_COUNT)
                                     && (CHANNEL_COUNT <= BPLC_CHANNEL_MAP_MAX_SIZE);
                             }
     bool                    isChannelFree        (const uint8_t CHANNEL, const uint8_t CHANNEL_COUNT) const
                             {
                                 return this->isChannelInRange(CHANNEL, CHANNEL_COUNT)
-                                    && (this->p_ioObject[(uint8_t)CHANNEL - 1] == nullptr);
+                                    && (this->p_ioObject[CHANNEL - 1] == nullptr);
                             }
     IO_Interface*           get                  (const uint8_t CHANNEL_INDEX) const
                             {

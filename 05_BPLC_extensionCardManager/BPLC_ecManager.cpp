@@ -76,6 +76,10 @@ void ecmTask(void* taskParameter)
     esp_task_wdt_add(NULL);   
 
     s_ECM_TASK_PARAMETER_t*     p_taskParameter = (s_ECM_TASK_PARAMETER_t *) taskParameter;
+    if(p_taskParameter == nullptr)
+    {
+        abort();
+    }
     BPLC_extensionCardManager*  p_ecm       = p_taskParameter->p_ecm;
     const uint8_t               TASK_DELAY  = p_taskParameter->taskDelay;
     delete p_taskParameter;
@@ -313,7 +317,8 @@ void BPLC_extensionCardManager::tick()
             halInterface*       p_halInterface                  = p_extensionCardToTick->getHalInterface();
             const bool          HAL_OK                          = (p_halInterface->getModuleErrorCount() == 0);   
             const e_EC_ADDR_t   EC_ADDR                         = p_extensionCardToTick->getAddr();
-            const bool          CARD_NEED_REAL_TIME_PROCESSING  = this->ecCardNeedRealTimeProcessing[EC_ADDR];         
+            const bool          CARD_NEED_REAL_TIME_PROCESSING  = (EC_ADDR < DIN11_ADDRESS_COUNT)
+                                                                && this->ecCardNeedRealTimeProcessing[EC_ADDR];
 
             const bool          TICK_DIN_CARD                   =  (TIME_TO_READ_INPUTS 
                                                                 || (CARD_NEED_REAL_TIME_PROCESSING && NEW_INPUTSTATES_AVAILABLE));

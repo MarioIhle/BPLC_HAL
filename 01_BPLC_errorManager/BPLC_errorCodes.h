@@ -113,7 +113,7 @@ class ERROR_errorText
     public:
     ERROR_errorText(){};
 
-    const char* ERROR_CODE_TEXT[BPLC_ERROR__COUNT]=
+    String ERROR_CODE_TEXT[BPLC_ERROR__COUNT]=
     {
         {"BPLC_ERROR__NO_ERROR"},
         //MCU Errors
