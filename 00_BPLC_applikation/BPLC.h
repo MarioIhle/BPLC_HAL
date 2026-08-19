@@ -8,6 +8,20 @@
 //-------------------------------------------------------------
 #define VERSION_MAJOR 2
 #define VERSION_MINOR 7
+
+#if __has_include("build_metadata.h")
+#include "build_metadata.h"
+#endif
+
+#ifndef BPLC_HAL_COMMIT
+#define BPLC_HAL_COMMIT "unknown"
+#endif
+#ifndef STANDARTLIBS_COMMIT
+#define STANDARTLIBS_COMMIT "unknown"
+#endif
+#ifndef BERTANETPORTS_COMMIT
+#define BERTANETPORTS_COMMIT "unknown"
+#endif
 //-------------------------------------------------------------
 //INCLUDES
 //-------------------------------------------------------------
