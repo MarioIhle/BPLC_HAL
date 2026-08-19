@@ -96,6 +96,7 @@ void BPLC::tickControlPanel()
 
                 Serial.println("------COMMUNICATION------");
                 Serial.print("Device adddress: ");      Serial.println(this->APP_APP.settings.device.communication.deviceAddress);
+                Serial.print("network conncetion observed: ");      Serial.println(this->APP_APP.settings.device.communication.observeNetworkConnection);
                break;
 
             case BPLC_PLI_KEY__RESET_ALL_SETTINGS:
