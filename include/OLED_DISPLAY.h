@@ -1,0 +1,4 @@
+#ifndef BPLC_PUBLIC_OLED_DISPLAY_H
+#define BPLC_PUBLIC_OLED_DISPLAY_H
+#include "../11_HAL_MCU11/OLED_DISPLAY.h"
+#endif

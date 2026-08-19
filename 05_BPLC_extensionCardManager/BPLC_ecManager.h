@@ -44,6 +44,7 @@ class extensionCard
 {    
     public:
                             extensionCard   (){this->cardType = EC__NO_TYPE_DEFINED; this->addr = EC_ADDR_NOT_DEFINED;  this->p_next = nullptr; this->p_hal = nullptr;}
+                            ~extensionCard  (){delete this->p_hal;}
     void                    setNext         (extensionCard* P_NEXT){this->p_next = P_NEXT;}
     extensionCard*          getNext         (){return this->p_next;}
     halInterface*           getHalInterface (){return this->p_hal;}
@@ -65,7 +66,8 @@ class extensionCard
 class BPLC_extensionCardManager: public BPLC_moduleErrorInterface, private BPLC_moduleErrorHandler, private BPLC_logPrint
 {
     public:
-                        BPLC_extensionCardManager           ();    
+                        BPLC_extensionCardManager           ();
+                        ~BPLC_extensionCardManager          ();
     void                begin                               (const uint8_t TASK_DELAY_TIME, const char* TASK_NAME);
     void                tick                                ();    
     void                mapObjectToExtensionCard            (IO_Interface* P_IO_OBJECT, const e_EC_TYPE_t CARD, const e_EC_ADDR_t ADDR, const e_EC_CHANNEL_t CHANNEL);

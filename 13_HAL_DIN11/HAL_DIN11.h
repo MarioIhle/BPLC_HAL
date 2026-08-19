@@ -34,11 +34,8 @@ class HAL_DIN11: public halInterface, private BPLC_moduleErrorHandler, private B
     //Settings
     PCF8574 PCF;
  
-    struct
-    {
-        IO_Interface* p_ioObject  [DIN11_CHANNEL_COUNT];   
-        const uint8_t PIN         [DIN11_CHANNEL_COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};      
-    }channels;       
+    BPLC_channelMap channels;
+    const uint8_t PIN[DIN11_CHANNEL_COUNT] = {3, 2, 1, 0, 4, 5, 6, 7};
  };
 
 

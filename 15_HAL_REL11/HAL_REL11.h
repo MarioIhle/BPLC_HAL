@@ -34,10 +34,7 @@ class HAL_REL11: public halInterface, private BPLC_moduleErrorHandler, private B
     //Settings
     PCF8574     PCF;
 
-    struct
-    {
-        IO_Interface* p_ioObject  [REL11_CHANNEL_COUNT];
-        const uint8_t PIN         [REL11_CHANNEL_COUNT] = {0, 1, 2};         
-    }channels; 
+    BPLC_channelMap channels;
+    const uint8_t PIN[REL11_CHANNEL_COUNT] = {0, 1, 2};
 };
 #endif

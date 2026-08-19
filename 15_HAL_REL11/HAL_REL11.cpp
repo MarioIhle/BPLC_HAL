@@ -17,7 +17,6 @@ bool HAL_REL11::init(const e_EC_ADDR_t ADDR)
 
     for(uint8_t CH =0; CH < REL11_CHANNEL_COUNT; CH++)
     {
-        this->channels.p_ioObject[CH] = nullptr;
     }       
     
     //I2C Verbindung Prüfen
@@ -47,15 +46,19 @@ bool HAL_REL11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
 
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
-    if(CHANNEL < EC_CHANNEL_1 || CHANNEL > REL11_CHANNEL_COUNT)
+    if(P_IO_OBJECT == nullptr)
+    {
+        this->setError(REL11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+    }
+    else if(CHANNEL < EC_CHANNEL_1 || CHANNEL > REL11_CHANNEL_COUNT)
     {
         this->setError(REL11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
-    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == REL11_CHANNEL_COUNT)
+    else if(!this->channels.isChannelFree((uint8_t)CHANNEL, REL11_CHANNEL_COUNT) && CHANNEL == REL11_CHANNEL_COUNT)
     {
         this->setError(REL11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
-    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
+    else if(!this->channels.isChannelFree((uint8_t)CHANNEL, REL11_CHANNEL_COUNT))
     {
         this->setError(REL11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
@@ -64,7 +67,7 @@ bool HAL_REL11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         switch (P_IO_OBJECT->getIoType())
         {          
             case IO_TYPE__OUTPUT_PUSH:
-                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT; 
+                this->channels.set(OBJECT_INSTANCE, P_IO_OBJECT);
                 error = false;
                 break;
 
@@ -81,27 +84,27 @@ void HAL_REL11::tick(const bool READ_INPUTS)
     //I2C Verbindung zyklisch prüfen
     if(!this->tickHeartbeat())
     {
-        this->setError(DIN11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
+        this->setError(REL11_ERROR__I2C_CONNECTION_FAILED, __FILENAME__, __LINE__);
     }
     //Hal ticken
     if(this->noErrorSet())
     {         
         for(int CH = 0; CH < REL11_CHANNEL_COUNT; CH++)
         {
-            if(this->channels.p_ioObject[CH] != nullptr)
+            if(this->channels.get(CH) != nullptr)
             {
-                if(this->channels.p_ioObject[CH]->newDataAvailable())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
+                if(this->channels.get(CH)->newDataAvailable())   //Nur Wert abrufen und schreiben, falls dier sich geändert hat
                 {
-                    u_HAL_DATA_t tempBuffer = this->channels.p_ioObject[CH]->getHalData();       
+                    u_HAL_DATA_t tempBuffer = this->channels.get(CH)->getHalData();
                     const bool OUT_STATE = (0 < tempBuffer.analogIoData.value);
-                    switch (this->channels.p_ioObject[CH]->getIoType())
+                    switch (this->channels.get(CH)->getIoType())
                     {                       
                         case IO_TYPE__OUTPUT_PUSH:
                             if(this->debugOutputEnabled)
                             {
                                 this->printExtensionCardDebugOutput("REL11", String(this->bplcAddress), String(CH), String(OUT_STATE));
                             }                          
-                            this->PCF.write(this->channels.PIN[CH], OUT_STATE);                                          
+                            this->PCF.write(this->PIN[CH], OUT_STATE);
                             break;
 
                         default:

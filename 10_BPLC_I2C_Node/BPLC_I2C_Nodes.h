@@ -48,10 +48,11 @@ class BPLC_I2C_NODE: private BPLC_logPrint
     void                    handleNewFrame            (u_I2C_BPLC_NODE_FRAME_t* p_newFrame);
     bool                    newSlaveCommandReceived   ();
     u_I2C_BPLC_NODE_FRAME_t getCommand                ();
-    void                    sendFrame                 (const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLOAD, const uint8_t PAYLOAD_SIZE);  
+    bool                    sendFrame                 (const e_I2C_BPLC_KEY_t KEY, const uint8_t* P_PAYLOAD, const uint8_t PAYLOAD_SIZE);
     //Request Handling  
     uint8_t   requestFromNode             (uint8_t* p_payloadBuffer, const uint8_t PAYLOAD_SIZE);
-    uint8_t*  getSlaveDataPacket          (){return this->request.p_dataBuffer;} 
+    uint8_t*  getSlaveDataPacket          (){return this->request.p_dataBuffer;}
+    uint16_t  getSlaveDataBufferSize      (){return this->request.dataBufferSize;}
     uint8_t   getFirstByte                (){return this->request.firstByte;}
     uint8_t   getLastByte                 (){return this->request.lastByte;}    
     void      requestedDataSend           (){this->request.firstByte = 0; this->request.lastByte = 0;}
@@ -63,6 +64,7 @@ class BPLC_I2C_NODE: private BPLC_logPrint
     struct
     {
       uint8_t*  p_dataBuffer;      //pointer auf Daten, die bei Master Request versendet werden
+      uint16_t  dataBufferSize;
       uint8_t   firstByte;   
       uint8_t   lastByte;  
     }request;
@@ -96,7 +98,7 @@ class I2C_BPLC_Slave
   bool    setSlaveData            (uint8_t* BUFFER, const uint8_t SIZE);
   
   bool    newCommandAvailable     (); //Wie tick, muss zyklisch aufgerufen werden
-  uint8_t getCommand              (uint8_t* P_BUFFER);
+  uint8_t getCommand              (uint8_t* P_BUFFER, const uint8_t BUFFER_SIZE);
 
   private:
   BPLC_I2C_NODE i2cNode;

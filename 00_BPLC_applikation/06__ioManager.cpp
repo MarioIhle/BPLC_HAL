@@ -3,7 +3,7 @@
 void BPLC::setupHardware()
 {  
    this->ecmForSlowSpeed = new BPLC_extensionCardManager();
-   //this->ecmForSlowSpeed->setSuperiorErrorHandlerForModule(&this->systemErrorManager);
+   this->ecmForSlowSpeed->setSuperiorErrorHandlerForModule(&this->systemErrorManager);
    this->ecmForSlowSpeed->begin(5, "ECM_GENERAL_TASK");   
    if(this->APP_APP.settings.device.extensionCards.debugOutputEnabled)
    {    
@@ -55,7 +55,7 @@ void BPLC::mapIoObjectToExtensionCardChannel(IO_Interface* P_IO_OBJECT, const e_
          if(this->ecmForHighSpeed == nullptr)
          {
             this->ecmForHighSpeed = new BPLC_extensionCardManager();    
-            //this->ecmForSlowSpeed->setSuperiorErrorHandlerForModule(&this->systemErrorManager);
+            this->ecmForHighSpeed->setSuperiorErrorHandlerForModule(&this->systemErrorManager);
             this->ecmForHighSpeed->begin(0, "ECM_DIN11_TASK");      
             if(this->APP_APP.settings.device.extensionCards.debugOutputEnabled)
             {    

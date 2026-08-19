@@ -6,6 +6,7 @@
 #include "BPLC_errorHandler.h"
 #include "I2C_check.h"
 #include "BPLC_logPrint.h"
+#include "BPLC_channelMap.h"
 
 
 typedef enum 
@@ -51,6 +52,7 @@ class halInterface: public BPLC_moduleErrorInterface
 {
     public:
     halInterface                        (){this->bplcAddress = EC_ADDR_NOT_DEFINED; this->i2cAddress = 0; this->debugOutputEnabled = false;}
+    virtual ~halInterface               () = default;
     virtual bool init                   (const e_EC_ADDR_t ADDR) = 0;
     virtual void tick                   (const bool READ_INPUTS) = 0;
     virtual bool mapObjectToChannel     (IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL_t CHANNEL) = 0;

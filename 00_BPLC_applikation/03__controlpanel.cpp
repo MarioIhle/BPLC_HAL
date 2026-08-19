@@ -84,6 +84,11 @@ void BPLC::tickControlPanel()
             case BPLC_PLI_KEY__GET_DEVICE_SETTINGS:
                 Serial.println("------SOFTWARE------");
                 Serial.print("Version: ");      Serial.println(String(this->APP_APP.settings.device.application.versionMajor) + "V" + String(this->APP_APP.settings.device.application.versionMinor));
+
+                Serial.println("------BUILD DEPENDENCIES------");
+                Serial.print("BPLC_HAL:     "); Serial.println(BPLC_HAL_COMMIT);
+                Serial.print("Standartlibs: "); Serial.println(STANDARTLIBS_COMMIT);
+                Serial.print("BertaNetPorts:"); Serial.println(BERTANETPORTS_COMMIT);
                 
                 Serial.println("------HARDWARE------");                
                 Serial.print("MCU:          "); Serial.println(this->APP_APP.settings.device.mcuCard);
