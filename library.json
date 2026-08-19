@@ -10,6 +10,16 @@
     ],
     "frameworks": "arduino",
     "platforms": "espressif32",
+    "dependencies": [
+        {
+            "name": "Standartlibs",
+            "version": "https://github.com/MarioIhle/Standartlibs.git#main"
+        },
+        {
+            "name": "BertaNetPorts",
+            "version": "https://github.com/MarioIhle/BertaNetPorts.git#9cb6b8fba0cbb9b36fd63e8a4d60d5a3e3134869"
+        }
+    ],
     "build": {
         "srcDir": ".",
         "includeDir": "include",
