@@ -2,19 +2,23 @@
 //Public
 BPLC_moduleErrorHandler::BPLC_moduleErrorHandler()
 {
-    this->p_firstError              = nullptr;
     this->p_superiorErrorHandler    = nullptr;
     this->errorCount                = 0;
     this->enabled                   = true;
+    for(uint8_t errorNumber = 0; errorNumber < ERROR_BUFFER_SIZE; errorNumber++)
+    {
+        this->f_errorActive[errorNumber] = false;
+    }
+    this->noErrorData.errorCode     = BPLC_ERROR__NO_ERROR;
+    this->noErrorData.timestamp     = 0;
+    this->noErrorData.file          = __FILENAME__;
+    this->noErrorData.line          = 0;
+    this->noErrorData.p_source      = nullptr;
 }
+BPLC_moduleErrorHandler::~BPLC_moduleErrorHandler()
+{}
 bool BPLC_moduleErrorHandler::noErrorSet()
 {    
-    //wenn übergeordneter Errorhandler ausgeschaltet, diesen auch ausschalten
-    if(this->p_superiorErrorHandler != nullptr)
-    {
-        this->enabled = this->p_superiorErrorHandler->errorDetectionisEnabled();
-    }  
-
     const bool  NO_ERROR_SET                     = (this->errorCount == 0);
     const bool  THIS_ERROR_HANDLER_DISABLED      = (!this->enabled);
     
@@ -22,52 +26,35 @@ bool BPLC_moduleErrorHandler::noErrorSet()
 }
 uint8_t BPLC_moduleErrorHandler::getErrorCount()
 {
-    if(this->enabled)
-    {
-        return this->errorCount;
-    }
-    else
-    {
-        return 0;
-    }    
+    return this->errorCount;
 }  
 s_error_t* BPLC_moduleErrorHandler::getError(uint8_t ERROR_NUMBER)
 {
-    errorListElement* p_searchedError = this->p_firstError;
-
-    if(this->p_firstError != nullptr)
+    uint8_t activeErrorNumber = 0;
+    for(uint8_t errorSlot = 0; errorSlot < ERROR_BUFFER_SIZE; errorSlot++)
     {
-
-        if(ERROR_NUMBER < this->errorCount)
+        if(this->f_errorActive[errorSlot])
         {
-            for(uint8_t errorNumber = 0; errorNumber < ERROR_NUMBER; errorNumber++)
-            {          
-                p_searchedError = p_searchedError->getNextError();     
+            if(activeErrorNumber == ERROR_NUMBER)
+            {
+                return &this->errorData[errorSlot];
             }
+            activeErrorNumber++;
         }
     }
-    else
-    {//Fiktive ErrorObjekt erzeugen
-        s_error_t errorData;
-        errorData.errorCode = BPLC_ERROR__NO_ERROR;
-        errorData.timestamp = 0;
-        errorData.file      = __FILENAME__;
-        errorData.line      = __LINE__;
-
-        errorListElement    noError;
-        noError.setErrorData(errorData);
-        p_searchedError = &noError;
-    }
-        
-    return p_searchedError->getErrorData();      
+    return &this->noErrorData;
 }    
 //setError("TEXT", __FILENAME__, __LINE__);
 void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE)
 {
+    this->setErrorFromModule(ERROR_CODE, FILE, LINE, this);
+}
+void BPLC_moduleErrorHandler::setErrorFromModule(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE, BPLC_moduleErrorHandler* P_SOURCE)
+{
     if(this->enabled)
     {
         //Nur speichern, wenn noch nicht vorhanden
-        const bool ERROR_NOT_SET_YET = (this->searchError(ERROR_CODE) == nullptr);
+        const bool ERROR_NOT_SET_YET = (this->searchError(ERROR_CODE, P_SOURCE) < 0);
        
         if(ERROR_NOT_SET_YET)
         {
@@ -76,19 +63,28 @@ void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String F
             ERROR_DATA.timestamp    = millis();
             ERROR_DATA.file         = FILE;
             ERROR_DATA.line         = LINE;
+            ERROR_DATA.p_source     = P_SOURCE;
 
             //Error buffer voll, keine Error objekte mehr erzeugem, da sonst Ram überläuft
             if(this->errorCount < ERROR_BUFFER_SIZE)
             {
-                errorListElement* p_newError = new errorListElement;        
-                p_newError->setErrorData(ERROR_DATA);
-                //Lokalen Error setzen
-                this->addErrorToList(p_newError);
+                uint8_t errorSlot = 0;
+                while(this->f_errorActive[errorSlot])
+                {
+                    errorSlot++;
+                }
+                for(uint8_t slot = errorSlot; slot > 0; slot--)
+                {
+                    this->errorData[slot] = this->errorData[slot - 1];
+                    this->f_errorActive[slot] = this->f_errorActive[slot - 1];
+                }
+                this->errorData[0] = ERROR_DATA;
+                this->f_errorActive[0] = true;
 
                 if(this->p_superiorErrorHandler != nullptr)
                 {
                     //Log eintrag wird in superiorErrorManager ausgegeben
-                    p_superiorErrorHandler->setError(ERROR_CODE, FILE, LINE);
+                    p_superiorErrorHandler->setErrorFromModule(ERROR_CODE, FILE, LINE, P_SOURCE);
                 }
                 else
                 {
@@ -101,17 +97,25 @@ void BPLC_moduleErrorHandler::setError(const e_BPLC_ERROR_t ERROR_CODE, String F
 }
 void BPLC_moduleErrorHandler::resetError(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE)
 {
-    errorListElement* p_errorToDelete = this->searchError(ERROR_CODE);
+    this->resetErrorFromModule(ERROR_CODE, FILE, LINE, this);
+}
+void BPLC_moduleErrorHandler::resetErrorFromModule(const e_BPLC_ERROR_t ERROR_CODE, String FILE, const uint16_t LINE, BPLC_moduleErrorHandler* P_SOURCE)
+{
+    const int8_t ERROR_SLOT = this->searchError(ERROR_CODE, P_SOURCE);
 
-    if(p_errorToDelete != nullptr)
+    if(ERROR_SLOT >= 0)
     {
-        //Lokalen Error rücksetzen
-        this->deleteErrorFromList(p_errorToDelete);        
+        for(uint8_t slot = (uint8_t)ERROR_SLOT; slot + 1 < ERROR_BUFFER_SIZE; slot++)
+        {
+            this->errorData[slot] = this->errorData[slot + 1];
+            this->f_errorActive[slot] = this->f_errorActive[slot + 1];
+        }
+        this->f_errorActive[ERROR_BUFFER_SIZE - 1] = false;
 
         if(this->p_superiorErrorHandler != nullptr)
         {
             //Log eintrag wird in superiorErrorManager ausgegeben
-            p_superiorErrorHandler->resetError(ERROR_CODE, FILE, LINE);
+            p_superiorErrorHandler->resetErrorFromModule(ERROR_CODE, FILE, LINE, P_SOURCE);
         }
         else
         {
@@ -124,9 +128,11 @@ void BPLC_moduleErrorHandler::resetAllErrors(String FILE, const uint16_t LINE)
 {
     this->log.printLog("RESET ALL ERRORS!", FILE, LINE);    
     
-    while (this->getErrorCount() > 0)
+    while(this->errorCount > 0)
     {   
-        this->resetError(this->p_firstError->getErrorData()->errorCode, FILE, LINE);
+        const e_BPLC_ERROR_t ERROR_CODE = this->getError()->errorCode;
+        BPLC_moduleErrorHandler* p_source = this->getError()->p_source;
+        this->resetErrorFromModule(ERROR_CODE, FILE, LINE, p_source);
     }  
 }
 void BPLC_moduleErrorHandler::enableErrordetection(String FILE, const uint16_t LINE)
@@ -138,68 +144,36 @@ void BPLC_moduleErrorHandler::disableErrordetection(String FILE, const uint16_t 
 {    
     this->log.printLog("MODULE ERROR DETECTION DISABLED", FILE, LINE);
     this->enabled = false;
-    this->resetAllErrors(FILE, LINE);
+    while(this->errorCount > 0)
+    {
+        const e_BPLC_ERROR_t ERROR_CODE = this->getError()->errorCode;
+        BPLC_moduleErrorHandler* p_source = this->getError()->p_source;
+        this->resetErrorFromModule(ERROR_CODE, FILE, LINE, p_source);
+    }
 }
 //Übergeordneter Errorhandler 
 void BPLC_moduleErrorHandler::setSuperiorErrorHandler (BPLC_moduleErrorHandler* p_errorHandler)
 {
-  this->p_superiorErrorHandler = p_errorHandler;
+        if(p_errorHandler != this)
+        {
+                this->p_superiorErrorHandler = p_errorHandler;
+        }
 }
 BPLC_moduleErrorHandler*  BPLC_moduleErrorHandler::getSuperiorErrorHandler ()
 {
     return this->p_superiorErrorHandler;
 }
 //Private Listenhandling
-errorListElement* BPLC_moduleErrorHandler::searchError(const e_BPLC_ERROR_t ERROR_CODE)
+int8_t BPLC_moduleErrorHandler::searchError(const e_BPLC_ERROR_t ERROR_CODE, BPLC_moduleErrorHandler* P_SOURCE)
 {
-    errorListElement* p_searchedError = this->p_firstError;
-
-    while (p_searchedError != nullptr)
+    for(uint8_t errorSlot = 0; errorSlot < ERROR_BUFFER_SIZE; errorSlot++)
     {        
-        if(p_searchedError->getErrorData()->errorCode == ERROR_CODE)
+        if(this->f_errorActive[errorSlot]
+        && (this->errorData[errorSlot].errorCode == ERROR_CODE)
+        && (this->errorData[errorSlot].p_source == P_SOURCE))
         {
-            return p_searchedError;
+            return (int8_t)errorSlot;
         }
-        p_searchedError = p_searchedError->getNextError();
     }
-
-    return nullptr;
-}
-void BPLC_moduleErrorHandler::addErrorToList(errorListElement* P_ERROR_TO_ADD)
-{
-    if(this->p_firstError == nullptr)
-    {
-        this->p_firstError = P_ERROR_TO_ADD;
-    }
-    else
-    {
-        P_ERROR_TO_ADD->setNextError(this->p_firstError);
-        this->p_firstError = P_ERROR_TO_ADD;
-    } 
-}
-void BPLC_moduleErrorHandler::deleteErrorFromList(errorListElement* ERROR_TO_DELETE)
-{
-    errorListElement* p_serachedError             = this->p_firstError;
-    errorListElement* p_errorBeforeErrorToDelete  = this->p_firstError;    
-
-    while(p_serachedError != ERROR_TO_DELETE)
-    {
-        //Falls der nächste Error der gesuchte Error ist, pointer auf aktuellen speichern.         
-        if(p_serachedError->getNextError() == ERROR_TO_DELETE)
-        {
-            p_errorBeforeErrorToDelete = p_serachedError;
-        }
-        p_serachedError = p_serachedError->getNextError();
-    }
-
-    if(ERROR_TO_DELETE == this->p_firstError)
-    {   //Neuen ersten Error definieren
-        this->p_firstError = ERROR_TO_DELETE->getNextError();
-    }
-    else
-    {   //Lücke schließen      
-        p_errorBeforeErrorToDelete->setNextError(ERROR_TO_DELETE->getNextError());        
-    }   
-    //Error löschen
-    delete ERROR_TO_DELETE;   
+    return -1;
 }

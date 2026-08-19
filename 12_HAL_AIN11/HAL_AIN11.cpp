@@ -17,7 +17,6 @@ bool HAL_AIN11::init(const e_EC_ADDR_t ADDR)
 
     for(uint8_t CH =0; CH < AIN11_CHANNEL_COUNT; CH++)
     {
-        this->channels.p_ioObject[CH] = nullptr;
     }       
     
     //I2C Verbindung prüfen
@@ -58,15 +57,19 @@ bool HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
  
     const uint8_t OBJECT_INSTANCE = (uint8_t)CHANNEL - 1;
 
-    if(CHANNEL < EC_CHANNEL_1 || CHANNEL > AIN11_CHANNEL_COUNT)
+    if(P_IO_OBJECT == nullptr)
+    {
+        this->setError(AIN11_ERROR__IO_OBJECT_NOT_SUITABLE, __FILENAME__, __LINE__);
+    }
+    else if(CHANNEL < EC_CHANNEL_1 || CHANNEL > AIN11_CHANNEL_COUNT)
     {
         this->setError(AIN11_ERROR__CHANNEL_OUT_OF_RANGE, __FILENAME__, __LINE__);
     }
-    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr && CHANNEL == AIN11_CHANNEL_COUNT)
+    else if(!this->channels.isChannelFree((uint8_t)CHANNEL, AIN11_CHANNEL_COUNT) && CHANNEL == AIN11_CHANNEL_COUNT)
     {
         this->setError(AIN11_ERROR__ALL_CHANNELS_ALREADY_IN_USE, __FILENAME__, __LINE__);
     }
-    else if(this->channels.p_ioObject[OBJECT_INSTANCE] != nullptr)
+    else if(!this->channels.isChannelFree((uint8_t)CHANNEL, AIN11_CHANNEL_COUNT))
     {
         this->setError(AIN11_ERROR__CHANNEL_ALREADY_IN_USE, __FILENAME__, __LINE__);       
     }
@@ -75,7 +78,7 @@ bool HAL_AIN11::mapObjectToChannel(IO_Interface* P_IO_OBJECT, const e_EC_CHANNEL
         switch (P_IO_OBJECT->getIoType())
         {          
             case IO_TYPE__ANALOG_INPUT:
-                this->channels.p_ioObject[OBJECT_INSTANCE] = P_IO_OBJECT; 
+                this->channels.set(OBJECT_INSTANCE, P_IO_OBJECT);
                 error = false;
                 break;
 
@@ -99,17 +102,17 @@ void HAL_AIN11::tick(const bool READ_INPUTS)
     {          
         for(uint8_t CH = 0; CH < AIN11_CHANNEL_COUNT; CH++)
         {            
-            if(this->channels.p_ioObject[CH] != nullptr)
+            if(this->channels.get(CH) != nullptr)
             {
-                if(this->channels.p_ioObject[CH]->newDataAvailable())   //Wenn IO Objekt Daten anfordert diese von Hardware lesen
+                if(this->channels.get(CH)->newDataAvailable())   //Wenn IO Objekt Daten anfordert diese von Hardware lesen
                 {
                     u_HAL_DATA_t tempBuffer;
                     int16_t      readSingleEnded;
 
-                    switch (this->channels.p_ioObject[CH]->getIoType())
+                    switch (this->channels.get(CH)->getIoType())
                     {                    
                         case IO_TYPE__ANALOG_INPUT:    
-                            readSingleEnded = this->ADC.readADC_SingleEnded(this->channels.PIN[CH]);
+                            readSingleEnded = this->ADC.readADC_SingleEnded(this->PIN[CH]);
                             
                             if(this->debugOutputEnabled)
                             {
@@ -119,12 +122,12 @@ void HAL_AIN11::tick(const bool READ_INPUTS)
                             if(readSingleEnded >= 0)
                             {
                                 tempBuffer.analogIoData.value = readSingleEnded;
-                                this->channels.p_ioObject[CH]->setHalData(&tempBuffer);                        
+                                this->channels.get(CH)->setHalData(&tempBuffer);
                             }     
                             else
                             {
                                 tempBuffer.analogIoData.value = 0;
-                                this->channels.p_ioObject[CH]->setHalData(&tempBuffer);
+                                this->channels.get(CH)->setHalData(&tempBuffer);
                             }         
                         break;
                         

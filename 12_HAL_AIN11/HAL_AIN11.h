@@ -34,10 +34,7 @@ class HAL_AIN11: public halInterface,  private BPLC_moduleErrorHandler, private 
     adsGain_t           adcGain;
   
     //Object handling
-    struct
-    {
-        IO_Interface* p_ioObject  [AIN11_CHANNEL_COUNT];   
-        const uint8_t PIN         [AIN11_CHANNEL_COUNT] = {2, 3, 1, 0};   
-    }channels;         
+    BPLC_channelMap channels;
+    const uint8_t PIN[AIN11_CHANNEL_COUNT] = {2, 3, 1, 0};
  };
 #endif
