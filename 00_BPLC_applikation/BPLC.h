@@ -6,13 +6,16 @@
  * @author MIE 
  */
 //-------------------------------------------------------------
-#define VERSION_MAJOR 2
-#define VERSION_MINOR 7
-
 #if __has_include("build_metadata.h")
 #include "build_metadata.h"
 #endif
 
+#ifndef BPLC_HAL_VERSION
+#define BPLC_HAL_VERSION "unknown"
+#endif
+#ifndef BERTANETPORTS_VERSION
+#define BERTANETPORTS_VERSION "unknown"
+#endif
 #ifndef BPLC_HAL_COMMIT
 #define BPLC_HAL_COMMIT "unknown"
 #endif
@@ -149,8 +152,7 @@ class BPLC: BPLC_logPrint, CRC16Calculator
 
                 struct 
                 {
-                    uint8_t versionMajor;
-                    uint8_t versionMinor;
+                    char bplcHalVersion[32];
 
                     bool f_beepOnEncoderInput;
                     bool f_useBuzzer;

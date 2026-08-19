@@ -49,15 +49,13 @@ void BPLC::begin()
       this->printLog("CLEAR FLASH!", __FILENAME__, __LINE__);      
    }   
 
-   //Auf neue Firmwareversion prüfen
-   const bool NEW_MAJOR = (this->APP_APP.settings.device.application.versionMajor != VERSION_MAJOR);
-   const bool NEW_MINOR = (this->APP_APP.settings.device.application.versionMinor != VERSION_MINOR);
+   const bool NEW_BPLC_HAL_VERSION = strncmp(this->APP_APP.settings.device.application.bplcHalVersion, BPLC_HAL_VERSION, sizeof(this->APP_APP.settings.device.application.bplcHalVersion)) != 0;
    
-   if(NEW_MAJOR || NEW_MINOR)
+   if(NEW_BPLC_HAL_VERSION)
    {
-      this->APP_APP.settings.device.application.versionMajor = VERSION_MAJOR;
-      this->APP_APP.settings.device.application.versionMinor = VERSION_MINOR;
-      this->printLog("NEW FIRMWARE VERSION DETECTED!", __FILENAME__, __LINE__);
+      memset(this->APP_APP.settings.device.application.bplcHalVersion, 0, sizeof(this->APP_APP.settings.device.application.bplcHalVersion));
+      strncpy(this->APP_APP.settings.device.application.bplcHalVersion, BPLC_HAL_VERSION, sizeof(this->APP_APP.settings.device.application.bplcHalVersion) - 1);
+      this->printLog("NEW BPLC_HAL VERSION DETECTED!", __FILENAME__, __LINE__);
       this->saveDeviceSettings();
    }
 
