@@ -21,6 +21,15 @@ bool HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
     this->p_ld3     = nullptr;
     this->p_oen     = nullptr;
 
+    this->oenLog.commandedState = false;
+    this->oenLog.loggedState    = false;
+    this->oenLog.loggedPinLevel = LOW;
+    this->oenLog.isInitialized  = false;
+    #ifdef DEBUGGING_MCU11_revB_OEN_TOGGLE
+    this->oenLog.to_toggleTest.setInterval(OEN_TOGGLE_TEST_INTERVAL_MS_5000, true);
+    this->printLog("OEN TOGGLE TEST AKTIV, INTERVALL: " + String(OEN_TOGGLE_TEST_INTERVAL_MS_5000) + "ms", __FILENAME__, __LINE__);
+    #endif
+
     //encoder
     pinMode(this->PIN.ENCODER_A, INPUT);
     pinMode(this->PIN.ENCODER_B, INPUT);
@@ -124,7 +133,8 @@ void HAL_MCU11_revB::tick(const bool READ_INPUTS)
         //p_oen schreiben       
         if(this->p_oen->newDataAvailable())
         {         
-            const bool OEN_STATE = this->p_oen->getHalData().digitalIoData.state;  
+            const bool OEN_STATE = this->p_oen->getHalData().digitalIoData.state;
+            this->oenLog.commandedState = OEN_STATE;
             //NPN PullUp schaltung, ausgang also invertieren
             if(OEN_STATE > 0)
             {
@@ -133,8 +143,22 @@ void HAL_MCU11_revB::tick(const bool READ_INPUTS)
             else
             {
                 digitalWrite(this->PIN.OEN, HIGH);
-            }            
+            }
         }
+        #ifdef DEBUGGING_MCU11_revB_OEN_TOGGLE
+        //Test ueberschreibt den Applikationszustand, bis dieser sich wieder aendert
+        if(this->oenLog.to_toggleTest.checkAndReset())
+        {
+            this->oenLog.commandedState = (!this->oenLog.commandedState);
+            //NPN PullUp schaltung, ausgang also invertieren
+            digitalWrite(this->PIN.OEN, (this->oenLog.commandedState ? LOW : HIGH));
+        }
+        else
+        {
+            //Intervall noch nicht abgelaufen
+        }
+        #endif
+        this->tickOenLog();
         //BUZZER
         if(this->p_buzzer->newDataAvailable())
         {
@@ -210,6 +234,44 @@ bool HAL_MCU11_revB::tickSafety()
     {
         errorDetected = false;
     }
-    
+
     return errorDetected;
+}
+/**
+ * @brief Loggt Sollzustand und Pinpegel von OEN bei jeder Aenderung.
+ * Der Pin wird zurueckgelesen, damit auch Aenderungen ausserhalb der BPLC sichtbar werden.
+ */
+void HAL_MCU11_revB::tickOenLog()
+{
+    const int  PIN_LEVEL            = digitalRead(this->PIN.OEN);
+    //NPN PullUp schaltung, LOW = OEN aktiv
+    const bool PIN_ACTIVE           = (LOW == PIN_LEVEL);
+    const bool STATE_CHANGED        = (this->oenLog.commandedState != this->oenLog.loggedState);
+    const bool PIN_LEVEL_CHANGED    = (this->oenLog.loggedPinLevel != PIN_LEVEL);
+    const bool LOG_REQUIRED         = ((!this->oenLog.isInitialized) || STATE_CHANGED || PIN_LEVEL_CHANGED);
+
+    if(LOG_REQUIRED)
+    {
+        const bool  PIN_MISMATCH    = (this->oenLog.commandedState != PIN_ACTIVE);
+        String      logText         = "OEN SOLL: " + String(this->oenLog.commandedState ? "ON" : "OFF")
+                                    + ", PIN: "     + String((HIGH == PIN_LEVEL) ? "HIGH" : "LOW")
+                                    + " -> OEN "    + String(PIN_ACTIVE ? "AKTIV" : "INAKTIV");
+        if(PIN_MISMATCH)
+        {
+            logText += " !!! PIN WEICHT VON SOLL AB";
+        }
+        else
+        {
+            //Pin entspricht Sollzustand, kein Zusatz
+        }
+        this->printLog(logText, __FILENAME__, __LINE__);
+
+        this->oenLog.loggedState    = this->oenLog.commandedState;
+        this->oenLog.loggedPinLevel = PIN_LEVEL;
+        this->oenLog.isInitialized  = true;
+    }
+    else
+    {
+        //Keine Aenderung, nichts loggen
+    }
 }
