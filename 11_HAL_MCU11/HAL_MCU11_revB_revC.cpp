@@ -21,6 +21,11 @@ bool HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
     this->p_ld3     = nullptr;
     this->p_oen     = nullptr;
 
+    this->oenLog.commandedState = false;
+    this->oenLog.loggedState    = false;
+    this->oenLog.loggedPinLevel = LOW;
+    this->oenLog.isInitialized  = false;
+
     //encoder
     pinMode(this->PIN.ENCODER_A, INPUT);
     pinMode(this->PIN.ENCODER_B, INPUT);
@@ -124,17 +129,19 @@ void HAL_MCU11_revB::tick(const bool READ_INPUTS)
         //p_oen schreiben       
         if(this->p_oen->newDataAvailable())
         {         
-            const bool OEN_STATE = this->p_oen->getHalData().digitalIoData.state;  
-            //NPN PullUp schaltung, ausgang also invertieren
+            const bool OEN_STATE = this->p_oen->getHalData().digitalIoData.state;
+            this->oenLog.commandedState = OEN_STATE;
+            //HIGH = OEN aktiv
             if(OEN_STATE > 0)
             {
-                digitalWrite(this->PIN.OEN, LOW);
+                digitalWrite(this->PIN.OEN, HIGH);
             }
             else
             {
-                digitalWrite(this->PIN.OEN, HIGH);
-            }            
+                digitalWrite(this->PIN.OEN, LOW);
+            }
         }
+        this->tickOenLog();
         //BUZZER
         if(this->p_buzzer->newDataAvailable())
         {
@@ -210,6 +217,44 @@ bool HAL_MCU11_revB::tickSafety()
     {
         errorDetected = false;
     }
-    
+
     return errorDetected;
+}
+/**
+ * @brief Loggt Sollzustand und Pinpegel von OEN bei jeder Aenderung.
+ * Der Pin wird zurueckgelesen, damit auch Aenderungen ausserhalb der BPLC sichtbar werden.
+ */
+void HAL_MCU11_revB::tickOenLog()
+{
+    const int  PIN_LEVEL            = digitalRead(this->PIN.OEN);
+    //HIGH = OEN aktiv
+    const bool PIN_ACTIVE           = (HIGH == PIN_LEVEL);
+    const bool STATE_CHANGED        = (this->oenLog.commandedState != this->oenLog.loggedState);
+    const bool PIN_LEVEL_CHANGED    = (this->oenLog.loggedPinLevel != PIN_LEVEL);
+    const bool LOG_REQUIRED         = ((!this->oenLog.isInitialized) || STATE_CHANGED || PIN_LEVEL_CHANGED);
+
+    if(LOG_REQUIRED)
+    {
+        const bool  PIN_MISMATCH    = (this->oenLog.commandedState != PIN_ACTIVE);
+        String      logText         = "OEN SOLL: " + String(this->oenLog.commandedState ? "ON" : "OFF")
+                                    + ", PIN: "     + String((HIGH == PIN_LEVEL) ? "HIGH" : "LOW")
+                                    + " -> OEN "    + String(PIN_ACTIVE ? "AKTIV" : "INAKTIV");
+        if(PIN_MISMATCH)
+        {
+            logText += " !!! PIN WEICHT VON SOLL AB";
+        }
+        else
+        {
+            //Pin entspricht Sollzustand, kein Zusatz
+        }
+        this->printLog(logText, __FILENAME__, __LINE__);
+
+        this->oenLog.loggedState    = this->oenLog.commandedState;
+        this->oenLog.loggedPinLevel = PIN_LEVEL;
+        this->oenLog.isInitialized  = true;
+    }
+    else
+    {
+        //Keine Aenderung, nichts loggen
+    }
 }
