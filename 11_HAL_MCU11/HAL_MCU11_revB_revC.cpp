@@ -25,10 +25,6 @@ bool HAL_MCU11_revB::init(const e_EC_ADDR_t ADDR)
     this->oenLog.loggedState    = false;
     this->oenLog.loggedPinLevel = LOW;
     this->oenLog.isInitialized  = false;
-    #ifdef DEBUGGING_MCU11_revB_OEN_TOGGLE
-    this->oenLog.to_toggleTest.setInterval(OEN_TOGGLE_TEST_INTERVAL_MS_5000, true);
-    this->printLog("OEN TOGGLE TEST AKTIV, INTERVALL: " + String(OEN_TOGGLE_TEST_INTERVAL_MS_5000) + "ms", __FILENAME__, __LINE__);
-    #endif
 
     //encoder
     pinMode(this->PIN.ENCODER_A, INPUT);
@@ -135,29 +131,16 @@ void HAL_MCU11_revB::tick(const bool READ_INPUTS)
         {         
             const bool OEN_STATE = this->p_oen->getHalData().digitalIoData.state;
             this->oenLog.commandedState = OEN_STATE;
-            //NPN PullUp schaltung, ausgang also invertieren
+            //HIGH = OEN aktiv
             if(OEN_STATE > 0)
-            {
-                digitalWrite(this->PIN.OEN, LOW);
-            }
-            else
             {
                 digitalWrite(this->PIN.OEN, HIGH);
             }
+            else
+            {
+                digitalWrite(this->PIN.OEN, LOW);
+            }
         }
-        #ifdef DEBUGGING_MCU11_revB_OEN_TOGGLE
-        //Test ueberschreibt den Applikationszustand, bis dieser sich wieder aendert
-        if(this->oenLog.to_toggleTest.checkAndReset())
-        {
-            this->oenLog.commandedState = (!this->oenLog.commandedState);
-            //NPN PullUp schaltung, ausgang also invertieren
-            digitalWrite(this->PIN.OEN, (this->oenLog.commandedState ? LOW : HIGH));
-        }
-        else
-        {
-            //Intervall noch nicht abgelaufen
-        }
-        #endif
         this->tickOenLog();
         //BUZZER
         if(this->p_buzzer->newDataAvailable())
@@ -244,8 +227,8 @@ bool HAL_MCU11_revB::tickSafety()
 void HAL_MCU11_revB::tickOenLog()
 {
     const int  PIN_LEVEL            = digitalRead(this->PIN.OEN);
-    //NPN PullUp schaltung, LOW = OEN aktiv
-    const bool PIN_ACTIVE           = (LOW == PIN_LEVEL);
+    //HIGH = OEN aktiv
+    const bool PIN_ACTIVE           = (HIGH == PIN_LEVEL);
     const bool STATE_CHANGED        = (this->oenLog.commandedState != this->oenLog.loggedState);
     const bool PIN_LEVEL_CHANGED    = (this->oenLog.loggedPinLevel != PIN_LEVEL);
     const bool LOG_REQUIRED         = ((!this->oenLog.isInitialized) || STATE_CHANGED || PIN_LEVEL_CHANGED);

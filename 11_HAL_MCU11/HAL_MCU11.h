@@ -21,9 +21,7 @@
 
 
 //#define DEBUGGING_MCU11_revA    //p_oen und Buzzer pin wird verwedet für debugging
-#define DEBUGGING_MCU11_revB_OEN_TOGGLE                     //Test: OEN unabhaengig von der Applikation zyklisch umschalten
-#define OEN_TOGGLE_TEST_INTERVAL_MS_5000    5000
-typedef enum 
+typedef enum
 {
     MCU_INT_ISR__IDLE,
     MCU_INT_ISR__NEW_INT,
@@ -140,9 +138,6 @@ class HAL_MCU11_revB: public halInterface, protected BPLC_moduleErrorHandler, pr
         bool    loggedState;        ///< Zuletzt geloggter Sollzustand
         int     loggedPinLevel;     ///< Zuletzt geloggter Pinpegel
         bool    isInitialized;      ///< Erster Log nach init erfolgt
-        #ifdef DEBUGGING_MCU11_revB_OEN_TOGGLE
-        Timeout to_toggleTest;      ///< Intervall fuer OEN Toggle Test
-        #endif
     }oenLog;
     //Serial Baudrate
     struct 
